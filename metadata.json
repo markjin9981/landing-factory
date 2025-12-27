@@ -1,0 +1,5 @@
+{
+  "name": "Landing Page Factory",
+  "description": "A serverless, config-driven landing page generator using React, GitHub Pages, and Google Sheets.",
+  "requestFramePermissions": []
+}
