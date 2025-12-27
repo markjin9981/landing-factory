@@ -2,27 +2,34 @@ import { LeadData, VisitData } from '../types';
 
 /**
  * --------------------------------------------------------------------------
- * IMPORTANT: GOOGLE APPS SCRIPT SETUP INSTRUCTIONS
+ * Google Apps Script 연동 설정
  * --------------------------------------------------------------------------
- * 1. Update your Apps Script with the code in backend/Code.gs (includes doGet).
- * 2. Deploy as Web App:
- *    - Execute as: "Me"
- *    - Who has access: "Anyone"
- * 3. Paste the Web App URL below.
+ * 1. backend/Code.gs 파일의 코드를 구글 앱스 스크립트에 복사합니다.
+ * 2. 웹 앱으로 배포합니다:
+ *    - 실행 사용자: '나'
+ *    - 액세스 권한 사용자: '모든 사용자'
+ * 3. 아래 GOOGLE_SCRIPT_URL 변수에 배포된 웹 앱 URL을 붙여넣으세요.
  * --------------------------------------------------------------------------
  */
 
-// REPLACE THIS WITH YOUR ACTUAL GOOGLE APPS SCRIPT WEB APP URL
+// ==> 1. 여기에 복사한 웹 앱 URL을 붙여넣으세요. <==
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmAPb7GCs4PqCpL4Z3OKyCX4cRuqnxVLRieGPmnueZCFYM1c1wh8MoItZQ7F7iHB3o/exec"; 
 
-const MOCK_DATA = [
+// --- 이 아래 코드는 수정하지 마세요. ---
+const PLACEHOLDER_URL = "https://script.google.com/macros/s/AKfycbzmAPb7GCs4PqCpL4Z3OKyCX4cRuqnxVLRieGPmnueZCFYM1c1wh8MoItZQ7F7iHB3o/exec";
+const isUrlConfigured = () => GOOGLE_SCRIPT_URL !== PLACEHOLDER_URL;
+
+const MOCK_LEAD_DATA = [
     { "Timestamp": "2024-03-20 10:00:00", "Landing ID": "1", "Name": "홍길동 (예시)", "Phone": "010-1234-5678" },
     { "Timestamp": "2024-03-19 15:30:00", "Landing ID": "2", "Name": "김철수 (예시)", "Phone": "010-9876-5432" }
 ];
 
+/**
+ * 고객 DB를 구글 시트에 전송합니다.
+ */
 export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
-  if (GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzmAPb7GCs4PqCpL4Z3OKyCX4cRuqnxVLRieGPmnueZCFYM1c1wh8MoItZQ7F7iHB3o/exec")) {
-      console.log("Mock Submit (URL not configured):", data);
+  if (!isUrlConfigured()) {
+      console.log(" Mock Submit (URL not configured):", data);
       await new Promise(resolve => setTimeout(resolve, 1000));
       return true;
   }
@@ -49,9 +56,12 @@ export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
   }
 };
 
+/**
+ * 방문자 로그를 기록합니다.
+ */
 export const logVisit = async (visit: {landing_id: string, ip: string, device: string, os: string, browser: string, referrer: string}): Promise<void> => {
-    if (GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzmAPb7GCs4PqCpL4Z3OKyCX4cRuqnxVLRieGPmnueZCFYM1c1wh8MoItZQ7F7iHB3o/exec")) {
-        console.log("Mock Visit Log:", visit);
+    if (!isUrlConfigured()) {
+        console.log(" Mock Visit Log:", visit);
         return;
     }
 
@@ -72,9 +82,12 @@ export const logVisit = async (visit: {landing_id: string, ip: string, device: s
     }
 };
 
+/**
+ * 관리자에게 이메일 알림을 보냅니다 (비밀번호 변경 등).
+ */
 export const sendAdminNotification = async (email: string, subject: string, message: string): Promise<boolean> => {
-    if (GOOGLE_SCRIPT_URL.includes("YOUR_SCRIPT_ID_HERE")) {
-        console.log("Mock Email:", { email, subject, message });
+    if (!isUrlConfigured()) {
+        console.log(" Mock Email:", { email, subject, message });
         return true;
     }
 
@@ -97,23 +110,33 @@ export const sendAdminNotification = async (email: string, subject: string, mess
     }
 };
 
+/**
+ * 구글 시트에서 모든 고객 DB를 가져옵니다.
+ */
 export const fetchLeads = async (): Promise<any[]> => {
+    if (!isUrlConfigured()) {
+        console.warn(`Using mock lead data because GOOGLE_SCRIPT_URL is not configured.`);
+        return MOCK_LEAD_DATA;
+    }
     return fetchData('leads');
 }
 
+/**
+ * 구글 시트에서 모든 방문 기록을 가져옵니다.
+ */
 export const fetchVisits = async (): Promise<VisitData[]> => {
+    if (!isUrlConfigured()) {
+        console.warn(`Using mock visit data because GOOGLE_SCRIPT_URL is not configured.`);
+        return [];
+    }
     return fetchData('visits');
 }
 
+/**
+ * 데이터 조회를 위한 내부 fetch 함수입니다.
+ */
 const fetchData = async (type: 'leads' | 'visits'): Promise<any[]> => {
-    // Prevent "Failed to fetch" error if URL is still the placeholder
-    if (GOOGLE_SCRIPT_URL.includes("YOUR_SCRIPT_ID_HERE")) {
-        console.warn(`Using mock data because GOOGLE_SCRIPT_URL is not configured.`);
-        return type === 'leads' ? MOCK_DATA : [];
-    }
-
     try {
-        // Appending &type=... to GET request
         const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=${type}`);
         
         if (!response.ok) {
@@ -124,6 +147,7 @@ const fetchData = async (type: 'leads' | 'visits'): Promise<any[]> => {
         return data;
     } catch (error) {
         console.error(`Error fetching ${type}:`, error);
-        return type === 'leads' ? MOCK_DATA : [];
+        // 에러 발생 시 UI가 깨지지 않도록 빈 배열을 반환합니다.
+        return [];
     }
 }
