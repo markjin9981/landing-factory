@@ -4,6 +4,16 @@
  * IMPORTANT: Deploy as Web App -> Execute as 'Me' -> Who has access 'Anyone'
  */
 
+/**
+ * [필수] 권한 승인 확인용 함수
+ * 이 함수를 상단 메뉴에서 선택하고 '실행(Run)' 버튼을 눌러주세요.
+ * "권한 검토(Review Permissions)" 창이 뜨면 승인해야 이미지 업로드가 작동합니다.
+ */
+function checkDrivePermissions() {
+  var root = DriveApp.getRootFolder();
+  Logger.log("Drive Access OK: " + root.getName());
+}
+
 function doPost(e) {
   // -----------------------------------------------------------------------
   // [Safety Check] Editor에서 '실행' 버튼을 누르면 e가 없어서 에러가 납니다.

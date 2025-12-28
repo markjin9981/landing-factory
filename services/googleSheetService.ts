@@ -246,17 +246,37 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
                     },
                 });
 
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) {
+                    throw new Error(`HTTP Error ${response.status}`);
+                }
 
-                const result = await response.json();
-                if (result.result === 'success' && result.url) {
-                    resolve(result.url);
-                } else {
-                    console.error("Upload failed result:", result);
+                const resultText = await response.text();
+                // console.log("Raw Server Response:", resultText); // Debugging
+
+                try {
+                    const result = JSON.parse(resultText);
+                    if (result.result === 'success' && result.url) {
+                        resolve(result.url);
+                    } else {
+                        console.error("Upload failed business logic:", result);
+                        alert(`업로드 실패 (서버 응답): ${result.message || '알 수 없는 오류'}`);
+                        resolve(null);
+                    }
+                } catch (jsonErr) {
+                    console.error("JSON Parse Error:", jsonErr);
+                    console.error("Received Text:", resultText);
+                    // If it's HTML, it might be a permission error or 404
+                    if (resultText.includes("Google Drive")) {
+                        alert("서버 권한 설정이 필요합니다. (Code.gs에서 checkDrivePermissions 실행 필요)");
+                    } else {
+                        alert("서버 응답을 분석할 수 없습니다. (콘솔 확인)");
+                    }
                     resolve(null);
                 }
+
             } catch (error) {
                 console.error("Error uploading image:", error);
+                alert(`업로드 오류: ${error}`);
                 resolve(null);
             }
         };
