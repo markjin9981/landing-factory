@@ -15,7 +15,21 @@ function doPost(e) {
     return ContentService.createTextOutput("Editor Test Mode: Please deploy app.");
   }
 
-  var params = e.parameter;
+  var params = e.parameter || {};
+  
+  // [NEW] Parsing POST Body (JSON)
+  // fetch() sends JSON string as body to avoid CORS Preflight
+  if (e.postData && e.postData.contents) {
+    try {
+      var jsonBody = JSON.parse(e.postData.contents);
+      for (var key in jsonBody) {
+        params[key] = jsonBody[key];
+      }
+    } catch (err) {
+      // Not JSON or parse error, ignore
+    }
+  }
+
   var type = params.type; 
 
   if (type === 'visit') {

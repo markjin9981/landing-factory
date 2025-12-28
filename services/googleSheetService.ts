@@ -13,7 +13,7 @@ import { LeadData, VisitData, LandingConfig } from '../types';
  */
 
 // ==> 1. 여기에 복사한 웹 앱 URL을 붙여넣으세요. <==
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqYjcNuZ8ZdD36gnl8rN6m13VRt8NWp845KxwYhRC1-DYnph1hdJC1psUkgBeEZWyd/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwH9Mt1Nz5dCivHIsiy5GPwVOu9rDR-i6pF8wso29SEpcdcpIc6sjNOhQu7ymInf_7i/exec";
 
 // --- 이 아래 코드는 수정하지 마세요. ---
 const PLACEHOLDER_URL: string = "ENTER_YOUR_APP_SCRIPT_URL_HERE";
@@ -228,20 +228,18 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
         reader.onloadend = async () => {
             try {
                 const base64Data = (reader.result as string).split(',')[1];
-                const formData = new FormData();
-                formData.append('type', 'upload_image');
-                formData.append('filename', file.name);
-                formData.append('mimeType', file.type);
-                formData.append('base64', base64Data);
 
-                // Google Apps Script doPost returns JSON if we follow redirects or handle CORS correctly via textOutput
-                // But standard fetch mode: 'no-cors' yields opaque response.
-                // To get the URL back, we MUST use standard CORS if possible.
-                // Fortunately, GAS web app with "Anyone" access supports CORS for GET/POST usually.
+                // Use JSON payload (text/plain) to avoid CORS Preflight and multipart parsing issues in GAS
+                const payload = {
+                    type: 'upload_image',
+                    filename: file.name,
+                    mimeType: file.type,
+                    base64: base64Data
+                };
 
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    body: formData
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) throw new Error('Network response was not ok');
