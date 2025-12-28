@@ -1,4 +1,4 @@
-import { LeadData, VisitData } from '../types';
+import { LeadData, VisitData, LandingConfig } from '../types';
 
 /**
  * --------------------------------------------------------------------------
@@ -13,7 +13,7 @@ import { LeadData, VisitData } from '../types';
  */
 
 // ==> 1. 여기에 복사한 웹 앱 URL을 붙여넣으세요. <==
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmAPb7GCs4PqCpL4Z3OKyCX4cRuqnxVLRieGPmnueZCFYM1c1wh8MoItZQ7F7iHB3o/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmAPb7GCs4PqCpL4Z3OKyCX4cRuqnxVLRieGPmnueZCFYM1c1wh8MoItZQ7F7iHB3o/exec";
 
 // --- 이 아래 코드는 수정하지 마세요. ---
 const PLACEHOLDER_URL = "https://script.google.com/macros/s/AKfycbzmAPb7GCs4PqCpL4Z3OKyCX4cRuqnxVLRieGPmnueZCFYM1c1wh8MoItZQ7F7iHB3o/exec";
@@ -28,38 +28,38 @@ const MOCK_LEAD_DATA = [
  * 고객 DB를 구글 시트에 전송합니다.
  */
 export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
-  if (!isUrlConfigured()) {
-      console.log(" Mock Submit (URL not configured):", data);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return true;
-  }
+    if (!isUrlConfigured()) {
+        console.log(" Mock Submit (URL not configured):", data);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return true;
+    }
 
-  try {
-    const formData = new FormData();
-    formData.append('type', 'lead'); 
-    Object.keys(data).forEach(key => {
-        if (data[key] !== undefined) {
-            formData.append(key, String(data[key]));
-        }
-    });
+    try {
+        const formData = new FormData();
+        formData.append('type', 'lead');
+        Object.keys(data).forEach(key => {
+            if (data[key] !== undefined) {
+                formData.append(key, String(data[key]));
+            }
+        });
 
-    await fetch(GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      body: formData,
-      mode: "no-cors", 
-    });
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            mode: "no-cors",
+        });
 
-    return true;
-  } catch (error) {
-    console.error("Error submitting lead:", error);
-    return false;
-  }
+        return true;
+    } catch (error) {
+        console.error("Error submitting lead:", error);
+        return false;
+    }
 };
 
 /**
  * 방문자 로그를 기록합니다.
  */
-export const logVisit = async (visit: {landing_id: string, ip: string, device: string, os: string, browser: string, referrer: string}): Promise<void> => {
+export const logVisit = async (visit: { landing_id: string, ip: string, device: string, os: string, browser: string, referrer: string }): Promise<void> => {
     if (!isUrlConfigured()) {
         console.log(" Mock Visit Log:", visit);
         return;
@@ -69,7 +69,7 @@ export const logVisit = async (visit: {landing_id: string, ip: string, device: s
         const formData = new FormData();
         formData.append('type', 'visit');
         Object.keys(visit).forEach(key => {
-             formData.append(key, String((visit as any)[key]));
+            formData.append(key, String((visit as any)[key]));
         });
 
         await fetch(GOOGLE_SCRIPT_URL, {
@@ -135,10 +135,15 @@ export const fetchVisits = async (): Promise<VisitData[]> => {
 /**
  * 데이터 조회를 위한 내부 fetch 함수입니다.
  */
-const fetchData = async (type: 'leads' | 'visits'): Promise<any[]> => {
+const fetchData = async (type: 'leads' | 'visits' | 'config' | 'configs', id?: string): Promise<any> => {
     try {
-        const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=${type}`);
-        
+        let url = `${GOOGLE_SCRIPT_URL}?type=${type}`;
+        if (id) {
+            url += `&id=${id}`;
+        }
+
+        const response = await fetch(url);
+
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);
         }
@@ -147,7 +152,52 @@ const fetchData = async (type: 'leads' | 'visits'): Promise<any[]> => {
         return data;
     } catch (error) {
         console.error(`Error fetching ${type}:`, error);
-        // 에러 발생 시 UI가 깨지지 않도록 빈 배열을 반환합니다.
-        return [];
+        // 에러 발생 시 UI가 깨지지 않도록 빈 배열 또는 null을 반환합니다.
+        return type === 'config' ? null : [];
     }
 }
+
+/**
+ * 랜딩페이지 설정을 구글 시트에 저장합니다.
+ */
+export const saveLandingConfig = async (config: LandingConfig): Promise<boolean> => {
+    if (!isUrlConfigured()) {
+        console.log(" Mock Config Save:", config);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return true;
+    }
+
+    try {
+        // 이미지가 너무 크면 전송 실패할 수 있으므로 주의 (필요시 압축 로직 추가)
+        const configJson = JSON.stringify(config);
+
+        // POST 요청 (Form Data)
+        // 주의: Google Apps Script의 doPost는 단순 키-값 쌍을 받습니다.
+        const formData = new FormData();
+        formData.append('type', 'config_save');
+        formData.append('id', config.id);
+        formData.append('config_data', configJson);
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            mode: "no-cors",
+        });
+
+        return true;
+    } catch (error) {
+        console.error("Error saving config:", error);
+        return false;
+    }
+};
+
+/**
+ * 특정 ID의 랜딩페이지 설정을 가져옵니다.
+ */
+export const fetchLandingConfigById = async (id: string): Promise<LandingConfig | null> => {
+    if (!isUrlConfigured()) {
+        console.warn(`Using mock config fetch because GOOGLE_SCRIPT_URL is not configured.`);
+        return null;
+    }
+    return fetchData('config', id);
+};
