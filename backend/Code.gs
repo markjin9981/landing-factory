@@ -346,13 +346,20 @@ function handleLeadSubmission(params) {
   // =================================================================
   // [NEW] Send Email Notification (Added by User Request)
   // =================================================================
+  // =================================================================
+  // [NEW] Send Email Notification (Added by User Request)
+  // =================================================================
   try {
     var recipient = "beanhull@gmail.com";
     var pageTitle = params.page_title || ("랜딩 ID " + params.landing_id);
     var landingId = params.landing_id || "Unknown";
     
-    // [UPDATE] Subject format: [Page Title] New DB Arrival [Timestamp]
-    var subject = "[" + pageTitle + "] 신규 DB 도착 시간 [" + timestamp + "]";
+    // [UPDATE] Timestamp format: YYYY. MM. DD. AM/PM HH:MM (No Seconds)
+    var dateObj = new Date();
+    var formattedDate = Utilities.formatDate(dateObj, "Asia/Seoul", "yyyy. MM. dd. a hh:mm");
+    
+    // [UPDATE] Subject format: [Page Title] 신규 DB 도착 [Timestamp]
+    var subject = "[" + pageTitle + "] 신규 DB 도착 [" + formattedDate + "]";
     
     var body = "새로운 문의가 접수되었습니다.\n\n";
     body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
@@ -374,7 +381,7 @@ function handleLeadSubmission(params) {
 
     // 2. All other fields
     for (var k in params) {
-      if (k === 'type' || k === 'page_title' || keyOrder.indexOf(k) !== -1) continue;
+      if (k === 'type' || k === 'page_title' || k === 'landing_id' || k === 'timestamp' || keyOrder.indexOf(k) !== -1) continue;
        body += "- " + k + ": " + params[k] + "\n";
     }
     
