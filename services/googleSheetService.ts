@@ -293,3 +293,40 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
         };
     });
 };
+
+/**
+ * 랜딩페이지 설정을 삭제합니다.
+ */
+export const deleteLandingConfig = async (id: string): Promise<boolean> => {
+    if (!isUrlConfigured()) {
+        console.log(" Mock Config Delete:", id);
+        return true;
+    }
+
+    try {
+        const formData = new URLSearchParams();
+        formData.append('type', 'config_delete');
+        formData.append('id', id);
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        // Also delete from local storage
+        const stored = localStorage.getItem('landing_drafts');
+        if (stored) {
+            const drafts = JSON.parse(stored);
+            if (drafts[id]) {
+                delete drafts[id];
+                localStorage.setItem('landing_drafts', JSON.stringify(drafts));
+            }
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Error deleting config:", error);
+        return false;
+    }
+};
