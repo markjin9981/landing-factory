@@ -15,10 +15,17 @@ function doPost(e) {
     return ContentService.createTextOutput("Editor Test Mode: Please deploy app.");
   }
 
-  var params = e.parameter || {};
+  // 1. Initialize params object (merged from query and body)
+  var params = {};
   
-  // [NEW] Parsing POST Body (JSON)
-  // fetch() sends JSON string as body to avoid CORS Preflight
+  // 2. Add Query Parameters
+  if (e.parameter) {
+    for (var p in e.parameter) {
+       params[p] = e.parameter[p];
+    }
+  }
+  
+  // 3. Add POST Body (JSON)
   if (e.postData && e.postData.contents) {
     try {
       var jsonBody = JSON.parse(e.postData.contents);
@@ -26,7 +33,7 @@ function doPost(e) {
         params[key] = jsonBody[key];
       }
     } catch (err) {
-      // Not JSON or parse error, ignore
+      // JSON parse error or not JSON
     }
   }
 
@@ -38,9 +45,9 @@ function doPost(e) {
     return handleEmail(params);
   } else if (type === 'config_save') {
     return handleConfigSubmission(params);
-  } else if (type === 'upload_image') { // NEW
+  } else if (type === 'upload_image') { 
     return handleImageUpload(params);
-  } else { // Default to lead
+  } else { 
     return handleLeadSubmission(params);
   }
 }

@@ -237,9 +237,13 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
                     base64: base64Data
                 };
 
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                // Add 'type' to URL query as a fallback routing mechanism
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=upload_image`, {
                     method: 'POST',
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8",
+                    },
                 });
 
                 if (!response.ok) throw new Error('Network response was not ok');
