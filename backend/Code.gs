@@ -19,50 +19,63 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  // -----------------------------------------------------------------------
-  // [Safety Check] Editor에서 '실행' 버튼을 누르면 e가 없어서 에러가 납니다.
-  // 이 함수는 웹에서 요청이 올 때만 자동으로 실행됩니다.
-  // -----------------------------------------------------------------------
-  if (!e) {
-    Logger.log("⚠️ 경고: 이 함수(doPost)는 에디터에서 직접 실행할 수 없습니다.");
-    Logger.log("웹 앱으로 배포(Deploy) 후, 실제 데이터를 전송하여 테스트해야 합니다.");
-    return ContentService.createTextOutput("Editor Test Mode: Please deploy app.");
-  }
-
-  // 1. Initialize params object (merged from query and body)
-  var params = {};
-  
-  // 2. Add Query Parameters
-  if (e.parameter) {
-    for (var p in e.parameter) {
-       params[p] = e.parameter[p];
+  try {
+    // -----------------------------------------------------------------------
+    // [Safety Check] Editor에서 '실행' 버튼을 누르면 e가 없어서 에러가 납니다.
+    // 이 함수는 웹에서 요청이 올 때만 자동으로 실행됩니다.
+    // -----------------------------------------------------------------------
+    if (!e) {
+      Logger.log("⚠️ 경고: 이 함수(doPost)는 에디터에서 직접 실행할 수 없습니다.");
+      Logger.log("웹 앱으로 배포(Deploy) 후, 실제 데이터를 전송하여 테스트해야 합니다.");
+      return ContentService.createTextOutput("Editor Test Mode: Please deploy app.");
     }
-  }
-  
-  // 3. Add POST Body (JSON)
-  if (e.postData && e.postData.contents) {
-    try {
-      var jsonBody = JSON.parse(e.postData.contents);
-      for (var key in jsonBody) {
-        params[key] = jsonBody[key];
+
+    // 1. Initialize params object (merged from query and body)
+    var params = {};
+    
+    // 2. Add Query Parameters
+    if (e.parameter) {
+      for (var p in e.parameter) {
+        params[p] = e.parameter[p];
       }
-    } catch (err) {
-      // JSON parse error or not JSON
     }
-  }
+    
+    // 3. Add POST Body (JSON)
+    if (e.postData && e.postData.contents) {
+      try {
+        var jsonBody = JSON.parse(e.postData.contents);
+        for (var key in jsonBody) {
+          params[key] = jsonBody[key];
+        }
+      } catch (err) {
+        // JSON parse error or not JSON -> but might still have query params
+      }
+    }
 
-  var type = params.type; 
+    var type = params.type; 
 
-  if (type === 'visit') {
-    return handleVisitLog(params);
-  } else if (type === 'email') { 
-    return handleEmail(params);
-  } else if (type === 'config_save') {
-    return handleConfigSubmission(params);
-  } else if (type === 'upload_image') { 
-    return handleImageUpload(params);
-  } else { 
-    return handleLeadSubmission(params);
+    if (type === 'visit') {
+      return handleVisitLog(params);
+    } else if (type === 'email') { 
+      return handleEmail(params);
+    } else if (type === 'config_save') {
+      return handleConfigSubmission(params);
+    } else if (type === 'upload_image') { 
+      // [CRITICAL] Ensure handleImageUpload catches its own errors, 
+      // but if something else fails here, the outer catch will handle it.
+      return handleImageUpload(params);
+    } else { 
+      return handleLeadSubmission(params);
+    }
+
+  } catch (criticalError) {
+    // [GLOBAL CATCH]
+    // If ANY unexpected error occurs in doPost (e.g. undefined variables, etc.),
+    // return a valid JSON response so the frontend doesn't get a CORS/Network Error.
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "error",
+      "message": "Critical Server Error: " + criticalError.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
