@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner } from '../../types';
-import { LANDING_CONFIGS } from '../../data/landingConfigs';
 import LandingPage from '../LandingPage';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor } from 'lucide-react';
+import { saveLandingConfig, fetchLandingConfigById } from '../../services/googleSheetService';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle } from 'lucide-react';
 
 // GitHub Sync Check: Force Update
 // Default empty config template
@@ -59,6 +59,7 @@ const LandingEditor: React.FC = () => {
     const [config, setConfig] = useState<LandingConfig>(DEFAULT_CONFIG);
     const [activeTab, setActiveTab] = useState('hero');
     const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('mobile');
+    const [deployStatus, setDeployStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
     // File input refs
     const heroBgInputRef = useRef<HTMLInputElement>(null);
@@ -70,41 +71,43 @@ const LandingEditor: React.FC = () => {
 
     useEffect(() => {
         if (id) {
-            if (LANDING_CONFIGS[id]) {
-                // Deep copy and migration if needed
-                const loadedConfig = JSON.parse(JSON.stringify(LANDING_CONFIGS[id]));
-                // Migrate old single banner to banners array if needed (runtime safety)
-                if (!loadedConfig.banners && (loadedConfig as any).banner) {
-                    loadedConfig.banners = [(loadedConfig as any).banner];
-                    loadedConfig.banners[0].id = 'b_migrated';
-                }
-                if (!loadedConfig.banners) loadedConfig.banners = [];
-                // Migrate footer
-                if (!loadedConfig.footer) {
-                    loadedConfig.footer = JSON.parse(JSON.stringify(DEFAULT_CONFIG.footer));
-                }
-
-                setConfig(loadedConfig);
-            } else {
-                const stored = localStorage.getItem('landing_drafts');
-                if (stored) {
-                    const drafts = JSON.parse(stored);
-                    if (drafts[id]) {
-                        const loadedConfig = drafts[id];
-                        // Migration logic for drafts too
-                        if (!loadedConfig.banners && (loadedConfig as any).banner) {
-                            loadedConfig.banners = [(loadedConfig as any).banner];
-                            loadedConfig.banners[0].id = 'b_migrated';
-                        }
-                        if (!loadedConfig.banners) loadedConfig.banners = [];
-                        // Migrate footer
-                        if (!loadedConfig.footer) {
-                            loadedConfig.footer = JSON.parse(JSON.stringify(DEFAULT_CONFIG.footer));
-                        }
-                        setConfig(loadedConfig);
+            // 1. Try to load from LocalStorage first (Draft)
+            const stored = localStorage.getItem('landing_drafts');
+            if (stored) {
+                const drafts = JSON.parse(stored);
+                if (drafts[id]) {
+                    // Deep copy and migration if needed
+                    const loadedConfig = drafts[id];
+                    // Migrate old single banner to banners array if needed (runtime safety)
+                    if (!loadedConfig.banners && (loadedConfig as any).banner) {
+                        loadedConfig.banners = [(loadedConfig as any).banner];
+                        loadedConfig.banners[0].id = 'b_migrated';
                     }
+                    if (!loadedConfig.banners) loadedConfig.banners = [];
+                    // Migrate footer
+                    if (!loadedConfig.footer) {
+                        loadedConfig.footer = JSON.parse(JSON.stringify(DEFAULT_CONFIG.footer));
+                    }
+                    setConfig(loadedConfig);
+                    return; // Loaded from draft, stop.
                 }
             }
+
+            // 2. If no draft, fetch from Google Sheet
+            const loadFromSheet = async () => {
+                const sheetConfig = await fetchLandingConfigById(id);
+                if (sheetConfig) {
+                    // Migration
+                    if (!sheetConfig.banners) sheetConfig.banners = [];
+                    if (!sheetConfig.footer) sheetConfig.footer = JSON.parse(JSON.stringify(DEFAULT_CONFIG.footer));
+                    setConfig(sheetConfig);
+                } else {
+                    // Fallback or New
+                    // Keep default
+                }
+            };
+            loadFromSheet();
+
         } else {
             const newId = String(Date.now()).slice(-6);
             setConfig({ ...DEFAULT_CONFIG, id: newId });
@@ -119,15 +122,24 @@ const LandingEditor: React.FC = () => {
         alert('브라우저 임시 저장소에 저장되었습니다.');
     };
 
-    const copyJson = () => {
-        const jsonStr = JSON.stringify(config, null, 2);
-        const exportStr = `
-// Paste this into data/landingConfigs.ts
-const CONFIG_${config.id}: LandingConfig = ${jsonStr};
-// Add to LANDING_CONFIGS: '${config.id}': CONFIG_${config.id},
-      `;
-        navigator.clipboard.writeText(exportStr);
-        alert('설정 코드가 클립보드에 복사되었습니다.\n개발자에게 전달하여 data/landingConfigs.ts에 적용하면 배포됩니다.');
+    const handleDeploy = async () => {
+        setDeployStatus('saving');
+        const success = await saveLandingConfig(config);
+
+        if (success) {
+            setDeployStatus('success');
+            // Clear local draft after successful deploy
+            const stored = localStorage.getItem('landing_drafts');
+            if (stored) {
+                const drafts = JSON.parse(stored);
+                delete drafts[config.id];
+                localStorage.setItem('landing_drafts', JSON.stringify(drafts));
+            }
+        } else {
+            setDeployStatus('error');
+        }
+
+        setTimeout(() => setDeployStatus('idle'), 3000);
     };
 
     const updateNested = (path: string[], value: any) => {
@@ -468,9 +480,11 @@ const CONFIG_${config.id}: LandingConfig = ${jsonStr};
                         <Save className="w-3 h-3 mr-1.5" />
                         임시 저장
                     </button>
-                    <button onClick={copyJson} className="flex items-center px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded font-bold shadow-sm">
-                        <Copy className="w-3 h-3 mr-1.5" />
-                        최종 배포용 코드 복사
+                    <button onClick={handleDeploy} disabled={deployStatus === 'saving'} className="flex items-center px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded font-bold shadow-sm w-32 justify-center disabled:opacity-50">
+                        {deployStatus === 'saving' ? <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> 저장중...</> :
+                            deployStatus === 'success' ? <><CheckCircle className="w-3 h-3 mr-1.5" /> 저장완료!</> :
+                                deployStatus === 'error' ? <><AlertCircle className="w-3 h-3 mr-1.5" /> 저장실패</> :
+                                    <><Send className="w-3 h-3 mr-1.5" /> 저장 및 배포</>}
                     </button>
                 </div>
             </header>
