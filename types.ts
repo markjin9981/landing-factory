@@ -44,8 +44,8 @@ export interface FloatingBanner {
   id: string; // Unique ID for array key
   isShow: boolean;
   text: string;
-  imageUrl?: string; 
-  linkUrl?: string; 
+  imageUrl?: string;
+  linkUrl?: string;
   backgroundColor: string;
   textColor: string;
   position: 'top' | 'bottom';
@@ -83,28 +83,28 @@ export interface FormSection {
   title: string;
   subTitle: string;
   submitButtonText: string;
-  
+
   // New: Custom Success Message
   submitSuccessTitle?: string;
   submitSuccessMessage?: string;
 
   // New: Form Position & Layout Control
-  position?: 'bottom' | 'after_hero'; 
+  position?: 'bottom' | 'after_hero';
   layout?: 'vertical' | 'grid'; // 'vertical' (1 column), 'grid' (2 columns on desktop)
 
   fields: FormField[];
-  
+
   // Toggles for policies
   showPrivacyPolicy: boolean;
   showTerms: boolean;
-  showMarketingConsent: boolean; 
-  showThirdPartyConsent: boolean; 
-  
+  showMarketingConsent: boolean;
+  showThirdPartyConsent: boolean;
+
   // Policy Content
   privacyPolicyContent?: string;
   termsContent?: string;
-  marketingConsentContent?: string; 
-  thirdPartyConsentContent?: string; 
+  marketingConsentContent?: string;
+  thirdPartyConsentContent?: string;
 
   // Custom Style
   style?: FormStyle;
@@ -121,28 +121,28 @@ export interface FooterSection {
 export interface LandingConfig {
   id: string;
   title: string; // Document Title (Browser Tab)
-  
+
   // New: SEO & Identity Fields
-  favicon?: string; 
+  favicon?: string;
   ogImage?: string;
   ogTitle?: string;       // Custom SNS Title
   ogDescription?: string; // Custom SNS Description
   keywords?: string;      // New: Meta Keywords for SEO
 
   theme: LandingTheme;
-  
+
   banners: FloatingBanner[]; // Changed from single banner to array
 
   hero: HeroSection;
-  
+
   // Image-based detail content (can replace or supplement text sections)
-  detailImages: string[]; 
-  
+  detailImages: string[];
+
   problem: ProblemSection;
   solution: SolutionSection;
   trust: TrustSection;
   formConfig: FormSection;
-  
+
   footer?: FooterSection; // New Footer Section
 }
 
@@ -155,6 +155,7 @@ export interface LeadData {
   memo?: string;
   user_agent: string;
   referrer: string;
+  page_title?: string; // New: For Email Notification Subject
   [key: string]: string | undefined; // Allow dynamic fields
 }
 

@@ -140,6 +140,46 @@ function handleLeadSubmission(params) {
   
   sheet.appendRow(rowData);
   
+  // =================================================================
+  // [NEW] Send Email Notification (Added by User Request)
+  // =================================================================
+  try {
+    var recipient = "beanhull@gmail.com";
+    var pageTitle = params.page_title || ("랜딩 ID " + params.landing_id);
+    var subject = "[랜딩 알림] " + pageTitle + " - 신규 DB가 도착했습니다.";
+    
+    var body = "새로운 문의가 접수되었습니다.\n\n";
+    body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    body += " [ 접수 내용 ]\n";
+    body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+    
+    // Sort keys for better readability if possible, or just iterate
+    var keyOrder = ['name', 'phone', 'option', 'memo']; // Priority keys
+    
+    // 1. Priority fields first
+    keyOrder.forEach(function(k) {
+       if (params[k]) {
+          body += "■ " + k.toUpperCase() + ": " + params[k] + "\n";
+       }
+    });
+
+    body += "\n--- 상세 정보 ---\n";
+
+    // 2. All other fields
+    for (var k in params) {
+      if (k === 'type' || k === 'page_title' || keyOrder.indexOf(k) !== -1) continue;
+       body += "- " + k + ": " + params[k] + "\n";
+    }
+    
+    body += "\n\n(본 메일은 랜딩페이지 팩토리에서 자동으로 발송되었습니다.)";
+    
+    MailApp.sendEmail(recipient, subject, body);
+  } catch (e) {
+    Logger.log("Email Notification Failed: " + e.toString());
+    // Email failure should not fail the whole request
+  }
+  // =================================================================
+
   return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
 }
 
