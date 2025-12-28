@@ -1148,6 +1148,26 @@ const LandingEditor: React.FC = () => {
                                     {/* Form Title Style */}
                                     <div className="mb-4 pt-4 border-t">
                                         <h4 className="text-xs font-bold text-gray-700 mb-2">폼 제목(무료 상담 신청) 스타일</h4>
+                                        <div className="grid grid-cols-1 gap-2 mb-2">
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">제목 텍스트</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.formConfig.title || ''}
+                                                    onChange={(e) => updateNested(['formConfig', 'title'], e.target.value)}
+                                                    className="w-full border rounded p-1 text-xs"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">서브 제목 텍스트</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.formConfig.subTitle || ''}
+                                                    onChange={(e) => updateNested(['formConfig', 'subTitle'], e.target.value)}
+                                                    className="w-full border rounded p-1 text-xs"
+                                                />
+                                            </div>
+                                        </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
                                                 <label className="text-[10px] text-gray-500 block">글자 색상</label>
