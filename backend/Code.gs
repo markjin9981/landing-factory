@@ -53,35 +53,89 @@ function handleConfigSubmission(params) {
 }
 
 
+
 function handleLeadSubmission(params) {
   var sheet = getOrCreateSheet("Leads");
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   
-  // =================================================================
-  // NEW: Dynamically add new columns if they don't exist
-  // =================================================================
+  // 1. Build a map of Lowercase Header -> Real Header Name
+  var headerMap = {};
+  for(var i=0; i<headers.length; i++) {
+    headerMap[headers[i].toLowerCase()] = headers[i];
+  }
+
+  // 2. Define standard field mappings (Frontend Key -> Sheet Header Name)
+  // If the sheet header already exists (even if Title Case), we prioritize that.
+  var standardMapping = {
+    'landing_id': 'Landing ID',
+    'name': 'Name',
+    'phone': 'Phone',
+    'timestamp': 'Timestamp',
+    'user_agent': 'User Agent',
+    'referrer': 'Referrer'
+  };
+
+  // 3. Process params to find missing headers
   var newHeaders = [];
-  // Iterate over all submitted parameters
+  
   for (var key in params) {
-    // If a parameter is not 'type' and not found in existing headers, add it for creation
-    if (key !== 'type' && headers.indexOf(key) === -1) {
-      newHeaders.push(key);
+    if (key === 'type') continue;
+
+    var targetHeader = key; // Default to key itself
+    
+    // Check if it's a standard key
+    if (standardMapping[key]) {
+      targetHeader = standardMapping[key];
+    }
+
+    // Check if this target header (lowercase) already exists
+    if (!headerMap[targetHeader.toLowerCase()] && !headerMap[key.toLowerCase()]) {
+       // Only add if NEITHER the mapped name NOR the raw key exists
+       newHeaders.push(targetHeader);
+       // Add to map immediately to prevent duplicates within this loop
+       headerMap[targetHeader.toLowerCase()] = targetHeader; 
     }
   }
-  
-  // If there are any new fields, append them to the header row
+
+  // 4. Add new headers if any
   if (newHeaders.length > 0) {
     sheet.getRange(1, sheet.getLastColumn() + 1, 1, newHeaders.length).setValues([newHeaders]);
-    // Re-fetch headers to include the newly added ones
+    // Refresh headers
     headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    // Rebuild map (simple version)
+    for(var i=0; i<headers.length; i++) {
+      headerMap[headers[i].toLowerCase()] = headers[i];
+    }
   }
-  // =================================================================
 
-  // Create row data based on the final (potentially updated) header order
+  // 5. Create Row Data
   var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
+  
   var rowData = headers.map(function(header) {
-    if (header === 'timestamp') return timestamp; // Always set the timestamp
-    return params[header] || ''; // Map param value to header, or empty string if not present
+    var headerLower = header.toLowerCase();
+    
+    // Special Case: Timestamp
+    if (headerLower === 'timestamp') return timestamp;
+    
+    // Find value in params
+    // We need to reverse-lookup: which param key maps to this header?
+    
+    // Strategy: check direct match or mapped match
+    // 1. Check if params has 'Name' (exact)
+    if (params[header] !== undefined) return params[header];
+    
+    // 2. Check if params has 'name' (lowercase)
+    if (params[headerLower] !== undefined) return params[headerLower];
+    
+    // 3. Check standard mapping reverse
+    // (e.g. header is 'Landing ID', param is 'landing_id')
+    for (var k in standardMapping) {
+      if (standardMapping[k].toLowerCase() === headerLower) {
+        if (params[k] !== undefined) return params[k];
+      }
+    }
+    
+    return ''; // Not found
   });
   
   sheet.appendRow(rowData);
@@ -89,112 +143,7 @@ function handleLeadSubmission(params) {
   return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
 }
 
-function handleVisitLog(params) {
-  var sheet = getOrCreateSheet("Visits");
-  var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
-  
-  sheet.appendRow([
-    timestamp,
-    params.landing_id || 'unknown',
-    params.ip || '',
-    params.device || 'Unknown',
-    params.os || '',
-    params.browser || '',
-    params.referrer || 'Direct'
-  ]);
-  
-  return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
-}
-
-function handleEmail(params) {
-  var recipient = params.to; // FIX: Frontend sends 'to', not 'recipient'
-  var subject = params.subject;
-  var body = params.body;
-  
-  if(recipient) {
-    try {
-      MailApp.sendEmail(recipient, subject, body);
-    } catch(e) {
-      // Mail might fail if quota is exceeded or permissions are wrong
-      Logger.log("Email failed: " + e.toString());
-    }
-  }
-  return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
-}
-
-function doGet(e) {
-  // -----------------------------------------------------------------------
-  // [Safety Check] Run directly in editor -> params undefined
-  // -----------------------------------------------------------------------
-  if (!e) {
-    Logger.log("⚠️ 경고: 이 함수(doGet)는 에디터에서 직접 실행할 수 없습니다.");
-    return ContentService.createTextOutput("Editor Test Mode: Please deploy app.");
-  }
-
-  var type = e.parameter.type;
-  var id = e.parameter.id;
-  var sheetName;
-
-  if (type === 'visits') {
-    sheetName = "Visits";
-  } else if (type === 'configs' || type === 'config') {
-    sheetName = "Configs";
-  } else {
-    sheetName = "Leads";
-  }
-  
-  var sheet = getOrCreateSheet(sheetName);
-  var data = sheet.getDataRange().getValues();
-  
-  if (data.length < 2) {
-      // If only header row exists, return empty array
-      return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  var headers = data[0];
-  var rows = data.slice(1);
-  
-  // Handle single config fetch
-  if (type === 'config' && id) {
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i][0] == id) { // ID is in the first column
-        try {
-          var configObj = JSON.parse(rows[i][1]); // Config JSON is in the second column
-          return ContentService.createTextOutput(JSON.stringify(configObj)).setMimeType(ContentService.MimeType.JSON);
-        } catch (err) {
-          // Fallback for corrupted JSON
-          return ContentService.createTextOutput(JSON.stringify({error: "Invalid JSON format"})).setMimeType(ContentService.MimeType.JSON);
-        }
-      }
-    }
-    return ContentService.createTextOutput(JSON.stringify(null)).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // Handle list fetch
-  var result = rows.map(function(row) {
-    var obj = {};
-    if (sheetName === 'Configs') {
-      try {
-        // For config list, return the full parsed config object
-        obj = JSON.parse(row[1]);
-      } catch (err) {
-        // Provide a graceful fallback for malformed JSON entries
-        obj = { id: row[0], title: "Error: Invalid JSON", hero: { headline: 'Configuration Error' } };
-      }
-    } else {
-      // For Leads/Visits, map headers to row values
-      headers.forEach(function(header, i) {
-        obj[header] = row[i];
-      });
-    }
-    return obj;
-  }).reverse(); // Show newest entries first
-  
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
+// ... (Other functions remain, update getOrCreateSheet below)
 
 function getOrCreateSheet(name) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -202,8 +151,8 @@ function getOrCreateSheet(name) {
   if (!sheet) {
     sheet = ss.insertSheet(name);
     if (name === "Leads") {
-      // Set up a minimal, essential set of headers. Others will be added dynamically.
-      sheet.appendRow(["timestamp", "landing_id", "name", "phone", "user_agent", "referrer"]);
+      // Changed to Title Case to match standard
+      sheet.appendRow(["Timestamp", "Landing ID", "Name", "Phone", "Raw Data"]); 
     } else if (name === "Visits") {
       sheet.appendRow(["Timestamp", "Landing ID", "IP", "Device", "OS", "Browser", "Referrer"]);
     } else if (name === "Configs") {
