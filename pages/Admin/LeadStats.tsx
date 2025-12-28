@@ -1,8 +1,75 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Loader2, LogOut, Filter, Calendar as CalendarIcon, X } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Loader2, LogOut, Filter, Calendar as CalendarIcon, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchLeads, fetchLandingConfigs } from '../../services/googleSheetService';
 import { LandingConfig } from '../../types';
+
+// Hidden fields list (Meta Data)
+const META_FIELDS = ['marketing_consent', 'third_party_consent', 'referrer', 'user_agent', 'page_title', 'landing_id', 'timestamp', 'privacy_consent'];
+
+const LeadInfoCell: React.FC<{ lead: any }> = ({ lead }) => {
+    const [showMeta, setShowMeta] = useState(false);
+
+    // Remove known primary keys
+    const { Timestamp, 'Landing ID': lid, Name, Phone, ...rest } = lead;
+
+    // Separate visible vs meta
+    const visibleKeys: string[] = [];
+    const metaKeys: string[] = [];
+
+    Object.keys(rest).forEach(key => {
+        if (META_FIELDS.includes(key) || key.startsWith('consent_')) {
+            metaKeys.push(key);
+        } else {
+            visibleKeys.push(key);
+        }
+    });
+
+    if (visibleKeys.length === 0 && metaKeys.length === 0) return <span>-</span>;
+
+    return (
+        <div className="space-y-2">
+            {/* Primary Info (Always Visible) */}
+            {visibleKeys.length > 0 && (
+                <div className="space-y-1">
+                    {visibleKeys.map(key => (
+                        <div key={key} className="flex gap-2">
+                            <span className="font-bold text-gray-700 min-w-[60px]">{key}:</span>
+                            <span className="text-gray-900 break-all">{rest[key]}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Meta Info (Toggle) */}
+            {metaKeys.length > 0 && (
+                <div>
+                    <button
+                        onClick={() => setShowMeta(!showMeta)}
+                        className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                    >
+                        {showMeta ? (
+                            <>접기 <ChevronUp className="w-3 h-3" /></>
+                        ) : (
+                            <>더보기 ({metaKeys.length}) <ChevronDown className="w-3 h-3" /></>
+                        )}
+                    </button>
+
+                    {showMeta && (
+                        <div className="mt-2 space-y-1 bg-gray-50 p-2 rounded border border-gray-100 animate-fade-in text-[10px]">
+                            {metaKeys.map(key => (
+                                <div key={key} className="flex flex-col sm:flex-row sm:gap-2 border-b border-gray-100 last:border-0 pb-1 last:pb-0">
+                                    <span className="font-bold text-gray-500 w-24 shrink-0">{key}:</span>
+                                    <span className="text-gray-700 break-all font-mono">{rest[key]}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const LeadStats: React.FC = () => {
     const [leads, setLeads] = useState<any[]>([]);
@@ -296,23 +363,7 @@ const LeadStats: React.FC = () => {
                                                 <td className="px-6 py-4 font-bold text-gray-900">{lead['Name']}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{lead['Phone']}</td>
                                                 <td className="px-6 py-4 text-xs text-gray-500">
-                                                    {(() => {
-                                                        // Remove known keys
-                                                        const { Timestamp, 'Landing ID': lid, Name, Phone, ...rest } = lead;
-                                                        const keys = Object.keys(rest);
-                                                        if (keys.length === 0) return '-';
-
-                                                        return (
-                                                            <div className="space-y-1">
-                                                                {keys.map(key => (
-                                                                    <div key={key} className="flex gap-2">
-                                                                        <span className="font-bold text-gray-700 min-w-[60px]">{key}:</span>
-                                                                        <span className="text-gray-900">{rest[key]}</span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        );
-                                                    })()}
+                                                    <LeadInfoCell lead={lead} />
                                                 </td>
                                             </tr>
                                         );
