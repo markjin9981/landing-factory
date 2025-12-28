@@ -229,7 +229,15 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
             try {
                 const base64Data = (reader.result as string).split(',')[1];
 
-                // Use JSON payload (text/plain) to avoid CORS Preflight and multipart parsing issues in GAS
+                // [CRITICAL FIX] 
+                // Google Apps Script Web App (Exec) does NOT support CORS preflight (OPTIONS).
+                // DO NOT send Custom Headers (like Content-Type: application/json).
+                // DO NOT use mode: 'no-cors' if you want a response.
+                // WE MUST send data as text/plain (default) or URL-encoded to skip preflight.
+
+                // We will pack data into a stringified JSON but send it as "text/plain" effectively 
+                // by NOT setting any 'Content-Type' header explicitly in a way that triggers preflight.
+
                 const payload = {
                     type: 'upload_image',
                     filename: file.name,
@@ -237,13 +245,11 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
                     base64: base64Data
                 };
 
-                // Add 'type' to URL query as a fallback routing mechanism
+                // Remove headers to prevent OPTIONS request
                 const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=upload_image`, {
                     method: 'POST',
-                    body: JSON.stringify(payload),
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8",
-                    },
+                    body: JSON.stringify(payload)
+                    // headers: {}  <-- Important: Keep empty!
                 });
 
                 if (!response.ok) {
