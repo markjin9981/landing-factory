@@ -295,11 +295,23 @@ const LeadStats: React.FC = () => {
                                                 </td>
                                                 <td className="px-6 py-4 font-bold text-gray-900">{lead['Name']}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{lead['Phone']}</td>
-                                                <td className="px-6 py-4 max-w-xs truncate text-xs text-gray-400">
+                                                <td className="px-6 py-4 text-xs text-gray-500">
                                                     {(() => {
                                                         // Remove known keys
                                                         const { Timestamp, 'Landing ID': lid, Name, Phone, ...rest } = lead;
-                                                        return Object.keys(rest).length ? JSON.stringify(rest) : '-';
+                                                        const keys = Object.keys(rest);
+                                                        if (keys.length === 0) return '-';
+
+                                                        return (
+                                                            <div className="space-y-1">
+                                                                {keys.map(key => (
+                                                                    <div key={key} className="flex gap-2">
+                                                                        <span className="font-bold text-gray-700 min-w-[60px]">{key}:</span>
+                                                                        <span className="text-gray-900">{rest[key]}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
                                                     })()}
                                                 </td>
                                             </tr>
