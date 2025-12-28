@@ -223,91 +223,73 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
         return URL.createObjectURL(file);
     }
 
-    // [New] Compress Image to avoid GAS Limit / Timeouts
-    const compressImage = async (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target?.result as string;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    // Resize logic: Max width 1280px
-                    const MAX_WIDTH = 1280;
-                    let width = img.width;
-                    let height = img.height;
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target?.result as string;
+            img.onload = () => {
+                // 1. Compress
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 1280;
+                let width = img.width;
+                let height = img.height;
+                if (width > MAX_WIDTH) {
+                    height = Math.round(height * (MAX_WIDTH / width));
+                    width = MAX_WIDTH;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+                const base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
 
-                    if (width > MAX_WIDTH) {
-                        height = Math.round(height * (MAX_WIDTH / width));
-                        width = MAX_WIDTH;
+                // 2. Send via fetch with application/x-www-form-urlencoded
+                // This is the most reliable text-based transport for GAS that avoids preflight issues.
+                const formData = new URLSearchParams();
+                formData.append('type', 'upload_image');
+                formData.append('filename', file.name.replace(/\.[^/.]+$/, "") + ".jpg");
+                formData.append('mimeType', 'image/jpeg');
+                formData.append('base64', base64Data);
+
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx?.drawImage(img, 0, 0, width, height);
-
-                    // Compress to JPEG 0.7
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    // Remove "data:image/jpeg;base64," prefix
-                    resolve(dataUrl.split(',')[1]);
-                };
-                img.onerror = error => reject(error);
+                })
+                    .then(async (response) => {
+                        if (!response.ok) throw new Error("HTTP " + response.status);
+                        const text = await response.text();
+                        try {
+                            const json = JSON.parse(text);
+                            if (json.url) resolve(json.url);
+                            else {
+                                alert("업로드 실패: " + json.message);
+                                resolve(null);
+                            }
+                        } catch (e) {
+                            console.error("Server Response:", text);
+                            alert("서버 응답 오류. 권한 설정을 확인하세요.");
+                            resolve(null);
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("업로드 전송 오류: " + err);
+                        resolve(null);
+                    });
             };
-            reader.onerror = error => reject(error);
-        });
-    };
-
-    try {
-        // Compress first
-        // alert("이미지 압축 중..."); // Optional feedback
-        const base64Data = await compressImage(file);
-
-        const payload = {
-            type: 'upload_image',
-            filename: file.name.replace(/\.[^/.]+$/, "") + ".jpg", // Force JPG extension
-            mimeType: 'image/jpeg',
-            base64: base64Data
+            img.onerror = () => {
+                alert("이미지 로드 실패");
+                resolve(null);
+            };
         };
-
-        // Remove headers to prevent OPTIONS request
-        const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=upload_image`, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-            // No headers
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP Error ${response.status}`);
-        }
-
-        const resultText = await response.text();
-
-        try {
-            const result = JSON.parse(resultText);
-            if (result.result === 'success' && result.url) {
-                return result.url;
-            } else {
-                console.error("Upload failed business logic:", result);
-                alert(`업로드 실패 (서버 응답): ${result.message || '알 수 없는 오류'}`);
-                return null;
-            }
-        } catch (jsonErr) {
-            console.error("JSON Parse Error:", jsonErr);
-            console.error("Received Text:", resultText);
-            if (resultText.includes("Google Drive")) {
-                alert("서버 권한 설정이 필요합니다. (Code.gs에서 checkDrivePermissions 실행 필요)");
-            } else {
-                alert("서버 응답 오류 (콘솔 확인)");
-                console.log(resultText);
-            }
-            return null;
-        }
-
-    } catch (error) {
-        console.error("Error uploading image:", error);
-        alert(`업로드 오류: ${error}`);
-        return null;
-    }
+        reader.onerror = () => {
+            alert("파일 읽기 실패");
+            resolve(null);
+        };
+    });
 };
