@@ -69,35 +69,41 @@ function doPost(e) {
 // =================================================================
 // [NEW] Handle Image Upload to Google Drive
 // =================================================================
+// =================================================================
+// [NEW] Handle Image Upload to Google Drive (Robust Version)
+// =================================================================
 function handleImageUpload(params) {
+  // 1. Base64 Decoding Safe Guard
+  var file;
   try {
     var data = Utilities.base64Decode(params.base64);
     var blob = Utilities.newBlob(data, params.mimeType, params.filename);
     
-    // Create file in root or specific folder
-    // Note: To use a folder, use DriveApp.getFolderById('FOLDER_ID').createFile(blob)
-    var file = DriveApp.createFile(blob);
-    
-    // Set permission to anyone with link can view
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    
-    // Direct link generation
-    // file.getDownloadUrl() adds a download prompt.
-    // simpler view url: https://drive.google.com/uc?export=view&id={ID}
-    var url = "https://drive.google.com/uc?export=view&id=" + file.getId();
-    
-    return ContentService.createTextOutput(JSON.stringify({
-      "result": "success",
-      "url": url,
-      "fileId": file.getId()
-    })).setMimeType(ContentService.MimeType.JSON);
-    
-  } catch (e) {
+    // 2. Create File
+    file = DriveApp.createFile(blob);
+  } catch (createErr) {
     return ContentService.createTextOutput(JSON.stringify({
       "result": "error",
-      "message": e.toString()
+      "message": "File Create Failed: " + createErr.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
+
+  // 3. Set Permissions (Try-Catch for Enterprise Restrictions)
+  var url = "";
+  try {
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    // Direct link for <img> tag (only works if public)
+    url = "https://drive.google.com/uc?export=view&id=" + file.getId();
+  } catch (permErr) {
+    // If sharing fails, fallback to standard view link
+    url = "https://drive.google.com/file/d/" + file.getId() + "/view?usp=sharing";
+  }
+    
+  return ContentService.createTextOutput(JSON.stringify({
+    "result": "success",
+    "url": url,
+    "fileId": file.getId()
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function handleConfigSubmission(params) {
