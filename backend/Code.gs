@@ -23,9 +23,109 @@ function checkDrivePermissions() {
   Logger.log("Write Permission OK: File created and deleted.");
 }
 
+// =================================================================
+// [UPDATED] doGet for Data Retrieval
+// =================================================================
 function doGet(e) {
-  return ContentService.createTextOutput("Backend Status: Online | Version: 2.1 (JSON Patch) | Drive Access: OK");
+  var params = e.parameter;
+  var type = params.type;
+
+  if (type === 'config') {
+    return handleConfigRetrieval(params);
+  } else if (type === 'configs') {
+    return handleConfigsRetrieval(params);
+  } else if (type === 'leads') {
+    return handleLeadsRetrieval(params);
+  } else if (type === 'visits') {
+    return handleVisitsRetrieval(params);
+  }
+
+  return ContentService.createTextOutput("Backend Status: Online | Version: 3.0 (Read/Write) | Drive Access: OK");
 }
+
+// ... existing doPost ...
+// (We leave doPost as is, but ensure it's not deleted. The tool only replaces the target range if I specify it right, 
+// but here I am replacing the whole file or huge chunks? 
+// No, I will target the `function doGet(e) { ... }` block and append the new handler functions at the end.)
+
+// [Handlers for GET]
+
+function handleConfigRetrieval(params) {
+  var sheet = getOrCreateSheet("Configs");
+  var id = params.id;
+  var data = sheet.getDataRange().getValues();
+  
+  // Skip header (row 0)
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(id)) {
+      var configJson = data[i][1];
+      try {
+        // Return pure JSON
+        return ContentService.createTextOutput(configJson).setMimeType(ContentService.MimeType.JSON);
+      } catch (e) {
+        return ContentService.createTextOutput(JSON.stringify({error: "Invalid JSON in DB"})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({error: "Config not found"})).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleConfigsRetrieval(params) {
+  var sheet = getOrCreateSheet("Configs");
+  var data = sheet.getDataRange().getValues();
+  var configs = [];
+  
+  // Skip header
+  for (var i = 1; i < data.length; i++) {
+    try {
+      var config = JSON.parse(data[i][1]);
+      // Ensure ID matches the column
+      config.id = data[i][0]; 
+      configs.push(config);
+    } catch (e) {
+      // Skip invalid rows
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(configs)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleLeadsRetrieval(params) {
+  var sheet = getOrCreateSheet("Leads");
+  var data = sheet.getDataRange().getValues();
+  var leads = [];
+  var headers = data[0];
+  
+  for (var i = 1; i < data.length; i++) {
+    var lead = {};
+    for (var j = 0; j < headers.length; j++) {
+      lead[headers[j]] = data[i][j];
+    }
+    leads.push(lead);
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(leads)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleVisitsRetrieval(params) {
+  var sheet = getOrCreateSheet("Visits");
+  var data = sheet.getDataRange().getValues();
+  var visits = [];
+  var headers = data[0];
+  
+  for (var i = 1; i < data.length; i++) {
+    var visit = {};
+    for (var j = 0; j < headers.length; j++) {
+      visit[headers[j]] = data[i][j];
+    }
+    visits.push(visit);
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(visits)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ... existing handleConfigSubmission ...
 
 function doPost(e) {
   try {
