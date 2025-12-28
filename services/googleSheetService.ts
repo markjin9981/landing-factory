@@ -16,8 +16,8 @@ import { LeadData, VisitData, LandingConfig } from '../types';
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEzLjFsD80ebPbsQ19jCutkoSAAEx6vUHuehTXCGRfHV_2uGmf3D-7-mwOodcVDeO1/exec";
 
 // --- 이 아래 코드는 수정하지 마세요. ---
-const PLACEHOLDER_URL = "https://script.google.com/macros/s/AKfycbzmAPb7GCs4PqCpL4Z3OKyCX4cRuqnxVLRieGPmnueZCFYM1c1wh8MoItZQ7F7iHB3o/exec";
-const isUrlConfigured = () => GOOGLE_SCRIPT_URL !== PLACEHOLDER_URL;
+const PLACEHOLDER_URL: string = "ENTER_YOUR_APP_SCRIPT_URL_HERE";
+const isUrlConfigured = () => GOOGLE_SCRIPT_URL.startsWith("https://script.google.com");
 
 const MOCK_LEAD_DATA = [
     { "Timestamp": "2024-03-20 10:00:00", "Landing ID": "1", "Name": "홍길동 (예시)", "Phone": "010-1234-5678" },
