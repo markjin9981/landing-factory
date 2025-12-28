@@ -250,7 +250,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
     return bannerList.reduce((acc, b) => acc + getSizeStyles(b.size).approxHeight, 0);
   };
 
-  const topPaddingRem = getTotalApproxHeight(topBanners);
+
   const bottomPaddingRem = getTotalApproxHeight(bottomBanners);
 
 
@@ -348,21 +348,20 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
   return (
     <div className={`font-sans text-gray-900 bg-white ${isPreview ? 'h-full relative overflow-hidden' : 'min-h-screen'}`}>
 
-      {/* Top Banners Container */}
-      {topBanners.length > 0 && (
-        <div className={`${isPreview ? 'absolute top-0 w-full' : 'fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl'} z-50 flex flex-col shadow-xl`}>
-          {topBanners.map(b => <BannerItem key={b.id} banner={b} />)}
-        </div>
-      )}
-
       {/* Main Content Wrapper - Internal scroll for Preview, standard flow for Live */}
       <div
         className={isPreview ? "h-full overflow-y-auto" : ""}
         style={{
-          paddingTop: topBanners.length > 0 ? `${topPaddingRem}rem` : '0',
           paddingBottom: bottomBanners.length > 0 ? `${bottomPaddingRem}rem` : '0'
         }}
       >
+
+        {/* Top Banners Container - Sticky within flow */}
+        {topBanners.length > 0 && (
+          <div className="sticky top-0 z-50 w-full max-w-4xl mx-auto flex flex-col shadow-xl">
+            {topBanners.map(b => <BannerItem key={b.id} banner={b} />)}
+          </div>
+        )}
 
         {/* 1. Hero Section */}
         <section
