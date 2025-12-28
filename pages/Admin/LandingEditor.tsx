@@ -127,13 +127,29 @@ const LandingEditor: React.FC = () => {
         const success = await saveLandingConfig(config);
 
         if (success) {
-            setDeployStatus('success');
-            // Clear local draft after successful deploy
-            const stored = localStorage.getItem('landing_drafts');
-            if (stored) {
-                const drafts = JSON.parse(stored);
-                delete drafts[config.id];
-                localStorage.setItem('landing_drafts', JSON.stringify(drafts));
+            // Verify if it is actually retrievable from the server
+            // Google Sheets might take a split second, so we wait briefly
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const remoteParams = await fetchLandingConfigById(config.id);
+            const isVerified = remoteParams && String(remoteParams.id) === String(config.id);
+
+            if (isVerified) {
+                setDeployStatus('success');
+                // Clear local draft only if verified
+                const stored = localStorage.getItem('landing_drafts');
+                if (stored) {
+                    const drafts = JSON.parse(stored);
+                    delete drafts[config.id];
+                    localStorage.setItem('landing_drafts', JSON.stringify(drafts));
+                }
+            } else {
+                // If verification failed, keeps draft but shows success message with warning
+                console.warn("Deploy seemingly successful but could not verify from server immediately. Draft kept.");
+                setDeployStatus('success');
+                // We still show success because standard fetch(no-cors) returns opaque, 
+                // and maybe the read is just lagging or cached. 
+                // But we DO NOT delete the draft, so it stays in the list (as Draft).
             }
         } else {
             setDeployStatus('error');

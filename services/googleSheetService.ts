@@ -201,3 +201,15 @@ export const fetchLandingConfigById = async (id: string): Promise<LandingConfig 
     }
     return fetchData('config', id);
 };
+
+/**
+ * 모든 랜딩페이지 설정을 가져옵니다.
+ */
+export const fetchLandingConfigs = async (): Promise<LandingConfig[]> => {
+    if (!isUrlConfigured()) {
+        console.warn(`Using mock configs fetch because GOOGLE_SCRIPT_URL is not configured.`);
+        return [];
+    }
+    const data = await fetchData('configs');
+    return Array.isArray(data) ? data : [];
+};

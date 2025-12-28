@@ -5,6 +5,16 @@
  */
 
 function doPost(e) {
+  // -----------------------------------------------------------------------
+  // [Safety Check] Editor에서 '실행' 버튼을 누르면 e가 없어서 에러가 납니다.
+  // 이 함수는 웹에서 요청이 올 때만 자동으로 실행됩니다.
+  // -----------------------------------------------------------------------
+  if (!e) {
+    Logger.log("⚠️ 경고: 이 함수(doPost)는 에디터에서 직접 실행할 수 없습니다.");
+    Logger.log("웹 앱으로 배포(Deploy) 후, 실제 데이터를 전송하여 테스트해야 합니다.");
+    return ContentService.createTextOutput("Editor Test Mode: Please deploy app.");
+  }
+
   var params = e.parameter;
   var type = params.type; 
 
@@ -113,6 +123,14 @@ function handleEmail(params) {
 }
 
 function doGet(e) {
+  // -----------------------------------------------------------------------
+  // [Safety Check] Run directly in editor -> params undefined
+  // -----------------------------------------------------------------------
+  if (!e) {
+    Logger.log("⚠️ 경고: 이 함수(doGet)는 에디터에서 직접 실행할 수 없습니다.");
+    return ContentService.createTextOutput("Editor Test Mode: Please deploy app.");
+  }
+
   var type = e.parameter.type;
   var id = e.parameter.id;
   var sheetName;
