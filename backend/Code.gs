@@ -169,6 +169,8 @@ function doPost(e) {
       return handleEmail(params);
     } else if (type === 'config_save') {
       return handleConfigSubmission(params);
+    } else if (type === 'config_delete') {
+      return handleConfigDeletion(params);
     } else if (type === 'upload_image') { 
       // [CRITICAL] Ensure handleImageUpload catches its own errors, 
       // but if something else fails here, the outer catch will handle it.
@@ -347,12 +349,16 @@ function handleLeadSubmission(params) {
   try {
     var recipient = "beanhull@gmail.com";
     var pageTitle = params.page_title || ("랜딩 ID " + params.landing_id);
-    var subject = "[랜딩 알림] " + pageTitle + " - 신규 DB가 도착했습니다.";
+    var landingId = params.landing_id || "Unknown";
+    
+    // [UPDATE] Subject format: [Page Title] New DB Arrival [Timestamp]
+    var subject = "[" + pageTitle + "] 신규 DB 도착 시간 [" + timestamp + "]";
     
     var body = "새로운 문의가 접수되었습니다.\n\n";
     body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     body += " [ 접수 내용 ]\n";
-    body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+    body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    body += "■ 랜딩페이지: " + pageTitle + " (ID: " + landingId + ")\n\n";
     
     // Sort keys for better readability if possible, or just iterate
     var keyOrder = ['name', 'phone', 'option', 'memo']; // Priority keys
@@ -382,6 +388,24 @@ function handleLeadSubmission(params) {
   // =================================================================
 
   return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleConfigDeletion(params) {
+  var sheet = getOrCreateSheet("Configs");
+  var id = params.id;
+  var data = sheet.getDataRange().getValues();
+  
+  // We need to find the row and delete it
+  // Header is row 1
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(id)) {
+      // Row index is i + 1
+      sheet.deleteRow(i + 1);
+      return ContentService.createTextOutput(JSON.stringify({"result":"success", "message": "Deleted ID " + id})).setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({"result":"error", "message": "ID not found"})).setMimeType(ContentService.MimeType.JSON);
 }
 
 // ... (Other functions remain, update getOrCreateSheet below)
