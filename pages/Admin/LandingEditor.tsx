@@ -945,6 +945,16 @@ const LandingEditor: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
+                                                            <label className="text-[10px] text-gray-500 block">글자 크기 (직접 입력, e.g. 18)</label>
+                                                            <input
+                                                                type="text"
+                                                                value={displaySizeValue(banner.fontSize)}
+                                                                onChange={(e) => updateBanner(idx, 'fontSize', formatSizeValue(e.target.value))}
+                                                                className="w-full text-xs border rounded p-1"
+                                                                placeholder="기본값 (비워두면 자동)"
+                                                            />
+                                                        </div>
+                                                        <div>
                                                             <label className="text-[10px] text-gray-500 block flex justify-between">
                                                                 이미지 URL (문구 대신 노출)
                                                                 <button

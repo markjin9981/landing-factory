@@ -71,6 +71,7 @@ export interface FloatingBanner {
   textColor: string;
   position: 'top' | 'bottom';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // New: 5-level size adjustment
+  fontSize?: string; // px or rem (overrides size preset)
 }
 
 export interface HeroSection {
