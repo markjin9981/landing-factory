@@ -13,7 +13,7 @@ import { LeadData, VisitData, LandingConfig } from '../types';
  */
 
 // ==> 1. 여기에 복사한 웹 앱 URL을 붙여넣으세요. <==
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZDw8WQUSvpp8ZvDWLSJ431IFGdQa7aNMu3tnig8ac0O6x8inGHEllhm0NohlXkAYN/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqYjcNuZ8ZdD36gnl8rN6m13VRt8NWp845KxwYhRC1-DYnph1hdJC1psUkgBeEZWyd/exec";
 
 // --- 이 아래 코드는 수정하지 마세요. ---
 const PLACEHOLDER_URL: string = "ENTER_YOUR_APP_SCRIPT_URL_HERE";
