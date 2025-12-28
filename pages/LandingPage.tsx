@@ -201,6 +201,14 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">404</h1>
         <p className="text-gray-600 mb-8">존재하지 않는 페이지입니다.</p>
+        {(id) && (
+          <div className="text-xs text-red-400 bg-red-50 p-4 rounded mb-4 max-w-md text-left">
+            <p className="font-bold mb-1">디버깅 정보:</p>
+            <p>ID: {id}</p>
+            <p>서버 연동: {loading ? '로딩 중...' : '완료'}</p>
+            <p>Google Apps Script 연동을 확인해주세요.</p>
+          </div>
+        )}
         <Link to="/" className="text-blue-600 hover:underline">홈으로 돌아가기</Link>
         <div className="mt-4 text-xs text-gray-400">
           (Tip: 에디터에서 '임시 저장'한 페이지는 해당 브라우저에서만 확인 가능합니다.)
