@@ -223,69 +223,91 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
         return URL.createObjectURL(file);
     }
 
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-            try {
-                const base64Data = (reader.result as string).split(',')[1];
+    // [New] Compress Image to avoid GAS Limit / Timeouts
+    const compressImage = async (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    // Resize logic: Max width 1280px
+                    const MAX_WIDTH = 1280;
+                    let width = img.width;
+                    let height = img.height;
 
-                // [CRITICAL FIX] 
-                // Google Apps Script Web App (Exec) does NOT support CORS preflight (OPTIONS).
-                // DO NOT send Custom Headers (like Content-Type: application/json).
-                // DO NOT use mode: 'no-cors' if you want a response.
-                // WE MUST send data as text/plain (default) or URL-encoded to skip preflight.
+                    if (width > MAX_WIDTH) {
+                        height = Math.round(height * (MAX_WIDTH / width));
+                        width = MAX_WIDTH;
+                    }
 
-                // We will pack data into a stringified JSON but send it as "text/plain" effectively 
-                // by NOT setting any 'Content-Type' header explicitly in a way that triggers preflight.
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
 
-                const payload = {
-                    type: 'upload_image',
-                    filename: file.name,
-                    mimeType: file.type,
-                    base64: base64Data
+                    // Compress to JPEG 0.7
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    // Remove "data:image/jpeg;base64," prefix
+                    resolve(dataUrl.split(',')[1]);
                 };
+                img.onerror = error => reject(error);
+            };
+            reader.onerror = error => reject(error);
+        });
+    };
 
-                // Remove headers to prevent OPTIONS request
-                const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=upload_image`, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                    // headers: {}  <-- Important: Keep empty!
-                });
+    try {
+        // Compress first
+        // alert("이미지 압축 중..."); // Optional feedback
+        const base64Data = await compressImage(file);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP Error ${response.status}`);
-                }
-
-                const resultText = await response.text();
-                // console.log("Raw Server Response:", resultText); // Debugging
-
-                try {
-                    const result = JSON.parse(resultText);
-                    if (result.result === 'success' && result.url) {
-                        resolve(result.url);
-                    } else {
-                        console.error("Upload failed business logic:", result);
-                        alert(`업로드 실패 (서버 응답): ${result.message || '알 수 없는 오류'}`);
-                        resolve(null);
-                    }
-                } catch (jsonErr) {
-                    console.error("JSON Parse Error:", jsonErr);
-                    console.error("Received Text:", resultText);
-                    // If it's HTML, it might be a permission error or 404
-                    if (resultText.includes("Google Drive")) {
-                        alert("서버 권한 설정이 필요합니다. (Code.gs에서 checkDrivePermissions 실행 필요)");
-                    } else {
-                        alert("서버 응답을 분석할 수 없습니다. (콘솔 확인)");
-                    }
-                    resolve(null);
-                }
-
-            } catch (error) {
-                console.error("Error uploading image:", error);
-                alert(`업로드 오류: ${error}`);
-                resolve(null);
-            }
+        const payload = {
+            type: 'upload_image',
+            filename: file.name.replace(/\.[^/.]+$/, "") + ".jpg", // Force JPG extension
+            mimeType: 'image/jpeg',
+            base64: base64Data
         };
-        reader.readAsDataURL(file);
-    });
+
+        // Remove headers to prevent OPTIONS request
+        const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=upload_image`, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+            // No headers
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error ${response.status}`);
+        }
+
+        const resultText = await response.text();
+
+        try {
+            const result = JSON.parse(resultText);
+            if (result.result === 'success' && result.url) {
+                return result.url;
+            } else {
+                console.error("Upload failed business logic:", result);
+                alert(`업로드 실패 (서버 응답): ${result.message || '알 수 없는 오류'}`);
+                return null;
+            }
+        } catch (jsonErr) {
+            console.error("JSON Parse Error:", jsonErr);
+            console.error("Received Text:", resultText);
+            if (resultText.includes("Google Drive")) {
+                alert("서버 권한 설정이 필요합니다. (Code.gs에서 checkDrivePermissions 실행 필요)");
+            } else {
+                alert("서버 응답 오류 (콘솔 확인)");
+                console.log(resultText);
+            }
+            return null;
+        }
+
+    } catch (error) {
+        console.error("Error uploading image:", error);
+        alert(`업로드 오류: ${error}`);
+        return null;
+    }
 };
