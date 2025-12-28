@@ -230,27 +230,42 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
             const img = new Image();
             img.src = event.target?.result as string;
             img.onload = () => {
-                // 1. Compress
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1280;
-                let width = img.width;
-                let height = img.height;
-                if (width > MAX_WIDTH) {
-                    height = Math.round(height * (MAX_WIDTH / width));
-                    width = MAX_WIDTH;
+                // 1. Compress (Skip for GIF)
+                let base64Data = "";
+                let mimeType = "image/jpeg";
+                let filename = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+
+                if (file.type === 'image/gif') {
+                    // GIF: Use original data (Base64)
+                    base64Data = (event.target?.result as string).split(',')[1];
+                    mimeType = "image/gif";
+                    filename = file.name; // Keep original extension
+                } else {
+                    // JPG/PNG: Compress to JPEG
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1280;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height = Math.round(height * (MAX_WIDTH / width));
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+
+                    base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 }
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx?.drawImage(img, 0, 0, width, height);
-                const base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
 
                 // 2. Send via fetch with application/x-www-form-urlencoded
                 // This is the most reliable text-based transport for GAS that avoids preflight issues.
                 const formData = new URLSearchParams();
                 formData.append('type', 'upload_image');
-                formData.append('filename', file.name.replace(/\.[^/.]+$/, "") + ".jpg");
-                formData.append('mimeType', 'image/jpeg');
+                formData.append('filename', filename);
+                formData.append('mimeType', mimeType);
                 formData.append('base64', base64Data);
 
                 fetch(GOOGLE_SCRIPT_URL, {
