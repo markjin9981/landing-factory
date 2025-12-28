@@ -7,6 +7,20 @@ import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image a
 
 // GitHub Sync Check: Force Update
 // Default empty config template
+// Helper to auto-append 'px' if only number is entered
+const formatSizeValue = (val: string) => {
+    if (!val) return '';
+    // Allow empty string or just unit
+    if (/^\d+(\.\d+)?$/.test(val)) return `${val}px`;
+    return val;
+};
+
+// Helper to remove 'px' for display if it's a simple pixel value
+const displaySizeValue = (val: string | undefined) => {
+    if (!val) return '';
+    return val.replace(/^(\d+(\.\d+)?)px$/, '$1');
+};
+
 const DEFAULT_CONFIG: LandingConfig = {
     id: '',
     title: '',
@@ -375,8 +389,14 @@ const LandingEditor: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                     <div>
-                        <label className="text-[10px] text-gray-500 block">크기 (e.g. 2rem, 16px)</label>
-                        <input type="text" value={getValue('fontSize') || ''} onChange={e => updateStyle('fontSize', e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="inherit" />
+                        <label className="text-[10px] text-gray-500 block">크기 (px 자동완성)</label>
+                        <input
+                            type="text"
+                            value={displaySizeValue(getValue('fontSize'))}
+                            onChange={e => updateStyle('fontSize', formatSizeValue(e.target.value))}
+                            className="w-full border rounded p-1 text-xs"
+                            placeholder="inherit"
+                        />
                     </div>
                     <div>
                         <label className="text-[10px] text-gray-500 block">굵기</label>
@@ -455,12 +475,24 @@ const LandingEditor: React.FC = () => {
                         </div>
                     </div>
                     <div>
-                        <label className="text-[10px] text-gray-500 block">글자 크기 (e.g. 1rem)</label>
-                        <input type="text" value={getValue('fontSize') || ''} onChange={e => updateStyle('fontSize', e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="inherit" />
+                        <label className="text-[10px] text-gray-500 block">글자 크기</label>
+                        <input
+                            type="text"
+                            value={displaySizeValue(getValue('fontSize'))}
+                            onChange={e => updateStyle('fontSize', formatSizeValue(e.target.value))}
+                            className="w-full border rounded p-1 text-xs"
+                            placeholder="inherit"
+                        />
                     </div>
                     <div>
-                        <label className="text-[10px] text-gray-500 block">모서리 둥글게 (Radius)</label>
-                        <input type="text" value={getValue('borderRadius') || ''} onChange={e => updateStyle('borderRadius', e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="0px" />
+                        <label className="text-[10px] text-gray-500 block">모서리 둥글게</label>
+                        <input
+                            type="text"
+                            value={displaySizeValue(getValue('borderRadius'))}
+                            onChange={e => updateStyle('borderRadius', formatSizeValue(e.target.value))}
+                            className="w-full border rounded p-1 text-xs"
+                            placeholder="0"
+                        />
                     </div>
                     <div>
                         <label className="text-[10px] text-gray-500 block">너비</label>
@@ -1136,11 +1168,23 @@ const LandingEditor: React.FC = () => {
                                             </div>
                                             <div>
                                                 <label className="text-[10px] text-gray-500 block">테두리 두께</label>
-                                                <input type="text" value={config.formConfig.style?.borderWidth || ''} onChange={(e) => updateNested(['formConfig', 'style', 'borderWidth'], e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="1px" />
+                                                <input
+                                                    type="text"
+                                                    value={displaySizeValue(config.formConfig.style?.borderWidth)}
+                                                    onChange={(e) => updateNested(['formConfig', 'style', 'borderWidth'], formatSizeValue(e.target.value))}
+                                                    className="w-full border rounded p-1 text-xs"
+                                                    placeholder="1"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-[10px] text-gray-500 block">모서리 둥글게</label>
-                                                <input type="text" value={config.formConfig.style?.borderRadius || ''} onChange={(e) => updateNested(['formConfig', 'style', 'borderRadius'], e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="16px" />
+                                                <input
+                                                    type="text"
+                                                    value={displaySizeValue(config.formConfig.style?.borderRadius)}
+                                                    onChange={(e) => updateNested(['formConfig', 'style', 'borderRadius'], formatSizeValue(e.target.value))}
+                                                    className="w-full border rounded p-1 text-xs"
+                                                    placeholder="16"
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -1178,7 +1222,13 @@ const LandingEditor: React.FC = () => {
                                             </div>
                                             <div>
                                                 <label className="text-[10px] text-gray-500 block">글자 크기 (e.g. 1.5rem)</label>
-                                                <input type="text" value={config.formConfig.style?.titleFontSize || ''} onChange={(e) => updateNested(['formConfig', 'style', 'titleFontSize'], e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="inherit" />
+                                                <input
+                                                    type="text"
+                                                    value={displaySizeValue(config.formConfig.style?.titleFontSize)}
+                                                    onChange={(e) => updateNested(['formConfig', 'style', 'titleFontSize'], formatSizeValue(e.target.value))}
+                                                    className="w-full border rounded p-1 text-xs"
+                                                    placeholder="inherit"
+                                                />
                                             </div>
                                             <div className="col-span-2">
                                                 <label className="text-[10px] text-gray-500 block">정렬</label>
