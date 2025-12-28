@@ -202,7 +202,16 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                 style={{ backgroundColor: containerBg, borderRadius: containerRadius, border: containerBorder }}
             >
                 <div className="p-6 md:p-8 text-center border-b border-black/5" style={{ backgroundColor: themeColor }}>
-                    <h3 className="text-2xl font-bold text-white mb-2">{config.title}</h3>
+                    <h3
+                        className="font-bold mb-2"
+                        style={{
+                            fontSize: formStyle.titleFontSize || '1.5rem',
+                            color: formStyle.titleColor || 'white',
+                            textAlign: (formStyle.titleAlign || 'center') as any
+                        }}
+                    >
+                        {config.title}
+                    </h3>
                     <p className="text-white/90 text-sm">{config.subTitle}</p>
                 </div>
 
@@ -421,21 +430,31 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                         </div>
                     )}
 
-                    <button
-                        type="submit"
-                        disabled={status === 'submitting'}
-                        className="w-full py-4 text-lg font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
-                        style={{ backgroundColor: btnBg, color: btnText, borderRadius: btnRadius }}
-                    >
-                        {status === 'submitting' ? (
-                            <>
-                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                처리중...
-                            </>
-                        ) : (
-                            config.submitButtonText
-                        )}
-                    </button>
+                    <div style={{ display: 'flex', justifyContent: formStyle.buttonAlign === 'left' ? 'flex-start' : (formStyle.buttonAlign === 'right' ? 'flex-end' : 'center') }}>
+                        <button
+                            type="submit"
+                            disabled={status === 'submitting'}
+                            className="py-4 font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+                            style={{
+                                backgroundColor: btnBg,
+                                color: btnText,
+                                borderRadius: btnRadius,
+                                fontSize: formStyle.buttonFontSize || '1.125rem',
+                                width: formStyle.buttonWidth === 'full' ? '100%' : (formStyle.buttonWidth === 'auto' ? 'auto' : (formStyle.buttonWidth || '100%')),
+                                minWidth: formStyle.buttonWidth === 'auto' ? '200px' : undefined, // Optional: ensure not too small if auto
+                                paddingLeft: '2rem', paddingRight: '2rem'
+                            }}
+                        >
+                            {status === 'submitting' ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    처리중...
+                                </>
+                            ) : (
+                                config.submitButtonText
+                            )}
+                        </button>
+                    </div>
 
                     <div className="flex justify-center items-center gap-4 text-xs mt-3 opacity-60" style={{ color: textColor }}>
                         <div className="flex items-center gap-1"><Lock className="w-3 h-3" /> SSL 보안 적용</div>

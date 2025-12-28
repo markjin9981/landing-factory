@@ -407,6 +407,81 @@ const LandingEditor: React.FC = () => {
         )
     }
 
+    const ButtonStyleEditor = ({ label, stylePath, mode = 'nested' }: { label: string, stylePath?: string[], mode?: 'nested' | 'flat_form_button' }) => {
+        // Helper to access safe value
+        const getValue = (key: string) => {
+            if (mode === 'flat_form_button') {
+                // Map abstract key to flat config key
+                const map: any = { backgroundColor: 'buttonBackgroundColor', textColor: 'buttonTextColor', borderRadius: 'buttonRadius', fontSize: 'buttonFontSize', width: 'buttonWidth', alignment: 'buttonAlign' };
+                return config.formConfig.style ? config.formConfig.style[map[key] as keyof typeof config.formConfig.style] : undefined;
+            }
+            // Nested mode
+            if (!stylePath) return undefined;
+            let current: any = config;
+            for (const p of stylePath) {
+                if (!current) return undefined;
+                current = current[p];
+            }
+            return current ? current[key] : undefined;
+        }
+
+        const updateStyle = (key: string, val: any) => {
+            if (mode === 'flat_form_button') {
+                const map: any = { backgroundColor: 'buttonBackgroundColor', textColor: 'buttonTextColor', borderRadius: 'buttonRadius', fontSize: 'buttonFontSize', width: 'buttonWidth', alignment: 'buttonAlign' };
+                updateNested(['formConfig', 'style', map[key]], val);
+            } else if (stylePath) {
+                updateNested([...stylePath, key], val);
+            }
+        };
+
+        return (
+            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-bold text-gray-700">{label} 디자인</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                    <div>
+                        <label className="text-[10px] text-gray-500 block">배경 색상</label>
+                        <div className="flex items-center gap-1">
+                            <input type="color" value={getValue('backgroundColor') || '#000000'} onChange={e => updateStyle('backgroundColor', e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                            <input type="text" value={getValue('backgroundColor') || ''} onChange={e => updateStyle('backgroundColor', e.target.value)} className="flex-1 border rounded p-1 text-xs" />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-[10px] text-gray-500 block">텍스트 색상</label>
+                        <div className="flex items-center gap-1">
+                            <input type="color" value={getValue('textColor') || '#ffffff'} onChange={e => updateStyle('textColor', e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                            <input type="text" value={getValue('textColor') || ''} onChange={e => updateStyle('textColor', e.target.value)} className="flex-1 border rounded p-1 text-xs" />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-[10px] text-gray-500 block">글자 크기 (e.g. 1rem)</label>
+                        <input type="text" value={getValue('fontSize') || ''} onChange={e => updateStyle('fontSize', e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="inherit" />
+                    </div>
+                    <div>
+                        <label className="text-[10px] text-gray-500 block">모서리 둥글게 (Radius)</label>
+                        <input type="text" value={getValue('borderRadius') || ''} onChange={e => updateStyle('borderRadius', e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="0px" />
+                    </div>
+                    <div>
+                        <label className="text-[10px] text-gray-500 block">너비</label>
+                        <select value={getValue('width') || 'auto'} onChange={e => updateStyle('width', e.target.value)} className="w-full border rounded p-1 text-xs">
+                            <option value="auto">텍스트 맞춤 (Auto)</option>
+                            <option value="full">가로 꽉 채움 (Full)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="text-[10px] text-gray-500 block">정렬 (위치)</label>
+                        <select value={getValue('alignment') || 'center'} onChange={e => updateStyle('alignment', e.target.value)} className="w-full border rounded p-1 text-xs">
+                            <option value="left">왼쪽</option>
+                            <option value="center">가운데</option>
+                            <option value="right">오른쪽</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     // --- STATE HELPERS ---
     const updateField = (index: number, key: keyof FormField, value: any) => {
         setConfig(prev => {
@@ -740,6 +815,17 @@ const LandingEditor: React.FC = () => {
                                     />
                                     <TextStyleEditor label="서브카피" stylePath={['hero', 'subHeadlineStyle']} />
                                 </div>
+                                <div className="border-t pt-4">
+                                    <label className="text-xs font-bold text-gray-500 mb-1 block">신청하기(CTA) 버튼 문구</label>
+                                    <input
+                                        type="text"
+                                        value={config.hero.ctaText}
+                                        onChange={(e) => updateNested(['hero', 'ctaText'], e.target.value)}
+                                        className="w-full border rounded p-2 text-sm mb-2"
+                                        placeholder="예: 무료 상담 신청하기"
+                                    />
+                                    <ButtonStyleEditor label="CTA 버튼" stylePath={['hero', 'ctaStyle']} />
+                                </div>
                             </div>
                         )}
 
@@ -1024,39 +1110,81 @@ const LandingEditor: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Manual Design Section (Collapsible details could be good, keeping simple for now) */}
+                                {/* Manual Design Section */}
                                 <div className="bg-white border rounded-lg p-4 shadow-sm">
                                     <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4">
                                         <Palette className="w-4 h-4" /> 세부 디자인 수정 (선택)
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-xs text-gray-500 block mb-1">배경색</label>
-                                            <div className="flex gap-1">
-                                                <input type="color" value={config.formConfig.style?.backgroundColor || '#ffffff'} onChange={(e) => updateNested(['formConfig', 'style', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                                <input type="text" value={config.formConfig.style?.backgroundColor || ''} onChange={(e) => updateNested(['formConfig', 'style', 'backgroundColor'], e.target.value)} className="w-full border rounded p-1 text-xs" />
+
+                                    {/* Form Container Style */}
+                                    <div className="mb-4">
+                                        <h4 className="text-xs font-bold text-gray-700 mb-2">폼 컨테이너 스타일</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-xs text-gray-500 block mb-1">배경색</label>
+                                                <div className="flex gap-1">
+                                                    <input type="color" value={config.formConfig.style?.backgroundColor || '#ffffff'} onChange={(e) => updateNested(['formConfig', 'style', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                                    <input type="text" value={config.formConfig.style?.backgroundColor || ''} onChange={(e) => updateNested(['formConfig', 'style', 'backgroundColor'], e.target.value)} className="w-full border rounded p-1 text-xs" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-gray-500 block mb-1">테두리 색상</label>
+                                                <div className="flex gap-1">
+                                                    <input type="color" value={config.formConfig.style?.borderColor || '#e5e7eb'} onChange={(e) => updateNested(['formConfig', 'style', 'borderColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                                    <input type="text" value={config.formConfig.style?.borderColor || ''} onChange={(e) => updateNested(['formConfig', 'style', 'borderColor'], e.target.value)} className="w-full border rounded p-1 text-xs" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">테두리 두께</label>
+                                                <input type="text" value={config.formConfig.style?.borderWidth || ''} onChange={(e) => updateNested(['formConfig', 'style', 'borderWidth'], e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="1px" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">모서리 둥글게</label>
+                                                <input type="text" value={config.formConfig.style?.borderRadius || ''} onChange={(e) => updateNested(['formConfig', 'style', 'borderRadius'], e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="16px" />
                                             </div>
                                         </div>
-                                        <div>
-                                            <label className="text-xs text-gray-500 block mb-1">테두리 색상</label>
-                                            <div className="flex gap-1">
-                                                <input type="color" value={config.formConfig.style?.borderColor || '#e5e7eb'} onChange={(e) => updateNested(['formConfig', 'style', 'borderColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                                <input type="text" value={config.formConfig.style?.borderColor || ''} onChange={(e) => updateNested(['formConfig', 'style', 'borderColor'], e.target.value)} className="w-full border rounded p-1 text-xs" />
+                                    </div>
+
+                                    {/* Form Title Style */}
+                                    <div className="mb-4 pt-4 border-t">
+                                        <h4 className="text-xs font-bold text-gray-700 mb-2">폼 제목(무료 상담 신청) 스타일</h4>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">글자 색상</label>
+                                                <div className="flex items-center gap-1">
+                                                    <input type="color" value={config.formConfig.style?.titleColor || '#000000'} onChange={(e) => updateNested(['formConfig', 'style', 'titleColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                                    <input type="text" value={config.formConfig.style?.titleColor || ''} onChange={(e) => updateNested(['formConfig', 'style', 'titleColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">글자 크기 (e.g. 1.5rem)</label>
+                                                <input type="text" value={config.formConfig.style?.titleFontSize || ''} onChange={(e) => updateNested(['formConfig', 'style', 'titleFontSize'], e.target.value)} className="w-full border rounded p-1 text-xs" placeholder="inherit" />
+                                            </div>
+                                            <div className="col-span-2">
+                                                <label className="text-[10px] text-gray-500 block">정렬</label>
+                                                <select value={config.formConfig.style?.titleAlign || 'left'} onChange={(e) => updateNested(['formConfig', 'style', 'titleAlign'], e.target.value)} className="w-full border rounded p-1 text-xs">
+                                                    <option value="left">왼쪽</option>
+                                                    <option value="center">가운데</option>
+                                                    <option value="right">오른쪽</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <div>
-                                            <label className="text-xs text-gray-500 block mb-1">버튼 배경색</label>
-                                            <div className="flex gap-1">
-                                                <input type="color" value={config.formConfig.style?.buttonBackgroundColor || config.theme.primaryColor} onChange={(e) => updateNested(['formConfig', 'style', 'buttonBackgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                                <input type="text" value={config.formConfig.style?.buttonBackgroundColor || ''} onChange={(e) => updateNested(['formConfig', 'style', 'buttonBackgroundColor'], e.target.value)} className="w-full border rounded p-1 text-xs" />
+                                    </div>
+
+                                    {/* Submit Button Style */}
+                                    <div className="pt-4 border-t">
+                                        <h4 className="text-xs font-bold text-gray-700 mb-2">신청하기 버튼 스타일</h4>
+                                        <div className="bg-gray-50 p-2 rounded">
+                                            <div className="grid grid-cols-1 gap-2 mb-2">
+                                                <label className="text-[10px] text-gray-500 block">버튼 문구 수정</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.formConfig.submitButtonText}
+                                                    onChange={(e) => updateNested(['formConfig', 'submitButtonText'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm"
+                                                />
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label className="text-xs text-gray-500 block mb-1">버튼 글자색</label>
-                                            <div className="flex gap-1">
-                                                <input type="color" value={config.formConfig.style?.buttonTextColor || '#ffffff'} onChange={(e) => updateNested(['formConfig', 'style', 'buttonTextColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                                <input type="text" value={config.formConfig.style?.buttonTextColor || ''} onChange={(e) => updateNested(['formConfig', 'style', 'buttonTextColor'], e.target.value)} className="w-full border rounded p-1 text-xs" />
-                                            </div>
+                                            <ButtonStyleEditor label="버튼" mode="flat_form_button" />
                                         </div>
                                     </div>
                                 </div>

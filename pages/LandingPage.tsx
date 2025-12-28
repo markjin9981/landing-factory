@@ -403,14 +403,22 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
             >
               {hero.subHeadline}
             </p>
-            <button
-              onClick={scrollToForm}
-              className="inline-flex items-center px-8 py-4 rounded-full text-lg font-bold transition-transform transform hover:scale-105 shadow-lg shadow-blue-500/30"
-              style={{ backgroundColor: theme.primaryColor }}
-            >
-              {hero.ctaText}
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </button>
+            <div style={{ textAlign: (hero.ctaStyle?.alignment || 'center') as any, marginTop: '2.5rem' }}>
+              <button
+                onClick={scrollToForm}
+                className="inline-flex items-center px-8 py-4 font-bold transition-transform transform hover:scale-105 shadow-lg shadow-blue-500/30 justify-center"
+                style={{
+                  backgroundColor: hero.ctaStyle?.backgroundColor || theme.primaryColor,
+                  color: hero.ctaStyle?.textColor || 'white',
+                  fontSize: hero.ctaStyle?.fontSize || '1.125rem',
+                  borderRadius: hero.ctaStyle?.borderRadius || '9999px',
+                  width: hero.ctaStyle?.width === 'full' ? '100%' : (hero.ctaStyle?.width === 'auto' ? 'auto' : hero.ctaStyle?.width),
+                }}
+              >
+                {hero.ctaText || '신청하기'}
+                {(!hero.ctaStyle || !hero.ctaStyle.width || hero.ctaStyle.width === 'auto') && <ArrowRight className="ml-2 w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </section>
 

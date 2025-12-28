@@ -27,6 +27,17 @@ export interface TextStyle {
   letterSpacing?: string;
 }
 
+// Button Style Interface
+export interface ButtonStyle {
+  backgroundColor?: string;
+  textColor?: string;
+  borderRadius?: string;
+  fontSize?: string;
+  width?: 'auto' | 'full' | string; // 'auto' | 'full' | 'px'
+  alignment?: 'left' | 'center' | 'right';
+  fontWeight?: string;
+}
+
 // Form Design Interface
 export interface FormStyle {
   backgroundColor?: string;
@@ -34,9 +45,19 @@ export interface FormStyle {
   borderWidth?: string; // px
   borderRadius?: string; // px or rem
   textColor?: string;
+
+  // Title Styling
+  titleColor?: string;
+  titleFontSize?: string;
+  titleAlign?: 'left' | 'center' | 'right';
+
+  // Button Styling
   buttonBackgroundColor?: string;
   buttonTextColor?: string;
   buttonRadius?: string;
+  buttonFontSize?: string;
+  buttonWidth?: 'auto' | 'full';
+  buttonAlign?: 'left' | 'center' | 'right';
 }
 
 // Updated: Floating Banner with Size
@@ -58,6 +79,7 @@ export interface HeroSection {
   subHeadline: string;
   subHeadlineStyle?: TextStyle;
   ctaText: string;
+  ctaStyle?: ButtonStyle; // New: Customizable CTA Button
   backgroundImage?: string; // URL
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // New: 5-level section height
 }
