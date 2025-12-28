@@ -20,12 +20,48 @@ function doPost(e) {
 
   if (type === 'visit') {
     return handleVisitLog(params);
-  } else if (type === 'email') { // FIX: Match frontend 'type' for admin notifications
+  } else if (type === 'email') { 
     return handleEmail(params);
   } else if (type === 'config_save') {
     return handleConfigSubmission(params);
+  } else if (type === 'upload_image') { // NEW
+    return handleImageUpload(params);
   } else { // Default to lead
     return handleLeadSubmission(params);
+  }
+}
+
+// =================================================================
+// [NEW] Handle Image Upload to Google Drive
+// =================================================================
+function handleImageUpload(params) {
+  try {
+    var data = Utilities.base64Decode(params.base64);
+    var blob = Utilities.newBlob(data, params.mimeType, params.filename);
+    
+    // Create file in root or specific folder
+    // Note: To use a folder, use DriveApp.getFolderById('FOLDER_ID').createFile(blob)
+    var file = DriveApp.createFile(blob);
+    
+    // Set permission to anyone with link can view
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // Direct link generation
+    // file.getDownloadUrl() adds a download prompt.
+    // simpler view url: https://drive.google.com/uc?export=view&id={ID}
+    var url = "https://drive.google.com/uc?export=view&id=" + file.getId();
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "success",
+      "url": url,
+      "fileId": file.getId()
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "error",
+      "message": e.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 

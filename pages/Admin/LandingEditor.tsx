@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner } from '../../types';
 import LandingPage from '../LandingPage';
-import { saveLandingConfig, fetchLandingConfigById } from '../../services/googleSheetService';
+import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive } from '../../services/googleSheetService';
 import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle } from 'lucide-react';
 
 // GitHub Sync Check: Force Update
@@ -182,15 +182,42 @@ const LandingEditor: React.FC = () => {
         });
     };
 
-    // Image Helper: Read file as DataURL
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
+    // Image Helper: Upload to Drive and get URL
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                callback(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            // Check file size (Google Drive API limit in GAS is ~50MB, but let's be reasonable)
+            if (file.size > 10 * 1024 * 1024) {
+                alert("파일 용량이 너무 큽니다. (10MB 제한)");
+                return;
+            }
+
+            const confirmUpload = confirm(`"${file.name}" 파일을 서버(구글 드라이브)에 업로드하시겠습니까?\n\n(참고: 업로드 후 '공유 가능한 링크'가 자동으로 입력됩니다.)`);
+            if (!confirmUpload) return;
+
+            // Show loading cursor or rudimentary feedback
+            const prevCursor = document.body.style.cursor;
+            document.body.style.cursor = 'wait';
+
+            // Temporary alert or toast could be better, but sticking to simple feedback for now
+            // We can add a 'isUploading' state if we want to block UI, but keep it simple.
+
+            try {
+                const url = await uploadImageToDrive(file);
+                if (url) {
+                    callback(url);
+                    alert("이미지 업로드가 완료되었습니다!");
+                } else {
+                    alert("업로드에 실패했습니다. 다시 시도해주세요.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("오류가 발생했습니다.");
+            } finally {
+                document.body.style.cursor = prevCursor;
+                // Clear input so same file can be selected again
+                e.target.value = '';
+            }
         }
     };
 

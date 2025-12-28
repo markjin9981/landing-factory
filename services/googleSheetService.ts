@@ -213,3 +213,51 @@ export const fetchLandingConfigs = async (): Promise<LandingConfig[]> => {
     const data = await fetchData('configs');
     return Array.isArray(data) ? data : [];
 };
+
+/**
+ * 이미지를 구글 드라이브에 업로드하고 호스팅 URL을 반환합니다.
+ */
+export const uploadImageToDrive = async (file: File): Promise<string | null> => {
+    if (!isUrlConfigured()) {
+        console.warn("Mock Upload: GOOGLE_SCRIPT_URL not configured");
+        return URL.createObjectURL(file);
+    }
+
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            try {
+                const base64Data = (reader.result as string).split(',')[1];
+                const formData = new FormData();
+                formData.append('type', 'upload_image');
+                formData.append('filename', file.name);
+                formData.append('mimeType', file.type);
+                formData.append('base64', base64Data);
+
+                // Google Apps Script doPost returns JSON if we follow redirects or handle CORS correctly via textOutput
+                // But standard fetch mode: 'no-cors' yields opaque response.
+                // To get the URL back, we MUST use standard CORS if possible.
+                // Fortunately, GAS web app with "Anyone" access supports CORS for GET/POST usually.
+
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const result = await response.json();
+                if (result.result === 'success' && result.url) {
+                    resolve(result.url);
+                } else {
+                    console.error("Upload failed result:", result);
+                    resolve(null);
+                }
+            } catch (error) {
+                console.error("Error uploading image:", error);
+                resolve(null);
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+};
