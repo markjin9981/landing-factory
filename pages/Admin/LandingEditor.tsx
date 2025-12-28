@@ -123,6 +123,19 @@ const LandingEditor: React.FC = () => {
     };
 
     const handleDeploy = async () => {
+        // [Size Check] Google Sheets Cell Limit is ~50,000 chars.
+        // We conservatively check for 45,000 to be safe.
+        const configStr = JSON.stringify(config);
+        if (configStr.length > 45000) {
+            alert(
+                '저장 용량을 초과했습니다! (현재: ' + (configStr.length / 1024).toFixed(2) + 'KB)\n\n' +
+                'Google Sheets에는 대용량 이미지(Base64)를 직접 저장할 수 없습니다.\n' +
+                '이미지 "업로드" 대신 "이미지 주소(URL)"를 입력해주세요.\n\n' +
+                '(팁: 이미지를 웹에 올린 후 주소를 복사해 붙여넣으세요.)'
+            );
+            return;
+        }
+
         setDeployStatus('saving');
         const success = await saveLandingConfig(config);
 
@@ -145,14 +158,12 @@ const LandingEditor: React.FC = () => {
                 }
             } else {
                 // If verification failed, keeps draft but shows success message with warning
-                console.warn("Deploy seemingly successful but could not verify from server immediately. Draft kept.");
                 setDeployStatus('success');
-                // We still show success because standard fetch(no-cors) returns opaque, 
-                // and maybe the read is just lagging or cached. 
-                // But we DO NOT delete the draft, so it stays in the list (as Draft).
+                alert('저장이 완료되었으나 서버 확인이 지연되고 있습니다.\n잠시 후 다시 확인해주세요.');
             }
         } else {
             setDeployStatus('error');
+            alert('저장에 실패했습니다. 네트워크 상태를 확인해주세요.');
         }
 
         setTimeout(() => setDeployStatus('idle'), 3000);
