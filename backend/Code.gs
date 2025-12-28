@@ -115,9 +115,11 @@ function handleImageUpload(params) {
   try {
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     // Direct link for <img> tag (only works if public)
-    url = "https://drive.google.com/uc?export=view&id=" + file.getId();
+    // [UPDATE] Use 'thumbnail' link to bypass 3rd-party cookie blocking issues
+    // sz=s3000 allows high-res up to 3000px (defaults to small otherwise)
+    url = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=s3000";
   } catch (permErr) {
-    // If sharing fails, fallback to standard view link
+    // If sharing fails, fallback to standard view link (user can click to view)
     url = "https://drive.google.com/file/d/" + file.getId() + "/view?usp=sharing";
   }
     
