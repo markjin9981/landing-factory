@@ -14,6 +14,10 @@ function checkDrivePermissions() {
   Logger.log("Drive Access OK: " + root.getName());
 }
 
+function doGet(e) {
+  return ContentService.createTextOutput("Backend Status: Online | Version: 2.1 (JSON Patch) | Drive Access: OK");
+}
+
 function doPost(e) {
   // -----------------------------------------------------------------------
   // [Safety Check] Editor에서 '실행' 버튼을 누르면 e가 없어서 에러가 납니다.
