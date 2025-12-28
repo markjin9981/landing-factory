@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { LANDING_CONFIGS } from '../../data/landingConfigs';
 import { LandingConfig } from '../../types';
 import { fetchLandingConfigs } from '../../services/googleSheetService';
-import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2 } from 'lucide-react';
+import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
@@ -183,6 +183,23 @@ const AdminDashboard: React.FC = () => {
                                 </div>
 
                                 <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0">
+                                    <button
+                                        onClick={async () => {
+                                            if (confirm(`정말 '${config.title}' 페이지를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.`)) {
+                                                const success = await import('../../services/googleSheetService').then(m => m.deleteLandingConfig(config.id));
+                                                if (success) {
+                                                    alert('삭제되었습니다.');
+                                                    window.location.reload();
+                                                } else {
+                                                    alert('삭제에 실패했습니다.');
+                                                }
+                                            }
+                                        }}
+                                        className="flex items-center justify-center w-10 h-10 border border-red-200 bg-red-50 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
+                                        title="페이지 삭제"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                     <button
                                         onClick={() => {
                                             const url = `${window.location.origin}${window.location.pathname}#/${config.id}`;
