@@ -7,9 +7,10 @@ interface Props {
     config: FormSection;
     landingId: string;
     themeColor: string;
+    pageTitle?: string; // Global Page Title
 }
 
-const LeadForm: React.FC<Props> = ({ config, landingId, themeColor }) => {
+const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle }) => {
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
@@ -127,7 +128,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor }) => {
             phone: formData['phone'] || '',
             user_agent: navigator.userAgent,
             referrer: document.referrer || 'direct',
-            page_title: config.title, // Pass title for email subject
+            page_title: pageTitle || config.title, // Use Global Title if available
             marketing_consent: consents.marketing ? 'Y' : 'N',
             third_party_consent: consents.thirdParty ? 'Y' : 'N',
             ...formData,
@@ -253,8 +254,8 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor }) => {
                                                         <label
                                                             key={opt.value}
                                                             className={`flex items-center justify-center px-3 py-3 rounded-lg border cursor-pointer transition-all ${formData[field.id] === opt.value
-                                                                    ? 'border-transparent bg-opacity-10 font-bold shadow-inner'
-                                                                    : 'border-gray-200 hover:bg-gray-50'
+                                                                ? 'border-transparent bg-opacity-10 font-bold shadow-inner'
+                                                                : 'border-gray-200 hover:bg-gray-50'
                                                                 }`}
                                                             style={{
                                                                 backgroundColor: formData[field.id] === opt.value ? themeColor : '#ffffff',

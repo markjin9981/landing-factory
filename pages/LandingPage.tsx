@@ -298,7 +298,12 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
   const FormComponent = () => (
     <section id="lead-form" className="py-20 px-4 bg-gray-50 max-w-4xl mx-auto">
       <div className="w-full">
-        <LeadForm config={formConfig} landingId={config.id} themeColor={theme.primaryColor} />
+        <LeadForm
+          config={formConfig}
+          landingId={config.id}
+          themeColor={theme.primaryColor}
+          pageTitle={config.title} // Pass Global Page Title
+        />
       </div>
     </section>
   );
