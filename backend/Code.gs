@@ -5,13 +5,22 @@
  */
 
 /**
- * [필수] 권한 승인 확인용 함수
- * 이 함수를 상단 메뉴에서 선택하고 '실행(Run)' 버튼을 눌러주세요.
- * "권한 검토(Review Permissions)" 창이 뜨면 승인해야 이미지 업로드가 작동합니다.
+ * [필수] 권한 승인 확인용 함수 (강력 Ver.)
+ * 이 함수를 실행하여 "승인(Allow)"을 해야만 이미지 업로드가 가능합니다.
+ * 실행 후 "Drive Access OK" 로그가 뜨면 성공입니다.
  */
 function checkDrivePermissions() {
+  // 1. 읽기 권한 확인
   var root = DriveApp.getRootFolder();
+  
+  // 2. 쓰기(파일 생성) 권한 강제 확인
+  // 실제로 파일을 하나 만들었다가 바로 지웁니다.
+  // 이 과정을 거쳐야 "DriveApp.createFile" 권한이 확실히 부여됩니다.
+  var tempFile = DriveApp.createFile("temp_auth_check.txt", "Permission Check");
+  tempFile.setTrashed(true); // 바로 휴지통으로 이동
+  
   Logger.log("Drive Access OK: " + root.getName());
+  Logger.log("Write Permission OK: File created and deleted.");
 }
 
 function doGet(e) {
