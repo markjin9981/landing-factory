@@ -5,7 +5,11 @@ import { fetchLeads, fetchLandingConfigs } from '../../services/googleSheetServi
 import { LandingConfig } from '../../types';
 
 // Hidden fields list (Meta Data)
-const META_FIELDS = ['marketing_consent', 'third_party_consent', 'referrer', 'user_agent', 'page_title', 'landing_id', 'timestamp', 'privacy_consent'];
+const META_FIELDS = [
+    'marketing_consent', 'third_party_consent', 'referrer', 'user_agent',
+    'page_title', 'landing_id', 'timestamp', 'privacy_consent',
+    'raw data', 'recipient', 'body', 'subject' // Technical/Legacy fields to hide
+];
 
 const LeadInfoCell: React.FC<{ lead: any }> = ({ lead }) => {
     const [showMeta, setShowMeta] = useState(false);
@@ -29,6 +33,9 @@ const LeadInfoCell: React.FC<{ lead: any }> = ({ lead }) => {
             metaKeys.push(key);
         } else if (EXCLUDED_VISIBLE_KEYS.includes(lowerKey)) {
             // Skip - already shown in table
+        } else if (key.startsWith('f') && !isNaN(Number(key[1]))) {
+            // Hide internal form IDs like f1766935627610 (treat as meta)
+            metaKeys.push(key);
         } else {
             visibleKeys.push(key);
         }
