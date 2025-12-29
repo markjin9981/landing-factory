@@ -11,7 +11,7 @@ const META_FIELDS = [
     'raw data', 'recipient', 'body', 'subject' // Technical/Legacy fields to hide
 ];
 
-const LeadInfoCell: React.FC<{ lead: any }> = ({ lead }) => {
+const LeadInfoCell: React.FC<{ lead: any; promotedKey?: string }> = ({ lead, promotedKey }) => {
     const [showMeta, setShowMeta] = useState(false);
 
     // Remove known primary keys
@@ -24,6 +24,7 @@ const LeadInfoCell: React.FC<{ lead: any }> = ({ lead }) => {
 
     // Keys that are already shown in the main table
     const EXCLUDED_VISIBLE_KEYS = ['name', 'phone', 'landing id', 'timestamp'];
+    if (promotedKey) EXCLUDED_VISIBLE_KEYS.push(promotedKey.toLowerCase());
 
 
     Object.keys(rest).forEach(key => {
@@ -396,12 +397,30 @@ const LeadStats: React.FC = () => {
                                         <th className="px-6 py-3 whitespace-nowrap">ID</th>
                                         <th className="px-6 py-3">이름</th>
                                         <th className="px-6 py-3">연락처</th>
+                                        <th className="px-6 py-3">데이터1</th>
                                         <th className="px-6 py-3">추가 정보</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredLeads.map((lead, idx) => {
                                         const title = getPageTitle(String(lead['Landing ID']));
+
+                                        // Calculate Promoted Key (First Custom Field)
+                                        let promotedKey = undefined;
+                                        const SKIP_KEYS = ['timestamp', 'landing id', 'name', 'phone'];
+
+                                        // Find first key that is not standard, not meta, not form ID
+                                        for (const key of Object.keys(lead)) {
+                                            const lowerKey = key.toLowerCase();
+                                            if (SKIP_KEYS.includes(lowerKey)) continue;
+                                            if (META_FIELDS.includes(lowerKey)) continue;
+                                            if (lowerKey.startsWith('consent_')) continue;
+                                            if (key.startsWith('f') && !isNaN(Number(key[1]))) continue;
+
+                                            promotedKey = key;
+                                            break;
+                                        }
+
                                         return (
                                             <tr key={idx} className="bg-white border-b hover:bg-gray-50">
                                                 <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-400">{lead['Timestamp']}</td>
@@ -415,8 +434,11 @@ const LeadStats: React.FC = () => {
                                                 </td>
                                                 <td className="px-6 py-4 font-bold text-gray-900">{lead['Name']}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{lead['Phone']}</td>
+                                                <td className="px-6 py-4 font-medium text-gray-800">
+                                                    {promotedKey ? lead[promotedKey] : '-'}
+                                                </td>
                                                 <td className="px-6 py-4 text-xs text-gray-500">
-                                                    <LeadInfoCell lead={lead} />
+                                                    <LeadInfoCell lead={lead} promotedKey={promotedKey} />
                                                 </td>
                                             </tr>
                                         );
