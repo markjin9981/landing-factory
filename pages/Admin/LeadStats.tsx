@@ -409,13 +409,13 @@ const LeadStats: React.FC = () => {
                                         let promotedKey = undefined;
                                         const SKIP_KEYS = ['timestamp', 'landing id', 'name', 'phone'];
 
-                                        // Find first key that is not standard, not meta, not form ID
+                                        // Find first key that is not standard, not meta
                                         for (const key of Object.keys(lead)) {
                                             const lowerKey = key.toLowerCase();
                                             if (SKIP_KEYS.includes(lowerKey)) continue;
                                             if (META_FIELDS.includes(lowerKey)) continue;
                                             if (lowerKey.startsWith('consent_')) continue;
-                                            if (key.startsWith('f') && !isNaN(Number(key[1]))) continue;
+                                            // [Changed] We NOW ALLOW form IDs (f...) to be the promoted Data 1 key
 
                                             promotedKey = key;
                                             break;
