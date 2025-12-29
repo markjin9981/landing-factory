@@ -196,15 +196,32 @@ function doPost(e) {
 // =================================================================
 // [NEW] Handle Image Upload to Google Drive (Robust Version)
 // =================================================================
+// =================================================================
+// [NEW] Handle Image Upload to Google Drive (Robust Version)
+// - Uploads to specific folder: "landing-factory image"
+// =================================================================
 function handleImageUpload(params) {
   // 1. Base64 Decoding Safe Guard
   var file;
+  var folderName = "landing-factory image"; // [UPDATE] Target Folder Name
+  
   try {
     var data = Utilities.base64Decode(params.base64);
     var blob = Utilities.newBlob(data, params.mimeType, params.filename);
     
-    // 2. Create File
-    file = DriveApp.createFile(blob);
+    // 2. [UPDATE] Find or Create Folder
+    var folder;
+    var folders = DriveApp.getFoldersByName(folderName);
+    
+    if (folders.hasNext()) {
+      folder = folders.next();
+    } else {
+      folder = DriveApp.createFolder(folderName);
+    }
+    
+    // 3. Create File in Specific Folder
+    file = folder.createFile(blob);
+    
   } catch (createErr) {
     return ContentService.createTextOutput(JSON.stringify({
       "result": "error",
@@ -212,7 +229,7 @@ function handleImageUpload(params) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
-  // 3. Set Permissions (Try-Catch for Enterprise Restrictions)
+  // 4. Set Permissions (Try-Catch for Enterprise Restrictions)
   var url = "";
   try {
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);

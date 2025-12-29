@@ -1,14 +1,13 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { authService } from '../services/authService';
 
 interface Props {
   children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<Props> = ({ children }) => {
-  const isAuthenticated = sessionStorage.getItem('admin_auth') === 'true';
-
-  if (!isAuthenticated) {
+  if (!authService.isAuthenticated()) {
     return <Navigate to="/admin/login" replace />;
   }
 

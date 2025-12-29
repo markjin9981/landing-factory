@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import LandingEditor from './pages/Admin/LandingEditor';
@@ -27,7 +27,7 @@ const Home = () => {
               Serverless • Config-Driven • Google Sheet DB
             </p>
           </div>
-          <button 
+          <button
             onClick={() => navigate('/admin')}
             className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
           >
@@ -38,8 +38,8 @@ const Home = () => {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {configs.map((config) => (
-            <Link 
-              key={config.id} 
+            <Link
+              key={config.id}
               to={`/${config.id}`}
               className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-200 block group"
             >
@@ -71,67 +71,68 @@ const App: React.FC = () => {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        
+        {/* Redirect Root to Login */}
+        <Route path="/" element={<Navigate to="/admin/login" replace />} />
+
         {/* Login Route */}
         <Route path="/admin/login" element={<Login />} />
 
         {/* Protected Admin Routes */}
-        <Route 
-          path="/admin" 
+        <Route
+          path="/admin"
           element={
             <ProtectedRoute>
               <AdminDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/admin/settings" 
+        <Route
+          path="/admin/settings"
           element={
             <ProtectedRoute>
               <Settings />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/admin/editor" 
+        <Route
+          path="/admin/editor"
           element={
             <ProtectedRoute>
               <LandingEditor />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/admin/editor/:id" 
+        <Route
+          path="/admin/editor/:id"
           element={
             <ProtectedRoute>
               <LandingEditor />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/admin/stats" 
+        <Route
+          path="/admin/stats"
           element={
             <ProtectedRoute>
               <LeadStats />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/admin/traffic-logs" 
+        <Route
+          path="/admin/traffic-logs"
           element={
             <ProtectedRoute>
               <TrafficLogs />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/admin/traffic-stats" 
+        <Route
+          path="/admin/traffic-stats"
           element={
             <ProtectedRoute>
               <TrafficStats />
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* Dynamic Route for Landing Pages: /1, /2, /30 etc. */}
@@ -140,5 +141,6 @@ const App: React.FC = () => {
     </HashRouter>
   );
 };
+
 
 export default App;
