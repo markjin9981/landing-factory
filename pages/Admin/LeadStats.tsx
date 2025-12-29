@@ -175,39 +175,43 @@ const LeadStats: React.FC = () => {
         // Helper to parse Korean date format strictly (e.g., "2024. 5. 20. 오후 3:30:11" or "2024. 5. 29. 오후 3:30" - no seconds)
         const parseKoreanDate = (dateStr: string) => {
             if (!dateStr || typeof dateStr !== 'string') return 0;
+
+            // 1. Try Standard Date Parse first (for ISO, YYYY-MM-DD, or friendly formats)
+            const standard = new Date(dateStr).getTime();
+            if (!isNaN(standard)) return standard;
+
             try {
-                // Remove all spaces for easier parsing: "2024.5.20.오후3:30:11"
-                const cleanStr = dateStr.replace(/\s+/g, '');
+                // 2. Fallback: robust digit extraction
+                // Handles: "2024. 5. 20. 오후 3:30", "2024.5.20 15:30", etc.
 
-                // Updated Regex:
-                // 1. Matches YYYY.MM.DD.
-                // 2. Matches (오전|오후)
-                // 3. Matches HH:MM
-                // 4. Optional :SS
-                // Example: 2024.5.20.오후3:30 -> Y=2024, M=5, D=20, AP=오후, H=3, M=30
-                const regex = /^(\d{4})\.(\d{1,2})\.(\d{1,2})\.([가-힣]+)(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/;
-                const match = cleanStr.match(regex);
+                const isPM = dateStr.includes('오후') || dateStr.toLowerCase().includes('pm');
+                const isAM = dateStr.includes('오전') || dateStr.toLowerCase().includes('am');
 
-                if (match) {
-                    let year = parseInt(match[1], 10);
-                    let month = parseInt(match[2], 10) - 1; // JS months are 0-indexed
-                    let day = parseInt(match[3], 10);
-                    let ampm = match[4];
-                    let hour = parseInt(match[5], 10);
-                    let min = parseInt(match[6], 10);
-                    let sec = match[7] ? parseInt(match[7], 10) : 0;
+                // Extract all sequences of digits
+                const numbers = dateStr.match(/\d+/g);
+                if (!numbers || numbers.length < 3) return 0; // Need at least Y, M, D
 
-                    // Convert 12h to 24h
-                    if (ampm === '오후' && hour < 12) hour += 12;
-                    if (ampm === '오전' && hour === 12) hour = 0;
+                let year = parseInt(numbers[0], 10);
+                let month = parseInt(numbers[1], 10) - 1; // JS months are 0-indexed
+                let day = parseInt(numbers[2], 10);
 
-                    return new Date(year, month, day, hour, min, sec).getTime();
-                }
+                // Validate reasonable date ranges to prevent garbage parsing
+                if (month < 0 || month > 11 || day < 1 || day > 31) return 0;
 
-                // Fallback: Try removing '.' and spaces to see if standard parse works, though unlikely for Korean text.
-                // Standard new Date() might handle "2024. 5. 20." if valid, but often fails with Hangul.
-                const parsed = new Date(dateStr).getTime();
-                return isNaN(parsed) ? 0 : parsed;
+                // Defaults
+                let hour = 0;
+                let min = 0;
+                let sec = 0;
+
+                if (numbers.length >= 4) hour = parseInt(numbers[3], 10);
+                if (numbers.length >= 5) min = parseInt(numbers[4], 10);
+                if (numbers.length >= 6) sec = parseInt(numbers[5], 10);
+
+                // Adjust for PM/AM
+                if (isPM && hour < 12) hour += 12;
+                if (isAM && hour === 12) hour = 0; // 12 AM is 00:00
+
+                return new Date(year, month, day, hour, min, sec).getTime();
             } catch (e) {
                 return 0;
             }
