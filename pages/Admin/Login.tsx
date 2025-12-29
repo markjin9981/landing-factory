@@ -39,19 +39,16 @@ const Login: React.FC = () => {
 
         <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">관리자 로그인</h2>
         <p className="text-sm text-gray-500 text-center mb-8">
-          {creds.email
-            ? '설정된 이메일과 비밀번호로 로그인하세요.'
-            : '초기 비밀번호: admin (로그인 후 변경 권장)'}
+          관리자 계정으로 로그인하세요.
         </p>
 
         <form onSubmit={handleLogin} className="space-y-4">
-          {/* Show Email Input only if one is configured or to simulate email login */}
           <div>
             <div className="relative">
               <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
               <input
                 type="email"
-                placeholder="이메일 (admin@example.com)"
+                placeholder="이메일"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(false); }}
                 className="w-full pl-10 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
