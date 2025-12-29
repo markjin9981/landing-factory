@@ -498,6 +498,11 @@ const LandingEditor: React.FC = () => {
                         <label className="text-[10px] text-gray-500 block">너비</label>
                         <select value={getValue('width') || 'auto'} onChange={e => updateStyle('width', e.target.value)} className="w-full border rounded p-1 text-xs">
                             <option value="auto">텍스트 맞춤 (Auto)</option>
+                            <option value="xs">XS (128px)</option>
+                            <option value="sm">SM (192px)</option>
+                            <option value="md">MD (256px)</option>
+                            <option value="lg">LG (320px)</option>
+                            <option value="xl">XL (384px)</option>
                             <option value="full">가로 꽉 채움 (Full)</option>
                         </select>
                     </div>
@@ -822,11 +827,15 @@ const LandingEditor: React.FC = () => {
                                         onChange={(e) => updateNested(['hero', 'size'], e.target.value)}
                                         className="w-full border rounded p-2 text-sm"
                                     >
-                                        <option value="xs">1단계 (매우 작게)</option>
-                                        <option value="sm">2단계 (작게)</option>
-                                        <option value="md">3단계 (보통)</option>
-                                        <option value="lg">4단계 (크게)</option>
-                                        <option value="xl">5단계 (매우 크게)</option>
+                                        <option value="3xs">① 매우 작게 (Tiny)</option>
+                                        <option value="2xs">② 더 작게 (Ex-Small)</option>
+                                        <option value="xs">③ 작게 (Small)</option>
+                                        <option value="sm">④ 약간 작게 (Semi-Small)</option>
+                                        <option value="md">⑤ 보통 (Medium)</option>
+                                        <option value="lg">⑥ 약간 크게 (Semi-Large)</option>
+                                        <option value="xl">⑦ 크게 (Large)</option>
+                                        <option value="2xl">⑧ 더 크게 (Ex-Large)</option>
+                                        <option value="3xl">⑨ 매우 크게 (Huge)</option>
                                     </select>
                                 </div>
                                 <div className="border-t pt-4">
@@ -1408,17 +1417,28 @@ const LandingEditor: React.FC = () => {
                                     상세 이미지 섹션을 사용할 경우, 아래 텍스트 섹션의 제목을 비워두면 화면에 표시되지 않습니다.
                                 </div>
                                 <div className="space-y-3">
-                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">문제 제기 섹션</h3>
+
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
+                                        문제 제기 섹션
+                                        <div className="flex items-center gap-2">
+                                            <input type="color" value={config.problem.backgroundColor || '#f9fafb'} onChange={(e) => updateNested(['problem', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                            <span className="text-xs font-normal text-gray-500">배경색</span>
+                                        </div>
+                                    </h3>
                                     <input
                                         type="text" value={config.problem.title}
                                         onChange={(e) => updateNested(['problem', 'title'], e.target.value)}
                                         className="w-full border p-2 rounded text-sm" placeholder="섹션 제목 (비우면 숨김)"
                                     />
+                                    <TextStyleEditor label="제목" stylePath={['problem', 'titleStyle']} />
+
                                     <textarea
                                         value={config.problem.description}
                                         onChange={(e) => updateNested(['problem', 'description'], e.target.value)}
                                         className="w-full border p-2 rounded text-sm h-20" placeholder="설명"
                                     />
+                                    <TextStyleEditor label="설명 본문" stylePath={['problem', 'descriptionStyle']} />
+
                                     <div className="bg-gray-50 p-3 rounded border border-gray-200">
                                         <label className="text-xs font-bold text-gray-500 block mb-2 flex justify-between">
                                             문제점 리스트
@@ -1426,6 +1446,7 @@ const LandingEditor: React.FC = () => {
                                                 <Plus className="w-3 h-3 mr-1" /> 추가
                                             </button>
                                         </label>
+                                        <TextStyleEditor label="리스트 텍스트" stylePath={['problem', 'pointStyle']} />
                                         <div className="space-y-2">
                                             {config.problem.points.map((point, idx) => (
                                                 <div key={idx} className="flex gap-2">
@@ -1444,18 +1465,74 @@ const LandingEditor: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-3 border-t pt-4">
-                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">해결책 섹션</h3>
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
+                                        해결책 섹션
+                                        <div className="flex items-center gap-2">
+                                            <input type="color" value={config.solution.backgroundColor || '#ffffff'} onChange={(e) => updateNested(['solution', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                            <span className="text-xs font-normal text-gray-500">배경색</span>
+                                        </div>
+                                    </h3>
                                     <input
                                         type="text" value={config.solution.title}
                                         onChange={(e) => updateNested(['solution', 'title'], e.target.value)}
                                         className="w-full border p-2 rounded text-sm" placeholder="섹션 제목 (비우면 숨김)"
                                     />
+                                    <TextStyleEditor label="제목" stylePath={['solution', 'titleStyle']} />
+
                                     <textarea
                                         value={config.solution.description}
                                         onChange={(e) => updateNested(['solution', 'description'], e.target.value)}
                                         className="w-full border p-2 rounded text-sm h-20" placeholder="해결책 설명 (선택)"
                                     />
+                                    <TextStyleEditor label="설명 본문" stylePath={['solution', 'descriptionStyle']} />
+
                                     <div className="bg-gray-50 p-3 rounded border border-gray-200">
+                                        <label className="text-xs font-bold text-gray-500 block mb-2 flex justify-between">
+                                            카드 스타일 디자인
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-2 mb-4">
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">카드 배경색</label>
+                                                <div className="flex items-center gap-1">
+                                                    <input type="color" value={config.solution.cardStyle?.backgroundColor || 'transparent'} onChange={(e) => updateNested(['solution', 'cardStyle', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                                    <input type="text" value={config.solution.cardStyle?.backgroundColor || ''} onChange={(e) => updateNested(['solution', 'cardStyle', 'backgroundColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">카드 텍스트색</label>
+                                                <div className="flex items-center gap-1">
+                                                    <input type="color" value={config.solution.cardStyle?.textColor || '#000000'} onChange={(e) => updateNested(['solution', 'cardStyle', 'textColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                                    <input type="text" value={config.solution.cardStyle?.textColor || ''} onChange={(e) => updateNested(['solution', 'cardStyle', 'textColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">테두리 색상</label>
+                                                <div className="flex items-center gap-1">
+                                                    <input type="color" value={config.solution.cardStyle?.borderColor || '#e5e7eb'} onChange={(e) => updateNested(['solution', 'cardStyle', 'borderColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                                    <input type="text" value={config.solution.cardStyle?.borderColor || ''} onChange={(e) => updateNested(['solution', 'cardStyle', 'borderColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">테두리 두께</label>
+                                                <input type="text" value={displaySizeValue(config.solution.cardStyle?.borderWidth)} onChange={(e) => updateNested(['solution', 'cardStyle', 'borderWidth'], formatSizeValue(e.target.value))} className="w-full border rounded p-1 text-xs" placeholder="0" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">모서리 둥글게</label>
+                                                <input type="text" value={displaySizeValue(config.solution.cardStyle?.borderRadius)} onChange={(e) => updateNested(['solution', 'cardStyle', 'borderRadius'], formatSizeValue(e.target.value))} className="w-full border rounded p-1 text-xs" placeholder="0" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">그림자 효과</label>
+                                                <select
+                                                    value={config.solution.cardStyle?.shadow ? 'true' : 'false'}
+                                                    onChange={(e) => updateNested(['solution', 'cardStyle', 'shadow'], e.target.value === 'true')}
+                                                    className="w-full border rounded p-1 text-xs"
+                                                >
+                                                    <option value="false">없음</option>
+                                                    <option value="true">있음</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
                                         <label className="text-xs font-bold text-gray-500 block mb-2 flex justify-between">
                                             특징 리스트 (3개 권장)
                                             <button onClick={addSolutionFeature} className="text-blue-600 hover:underline flex items-center">
@@ -1488,6 +1565,27 @@ const LandingEditor: React.FC = () => {
                                             ))}
                                         </div>
                                     </div>
+                                </div>
+                                <div className="space-y-3 border-t pt-4">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
+                                        신뢰/리뷰 섹션 스타일
+                                        <div className="flex items-center gap-2">
+                                            <input type="color" value={config.trust?.backgroundColor || '#f9fafb'} onChange={(e) => updateNested(['trust', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                            <span className="text-xs font-normal text-gray-500">배경색</span>
+                                        </div>
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-[10px] text-gray-500 block">텍스트 색상 (기본)</label>
+                                            <div className="flex items-center gap-1">
+                                                <input type="color" value={config.trust?.textColor || '#000000'} onChange={(e) => updateNested(['trust', 'textColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
+                                                <input type="text" value={config.trust?.textColor || ''} onChange={(e) => updateNested(['trust', 'textColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-gray-400 mt-2">
+                                        * 현재 리뷰 및 통계 데이터 입력은 준비중입니다.
+                                    </p>
                                 </div>
                             </div>
                         )}

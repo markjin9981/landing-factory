@@ -33,7 +33,7 @@ export interface ButtonStyle {
   textColor?: string;
   borderRadius?: string;
   fontSize?: string;
-  width?: 'auto' | 'full' | string; // 'auto' | 'full' | 'px'
+  width?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'auto'; // Expanded width options
   alignment?: 'left' | 'center' | 'right';
   fontWeight?: string;
 }
@@ -80,26 +80,43 @@ export interface HeroSection {
   subHeadline: string;
   subHeadlineStyle?: TextStyle;
   ctaText: string;
-  ctaStyle?: ButtonStyle; // New: Customizable CTA Button
-  backgroundImage?: string; // URL
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // New: 5-level section height
+  ctaStyle?: ButtonStyle;
+  backgroundImage?: string;
+  size?: '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'; // Expanded range
 }
 
 export interface ProblemSection {
   title: string;
+  titleStyle?: TextStyle; // New
   description: string;
+  descriptionStyle?: TextStyle; // New
   points: string[];
+  pointStyle?: TextStyle; // New: Style for individual points
+  backgroundColor?: string; // New
 }
 
 export interface SolutionSection {
   title: string;
+  titleStyle?: TextStyle; // New
   description: string;
+  descriptionStyle?: TextStyle; // New
   features: { title: string; desc: string; icon?: string }[];
+  cardStyle?: { // New: Card specific styling
+    backgroundColor?: string;
+    textColor?: string;
+    borderRadius?: string;
+    shadow?: boolean;
+    borderColor?: string;
+    borderWidth?: string;
+  };
+  backgroundColor?: string; // New
 }
 
 export interface TrustSection {
   reviews: { name: string; text: string; rating: number }[];
   stats?: { label: string; value: string }[];
+  backgroundColor?: string; // New
+  textColor?: string; // New
 }
 
 export interface FormSection {

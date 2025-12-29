@@ -237,11 +237,27 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
 
   const getHeroPadding = (size: HeroSection['size'] = 'md') => {
     switch (size) {
+      case '3xs': return 'py-4';
+      case '2xs': return 'py-8';
       case 'xs': return 'py-12';
       case 'sm': return 'py-16';
       case 'lg': return 'py-32';
       case 'xl': return 'py-40';
+      case '2xl': return 'py-48';
+      case '3xl': return 'py-64';
       case 'md': default: return 'py-24';
+    }
+  };
+
+  const getCTAWidth = (width?: string) => {
+    switch (width) {
+      case 'xs': return '8rem'; // 128px
+      case 'sm': return '12rem'; // 192px
+      case 'md': return '16rem'; // 256px
+      case 'lg': return '20rem'; // 320px
+      case 'xl': return '24rem'; // 384px
+      case 'full': return '100%';
+      case 'auto': default: return 'auto';
     }
   };
 
@@ -348,6 +364,15 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
   // Safe fallback for footer
   const safeFooter = footer || { isShow: false, images: [], copyrightText: '' };
 
+  // Helper for inline text styles
+  const getTextStyle = (style?: any, defaults?: any) => ({
+    fontSize: style?.fontSize || defaults?.fontSize,
+    fontWeight: style?.fontWeight || defaults?.fontWeight,
+    color: style?.color || defaults?.color,
+    textAlign: style?.textAlign || defaults?.textAlign,
+    letterSpacing: style?.letterSpacing || defaults?.letterSpacing,
+  });
+
   return (
     <div className={`font-sans text-gray-900 bg-white ${isPreview ? 'h-full relative overflow-hidden' : 'min-h-screen'}`}>
 
@@ -376,32 +401,17 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
           </div>
 
           <div className="relative z-10 w-full text-center">
-            <span
-              className="inline-block px-3 py-1 mb-6 text-xs font-bold tracking-wider uppercase rounded-full bg-white/10 text-white/90 border border-white/20"
-            >
-              Limited Offer
-            </span>
+            {/* Removed 'Limited Offer' Badge as per user request */}
+
             <h1
               className="mb-6 leading-tight break-keep"
-              style={{
-                fontSize: hero.headlineStyle?.fontSize || '3.75rem',
-                fontWeight: hero.headlineStyle?.fontWeight || '800',
-                color: hero.headlineStyle?.color || 'white',
-                textAlign: hero.headlineStyle?.textAlign || 'center',
-                letterSpacing: hero.headlineStyle?.letterSpacing || '-0.025em',
-              }}
+              style={getTextStyle(hero.headlineStyle, { fontSize: '3.75rem', fontWeight: '800', color: 'white', textAlign: 'center', letterSpacing: '-0.025em' })}
             >
               {hero.headline}
             </h1>
             <p
               className="mb-10 max-w-2xl mx-auto break-keep"
-              style={{
-                fontSize: hero.subHeadlineStyle?.fontSize || '1.25rem',
-                fontWeight: hero.subHeadlineStyle?.fontWeight || '400',
-                color: hero.subHeadlineStyle?.color || '#d1d5db',
-                textAlign: hero.subHeadlineStyle?.textAlign || 'center',
-                letterSpacing: hero.subHeadlineStyle?.letterSpacing || 'normal',
-              }}
+              style={getTextStyle(hero.subHeadlineStyle, { fontSize: '1.25rem', fontWeight: '400', color: '#d1d5db', textAlign: 'center' })}
             >
               {hero.subHeadline}
             </p>
@@ -414,7 +424,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
                   color: hero.ctaStyle?.textColor || 'white',
                   fontSize: hero.ctaStyle?.fontSize || '1.125rem',
                   borderRadius: hero.ctaStyle?.borderRadius || '9999px',
-                  width: hero.ctaStyle?.width === 'full' ? '100%' : (hero.ctaStyle?.width === 'auto' ? 'auto' : hero.ctaStyle?.width),
+                  width: getCTAWidth(hero.ctaStyle?.width),
                 }}
               >
                 {hero.ctaText || '신청하기'}
@@ -434,15 +444,15 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
           </section>
         )}
 
-        {/* 2. Problem Section (Hide if empty title) */}
+        {/* 2. Problem Section */}
         {problem.title && (
-          <section className="py-20 bg-gray-50 px-4 max-w-4xl mx-auto w-full">
+          <section className="py-20 px-4 max-w-4xl mx-auto w-full" style={{ backgroundColor: problem.backgroundColor || '#f9fafb' }}>
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4 break-keep">
+                <h2 className="mb-4 break-keep" style={getTextStyle(problem.titleStyle, { fontSize: '1.875rem', fontWeight: '700', color: '#111827' })}>
                   {problem.title}
                 </h2>
-                <p className="text-lg text-gray-600 break-keep">
+                <p className="break-keep" style={getTextStyle(problem.descriptionStyle, { fontSize: '1.125rem', fontWeight: '400', color: '#4b5563' })}>
                   {problem.description}
                 </p>
               </div>
@@ -454,7 +464,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
                       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mt-1 mr-4">
                         <span className="text-red-500 font-bold">!</span>
                       </div>
-                      <span className="text-lg text-gray-800 font-medium break-keep">{point}</span>
+                      <span className="break-keep" style={getTextStyle(problem.pointStyle, { fontSize: '1.125rem', fontWeight: '500', color: '#1f2937' })}>{point}</span>
                     </li>
                   ))}
                 </ul>
@@ -463,22 +473,32 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
           </section>
         )}
 
-        {/* 3. Solution Section (Hide if empty title) */}
+        {/* 3. Solution Section */}
         {solution.title && (
-          <section className="py-20 px-4 max-w-4xl mx-auto w-full">
+          <section className="py-20 px-4 max-w-4xl mx-auto w-full" style={{ backgroundColor: solution.backgroundColor || '#ffffff' }}>
             <div className="w-full mx-auto">
               <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold mb-4 break-keep">
+                <h2 className="mb-4 break-keep" style={getTextStyle(solution.titleStyle, { fontSize: '1.875rem', fontWeight: '700', color: '#111827' })}>
                   <span className="border-b-4 border-opacity-30" style={{ borderColor: theme.primaryColor }}>
                     {solution.title}
                   </span>
                 </h2>
-                <p className="text-gray-600 break-keep">{solution.description}</p>
+                <p className="break-keep" style={getTextStyle(solution.descriptionStyle, { fontSize: '1.125rem', fontWeight: '400', color: '#4b5563' })}>{solution.description}</p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-8">
                 {solution.features.map((feature, idx) => (
-                  <div key={idx} className="text-center p-6 rounded-xl hover:bg-gray-50 transition-colors duration-300">
+                  <div
+                    key={idx}
+                    className="text-center p-6 transition-colors duration-300"
+                    style={{
+                      backgroundColor: solution.cardStyle?.backgroundColor || 'transparent',
+                      borderRadius: solution.cardStyle?.borderRadius || '0.75rem',
+                      border: solution.cardStyle?.borderWidth ? `${solution.cardStyle.borderWidth} solid ${solution.cardStyle.borderColor || '#e5e7eb'}` : 'none',
+                      color: solution.cardStyle?.textColor || 'inherit',
+                      boxShadow: solution.cardStyle?.shadow ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' : 'none'
+                    }}
+                  >
                     <div
                       className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-6 text-white text-2xl shadow-lg"
                       style={{ backgroundColor: theme.primaryColor }}
@@ -486,7 +506,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
                       {idx + 1}
                     </div>
                     <h3 className="text-xl font-bold mb-3 break-keep">{feature.title}</h3>
-                    <p className="text-gray-600 leading-relaxed break-keep">
+                    <p className="opacity-80 leading-relaxed break-keep">
                       {feature.desc}
                     </p>
                   </div>
@@ -498,7 +518,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
 
         {/* 4. Trust Section (Social Proof) - Hide if no reviews */}
         {trust.reviews.length > 0 && (
-          <section className="py-20 bg-gray-900 text-white px-4 max-w-4xl mx-auto w-full">
+          <section className="py-20 px-4 max-w-4xl mx-auto w-full" style={{ backgroundColor: trust.backgroundColor || '#111827', color: trust.textColor || '#ffffff' }}>
             <div className="w-full mx-auto">
               {/* Stats */}
               {trust.stats && (
@@ -506,7 +526,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
                   {trust.stats.map((stat, idx) => (
                     <div key={idx} className="text-center">
                       <div className="text-4xl md:text-5xl font-bold mb-2" style={{ color: theme.primaryColor }}>{stat.value}</div>
-                      <div className="text-gray-400 font-medium uppercase tracking-wider text-sm break-keep">{stat.label}</div>
+                      <div className="opacity-60 font-medium uppercase tracking-wider text-sm break-keep">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -515,12 +535,12 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
               {/* Reviews */}
               <div className="grid md:grid-cols-2 gap-6">
                 {trust.reviews.map((review, idx) => (
-                  <div key={idx} className="bg-gray-800 p-6 rounded-xl">
+                  <div key={idx} className="bg-white/10 p-6 rounded-xl backdrop-blur-sm">
                     <div className="flex text-yellow-400 mb-3">
                       {[...Array(review.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                     </div>
-                    <p className="text-gray-300 mb-4 italic break-keep">"{review.text}"</p>
-                    <div className="font-bold text-white">- {review.name}</div>
+                    <p className="opacity-90 mb-4 italic break-keep">"{review.text}"</p>
+                    <div className="font-bold">- {review.name}</div>
                   </div>
                 ))}
               </div>
@@ -543,6 +563,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
                       src={img}
                       alt={`Footer ${idx}`}
                       className="w-full max-w-[896px] h-auto block"
+                      loading="lazy"
                     />
                   ))}
                 </div>
@@ -550,12 +571,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
               {safeFooter.copyrightText && (
                 <div
                   className="whitespace-pre-line px-4 mt-8"
-                  style={{
-                    fontSize: safeFooter.copyrightStyle?.fontSize || '0.75rem',
-                    fontWeight: safeFooter.copyrightStyle?.fontWeight || '400',
-                    color: safeFooter.copyrightStyle?.color || '#9ca3af',
-                    textAlign: safeFooter.copyrightStyle?.textAlign || 'center',
-                  }}
+                  style={getTextStyle(safeFooter.copyrightStyle, { fontSize: '0.75rem', fontWeight: '400', color: '#9ca3af', textAlign: 'center' })}
                 >
                   {safeFooter.copyrightText}
                 </div>
@@ -573,8 +589,6 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
         </div>
       )}
 
-      {/* Sticky Mobile CTA (Fallback if no bottom banners and no footer override) */}
-      {/* We removed the default fallback footer since we now have a configurable footer section */}
     </div>
   );
 };
