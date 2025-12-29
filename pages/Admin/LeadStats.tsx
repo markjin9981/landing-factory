@@ -87,6 +87,46 @@ const LeadInfoCell: React.FC<{ lead: any }> = ({ lead }) => {
     );
 };
 
+// Helper to parse Korean date format strictly and robustly
+// Move outside component to be reused
+const parseKoreanDate = (dateStr: string) => {
+    if (!dateStr || typeof dateStr !== 'string') return 0;
+
+    // 1. Try Standard Date Parse first
+    const standard = new Date(dateStr).getTime();
+    if (!isNaN(standard)) return standard;
+
+    try {
+        // 2. Fallback: robust digit extraction
+        const isPM = dateStr.includes('오후') || dateStr.toLowerCase().includes('pm');
+        const isAM = dateStr.includes('오전') || dateStr.toLowerCase().includes('am');
+
+        const numbers = dateStr.match(/\d+/g);
+        if (!numbers || numbers.length < 3) return 0;
+
+        let year = parseInt(numbers[0], 10);
+        let month = parseInt(numbers[1], 10) - 1;
+        let day = parseInt(numbers[2], 10);
+
+        if (month < 0 || month > 11 || day < 1 || day > 31) return 0;
+
+        let hour = 0;
+        let min = 0;
+        let sec = 0;
+
+        if (numbers.length >= 4) hour = parseInt(numbers[3], 10);
+        if (numbers.length >= 5) min = parseInt(numbers[4], 10);
+        if (numbers.length >= 6) sec = parseInt(numbers[5], 10);
+
+        if (isPM && hour < 12) hour += 12;
+        if (isAM && hour === 12) hour = 0;
+
+        return new Date(year, month, day, hour, min, sec).getTime();
+    } catch (e) {
+        return 0;
+    }
+};
+
 const LeadStats: React.FC = () => {
     const [leads, setLeads] = useState<any[]>([]);
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
@@ -158,64 +198,16 @@ const LeadStats: React.FC = () => {
         if (selectedDate) {
             result = result.filter(lead => {
                 const ts = lead['Timestamp'];
-                if (!ts) return false;
+                const time = parseKoreanDate(ts);
+                if (!time) return false;
 
-                try {
-                    const leadDate = new Date(ts);
-                    const y = leadDate.getFullYear();
-                    const m = String(leadDate.getMonth() + 1).padStart(2, '0');
-                    const d = String(leadDate.getDate()).padStart(2, '0');
-                    return `${y}-${m}-${d}` === selectedDate;
-                } catch (e) {
-                    return String(ts).startsWith(selectedDate);
-                }
+                const d = new Date(time);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}` === selectedDate;
             });
         }
-
-        // Helper to parse Korean date format strictly (e.g., "2024. 5. 20. 오후 3:30:11" or "2024. 5. 29. 오후 3:30" - no seconds)
-        const parseKoreanDate = (dateStr: string) => {
-            if (!dateStr || typeof dateStr !== 'string') return 0;
-
-            // 1. Try Standard Date Parse first (for ISO, YYYY-MM-DD, or friendly formats)
-            const standard = new Date(dateStr).getTime();
-            if (!isNaN(standard)) return standard;
-
-            try {
-                // 2. Fallback: robust digit extraction
-                // Handles: "2024. 5. 20. 오후 3:30", "2024.5.20 15:30", etc.
-
-                const isPM = dateStr.includes('오후') || dateStr.toLowerCase().includes('pm');
-                const isAM = dateStr.includes('오전') || dateStr.toLowerCase().includes('am');
-
-                // Extract all sequences of digits
-                const numbers = dateStr.match(/\d+/g);
-                if (!numbers || numbers.length < 3) return 0; // Need at least Y, M, D
-
-                let year = parseInt(numbers[0], 10);
-                let month = parseInt(numbers[1], 10) - 1; // JS months are 0-indexed
-                let day = parseInt(numbers[2], 10);
-
-                // Validate reasonable date ranges to prevent garbage parsing
-                if (month < 0 || month > 11 || day < 1 || day > 31) return 0;
-
-                // Defaults
-                let hour = 0;
-                let min = 0;
-                let sec = 0;
-
-                if (numbers.length >= 4) hour = parseInt(numbers[3], 10);
-                if (numbers.length >= 5) min = parseInt(numbers[4], 10);
-                if (numbers.length >= 6) sec = parseInt(numbers[5], 10);
-
-                // Adjust for PM/AM
-                if (isPM && hour < 12) hour += 12;
-                if (isAM && hour === 12) hour = 0; // 12 AM is 00:00
-
-                return new Date(year, month, day, hour, min, sec).getTime();
-            } catch (e) {
-                return 0;
-            }
-        };
 
         // Sort
         result.sort((a, b) => {
@@ -254,10 +246,10 @@ const LeadStats: React.FC = () => {
             const isSelected = selectedDate === dateStr;
 
             const hasLeads = leads.some(lead => {
-                try {
-                    const ld = new Date(lead['Timestamp']);
-                    return ld.getFullYear() === year && ld.getMonth() === month && ld.getDate() === d;
-                } catch (e) { return false; }
+                const time = parseKoreanDate(lead['Timestamp']);
+                if (!time) return false;
+                const ld = new Date(time);
+                return ld.getFullYear() === year && ld.getMonth() === month && ld.getDate() === d;
             });
 
             days.push(
