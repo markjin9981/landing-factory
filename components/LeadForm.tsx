@@ -354,6 +354,36 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                             );
                                         }
 
+                                        // 5. TIME SELECT (06:00 ~ 24:00, 30min)
+                                        if (field.type === 'time') {
+                                            // Generate slots on the fly or use static
+                                            const timeSlots = [];
+                                            for (let h = 6; h <= 24; h++) {
+                                                const hStr = h < 10 ? `0${h}` : `${h}`;
+                                                timeSlots.push(`${hStr}:00`);
+                                                if (h < 24) timeSlots.push(`${hStr}:30`);
+                                            }
+
+                                            return (
+                                                <div className="relative">
+                                                    <select
+                                                        name={field.id}
+                                                        required={field.required}
+                                                        value={formData[field.id] || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all appearance-none bg-white pr-10 text-gray-900"
+                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                    >
+                                                        <option value="" disabled>시간을 선택해주세요</option>
+                                                        {timeSlots.map(time => (
+                                                            <option key={time} value={time}>{time}</option>
+                                                        ))}
+                                                    </select>
+                                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                                                </div>
+                                            );
+                                        }
+
                                         // 5. DEFAULT TEXT (Short Text)
                                         const currentLen = (formData[field.id] || '').length;
                                         return (

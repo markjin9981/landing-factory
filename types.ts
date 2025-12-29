@@ -6,7 +6,7 @@ export interface FieldOption {
 export interface FormField {
   id: string; // Internal ID for the field (e.g., 'name', 'phone', 'location')
   label: string;
-  type: 'text' | 'tel' | 'email' | 'select' | 'textarea' | 'radio';
+  type: 'text' | 'tel' | 'email' | 'select' | 'textarea' | 'radio' | 'time';
   placeholder?: string;
   required: boolean;
   options?: FieldOption[]; // For select or radio types
