@@ -210,6 +210,23 @@ const LeadStats: React.FC = () => {
             });
         }
 
+        // [New] Filter out invalid/system rows (e.g. from legacy bugs)
+        // Check if Landing ID is valid (numeric or specific ID)
+        // And Title shouldn't look like a system notification
+        result = result.filter(lead => {
+            const lid = String(lead['Landing ID'] || '');
+            const title = getPageTitle(lid);
+
+            // 1. Landing ID shouldn't be 'undefined', 'null', 'Unknown' (unless title is valid)
+            if (!lid || lid.toLowerCase() === 'undefined' || lid.toLowerCase() === 'unknown') return false;
+
+            // 2. Filter out things that look like Email Subjects if they accidentally got here
+            // e.g. "[Landing Factory] 관리자..."
+            if (lid.includes('Landing Factory')) return false;
+
+            return true;
+        });
+
         // Sort
         result.sort((a, b) => {
             if (sortBy === 'timestamp') {
