@@ -16,10 +16,10 @@ const Login: React.FC = () => {
     }
   }, [navigate]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (authService.login(email, password)) {
+    if (await authService.login(email, password)) {
       navigate('/admin');
     } else {
       setError(true);

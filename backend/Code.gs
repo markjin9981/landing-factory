@@ -165,8 +165,16 @@ function doPost(e) {
 
     if (type === 'visit') {
       return handleVisitLog(params);
-    } else if (type === 'email') { 
-      return handleEmail(params);
+    } else if (type === 'email' || type === 'admin_email') { 
+      return handleAdminEmail(params);
+    } else if (type === 'admin_login') {
+      return handleAdminLogin(params);
+    } else if (type === 'admin_sessions') {
+      return handleGetAdminSessions(params);
+    } else if (type === 'revoke_session') {
+      return handleRevokeSession(params);
+    } else if (type === 'verify_session') {
+      return handleVerifySession(params);
     } else if (type === 'config_save') {
       return handleConfigSubmission(params);
     } else if (type === 'config_delete') {
@@ -187,6 +195,142 @@ function doPost(e) {
       "result": "error",
       "message": "Critical Server Error: " + criticalError.toString()
     })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// =================================================================
+// [NEW] Handle Admin Email Notification
+// =================================================================
+// =================================================================
+// [NEW] Handle Admin Email Notification
+// =================================================================
+function handleAdminEmail(params) {
+  var recipient = params.recipient;
+  var subject = params.subject;
+  var body = params.body;
+
+  if (!recipient || !subject || !body) {
+    return ContentService.createTextOutput(JSON.stringify({
+       "result": "error", 
+       "message": "Missing recipient, subject, or body"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  try {
+    MailApp.sendEmail(recipient, subject, body);
+    return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "error", 
+      "message": "MailApp Error: " + e.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// =================================================================
+// [NEW] Session Management Handlers
+// =================================================================
+
+function handleAdminLogin(params) {
+  var sheet = getOrCreateSheet("AdminSessions");
+  var sessionId = Utilities.getUuid();
+  var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
+  var ip = params.ip || "Unknown";
+  var device = params.device || "Unknown";
+  var userAgent = params.user_agent || "";
+
+  // Append: [SessionID, Timestamp, IP, Device, UserAgent, Status]
+  sheet.appendRow([sessionId, timestamp, ip, device, userAgent, "active"]);
+
+  // Clean up old sessions (> 30 days) casually
+  try {
+     cleanupOldSessions(sheet);
+  } catch(e) {}
+
+  return ContentService.createTextOutput(JSON.stringify({
+    "result": "success",
+    "session_id": sessionId
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleGetAdminSessions(params) {
+  var sheet = getOrCreateSheet("AdminSessions");
+  var data = sheet.getDataRange().getValues();
+  var activeSessions = [];
+  
+  // Skip header
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    // row[5] is Status
+    if (row[5] === "active") {
+        activeSessions.push({
+            session_id: row[0],
+            timestamp: row[1],
+            ip: row[2],
+            device: row[3],
+            user_agent: row[4]
+        });
+    }
+  }
+  
+  // Return most recent first
+  activeSessions.reverse();
+
+  return ContentService.createTextOutput(JSON.stringify(activeSessions)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleRevokeSession(params) {
+  var targetSessionId = params.target_session_id;
+  var sheet = getOrCreateSheet("AdminSessions");
+  var data = sheet.getDataRange().getValues();
+  var found = false;
+
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(targetSessionId)) {
+        // Update Status column (6th column, index 5) to 'revoked'
+        sheet.getRange(i + 1, 6).setValue("revoked");
+        found = true;
+        break;
+    }
+  }
+  
+  if (found) {
+    return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+  } else {
+    return ContentService.createTextOutput(JSON.stringify({"result": "error", "message": "Session not found"})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function handleVerifySession(params) {
+  var sessionId = params.session_id;
+  var sheet = getOrCreateSheet("AdminSessions");
+  var data = sheet.getDataRange().getValues();
+  var isValid = false;
+
+  for (var i = 1; i < data.length; i++) {
+    // Check ID match AND Status is active
+    if (String(data[i][0]) === String(sessionId) && data[i][5] === "active") {
+        isValid = true;
+        break;
+    }
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({
+    "valid": isValid
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function cleanupOldSessions(sheet) {
+  // Simple check: if > 1000 rows, delete first 100? 
+  // Or real date check. Safe limit: keep last 100 sessions.
+  var lastRow = sheet.getLastRow();
+  if (lastRow > 200) {
+      // Keep headers + last 100
+      // Delete rows 2 to (lastRow - 100)
+      var rowsToDelete = lastRow - 100 - 1;
+      if (rowsToDelete > 0) {
+          sheet.deleteRows(2, rowsToDelete);
+      }
   }
 }
 
@@ -446,6 +590,8 @@ function getOrCreateSheet(name) {
       sheet.appendRow(["Timestamp", "Landing ID", "IP", "Device", "OS", "Browser", "Referrer"]);
     } else if (name === "Configs") {
       sheet.appendRow(["id", "config_json"]);
+    } else if (name === "AdminSessions") {
+      sheet.appendRow(["session_id", "timestamp", "ip", "device", "user_agent", "status"]);
     }
   }
   return sheet;

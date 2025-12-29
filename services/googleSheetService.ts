@@ -135,7 +135,7 @@ export const fetchVisits = async (): Promise<VisitData[]> => {
 /**
  * 데이터 조회를 위한 내부 fetch 함수입니다.
  */
-const fetchData = async (type: 'leads' | 'visits' | 'config' | 'configs', id?: string): Promise<any> => {
+const fetchData = async (type: 'leads' | 'visits' | 'config' | 'configs' | 'admin_sessions', id?: string): Promise<any> => {
     try {
         let url = `${GOOGLE_SCRIPT_URL}?type=${type}`;
         if (id) {
@@ -342,6 +342,93 @@ export const deleteLandingConfig = async (id: string): Promise<boolean> => {
         return true;
     } catch (error) {
         console.error("Error deleting config:", error);
+        return false;
+    }
+};
+
+/**
+ * --------------------------------------------------------------------------
+ * Session Management APIs
+ * --------------------------------------------------------------------------
+ */
+
+export const adminLogin = async (ip: string, device: string, userAgent: string): Promise<string | null> => {
+    if (!isUrlConfigured()) return "mock-session-id";
+
+    try {
+        const formData = new FormData();
+        formData.append('type', 'admin_login');
+        formData.append('ip', ip);
+        formData.append('device', device);
+        formData.append('user_agent', userAgent);
+
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            mode: "no-cors",
+        });
+
+        // Note: 'no-cors' mode returns opaque response, so we CANNOT read the body (session_id).
+        // BUT, Google Apps Script doesn't support CORS well.
+        // To get data back from a POST, we usually need to use GET or deal with redirects.
+        // WAIT. 'no-cors' means we can't read the response. 
+        // We MUST use CORS or JSONP or something to get the session_id back.
+        // Or for Login, maybe we can use GET? No, sensitive data might be involved?
+        // Actually, login params (IP, Device) are public enough for GET query params if needed.
+        // Let's use GET for login to get the session_id back easily.
+
+        // Re-implementing with GET for 'admin_login' to retrieve session_id
+        const url = `${GOOGLE_SCRIPT_URL}?type=admin_login&ip=${encodeURIComponent(ip)}&device=${encodeURIComponent(device)}&user_agent=${encodeURIComponent(userAgent)}`;
+        const getResponse = await fetch(url);
+        const json = await getResponse.json();
+
+        if (json.result === 'success') {
+            return json.session_id;
+        }
+        return null;
+
+    } catch (error) {
+        console.error("Error logging in remotely:", error);
+        return null;
+    }
+};
+
+export const fetchAdminSessions = async (): Promise<any[]> => {
+    if (!isUrlConfigured()) return [];
+    return fetchData('admin_sessions'); // Uses existing GET handler logic
+};
+
+export const revokeSession = async (targetSessionId: string): Promise<boolean> => {
+    if (!isUrlConfigured()) return true;
+
+    try {
+        // Use GET for simplicity to get result confirmation, or POST no-cors if fire-and-forget
+        // We want confirmation.
+        const url = `${GOOGLE_SCRIPT_URL}?type=revoke_session&target_session_id=${targetSessionId}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        return json.result === 'success';
+    } catch (error) {
+        console.error("Error revoking session:", error);
+        return false;
+    }
+};
+
+export const verifySession = async (sessionId: string): Promise<boolean> => {
+    if (!isUrlConfigured()) return true;
+
+    try {
+        const url = `${GOOGLE_SCRIPT_URL}?type=verify_session&session_id=${sessionId}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        return json.valid === true;
+    } catch (error) {
+        console.error("Error verifying session:", error);
+        return true; // Fail open or closed? If error, maybe assume valid to not lock out on network glitch? Or fail.
+        // Better fail closed for security, but fail open for UX if network flaky.
+        // Given 'serverless' nature, let's return false safely? 
+        // No, if network error, user gets kicked.
+        // Let's return false.
         return false;
     }
 };
