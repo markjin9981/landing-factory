@@ -31,6 +31,36 @@ const TrafficLogs: React.FC = () => {
         loadData();
     }, []);
 
+    // Helper: Parse Korean Date
+    const parseKoreanDate = (dateStr: string) => {
+        if (!dateStr || typeof dateStr !== 'string') return 0;
+        const standard = new Date(dateStr).getTime();
+        if (!isNaN(standard)) return standard;
+
+        try {
+            const isPM = dateStr.includes('오후') || dateStr.toLowerCase().includes('pm');
+            const isAM = dateStr.includes('오전') || dateStr.toLowerCase().includes('am');
+            const numbers = dateStr.match(/\d+/g);
+            if (!numbers || numbers.length < 3) return 0;
+
+            let year = parseInt(numbers[0], 10);
+            let month = parseInt(numbers[1], 10) - 1;
+            let day = parseInt(numbers[2], 10);
+
+            let hour = 0;
+            let min = 0;
+            let sec = 0;
+            if (numbers.length >= 4) hour = parseInt(numbers[3], 10);
+            if (numbers.length >= 5) min = parseInt(numbers[4], 10);
+            if (numbers.length >= 6) sec = parseInt(numbers[5], 10);
+
+            if (isPM && hour < 12) hour += 12;
+            if (isAM && hour === 12) hour = 0;
+
+            return new Date(year, month, day, hour, min, sec).getTime();
+        } catch (e) { return 0; }
+    };
+
     // Helper: Get Title
     const getPageTitle = (id: string) => {
         const config = configs.find(c => String(c.id) === String(id));
@@ -62,24 +92,22 @@ const TrafficLogs: React.FC = () => {
         if (selectedDate) {
             result = result.filter(v => {
                 const ts = v.Timestamp;
-                if (!ts) return false;
-                try {
-                    const vDate = new Date(ts);
-                    const y = vDate.getFullYear();
-                    const m = String(vDate.getMonth() + 1).padStart(2, '0');
-                    const d = String(vDate.getDate()).padStart(2, '0');
-                    return `${y}-${m}-${d}` === selectedDate;
-                } catch (e) {
-                    return String(ts).startsWith(selectedDate);
-                }
+                const time = parseKoreanDate(ts);
+                if (!time) return false;
+
+                const d = new Date(time);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const date = String(d.getDate()).padStart(2, '0');
+                return `${y}-${m}-${date}` === selectedDate;
             });
         }
 
         // Sort
         result.sort((a, b) => {
             if (sortBy === 'timestamp') {
-                const dateA = new Date(a.Timestamp).getTime();
-                const dateB = new Date(b.Timestamp).getTime();
+                const dateA = parseKoreanDate(a.Timestamp);
+                const dateB = parseKoreanDate(b.Timestamp);
                 return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
             } else if (sortBy === 'title') {
                 const titleA = getPageTitle(String(a['Landing ID'])) || '';

@@ -45,6 +45,36 @@ const TrafficStats: React.FC = () => {
         }));
     }, [visits, configs]);
 
+    // Helper: Parse Korean Date
+    const parseKoreanDate = (dateStr: string) => {
+        if (!dateStr || typeof dateStr !== 'string') return 0;
+        const standard = new Date(dateStr).getTime();
+        if (!isNaN(standard)) return standard;
+
+        try {
+            const isPM = dateStr.includes('오후') || dateStr.toLowerCase().includes('pm');
+            const isAM = dateStr.includes('오전') || dateStr.toLowerCase().includes('am');
+            const numbers = dateStr.match(/\d+/g);
+            if (!numbers || numbers.length < 3) return 0;
+
+            let year = parseInt(numbers[0], 10);
+            let month = parseInt(numbers[1], 10) - 1;
+            let day = parseInt(numbers[2], 10);
+
+            let hour = 0;
+            let min = 0;
+            let sec = 0;
+            if (numbers.length >= 4) hour = parseInt(numbers[3], 10);
+            if (numbers.length >= 5) min = parseInt(numbers[4], 10);
+            if (numbers.length >= 6) sec = parseInt(numbers[5], 10);
+
+            if (isPM && hour < 12) hour += 12;
+            if (isAM && hour === 12) hour = 0;
+
+            return new Date(year, month, day, hour, min, sec).getTime();
+        } catch (e) { return 0; }
+    };
+
     // --- Process Data for Chart & Stats ---
     // Logic: 
     // 1. Filter raw data by Landing ID
@@ -61,7 +91,7 @@ const TrafficStats: React.FC = () => {
         }
 
         // 2. Determine Mode (Hourly vs Daily)
-        const result = [];
+        const result: any[] = [];
 
         if (selectedDate) {
             // --- HOURLY MODE (Specific Date) ---
@@ -80,45 +110,47 @@ const TrafficStats: React.FC = () => {
 
             // Fill Visits
             filteredVisits.forEach(v => {
-                try {
-                    const d = new Date(v.Timestamp);
-                    const y = d.getFullYear();
-                    const m = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    const dateStr = `${y}-${m}-${day}`;
+                const time = parseKoreanDate(v.Timestamp);
+                if (!time) return;
 
-                    if (dateStr === selectedDate) {
-                        const h = d.getHours();
-                        const target = result.find(r => r.key === h);
-                        if (target) {
-                            target.visits += 1;
-                            if (v.Device === 'PC') target.pc += 1;
-                            else target.mobile += 1;
-                        }
+                const d = new Date(time);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${y}-${m}-${day}`;
+
+                if (dateStr === selectedDate) {
+                    const h = d.getHours();
+                    const target = result.find(r => r.key === h);
+                    if (target) {
+                        target.visits += 1;
+                        if (v.Device === 'PC') target.pc += 1;
+                        else target.mobile += 1;
                     }
-                } catch (e) { }
+                }
             });
 
             // Fill Leads
             filteredLeads.forEach(l => {
-                try {
-                    const d = new Date(l.timestamp || l['Timestamp']);
-                    const y = d.getFullYear();
-                    const m = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    const dateStr = `${y}-${m}-${day}`;
+                const time = parseKoreanDate(l.timestamp || l['Timestamp']);
+                if (!time) return;
 
-                    if (dateStr === selectedDate) {
-                        const h = d.getHours();
-                        const target = result.find(r => r.key === h);
-                        if (target) target.leads += 1;
-                    }
-                } catch (e) { }
+                const d = new Date(time);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${y}-${m}-${day}`;
+
+                if (dateStr === selectedDate) {
+                    const h = d.getHours();
+                    const target = result.find(r => r.key === h);
+                    if (target) target.leads += 1;
+                }
             });
 
         } else {
             // --- DAILY MODE (Last 7 Days) ---
-            const today = new Date();
+            const today = new Date(); // Browser time
             for (let i = 6; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(today.getDate() - i);
@@ -140,34 +172,36 @@ const TrafficStats: React.FC = () => {
 
             // Fill Visits
             filteredVisits.forEach(v => {
-                try {
-                    const d = new Date(v.Timestamp);
-                    const y = d.getFullYear();
-                    const m = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    const dateStr = `${y}-${m}-${day}`;
+                const time = parseKoreanDate(v.Timestamp);
+                if (!time) return;
 
-                    const target = result.find(r => r.key === dateStr);
-                    if (target) {
-                        target.visits += 1;
-                        if (v.Device === 'PC') target.pc += 1;
-                        else target.mobile += 1;
-                    }
-                } catch (e) { }
+                const d = new Date(time);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${y}-${m}-${day}`;
+
+                const target = result.find(r => r.key === dateStr);
+                if (target) {
+                    target.visits += 1;
+                    if (v.Device === 'PC') target.pc += 1;
+                    else target.mobile += 1;
+                }
             });
 
             // Fill Leads
             filteredLeads.forEach(l => {
-                try {
-                    const d = new Date(l.timestamp || l['Timestamp']);
-                    const y = d.getFullYear();
-                    const m = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    const dateStr = `${y}-${m}-${day}`;
+                const time = parseKoreanDate(l.timestamp || l['Timestamp']);
+                if (!time) return;
 
-                    const target = result.find(r => r.key === dateStr);
-                    if (target) target.leads += 1;
-                } catch (e) { }
+                const d = new Date(time);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${y}-${m}-${day}`;
+
+                const target = result.find(r => r.key === dateStr);
+                if (target) target.leads += 1;
             });
         }
 

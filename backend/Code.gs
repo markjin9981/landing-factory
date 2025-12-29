@@ -93,7 +93,7 @@ function handleConfigsRetrieval(params) {
 
 function handleLeadsRetrieval(params) {
   var sheet = getOrCreateSheet("Leads");
-  var data = sheet.getDataRange().getValues();
+  var data = sheet.getDataRange().getDisplayValues();
   var leads = [];
   var headers = data[0];
   
@@ -110,7 +110,7 @@ function handleLeadsRetrieval(params) {
 
 function handleVisitsRetrieval(params) {
   var sheet = getOrCreateSheet("Visits");
-  var data = sheet.getDataRange().getValues();
+  var data = sheet.getDataRange().getDisplayValues();
   var visits = [];
   var headers = data[0];
   
@@ -522,31 +522,52 @@ function handleLeadSubmission(params) {
     // [UPDATE] Subject format: [Page Title] 신규 DB 도착 [Timestamp]
     var subject = "[" + pageTitle + "] 신규 DB 도착 [" + formattedDate + "]";
     
+    // [UPDATED] Email Body Construction
+    // Strategy:
+    // 1. Name, Phone first
+    // 2. All Custom Fields (anything not system)
+    // 3. Footer with technical info
+    
     var body = "새로운 문의가 접수되었습니다.\n\n";
     body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     body += " [ 접수 내용 ]\n";
     body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     body += "■ 랜딩페이지: " + pageTitle + " (ID: " + landingId + ")\n\n";
     
-    // Sort keys for better readability if possible, or just iterate
-    var keyOrder = ['name', 'phone', 'option', 'memo']; // Priority keys
-    
-    // 1. Priority fields first
-    keyOrder.forEach(function(k) {
+    // 1. Priority Fields (Name, Phone)
+    var priorityKeys = ['name', 'phone'];
+    priorityKeys.forEach(function(k) {
        if (params[k]) {
           body += "■ " + k.toUpperCase() + ": " + params[k] + "\n";
        }
     });
 
-    body += "\n--- 상세 정보 ---\n";
-
-    // 2. All other fields
+    // 2. Custom Fields (Added Items)
+    // Filter out priority keys and system keys
+    var systemKeys = [
+      'type', 'page_title', 'landing_id', 'timestamp', 
+      'user_agent', 'referrer', 'marketing_consent', 
+      'third_party_consent', 'privacy_consent', 'ip', 'device'
+    ];
+    
     for (var k in params) {
-      if (k === 'type' || k === 'page_title' || k === 'landing_id' || k === 'timestamp' || keyOrder.indexOf(k) !== -1) continue;
-       body += "- " + k + ": " + params[k] + "\n";
+      // Skip if it's a priority key (already shown) or a system key
+      if (priorityKeys.indexOf(k) !== -1) continue;
+      if (systemKeys.indexOf(k) !== -1) continue;
+      if (k.indexOf('consent') !== -1) continue; // Skip other consent fields
+
+      // Show Custom Field
+      // Try to make key look a bit better if it's just a raw code, but usually we just print key
+      body += "■ " + k + ": " + params[k] + "\n";
     }
     
-    body += "\n\n(본 메일은 랜딩페이지 팩토리에서 자동으로 발송되었습니다.)";
+    body += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    
+    // 3. Detailed/Technical Info (Optional - maybe just User Agent/Referrer)
+    if (params['referrer']) body += "- 유입경로: " + params['referrer'] + "\n";
+    if (params['user_agent']) body += "- 기기정보: " + params['user_agent'] + "\n";
+    
+    body += "\n(본 메일은 랜딩페이지 팩토리에서 자동으로 발송되었습니다.)";
     
     MailApp.sendEmail(recipient, subject, body);
   } catch (e) {
