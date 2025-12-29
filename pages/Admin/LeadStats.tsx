@@ -11,7 +11,7 @@ const META_FIELDS = [
     'raw data', 'recipient', 'body', 'subject' // Technical/Legacy fields to hide
 ];
 
-const LeadInfoCell: React.FC<{ lead: any; promotedKey?: string }> = ({ lead, promotedKey }) => {
+const LeadInfoCell: React.FC<{ lead: any; promotedKey?: string; promotedKey2?: string }> = ({ lead, promotedKey, promotedKey2 }) => {
     const [showMeta, setShowMeta] = useState(false);
 
     // Remove known primary keys
@@ -25,6 +25,7 @@ const LeadInfoCell: React.FC<{ lead: any; promotedKey?: string }> = ({ lead, pro
     // Keys that are already shown in the main table
     const EXCLUDED_VISIBLE_KEYS = ['name', 'phone', 'landing id', 'timestamp'];
     if (promotedKey) EXCLUDED_VISIBLE_KEYS.push(promotedKey.toLowerCase());
+    if (promotedKey2) EXCLUDED_VISIBLE_KEYS.push(promotedKey2.toLowerCase());
 
 
     Object.keys(rest).forEach(key => {
@@ -415,6 +416,7 @@ const LeadStats: React.FC = () => {
                                         <th className="px-6 py-3">이름</th>
                                         <th className="px-6 py-3">연락처</th>
                                         <th className="px-6 py-3">데이터1</th>
+                                        <th className="px-6 py-3">데이터2</th>
                                         <th className="px-6 py-3">추가 정보</th>
                                     </tr>
                                 </thead>
@@ -422,24 +424,28 @@ const LeadStats: React.FC = () => {
                                     {filteredLeads.map((lead, idx) => {
                                         const title = getPageTitle(String(lead['Landing ID']));
 
-                                        // Calculate Promoted Key (First Custom Field)
+                                        // Calculate Promoted Keys (First & Second Custom Fields)
                                         let promotedKey = undefined;
+                                        let promotedKey2 = undefined;
                                         const SKIP_KEYS = ['timestamp', 'landing id', 'name', 'phone'];
 
-                                        // Find first key that is not standard, not meta, AND has content
+                                        // Find all valid candidates
+                                        const candidateKeys: string[] = [];
                                         for (const key of Object.keys(lead)) {
                                             const lowerKey = key.toLowerCase();
                                             if (SKIP_KEYS.includes(lowerKey)) continue;
                                             if (META_FIELDS.includes(lowerKey)) continue;
                                             if (lowerKey.startsWith('consent_')) continue;
 
-                                            // [Changed] Skip keys with empty values
+                                            // Skip keys with empty values
                                             const val = lead[key];
                                             if (val === null || val === undefined || String(val).trim() === '') continue;
 
-                                            promotedKey = key;
-                                            break;
+                                            candidateKeys.push(key);
                                         }
+
+                                        if (candidateKeys.length > 0) promotedKey = candidateKeys[0];
+                                        if (candidateKeys.length > 1) promotedKey2 = candidateKeys[1];
 
                                         return (
                                             <tr key={idx} className="bg-white border-b hover:bg-gray-50">
@@ -457,15 +463,18 @@ const LeadStats: React.FC = () => {
                                                 <td className="px-6 py-4 font-medium text-gray-800">
                                                     {promotedKey ? lead[promotedKey] : '-'}
                                                 </td>
+                                                <td className="px-6 py-4 font-medium text-gray-800">
+                                                    {promotedKey2 ? lead[promotedKey2] : '-'}
+                                                </td>
                                                 <td className="px-6 py-4 text-xs text-gray-500">
-                                                    <LeadInfoCell lead={lead} promotedKey={promotedKey} />
+                                                    <LeadInfoCell lead={lead} promotedKey={promotedKey} promotedKey2={promotedKey2} />
                                                 </td>
                                             </tr>
                                         );
                                     })}
                                     {filteredLeads.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-10 text-center text-gray-400">
+                                            <td colSpan={8} className="px-6 py-10 text-center text-gray-400">
                                                 {leads.length > 0 ? "검색 조건에 맞는 데이터가 없습니다." : "수집된 데이터가 없습니다."}
                                             </td>
                                         </tr>
