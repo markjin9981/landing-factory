@@ -156,11 +156,46 @@ const LeadStats: React.FC = () => {
             });
         }
 
+        // Helper to parse Korean date format strictly (e.g., "2024. 5. 20. 오후 3:30:11")
+        const parseKoreanDate = (dateStr: string) => {
+            if (!dateStr) return 0;
+            try {
+                // Remove all spaces for easier parsing: "2024.5.20.오후3:30:11"
+                const cleanStr = dateStr.replace(/\s+/g, '');
+
+                // Matches YYYY.MM.DD.(오전|오후)HH:MM:SS
+                // Capturing groups: 1=Year, 2=Month, 3=Day, 4=AmPm, 5=Hour, 6=Min, 7=Sec(opt)
+                const regex = /^(\d{4})\.(\d{1,2})\.(\d{1,2})\.([가-힣]+)(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/;
+                const match = cleanStr.match(regex);
+
+                if (match) {
+                    let year = parseInt(match[1], 10);
+                    let month = parseInt(match[2], 10) - 1; // JS months are 0-indexed
+                    let day = parseInt(match[3], 10);
+                    let ampm = match[4];
+                    let hour = parseInt(match[5], 10);
+                    let min = parseInt(match[6], 10);
+                    let sec = match[7] ? parseInt(match[7], 10) : 0;
+
+                    // Convert 12h to 24h
+                    if (ampm === '오후' && hour < 12) hour += 12;
+                    if (ampm === '오전' && hour === 12) hour = 0;
+
+                    return new Date(year, month, day, hour, min, sec).getTime();
+                }
+
+                // Fallback for standard ISO or other formats
+                return new Date(dateStr).getTime();
+            } catch (e) {
+                return 0;
+            }
+        };
+
         // Sort
         result.sort((a, b) => {
             if (sortBy === 'timestamp') {
-                const dateA = new Date(a['Timestamp']).getTime();
-                const dateB = new Date(b['Timestamp']).getTime();
+                const dateA = parseKoreanDate(a['Timestamp']);
+                const dateB = parseKoreanDate(b['Timestamp']);
                 return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
             } else if (sortBy === 'title') {
                 const titleA = getPageTitle(String(a['Landing ID'])) || '';
