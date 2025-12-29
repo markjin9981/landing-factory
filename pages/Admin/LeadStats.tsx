@@ -11,15 +11,24 @@ const LeadInfoCell: React.FC<{ lead: any }> = ({ lead }) => {
     const [showMeta, setShowMeta] = useState(false);
 
     // Remove known primary keys
-    const { Timestamp, 'Landing ID': lid, Name, Phone, ...rest } = lead;
+    // We treat Name and Phone case-insensitively for exclusion since they are primary columns
+    const { Timestamp, 'Landing ID': lid, ...rest } = lead;
 
     // Separate visible vs meta
     const visibleKeys: string[] = [];
     const metaKeys: string[] = [];
 
+    // Keys that are already shown in the main table
+    const EXCLUDED_VISIBLE_KEYS = ['name', 'phone', 'landing id', 'timestamp'];
+
+
     Object.keys(rest).forEach(key => {
-        if (META_FIELDS.includes(key) || key.startsWith('consent_')) {
+        const lowerKey = key.toLowerCase();
+
+        if (META_FIELDS.includes(lowerKey) || lowerKey.startsWith('consent_')) {
             metaKeys.push(key);
+        } else if (EXCLUDED_VISIBLE_KEYS.includes(lowerKey)) {
+            // Skip - already shown in table
         } else {
             visibleKeys.push(key);
         }
@@ -29,7 +38,7 @@ const LeadInfoCell: React.FC<{ lead: any }> = ({ lead }) => {
 
     return (
         <div className="space-y-2">
-            {/* Primary Info (Always Visible) */}
+            {/* Primary Info (Always Visible - Custom user inputs) */}
             {visibleKeys.length > 0 && (
                 <div className="space-y-1">
                     {visibleKeys.map(key => (
@@ -156,15 +165,19 @@ const LeadStats: React.FC = () => {
             });
         }
 
-        // Helper to parse Korean date format strictly (e.g., "2024. 5. 20. 오후 3:30:11")
+        // Helper to parse Korean date format strictly (e.g., "2024. 5. 20. 오후 3:30:11" or "2024. 5. 29. 오후 3:30" - no seconds)
         const parseKoreanDate = (dateStr: string) => {
-            if (!dateStr) return 0;
+            if (!dateStr || typeof dateStr !== 'string') return 0;
             try {
                 // Remove all spaces for easier parsing: "2024.5.20.오후3:30:11"
                 const cleanStr = dateStr.replace(/\s+/g, '');
 
-                // Matches YYYY.MM.DD.(오전|오후)HH:MM:SS
-                // Capturing groups: 1=Year, 2=Month, 3=Day, 4=AmPm, 5=Hour, 6=Min, 7=Sec(opt)
+                // Updated Regex:
+                // 1. Matches YYYY.MM.DD.
+                // 2. Matches (오전|오후)
+                // 3. Matches HH:MM
+                // 4. Optional :SS
+                // Example: 2024.5.20.오후3:30 -> Y=2024, M=5, D=20, AP=오후, H=3, M=30
                 const regex = /^(\d{4})\.(\d{1,2})\.(\d{1,2})\.([가-힣]+)(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/;
                 const match = cleanStr.match(regex);
 
@@ -184,8 +197,10 @@ const LeadStats: React.FC = () => {
                     return new Date(year, month, day, hour, min, sec).getTime();
                 }
 
-                // Fallback for standard ISO or other formats
-                return new Date(dateStr).getTime();
+                // Fallback: Try removing '.' and spaces to see if standard parse works, though unlikely for Korean text.
+                // Standard new Date() might handle "2024. 5. 20." if valid, but often fails with Hangul.
+                const parsed = new Date(dateStr).getTime();
+                return isNaN(parsed) ? 0 : parsed;
             } catch (e) {
                 return 0;
             }
