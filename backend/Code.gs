@@ -579,6 +579,23 @@ function handleLeadSubmission(params) {
   return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
 }
 
+function handleVisitLog(params) {
+  var sheet = getOrCreateSheet("Visits");
+  var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
+  
+  sheet.appendRow([
+    timestamp,
+    params.landing_id || 'Unknown',
+    params.ip || 'Unknown',
+    params.device || 'Unknown',
+    params.os || 'Unknown',
+    params.browser || 'Unknown',
+    params.referrer || 'Unknown'
+  ]);
+  
+  return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
+}
+
 function handleConfigDeletion(params) {
   var sheet = getOrCreateSheet("Configs");
   var id = params.id;

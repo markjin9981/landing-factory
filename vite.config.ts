@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  
+
   // --------------------------------------------------------------------------
   // [매우 중요] GitHub Pages 배포 설정입니다.
   // --------------------------------------------------------------------------
@@ -14,5 +14,6 @@ export default defineConfig({
   // 예시: GitHub 저장소 이름이 'my-landing-page' 라면
   // base: '/my-landing-page/',
   // --------------------------------------------------------------------------
-  base: '/landing-factory/', 
+  // --------------------------------------------------------------------------
+  base: '/',
 })
