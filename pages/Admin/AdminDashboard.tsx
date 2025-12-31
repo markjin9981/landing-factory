@@ -204,7 +204,7 @@ const AdminDashboard: React.FC = () => {
                                     </button>
                                     <button
                                         onClick={() => {
-                                            const url = `${window.location.origin}/landing-factory/${config.id}`;
+                                            const url = `${window.location.origin}/${config.id}`;
                                             navigator.clipboard.writeText(url);
                                             alert('배포 주소가 복사되었습니다.\n' + url);
                                         }}
