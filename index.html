@@ -1,78 +1,68 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- 기본 메타 정보 -->
-    <title>Landing Page Factory</title>
-    <meta name="description" content="쉽고 빠른 랜딩페이지 제작 솔루션" />
 
-    <!-- Favicon (루트 경로에 favicon.ico 파일이 있어야 함. 없으면 기본 아이콘 표시) -->
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/logo192.png" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Open Graph (SNS 공유 시 보여질 정보) -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Landing Page Factory" />
-    <meta property="og:title" content="Landing Page Factory" />
-    <meta property="og:description" content="서버 없이 운영하는 맞춤형 랜딩페이지 시스템" />
-    <!-- 썸네일 이미지 (루트 경로에 og-image.png 업로드 필요. 1200x630px 권장) -->
-    <meta property="og:image" content="/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+  <!-- 기본 메타 정보 -->
+  <title>Landing Page Factory</title>
+  <meta name="description" content="쉽고 빠른 랜딩페이지 제작 솔루션" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Landing Page Factory" />
-    <meta name="twitter:description" content="서버 없이 운영하는 맞춤형 랜딩페이지 시스템" />
-    <meta name="twitter:image" content="/og-image.png" />
+  <!-- Favicon (루트 경로에 favicon.ico 파일이 있어야 함. 없으면 기본 아이콘 표시) -->
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/logo192.png" />
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              brand: {
-                50: '#f0f9ff',
-                100: '#e0f2fe',
-                500: '#0ea5e9',
-                600: '#0284c7',
-                900: '#0c4a6e',
-              }
+  <!-- Open Graph (SNS 공유 시 보여질 정보) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Landing Page Factory" />
+  <meta property="og:title" content="Landing Page Factory" />
+  <meta property="og:description" content="서버 없이 운영하는 맞춤형 랜딩페이지 시스템" />
+  <!-- 썸네일 이미지 (루트 경로에 og-image.png 업로드 필요. 1200x630px 권장) -->
+  <meta property="og:image" content="/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Landing Page Factory" />
+  <meta name="twitter:description" content="서버 없이 운영하는 맞춤형 랜딩페이지 시스템" />
+  <meta name="twitter:image" content="/og-image.png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              900: '#0c4a6e',
             }
           }
         }
       }
-    </script>
-    <style>
-      /* Smooth scrolling */
-      html {
-        scroll-behavior: smooth;
-      }
-      body {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-    </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react/": "https://esm.sh/react@18.2.0/",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
-    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?external=react,react-dom",
-    "lucide-react": "https://esm.sh/lucide-react@0.363.0?external=react",
-    "recharts": "https://esm.sh/recharts@2.12.3?external=react,react-dom"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+    }
+  </script>
+  <style>
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
 </head>
-  <body class="bg-gray-50 text-gray-900">
-    <div id="root"></div>
+
+<body class="bg-gray-50 text-gray-900">
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

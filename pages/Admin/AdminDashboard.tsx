@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LANDING_CONFIGS } from '../../data/landingConfigs';
+import LANDING_CONFIGS_JSON from '../../data/landingConfigs.json';
 import { LandingConfig } from '../../types';
 import { fetchLandingConfigs } from '../../services/googleSheetService';
 import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2 } from 'lucide-react';
+
+const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
 const AdminDashboard: React.FC = () => {
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
@@ -202,7 +204,7 @@ const AdminDashboard: React.FC = () => {
                                     </button>
                                     <button
                                         onClick={() => {
-                                            const url = `${window.location.origin}${window.location.pathname}#/${config.id}`;
+                                            const url = `${window.location.origin}/landing-factory/${config.id}`;
                                             navigator.clipboard.writeText(url);
                                             alert('배포 주소가 복사되었습니다.\n' + url);
                                         }}

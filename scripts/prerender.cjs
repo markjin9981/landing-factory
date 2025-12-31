@@ -41,6 +41,10 @@ async function prerender() {
     fs.writeFileSync(NOT_FOUND_PATH, template);
     console.log("✅ Created dist/404.html for SPA fallback");
 
+    // 1.1 Create .nojekyll to bypass Jekyll processing (Fixes file ignore issues)
+    fs.writeFileSync(path.join(DIST_DIR, '.nojekyll'), '');
+    console.log("✅ Created dist/.nojekyll");
+
     // 2. Load Local Configs (Manual Overrides)
     let localConfigs = {};
     try {
