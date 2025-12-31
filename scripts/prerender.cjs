@@ -81,10 +81,16 @@ async function prerender() {
             // Allow for <title> replacement even if it has attributes
             html = html.replace(/<title[^>]*>.*?<\/title>/, `<title>${title}</title>`);
 
+            // [FIX] Remove existing OG/Twitter tags to prevent duplicates (Kakao Issue)
+            html = html.replace(/<meta property="og:.*?>/g, '');
+            html = html.replace(/<meta name="twitter:.*?>/g, '');
+            html = html.replace(/<meta name="description".*?>/g, '');
+
             // Inject Meta Tags before </head>
             const metaTags = `
     <!-- Pre-rendered SEO Tags -->
     <meta name="description" content="${desc.replace(/"/g, '&quot;')}">
+    <meta property="og:type" content="website">
     <meta property="og:title" content="${title.replace(/"/g, '&quot;')}">
     <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}">
     ${image ? `<meta property="og:image" content="${image}">` : ''}
