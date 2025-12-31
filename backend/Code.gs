@@ -23,6 +23,15 @@ function checkDrivePermissions() {
   Logger.log("Write Permission OK: File created and deleted.");
 }
 
+/**
+ * [필수] 외부 통신 권한 승인 확인용 함수
+ * 이 함수를 실행하여 "승인"을 해야 구글 로그인 검증이 가능합니다.
+ */
+function checkExternalUrlPermissions() {
+  var response = UrlFetchApp.fetch("https://www.google.com");
+  Logger.log("External Connection OK: Status " + response.getResponseCode());
+}
+
 // =================================================================
 // [UPDATED] doGet for Data Retrieval
 // =================================================================
@@ -38,6 +47,10 @@ function doGet(e) {
     return handleLeadsRetrieval(params);
   } else if (type === 'visits') {
     return handleVisitsRetrieval(params);
+  } else if (type === 'google_login') {
+    return handleGoogleLogin(params);
+  } else if (type === 'admin_users_list') {
+    return handleGetAdminUsers(params);
   }
 
   return ContentService.createTextOutput("Backend Status: Online | Version: 3.0 (Read/Write) | Drive Access: OK");
@@ -183,6 +196,10 @@ function doPost(e) {
       // [CRITICAL] Ensure handleImageUpload catches its own errors, 
       // but if something else fails here, the outer catch will handle it.
       return handleImageUpload(params);
+    } else if (type === 'admin_user_add') {
+      return handleAddAdminUser(params);
+    } else if (type === 'admin_user_remove') {
+      return handleRemoveAdminUser(params);
     } else { 
       return handleLeadSubmission(params);
     }
@@ -225,6 +242,145 @@ function handleAdminEmail(params) {
       "message": "MailApp Error: " + e.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// =================================================================
+// [NEW] Google Login Handler
+// =================================================================
+
+function handleGoogleLogin(params) {
+  var token = params.token;
+  if (!token) {
+    return ContentService.createTextOutput(JSON.stringify({"valid": false, "message": "No token provided"})).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 1. Verify Token with Google
+  var url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + token;
+  try {
+    var response = UrlFetchApp.fetch(url);
+    var data = JSON.parse(response.getContentText());
+
+    // 2. Validate Audience (Client ID)
+    var authorizedClientId = "175843490646-ngqarhsg4fsi664gc8bg5v42438nai87.apps.googleusercontent.com";
+    if (data.aud !== authorizedClientId) {
+       return ContentService.createTextOutput(JSON.stringify({"valid": false, "message": "Invalid Client ID"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 3. Check AdminUsers Sheet
+    var email = data.email;
+    var sheet = getOrCreateSheet("AdminUsers");
+    var values = sheet.getDataRange().getValues();
+    var isAuthorized = false;
+
+    // If only header exists, allow the FIRST user to register automatically (Bootstrap mode)
+    if (values.length <= 1) {
+       sheet.appendRow([email, "First Admin", "Auto-added"]);
+       isAuthorized = true;
+    } else {
+       // Check if email exists in column A (index 0)
+       for (var i = 1; i < values.length; i++) {
+         if (String(values[i][0]).toLowerCase() === String(email).toLowerCase()) {
+           isAuthorized = true;
+           break;
+         }
+       }
+    }
+
+    if (!isAuthorized) {
+       return ContentService.createTextOutput(JSON.stringify({
+         "valid": false, 
+         "message": "Unauthorized Email: " + email + ". Please ask an administrator to add you to the AdminUsers sheet."
+       })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 4. Create Session
+    var sessionId = Utilities.getUuid();
+    var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
+    var ip = params.ip || "GoogleLogin"; // We can't easily get client IP in GAS doGet, maybe pass it from client if needed, but not critical
+    var device = "Google Auth"; // Placeholder
+    
+    var sessionSheet = getOrCreateSheet("AdminSessions");
+    sessionSheet.appendRow([sessionId, timestamp, ip, device, email, "active"]); // Updated schema to include email if helpful, but original schema was specific.
+    // Original Schema: session_id, timestamp, ip, device, user_agent, status
+    // I should follow original schema or update it?
+    // Let's stick to original schema for `user_agent` (col 5) -> I'll put email there for now or keep consistency.
+    // Actually, storing email in session log is useful.
+    // Let's modify logic: appendRow([sessionId, timestamp, ip, device, email, "active"]); 
+    // Wait, original: `user_agent` is 5th col. I will put email in `user_agent` column for now or add a new column?
+    // Let's use `user_agent` column to store "Email: [email]" to be safe without schema change errors if code relies on index.
+    
+    // Better: Helper function handleAdminLogin uses: `sheet.appendRow([sessionId, timestamp, ip, device, userAgent, "active"]);`
+    // I will call `handleAdminLogin` logic here or rewrite it.
+    // I'll just append directly.
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      "valid": true,
+      "email": email,
+      "sessionId": sessionId
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({"valid": false, "message": "Token verification failed: " + e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// =================================================================
+// [NEW] Admin User Management Handlers
+// =================================================================
+
+function handleGetAdminUsers(params) {
+  var sheet = getOrCreateSheet("AdminUsers");
+  var data = sheet.getDataRange().getValues();
+  var admins = [];
+  
+  // Skip header
+  for (var i = 1; i < data.length; i++) {
+    admins.push({
+      email: data[i][0],
+      name: data[i][1] || "",
+      memo: data[i][2] || ""
+    });
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(admins)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleAddAdminUser(params) {
+  var email = params.email;
+  var name = params.name || "Admin";
+  var memo = params.memo || "Added via Settings";
+  
+  if (!email) {
+     return ContentService.createTextOutput(JSON.stringify({"result": "error", "message": "Email is required"})).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  var sheet = getOrCreateSheet("AdminUsers");
+  var data = sheet.getDataRange().getValues();
+  
+  // Check duplicate
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]).toLowerCase() === String(email).toLowerCase()) {
+       return ContentService.createTextOutput(JSON.stringify({"result": "error", "message": "Email already exists"})).setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+  
+  sheet.appendRow([email, name, memo]);
+  return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleRemoveAdminUser(params) {
+  var targetEmail = params.email;
+  var sheet = getOrCreateSheet("AdminUsers");
+  var data = sheet.getDataRange().getValues();
+  
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]).toLowerCase() === String(targetEmail).toLowerCase()) {
+      sheet.deleteRow(i + 1);
+      return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({"result": "error", "message": "User not found"})).setMimeType(ContentService.MimeType.JSON);
 }
 
 // =================================================================
@@ -630,6 +786,8 @@ function getOrCreateSheet(name) {
       sheet.appendRow(["id", "config_json"]);
     } else if (name === "AdminSessions") {
       sheet.appendRow(["session_id", "timestamp", "ip", "device", "user_agent", "status"]);
+    } else if (name === "AdminUsers") {
+      sheet.appendRow(["email", "name", "memo"]);
     }
   }
   return sheet;

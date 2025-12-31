@@ -11,6 +11,8 @@ import Login from './pages/Admin/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LANDING_CONFIGS } from './data/landingConfigs';
 import { FileText, ArrowRight, Settings as SettingsIcon } from 'lucide-react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { GOOGLE_CLIENT_ID } from './authConfig';
 
 // A simple dashboard to list available landing pages for the visitor
 const Home = () => {
@@ -69,76 +71,78 @@ const Home = () => {
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
-      <Routes>
-        {/* Redirect Root to Login */}
-        <Route path="/" element={<Navigate to="/admin/login" replace />} />
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <HashRouter>
+        <Routes>
+          {/* Redirect Root to Login */}
+          <Route path="/" element={<Navigate to="/admin/login" replace />} />
 
-        {/* Login Route */}
-        <Route path="/admin/login" element={<Login />} />
+          {/* Login Route */}
+          <Route path="/admin/login" element={<Login />} />
 
-        {/* Protected Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/settings"
-          element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/editor"
-          element={
-            <ProtectedRoute>
-              <LandingEditor />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/editor/:id"
-          element={
-            <ProtectedRoute>
-              <LandingEditor />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/stats"
-          element={
-            <ProtectedRoute>
-              <LeadStats />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/traffic-logs"
-          element={
-            <ProtectedRoute>
-              <TrafficLogs />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/traffic-stats"
-          element={
-            <ProtectedRoute>
-              <TrafficStats />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/editor"
+            element={
+              <ProtectedRoute>
+                <LandingEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/editor/:id"
+            element={
+              <ProtectedRoute>
+                <LandingEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/stats"
+            element={
+              <ProtectedRoute>
+                <LeadStats />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/traffic-logs"
+            element={
+              <ProtectedRoute>
+                <TrafficLogs />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/traffic-stats"
+            element={
+              <ProtectedRoute>
+                <TrafficStats />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Dynamic Route for Landing Pages: /1, /2, /30 etc. */}
-        <Route path="/:id" element={<LandingPage />} />
-      </Routes>
-    </HashRouter>
+          {/* Dynamic Route for Landing Pages: /1, /2, /30 etc. */}
+          <Route path="/:id" element={<LandingPage />} />
+        </Routes>
+      </HashRouter>
+    </GoogleOAuthProvider>
   );
 };
 

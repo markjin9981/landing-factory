@@ -1,66 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Mail, Lock, CheckCircle, AlertCircle, Shield, Smartphone, Monitor, Globe, LogOut } from 'lucide-react';
-import { sendAdminNotification, fetchAdminSessions, revokeSession } from '../../services/googleSheetService';
+import { ArrowLeft, Mail, Lock, AlertCircle, Shield, Smartphone, Monitor, Globe, LogOut, Plus, Trash2, User, UserPlus } from 'lucide-react';
+import { fetchAdminSessions, revokeSession, fetchAdminUsers, addAdminUser, removeAdminUser } from '../../services/googleSheetService';
 import { authService } from '../../services/authService';
 
 const Settings: React.FC = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [status, setStatus] = useState<'idle' | 'saving' | 'success'>('idle');
-    const [msg, setMsg] = useState('');
 
     // Session State
     const [sessions, setSessions] = useState<any[]>([]);
     const [loadingSessions, setLoadingSessions] = useState(false);
     const currentSessionId = authService.getSessionId();
+    const currentUserEmail = authService.getUserEmail();
+
+    // Admin Users State
+    const [adminUsers, setAdminUsers] = useState<any[]>([]);
+    const [loadingAdmins, setLoadingAdmins] = useState(false);
+    const [newAdminEmail, setNewAdminEmail] = useState('');
+    const [addingAdmin, setAddingAdmin] = useState(false);
 
     useEffect(() => {
-        const creds = authService.getCredentials();
-        setEmail(creds.email);
-        setPassword(creds.password);
-
         loadSessions();
+        loadAdminUsers();
     }, []);
+
+    const loadAdminUsers = async () => {
+        setLoadingAdmins(true);
+        const users = await fetchAdminUsers();
+        setAdminUsers(users);
+        setLoadingAdmins(false);
+    };
+
+    const handleAddAdmin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newAdminEmail) return;
+
+        if (!confirm(`${newAdminEmail} 님을 관리자로 추가하시겠습니까?`)) return;
+
+        setAddingAdmin(true);
+        const result = await addAdminUser(newAdminEmail);
+
+        // Since we use no-cors, we can't confirm success easily.
+        // We wait a bit and reload list.
+        setTimeout(async () => {
+            await loadAdminUsers();
+            setAddingAdmin(false);
+            setNewAdminEmail('');
+            alert('초대 요청을 보냈습니다. (잠시 후 목록에 나타나지 않으면 권한 설정을 확인하세요)');
+        }, 1500);
+    };
+
+    const handleRemoveAdmin = async (email: string) => {
+        if (!confirm(`${email} 님의 관리자 권한을 삭제하시겠습니까?`)) return;
+
+        await removeAdminUser(email);
+        setTimeout(() => {
+            loadAdminUsers();
+            alert('삭제 요청을 보냈습니다.');
+        }, 1000);
+    };
 
     const loadSessions = async () => {
         setLoadingSessions(true);
         const data = await fetchAdminSessions();
         setSessions(data);
         setLoadingSessions(false);
-    };
-
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!password) {
-            alert('비밀번호는 필수입니다.');
-            return;
-        }
-
-        setStatus('saving');
-
-        // Save using Auth Service
-        authService.updateCredentials(email, password);
-
-        // Send email notification if email provided
-        if (email) {
-            const success = await sendAdminNotification(
-                email,
-                '[Landing Factory] 관리자 계정 정보 변경 알림',
-                `관리자 비밀번호가 변경되었습니다.\n\n변경된 비밀번호: ${password}\n\n본인이 변경한 것이 아니라면 즉시 확인하세요.`
-            );
-            if (success) {
-                setMsg('저장 및 이메일 발송 완료');
-            } else {
-                setMsg('저장 완료 (이메일 발송 실패)');
-            }
-        } else {
-            setMsg('저장 완료');
-        }
-
-        setStatus('success');
-        setTimeout(() => setStatus('idle'), 3000);
     };
 
     const handleRevoke = async (targetId: string) => {
@@ -87,78 +91,104 @@ const Settings: React.FC = () => {
             </header>
 
             <main className="max-w-2xl mx-auto p-8 space-y-8">
-                {/* 1. Account Settings */}
+                {/* 1. Account Profile (Read-Only for Google Auth) */}
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
                     <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
                         <Lock className="w-5 h-5 text-blue-600" />
-                        관리자 계정 설정
+                        관리자 계정 정보
                     </h2>
 
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 text-sm text-yellow-800">
-                        <strong className="block mb-1">주의사항</strong>
-                        이 시스템은 서버가 없는 구조이므로 계정 정보는 <strong>현재 브라우저(LocalStorage)</strong>에 저장됩니다.
-                        브라우저 캐시를 삭제하면 설정이 초기화될 수 있습니다.
-                        비밀번호 변경 시 입력한 이메일로 백업 메일이 발송됩니다.
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 text-sm text-blue-800">
+                        <strong className="block mb-1">Google 계정 연동됨</strong>
+                        현재 <strong>Google Sign-In</strong>을 통해 로그인되어 있습니다.<br />
+                        비밀번호나 계정 정보 변경은 구글 계정 설정에서 가능합니다.
                     </div>
 
-                    <form onSubmit={handleSave} className="space-y-6">
+                    <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">관리자 이메일 (ID)</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">현재 로그인된 이메일</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                                 <input
                                     type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
-                                    placeholder="example@email.com"
+                                    value={currentUserEmail || '알 수 없음'}
+                                    readOnly
+                                    className="w-full pl-10 px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-600 outline-none"
                                 />
                             </div>
                         </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">변경할 비밀번호</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                                <input
-                                    type="text"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full pl-10 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none font-mono"
-                                    placeholder="새로운 비밀번호 입력"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="pt-4 border-t">
-                            <button
-                                type="submit"
-                                disabled={status === 'saving'}
-                                className="w-full py-3 bg-gray-900 text-white rounded-lg font-bold hover:bg-gray-800 transition-colors flex items-center justify-center"
-                            >
-                                {status === 'saving' ? '처리중...' : (
-                                    <>
-                                        <Save className="w-4 h-4 mr-2" />
-                                        설정 저장하기
-                                    </>
-                                )}
-                            </button>
-                            {status === 'success' && (
-                                <div className="mt-4 flex items-center justify-center text-green-600 text-sm font-bold animate-fade-in">
-                                    <CheckCircle className="w-5 h-5 mr-2" />
-                                    {msg}
-                                </div>
-                            )}
-                        </div>
-                    </form>
+                    </div>
                 </div>
 
-                {/* 2. Login Security & Sessions */}
+                {/* 2. Admin User Management */}
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+                    <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
+                        <UserPlus className="w-5 h-5 text-purple-600" />
+                        관리자 권한 관리
+                    </h2>
+
+                    <div className="mb-6">
+                        <form onSubmit={handleAddAdmin} className="flex gap-2">
+                            <input
+                                type="email"
+                                placeholder="추가할 관리자의 Gmail 입력"
+                                value={newAdminEmail}
+                                onChange={(e) => setNewAdminEmail(e.target.value)}
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                required
+                            />
+                            <button
+                                type="submit"
+                                disabled={addingAdmin}
+                                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 flex items-center"
+                            >
+                                {addingAdmin ? '추가 중...' : <><Plus className="w-4 h-4 mr-1" /> 추가</>}
+                            </button>
+                        </form>
+                    </div>
+
+                    <div className="space-y-3">
+                        {loadingAdmins ? (
+                            <p className="text-gray-500 text-center py-4">목록 불러오는 중...</p>
+                        ) : adminUsers.length === 0 ? (
+                            <p className="text-gray-400 text-center py-4">등록된 관리자가 없습니다. (오류)</p>
+                        ) : (
+                            adminUsers.map((user, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white rounded-full border border-gray-200">
+                                            <User className="w-4 h-4 text-gray-500" />
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-gray-800 text-sm">{user.email}</div>
+                                            <div className="text-xs text-gray-500">{user.name} {user.memo ? `(${user.memo})` : ''}</div>
+                                        </div>
+                                    </div>
+
+                                    {user.email !== currentUserEmail && (
+                                        <button
+                                            onClick={() => handleRemoveAdmin(user.email)}
+                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            title="권한 삭제"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                    {user.email === currentUserEmail && (
+                                        <span className="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded">본인</span>
+                                    )}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                {/* 3. Login Sessions */}
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-lg font-bold flex items-center gap-2">
                             <Shield className="w-5 h-5 text-green-600" />
-                            로그인 보안 / 기기 관리
+                            기기 접속 현황
                         </h2>
                         <button
                             onClick={loadSessions}
@@ -175,9 +205,6 @@ const Settings: React.FC = () => {
                             <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 text-sm">
                                 <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                                 기록된 로그인 활동이 없습니다.
-                                <p className="text-xs mt-1 text-gray-400">
-                                    (최근 배포된 버전에서 로그인해야 기록됩니다)
-                                </p>
                             </div>
                         ) : (
                             sessions.map((session) => {

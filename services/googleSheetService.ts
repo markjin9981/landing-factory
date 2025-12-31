@@ -432,3 +432,77 @@ export const verifySession = async (sessionId: string): Promise<boolean> => {
         return false;
     }
 };
+
+// ===================================
+// Admin User Management
+// ===================================
+
+export const fetchAdminUsers = async (): Promise<Array<{ email: string, name: string, memo: string }>> => {
+    if (!isUrlConfigured()) return [];
+    try {
+        const url = `${GOOGLE_SCRIPT_URL}?type=admin_users_list`;
+        const response = await fetch(url);
+        return await response.json();
+    } catch (e) {
+        console.error("Fetch Admin Users Error", e);
+        return [];
+    }
+};
+
+export const addAdminUser = async (email: string, name: string = '', memo: string = ''): Promise<{ result: string, message?: string }> => {
+    if (!isUrlConfigured()) return { result: 'error' };
+
+    try {
+        const formData = new FormData();
+        formData.append('type', 'admin_user_add');
+        formData.append('email', email);
+        formData.append('name', name);
+        formData.append('memo', memo);
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            mode: "no-cors"
+        });
+
+        return { result: 'success' };
+    } catch (e: any) {
+        return { result: 'error', message: e.toString() };
+    }
+}
+
+export const removeAdminUser = async (email: string): Promise<boolean> => {
+    if (!isUrlConfigured()) return true;
+    try {
+        const formData = new FormData();
+        formData.append('type', 'admin_user_remove');
+        formData.append('email', email);
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            mode: "no-cors"
+        });
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/**
+ * Verify Google ID Token with Backend
+ */
+export const verifyGoogleToken = async (idToken: string): Promise<{ valid: boolean, email?: string, message?: string, sessionId?: string }> => {
+    if (!isUrlConfigured()) return { valid: true, email: 'mock@example.com', sessionId: 'mock-session' };
+
+    try {
+        // GET request to validate token
+        const url = `${GOOGLE_SCRIPT_URL}?type=google_login&token=${encodeURIComponent(idToken)}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        return json;
+    } catch (error) {
+        console.error("Error verifying google token:", error);
+        return { valid: false, message: "Network Error" };
+    }
+};
