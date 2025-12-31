@@ -161,9 +161,22 @@ const AdminDashboard: React.FC = () => {
                 <div className="flex justify-between items-end mb-4 border-b pb-2">
                     <div>
                         <h2 className="text-lg font-bold mb-1">보유 중인 랜딩페이지</h2>
-                        <p className="text-gray-500 text-sm">
-                            Google Sheets와 연동된 모든 랜딩페이지 목록입니다.
-                        </p>
+                        <div className="flex items-center gap-4">
+                            <p className="text-gray-500 text-sm">
+                                Google Sheets와 연동된 모든 랜딩페이지 목록입니다.
+                            </p>
+                            <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-lg">
+                                <span className="font-bold">정렬:</span>
+                                <select
+                                    value={sortOrder}
+                                    onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+                                    className="bg-transparent border-none outline-none text-gray-800 font-medium cursor-pointer"
+                                >
+                                    <option value="newest">최신순 (Newest)</option>
+                                    <option value="oldest">오래된순 (Oldest)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <Link
                         to="/admin/editor"
