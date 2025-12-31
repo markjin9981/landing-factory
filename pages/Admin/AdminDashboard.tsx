@@ -7,6 +7,8 @@ import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity,
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
+import OgStatusBadge from '../../components/OgStatusBadge';
+
 const AdminDashboard: React.FC = () => {
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
     const [loading, setLoading] = useState(true);
@@ -179,6 +181,7 @@ const AdminDashboard: React.FC = () => {
                                             /{config.id}
                                         </span>
                                         {getStatusBadge(config.id)}
+                                        <OgStatusBadge id={config.id} expectedTitle={config.title || config.hero?.headline || ''} />
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-800 mb-1">{config.title || '(제목 없음)'}</h3>
                                     <p className="text-sm text-gray-500 line-clamp-1">{config.hero.headline || '(헤드라인 없음)'}</p>
