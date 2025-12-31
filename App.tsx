@@ -75,7 +75,7 @@ const Home = () => {
 const App: React.FC = () => {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <BrowserRouter basename="/landing-factory">
+      <BrowserRouter>
         <Routes>
           {/* Redirect Root to Login */}
           <Route path="/" element={<Navigate to="/admin/login" replace />} />
