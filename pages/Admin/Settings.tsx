@@ -120,135 +120,148 @@ const Settings: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 2. Admin User Management */}
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
-                    <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-                        <UserPlus className="w-5 h-5 text-purple-600" />
-                        관리자 권한 관리
-                    </h2>
+                {/* 2. Admin User Management (Super Admin Only) */}
+                {currentUserEmail === 'beanhull@gmail.com' ? (
+                    <>
+                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+                            <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
+                                <UserPlus className="w-5 h-5 text-purple-600" />
+                                관리자 권한 관리
+                            </h2>
 
-                    <div className="mb-6">
-                        <form onSubmit={handleAddAdmin} className="flex gap-2">
-                            <input
-                                type="email"
-                                placeholder="추가할 관리자의 Gmail 입력"
-                                value={newAdminEmail}
-                                onChange={(e) => setNewAdminEmail(e.target.value)}
-                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
-                                required
-                            />
-                            <button
-                                type="submit"
-                                disabled={addingAdmin}
-                                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 flex items-center"
-                            >
-                                {addingAdmin ? '추가 중...' : <><Plus className="w-4 h-4 mr-1" /> 추가</>}
-                            </button>
-                        </form>
-                    </div>
-
-                    <div className="space-y-3">
-                        {loadingAdmins ? (
-                            <p className="text-gray-500 text-center py-4">목록 불러오는 중...</p>
-                        ) : adminUsers.length === 0 ? (
-                            <p className="text-gray-400 text-center py-4">등록된 관리자가 없습니다. (오류)</p>
-                        ) : (
-                            adminUsers.map((user, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-full border border-gray-200">
-                                            <User className="w-4 h-4 text-gray-500" />
-                                        </div>
-                                        <div>
-                                            <div className="font-bold text-gray-800 text-sm">{user.email}</div>
-                                            <div className="text-xs text-gray-500">{user.name} {user.memo ? `(${user.memo})` : ''}</div>
-                                        </div>
-                                    </div>
-
-                                    {user.email !== currentUserEmail && (
-                                        <button
-                                            onClick={() => handleRemoveAdmin(user.email)}
-                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                            title="권한 삭제"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    )}
-                                    {user.email === currentUserEmail && (
-                                        <span className="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded">본인</span>
-                                    )}
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
-
-                {/* 3. Login Sessions */}
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-bold flex items-center gap-2">
-                            <Shield className="w-5 h-5 text-green-600" />
-                            기기 접속 현황
-                        </h2>
-                        <button
-                            onClick={loadSessions}
-                            className="text-sm text-gray-500 hover:text-gray-900 underline"
-                        >
-                            새로고침
-                        </button>
-                    </div>
-
-                    <div className="space-y-4">
-                        {loadingSessions ? (
-                            <p className="text-center text-gray-500 py-4">활동 기록을 불러오는 중...</p>
-                        ) : sessions.length === 0 ? (
-                            <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 text-sm">
-                                <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                                기록된 로그인 활동이 없습니다.
-                            </div>
-                        ) : (
-                            sessions.map((session) => {
-                                const isCurrent = session.session_id === currentSessionId;
-                                return (
-                                    <div
-                                        key={session.session_id}
-                                        className={`flex items-center justify-between p-4 rounded-lg border ${isCurrent ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
-                                            }`}
+                            <div className="mb-6">
+                                <form onSubmit={handleAddAdmin} className="flex gap-2">
+                                    <input
+                                        type="email"
+                                        placeholder="추가할 관리자의 Gmail 입력"
+                                        value={newAdminEmail}
+                                        onChange={(e) => setNewAdminEmail(e.target.value)}
+                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                        required
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={addingAdmin}
+                                        className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 flex items-center"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className={`p-2 rounded-full ${isCurrent ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
-                                                {session.device.toLowerCase().includes('phone') || session.device.toLowerCase().includes('mobile')
-                                                    ? <Smartphone className="w-5 h-5" />
-                                                    : <Monitor className="w-5 h-5" />}
-                                            </div>
-                                            <div>
-                                                <div className="font-bold text-gray-900 text-sm flex items-center gap-2">
-                                                    {session.device}
-                                                    {isCurrent && <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">현재 기기</span>}
-                                                </div>
-                                                <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
-                                                    <Globe className="w-3 h-3" /> {session.ip}
-                                                    <span className="text-gray-300">|</span>
-                                                    {session.timestamp}
-                                                </div>
-                                            </div>
-                                        </div>
+                                        {addingAdmin ? '추가 중...' : <><Plus className="w-4 h-4 mr-1" /> 추가</>}
+                                    </button>
+                                </form>
+                            </div>
 
-                                        {!isCurrent && (
-                                            <button
-                                                onClick={() => handleRevoke(session.session_id)}
-                                                className="text-xs bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center"
-                                            >
-                                                <LogOut className="w-3 h-3 mr-1" />
-                                                로그아웃
-                                            </button>
-                                        )}
+                            <div className="space-y-3">
+                                {loadingAdmins ? (
+                                    <p className="text-gray-500 text-center py-4">목록 불러오는 중...</p>
+                                ) : adminUsers.length === 0 ? (
+                                    <p className="text-gray-400 text-center py-4">등록된 관리자가 없습니다. (오류)</p>
+                                ) : (
+                                    adminUsers.map((user, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-white rounded-full border border-gray-200">
+                                                    <User className="w-4 h-4 text-gray-500" />
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-gray-800 text-sm">{user.email}</div>
+                                                    <div className="text-xs text-gray-500">{user.name} {user.memo ? `(${user.memo})` : ''}</div>
+                                                </div>
+                                            </div>
+
+                                            {user.email !== currentUserEmail && (
+                                                <button
+                                                    onClick={() => handleRemoveAdmin(user.email)}
+                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="권한 삭제"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                            {user.email === currentUserEmail && (
+                                                <span className="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded">본인</span>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 3. Login Sessions (Super Admin Only) */}
+                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-lg font-bold flex items-center gap-2">
+                                    <Shield className="w-5 h-5 text-green-600" />
+                                    기기 접속 현황
+                                </h2>
+                                <button
+                                    onClick={loadSessions}
+                                    className="text-sm text-gray-500 hover:text-gray-900 underline"
+                                >
+                                    새로고침
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {loadingSessions ? (
+                                    <p className="text-center text-gray-500 py-4">활동 기록을 불러오는 중...</p>
+                                ) : sessions.length === 0 ? (
+                                    <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 text-sm">
+                                        <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                        기록된 로그인 활동이 없습니다.
                                     </div>
-                                );
-                            })
-                        )}
+                                ) : (
+                                    sessions.map((session) => {
+                                        const isCurrent = session.session_id === currentSessionId;
+                                        return (
+                                            <div
+                                                key={session.session_id}
+                                                className={`flex items-center justify-between p-4 rounded-lg border ${isCurrent ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`p-2 rounded-full ${isCurrent ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
+                                                        {session.device.toLowerCase().includes('phone') || session.device.toLowerCase().includes('mobile')
+                                                            ? <Smartphone className="w-5 h-5" />
+                                                            : <Monitor className="w-5 h-5" />}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                                                            {session.device}
+                                                            {isCurrent && <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">현재 기기</span>}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
+                                                            <Globe className="w-3 h-3" /> {session.ip}
+                                                            <span className="text-gray-300">|</span>
+                                                            {session.timestamp}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {!isCurrent && (
+                                                    <button
+                                                        onClick={() => handleRevoke(session.session_id)}
+                                                        className="text-xs bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center"
+                                                    >
+                                                        <LogOut className="w-3 h-3 mr-1" />
+                                                        로그아웃
+                                                    </button>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <div className="bg-gray-100 border border-gray-200 rounded-xl p-8 text-center text-gray-500">
+                        <Lock className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                        <h3 className="text-lg font-bold text-gray-700">관리자 권한 제한</h3>
+                        <p className="text-sm mt-1">
+                            관리자 추가/삭제 및 기기 관리는<br />
+                            <strong>최고 관리자(beanhull@gmail.com)</strong>만 가능합니다.
+                        </p>
                     </div>
-                </div>
+                )}
             </main>
         </div>
     );
