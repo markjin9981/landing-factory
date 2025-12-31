@@ -191,15 +191,67 @@ export const saveLandingConfig = async (config: LandingConfig): Promise<boolean>
     }
 };
 
+// --------------------------------------------------------------------------
+// CACHING LOGIC
+// --------------------------------------------------------------------------
+const CACHE_DURATION_MS = 30 * 60 * 1000; // 30 Minutes
+
+const getCache = (key: string): any | null => {
+    try {
+        const item = localStorage.getItem(key);
+        if (!item) return null;
+
+        const parsed = JSON.parse(item);
+        const now = new Date().getTime();
+
+        if (now > parsed.expiry) {
+            localStorage.removeItem(key);
+            return null;
+        }
+        return parsed.data;
+    } catch (e) {
+        return null;
+    }
+};
+
+const setCache = (key: string, data: any) => {
+    try {
+        const now = new Date().getTime();
+        const item = {
+            data: data,
+            expiry: now + CACHE_DURATION_MS,
+        };
+        localStorage.setItem(key, JSON.stringify(item));
+    } catch (e) {
+        console.warn("Failed to set cache", e);
+    }
+};
+
 /**
- * 특정 ID의 랜딩페이지 설정을 가져옵니다.
+ * 특정 ID의 랜딩페이지 설정을 가져옵니다. (With Caching)
  */
 export const fetchLandingConfigById = async (id: string): Promise<LandingConfig | null> => {
+    // 1. Check Cache
+    const cached = getCache(`landing_config_${id}`);
+    if (cached) {
+        console.log(`[Cache Hit] Config ${id} loaded from local cache.`);
+        return cached;
+    }
+
     if (!isUrlConfigured()) {
         console.warn(`Using mock config fetch because GOOGLE_SCRIPT_URL is not configured.`);
         return null;
     }
-    return fetchData('config', id);
+
+    // 2. Fetch from Network
+    const data = await fetchData('config', id);
+
+    // 3. Save to Cache if valid
+    if (data) {
+        setCache(`landing_config_${id}`, data);
+    }
+
+    return data;
 };
 
 /**

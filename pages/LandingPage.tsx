@@ -12,32 +12,43 @@ interface Props {
 
 const LandingPage: React.FC<Props> = ({ previewConfig }) => {
   const { id } = useParams<{ id: string }>();
-  const [dynamicConfig, setDynamicConfig] = useState<LandingConfig | null>(null);
-  const [loading, setLoading] = useState(false);
+
+  // 1. Initial State: Try to load from "Hardcoded Configs" (Instant)
+  // This eliminates the loading spinner for known IDs
+  const initialConfig = id ? LANDING_CONFIGS[id] : null;
+
+  const [dynamicConfig, setDynamicConfig] = useState<LandingConfig | null>(initialConfig);
+  // Show loading only if we DON'T have an initial config (and it's not a preview)
+  const [loading, setLoading] = useState(!initialConfig && !previewConfig);
 
   // Logic Updated: 
   // 1. Priority: Preview Config (Editor Live View)
-  // 2. Secondary: Dynamic Config (Fetched from Sheet)
-  // 3. Tertiary: Hardcoded Config (Legacy Fallback)
-  // 4. Quaternary: LocalStorage Drafts (Local Testing)
+  // 2. Secondary: Dynamic Config (Fetched/Cached)
+  // 3. Tertiary: Initial/Hardcoded Config (Legacy Fallback)
 
   // Only fetch if no previewConfig and id exists
   useEffect(() => {
     if (!previewConfig && id) {
       const fetchConfig = async () => {
-        // 1. Try fetching from Server (Sheet)
-        setLoading(true);
+        // If we didn't have initial config, we are showing a spinner, so keep it.
+        // If we DID have initial config, we are showing content, so DON'T show spinner (background update).
+        if (!initialConfig) setLoading(true);
+
         const fetched = await fetchLandingConfigById(id);
+
         if (fetched) {
+          // Only update if data is different (simple check) or if we didn't have it
+          // For now, just update to ensure freshness (React handles diffing)
           setDynamicConfig(fetched);
         }
+
         setLoading(false);
       };
       fetchConfig();
     }
   }, [id, previewConfig]);
 
-  let rawConfig: LandingConfig | undefined = previewConfig || dynamicConfig;
+  let rawConfig: LandingConfig | undefined = previewConfig || dynamicConfig || initialConfig;
 
   if (!rawConfig && id && !loading) { // If not loaded yet, try fallback
     // 3. Try Hardcoded
