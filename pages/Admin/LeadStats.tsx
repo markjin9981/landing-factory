@@ -502,7 +502,7 @@ const LeadStats: React.FC = () => {
                     
                     {/* Pagination Controls */}
                 {filteredLeads.length > 0 && (
-                    <div className="flex justify-center items-center gap-4 mt-6">
+                    <div className="flex justify-center items-center gap-4 py-6 border-t border-gray-100">
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
@@ -522,9 +522,11 @@ const LeadStats: React.FC = () => {
                         </button>
                     </div>
                 )}
-                )}
-            </main>
         </div>
+    )
+}
+            </main >
+        </div >
     );
 };
 
