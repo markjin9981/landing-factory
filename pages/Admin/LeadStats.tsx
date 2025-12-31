@@ -498,34 +498,33 @@ const LeadStats: React.FC = () => {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    
-                    {/* Pagination Controls */}
-                {filteredLeads.length > 0 && (
-                    <div className="flex justify-center items-center gap-4 py-6 border-t border-gray-100">
-                        <button
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
-                            className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                        >
-                            이전
-                        </button>
-                        <span className="text-sm text-gray-600 font-bold">
-                            {currentPage} / {totalPages} 페이지
-                        </span>
-                        <button
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            disabled={currentPage === totalPages}
-                            className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                        >
-                            다음
-                        </button>
+
+
+                        {/* Pagination Controls */}
+                        {filteredLeads.length > 0 && (
+                            <div className="flex justify-center items-center gap-4 py-6 border-t border-gray-100">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                >
+                                    이전
+                                </button>
+                                <span className="text-sm text-gray-600 font-bold">
+                                    {currentPage} / {totalPages} 페이지
+                                </span>
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                >
+                                    다음
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
-        </div>
-    )
-}
-            </main >
+            </main>
         </div >
     );
 };
