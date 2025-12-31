@@ -1,21 +1,29 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
-import AdminDashboard from './pages/Admin/AdminDashboard';
-import LandingEditor from './pages/Admin/LandingEditor';
-import LeadStats from './pages/Admin/LeadStats';
-import TrafficLogs from './pages/Admin/TrafficLogs';
-import TrafficStats from './pages/Admin/TrafficStats';
-import Settings from './pages/Admin/Settings';
-import Login from './pages/Admin/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import LANDING_CONFIGS_JSON from './data/landingConfigs.json';
 import { LandingConfig } from './types';
-import { FileText, ArrowRight, Settings as SettingsIcon } from 'lucide-react';
+import { FileText, ArrowRight, Settings as SettingsIcon, Loader2 } from 'lucide-react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GOOGLE_CLIENT_ID } from './authConfig';
 
+// Lazy Load Admin Pages
+const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
+const LandingEditor = lazy(() => import('./pages/Admin/LandingEditor'));
+const LeadStats = lazy(() => import('./pages/Admin/LeadStats'));
+const TrafficLogs = lazy(() => import('./pages/Admin/TrafficLogs'));
+const TrafficStats = lazy(() => import('./pages/Admin/TrafficStats'));
+const Settings = lazy(() => import('./pages/Admin/Settings'));
+const Login = lazy(() => import('./pages/Admin/Login'));
+
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
+
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center h-screen bg-gray-50">
+    <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+  </div>
+);
 
 // A simple dashboard to list available landing pages for the visitor
 const Home = () => {
@@ -76,74 +84,76 @@ const App: React.FC = () => {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <BrowserRouter>
-        <Routes>
-          {/* Redirect Root to Login */}
-          <Route path="/" element={<Navigate to="/admin/login" replace />} />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            {/* Redirect Root to Login */}
+            <Route path="/" element={<Navigate to="/admin/login" replace />} />
 
-          {/* Login Route */}
-          <Route path="/admin/login" element={<Login />} />
+            {/* Login Route (Lazy) */}
+            <Route path="/admin/login" element={<Login />} />
 
-          {/* Protected Admin Routes */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/editor"
-            element={
-              <ProtectedRoute>
-                <LandingEditor />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/editor/:id"
-            element={
-              <ProtectedRoute>
-                <LandingEditor />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/stats"
-            element={
-              <ProtectedRoute>
-                <LeadStats />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/traffic-logs"
-            element={
-              <ProtectedRoute>
-                <TrafficLogs />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/traffic-stats"
-            element={
-              <ProtectedRoute>
-                <TrafficStats />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected Admin Routes (Lazy) */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/editor"
+              element={
+                <ProtectedRoute>
+                  <LandingEditor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/editor/:id"
+              element={
+                <ProtectedRoute>
+                  <LandingEditor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/stats"
+              element={
+                <ProtectedRoute>
+                  <LeadStats />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/traffic-logs"
+              element={
+                <ProtectedRoute>
+                  <TrafficLogs />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/traffic-stats"
+              element={
+                <ProtectedRoute>
+                  <TrafficStats />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Dynamic Route for Landing Pages: /1, /2, /30 etc. */}
-          <Route path="/:id" element={<LandingPage />} />
-        </Routes>
+            {/* Dynamic Route for Landing Pages (Eager) */}
+            <Route path="/:id" element={<LandingPage />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </GoogleOAuthProvider>
   );
