@@ -71,7 +71,8 @@ async function prerender() {
             const config = combinedConfigs[id];
 
             // Prepare metadata
-            const title = config.title || config.hero?.headline || "Landing Page";
+            const pageTitle = config.title || config.hero?.headline || "Landing Page";
+            const ogTitle = config.ogTitle || pageTitle;
             const desc = config.ogDescription || config.hero?.subHeadline || "";
             const image = config.ogImage || "";
 
@@ -79,7 +80,7 @@ async function prerender() {
             let html = template;
 
             // Allow for <title> replacement even if it has attributes
-            html = html.replace(/<title[^>]*>.*?<\/title>/, `<title>${title}</title>`);
+            html = html.replace(/<title[^>]*>.*?<\/title>/, `<title>${pageTitle}</title>`);
 
             // [FIX] Remove existing OG/Twitter tags to prevent duplicates (Kakao Issue)
             html = html.replace(/<meta property="og:.*?>/g, '');
@@ -91,10 +92,10 @@ async function prerender() {
     <!-- Pre-rendered SEO Tags -->
     <meta name="description" content="${desc.replace(/"/g, '&quot;')}">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="${title.replace(/"/g, '&quot;')}">
+    <meta property="og:title" content="${ogTitle.replace(/"/g, '&quot;')}">
     <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}">
     ${image ? `<meta property="og:image" content="${image}">` : ''}
-    <meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}">
+    <meta name="twitter:title" content="${ogTitle.replace(/"/g, '&quot;')}">
     <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}">
     ${image ? `<meta name="twitter:image" content="${image}">` : ''}
             `;
