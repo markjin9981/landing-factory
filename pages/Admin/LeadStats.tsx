@@ -246,6 +246,22 @@ const LeadStats: React.FC = () => {
     }, [leads, configs, selectedLandingId, sortOrder, sortBy, selectedDate]);
 
 
+    // --- Pagination Logic ---
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
+
+    // Reset page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedLandingId, selectedDate, sortBy, sortOrder]);
+
+    const totalPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE);
+    const displayedLeads = filteredLeads.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+
     // --- Simple Calendar Logic ---
     const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
     const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
@@ -421,7 +437,7 @@ const LeadStats: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredLeads.map((lead, idx) => {
+                                    {displayedLeads.map((lead, idx) => {
                                         const title = getPageTitle(String(lead['Landing ID']));
 
                                         // Calculate Promoted Keys (First & Second Custom Fields)
@@ -483,6 +499,29 @@ const LeadStats: React.FC = () => {
                             </table>
                         </div>
                     </div>
+                    
+                    {/* Pagination Controls */}
+                {filteredLeads.length > 0 && (
+                    <div className="flex justify-center items-center gap-4 mt-6">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        >
+                            이전
+                        </button>
+                        <span className="text-sm text-gray-600 font-bold">
+                            {currentPage} / {totalPages} 페이지
+                        </span>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        >
+                            다음
+                        </button>
+                    </div>
+                )}
                 )}
             </main>
         </div>
