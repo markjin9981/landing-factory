@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import LandingEditor from './pages/Admin/LandingEditor';
@@ -9,10 +9,13 @@ import TrafficStats from './pages/Admin/TrafficStats';
 import Settings from './pages/Admin/Settings';
 import Login from './pages/Admin/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import { LANDING_CONFIGS } from './data/landingConfigs';
+import LANDING_CONFIGS_JSON from './data/landingConfigs.json';
+import { LandingConfig } from './types';
 import { FileText, ArrowRight, Settings as SettingsIcon } from 'lucide-react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GOOGLE_CLIENT_ID } from './authConfig';
+
+const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
 // A simple dashboard to list available landing pages for the visitor
 const Home = () => {
@@ -72,7 +75,7 @@ const Home = () => {
 const App: React.FC = () => {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <HashRouter>
+      <BrowserRouter basename="/landing-factory">
         <Routes>
           {/* Redirect Root to Login */}
           <Route path="/" element={<Navigate to="/admin/login" replace />} />
@@ -141,7 +144,7 @@ const App: React.FC = () => {
           {/* Dynamic Route for Landing Pages: /1, /2, /30 etc. */}
           <Route path="/:id" element={<LandingPage />} />
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </GoogleOAuthProvider>
   );
 };

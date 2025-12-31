@@ -1,10 +1,13 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { LANDING_CONFIGS } from '../data/landingConfigs';
+import LANDING_CONFIGS_JSON from '../data/landingConfigs.json';
 import { LandingConfig, FloatingBanner, HeroSection } from '../types';
 import LeadForm from '../components/LeadForm';
 import { Check, Star, Shield, Clock, ThumbsUp, ArrowRight } from 'lucide-react';
 import { logVisit, fetchLandingConfigById } from '../services/googleSheetService';
+
+const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
 interface Props {
   previewConfig?: LandingConfig; // Optional prop for Live Preview
@@ -306,8 +309,8 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="block"
-          ></iframe>
-        </div>
+          ></iframe >
+        </div >
       );
     } else {
       return (
