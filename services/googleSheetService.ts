@@ -353,43 +353,11 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target?.result as string;
-            img.onload = () => {
-                // 1. Compress (Skip for GIF)
-                let base64Data = "";
-                let mimeType = "image/jpeg";
-                let filename = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+            const result = event.target?.result as string;
 
-                if (file.type === 'image/gif') {
-                    // GIF: Use original data (Base64)
-                    base64Data = (event.target?.result as string).split(',')[1];
-                    mimeType = "image/gif";
-                    filename = file.name; // Keep original extension
-                } else {
-                    // JPG/PNG: Compress to JPEG
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1280;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height = Math.round(height * (MAX_WIDTH / width));
-                        width = MAX_WIDTH;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx?.drawImage(img, 0, 0, width, height);
-
-                    base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-                }
-
-                // 2. Send via fetch with application/x-www-form-urlencoded
-                // This is the most reliable text-based transport for GAS that avoids preflight issues.
+            const uploadToBackend = (base64Data: string, mimeType: string, filename: string) => {
                 const formData = new URLSearchParams();
-                formData.append('type', 'upload_image');
+                formData.append('type', 'upload_image'); // Keep basic type as upload_image for backend compatibility
                 formData.append('filename', filename);
                 formData.append('mimeType', mimeType);
                 formData.append('base64', base64Data);
@@ -423,10 +391,43 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
                         resolve(null);
                     });
             };
-            img.onerror = () => {
-                alert("이미지 로드 실패");
-                resolve(null);
-            };
+
+            // Check if it is an image that can be compressed (JPG, PNG, WEBP)
+            // GIF and other types (Fonts) should be uploaded as-is
+            if (file.type.match(/image\/(jpeg|png|webp)/)) {
+                const img = new Image();
+                img.src = result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1280;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height = Math.round(height * (MAX_WIDTH / width));
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+
+                    const base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                    const filename = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                    uploadToBackend(base64Data, "image/jpeg", filename);
+                };
+                img.onerror = () => {
+                    // Fallback for corrupt images or non-image files misidentified
+                    // Just upload original
+                    const base64Data = result.split(',')[1];
+                    uploadToBackend(base64Data, file.type, file.name);
+                };
+            } else {
+                // Fonts, GIFs, PDFs, etc. -> Upload Original
+                const base64Data = result.split(',')[1];
+                uploadToBackend(base64Data, file.type, file.name);
+            }
         };
         reader.onerror = () => {
             alert("파일 읽기 실패");

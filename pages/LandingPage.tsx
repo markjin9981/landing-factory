@@ -148,6 +148,28 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
       const twTitle = document.querySelector('meta[name="twitter:title"]');
       if (twTitle) twTitle.setAttribute('content', effectiveOgTitle);
 
+      // 9. Inject Custom Fonts (@font-face)
+      if (config.theme?.customFonts && config.theme.customFonts.length > 0) {
+        let styleTag = document.getElementById('custom-font-styles');
+        if (!styleTag) {
+          styleTag = document.createElement('style');
+          styleTag.id = 'custom-font-styles';
+          document.head.appendChild(styleTag);
+        }
+
+        const fontFaceRules = config.theme.customFonts.map(font => `
+          @font-face {
+            font-family: '${font.family}';
+            src: url('${font.url}') format('${font.url.endsWith('.woff2') ? 'woff2' : font.url.endsWith('.woff') ? 'woff' : 'truetype'}');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+          }
+        `).join('\n');
+
+        styleTag.textContent = fontFaceRules;
+      }
+
       const twDesc = document.querySelector('meta[name="twitter:description"]');
       if (twDesc) twDesc.setAttribute('content', effectiveOgDesc);
 
