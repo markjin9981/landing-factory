@@ -176,7 +176,7 @@ export interface BannerStyle {
   padding: string;
 }
 
-// V2 UPDATE
+// V2/V3 UPDATE
 export interface UrgencyConfig {
   // Countdown
   showCountdown: boolean;
@@ -184,18 +184,20 @@ export interface UrgencyConfig {
   countdownLabel?: string;  // "Event ends in:"
   countdownExpiredMessage?: string; // "Event Ended"
 
-  // Timer Customization V2
+  // Timer Customization
   timerStyle?: {
     fontSize?: string; // 'sm', 'md', 'lg', 'xl'
     textColor?: string;
     backgroundColor?: string;
     borderRadius?: string;
 
-    // V2: Label Styling
+    // V3: Advanced Styling
     labelFontSize?: string;
     labelColor?: string;
     labelFontWeight?: string;
-    labelPosition?: 'top' | 'left';
+    labelPosition?: 'top' | 'left' | 'bottom' | 'right'; // Expanded to 4 directions
+    digitColor?: string; // New: Color for the numbers
+    isTransparent?: boolean; // New: No background/border
   };
 
   // Ticker (Legacy)
@@ -203,7 +205,7 @@ export interface UrgencyConfig {
   tickerMessage?: string;   // "{name} verified"
   tickerType?: 'horizontal' | 'vertical_list';
 
-  // Ticker Configuration V2
+  // Ticker Configuration V2/V3
   tickerConfig?: {
     mode: 'horizontal' | 'vertical_list';
     scrollMode?: 'continuous' | 'random_step';
@@ -229,6 +231,9 @@ export interface UrgencyConfig {
     fakeDataRules?: {
       debtRange?: [number, number]; // [min, max] in 'man-won'
     };
+
+    // V3: Custom Data Override
+    customData?: Record<string, string>[]; // Array of row objects { colId: value }
   };
 
   // Legacy flat fields (Deprecated)

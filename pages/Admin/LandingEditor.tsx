@@ -1295,42 +1295,63 @@ const LandingEditor: React.FC = () => {
                                                                             />
                                                                         </div>
                                                                         {/* Timer Style Settings */}
-                                                                        <div className="bg-gray-50 p-2 rounded border border-gray-100">
-                                                                            <label className="block text-[10px] font-bold text-gray-600 mb-1">타이머 디자인</label>
-                                                                            <div className="grid grid-cols-2 gap-2 mb-1">
+                                                                        <div className="bg-gray-50 p-2 rounded border border-gray-100 space-y-2">
+                                                                            <label className="block text-[10px] font-bold text-gray-600">타이머 디자인 (V3)</label>
+
+                                                                            {/* 1. Transparent Mode */}
+                                                                            <label className="flex items-center gap-2 text-xs mb-1">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={item.urgencyConfig.timerStyle?.isTransparent || false}
+                                                                                    onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, isTransparent: e.target.checked } } })}
+                                                                                />
+                                                                                배경 없음 (누끼 모드)
+                                                                            </label>
+
+                                                                            <div className="grid grid-cols-2 gap-2">
                                                                                 <select
                                                                                     value={item.urgencyConfig.timerStyle?.fontSize || 'md'}
                                                                                     onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, fontSize: e.target.value } } })}
                                                                                     className="border p-1 rounded text-xs"
                                                                                 >
-                                                                                    <option value="sm">작게</option>
-                                                                                    <option value="md">보통</option>
-                                                                                    <option value="lg">크게</option>
-                                                                                    <option value="xl">아주 크게</option>
+                                                                                    <option value="sm">크기: 작게</option>
+                                                                                    <option value="md">크기: 보통</option>
+                                                                                    <option value="lg">크기: 크게</option>
+                                                                                    <option value="xl">크기: 아주 크게</option>
                                                                                 </select>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    placeholder="테두리 둥글기 (예: 0.5rem)"
-                                                                                    value={item.urgencyConfig.timerStyle?.borderRadius || ''}
-                                                                                    onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, borderRadius: e.target.value } } })}
+                                                                                <select
+                                                                                    value={item.urgencyConfig.timerStyle?.labelPosition || 'left'}
+                                                                                    onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, labelPosition: e.target.value as any } } })}
                                                                                     className="border p-1 rounded text-xs"
-                                                                                />
+                                                                                >
+                                                                                    <option value="left">라벨: 왼쪽</option>
+                                                                                    <option value="right">라벨: 오른쪽</option>
+                                                                                    <option value="top">라벨: 위쪽</option>
+                                                                                    <option value="bottom">라벨: 아래쪽</option>
+                                                                                </select>
                                                                             </div>
-                                                                            <div className="grid grid-cols-2 gap-2">
+
+                                                                            <div className="grid grid-cols-3 gap-2">
                                                                                 <div>
-                                                                                    <label className="text-[10px]">글자색</label>
+                                                                                    <label className="text-[10px] text-gray-500">글자색</label>
                                                                                     <div className="flex items-center gap-1">
-                                                                                        <input type="color" value={item.urgencyConfig.timerStyle?.textColor || '#dc2626'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, textColor: e.target.value } } })} className="w-4 h-4 p-0 border rounded cursor-pointer" />
-                                                                                        <input type="text" value={item.urgencyConfig.timerStyle?.textColor || '#dc2626'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, textColor: e.target.value } } })} className="flex-1 border p-1 rounded text-xs" />
+                                                                                        <input type="color" value={item.urgencyConfig.timerStyle?.textColor || '#dc2626'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, textColor: e.target.value } } })} className="w-5 h-5 p-0 border rounded cursor-pointer" />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div>
-                                                                                    <label className="text-[10px]">배경색</label>
+                                                                                    <label className="text-[10px] text-gray-500">숫자색</label>
                                                                                     <div className="flex items-center gap-1">
-                                                                                        <input type="color" value={item.urgencyConfig.timerStyle?.backgroundColor || '#fee2e2'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, backgroundColor: e.target.value } } })} className="w-4 h-4 p-0 border rounded cursor-pointer" />
-                                                                                        <input type="text" value={item.urgencyConfig.timerStyle?.backgroundColor || 'rgba(220, 38, 38, 0.1)'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, backgroundColor: e.target.value } } })} className="flex-1 border p-1 rounded text-xs" />
+                                                                                        <input type="color" value={item.urgencyConfig.timerStyle?.digitColor || '#111827'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, digitColor: e.target.value } } })} className="w-5 h-5 p-0 border rounded cursor-pointer" />
                                                                                     </div>
                                                                                 </div>
+                                                                                {!item.urgencyConfig.timerStyle?.isTransparent && (
+                                                                                    <div>
+                                                                                        <label className="text-[10px] text-gray-500">배경색</label>
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <input type="color" value={item.urgencyConfig.timerStyle?.backgroundColor || '#fee2e2'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, backgroundColor: e.target.value } } })} className="w-5 h-5 p-0 border rounded cursor-pointer" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1541,35 +1562,114 @@ const LandingEditor: React.FC = () => {
                                                                                     </div>
                                                                                 </div>
 
-                                                                                {/* 4. Data Config (e.g. Debt) */}
-                                                                                {item.urgencyConfig.tickerConfig?.columns.find(c => c.type === 'debt' && c.isEnabled) && (
-                                                                                    <div>
-                                                                                        <label className="block text-[10px] text-gray-500 mb-1">채무 금액 랜덤 범위 (단위: 만원)</label>
-                                                                                        <div className="flex gap-2 items-center">
-                                                                                            <input type="number"
-                                                                                                value={item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[0] || 1000}
-                                                                                                onChange={(e) => {
-                                                                                                    const min = parseInt(e.target.value);
-                                                                                                    const currentMax = item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[1] || 10000;
-                                                                                                    const newRules = { ...item.urgencyConfig.tickerConfig?.fakeDataRules, debtRange: [min, currentMax] };
-                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, fakeDataRules: newRules } } as any });
-                                                                                                }}
-                                                                                                className="w-16 border p-1 rounded text-xs"
-                                                                                            />
-                                                                                            <span className="text-xs">~</span>
-                                                                                            <input type="number"
-                                                                                                value={item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[1] || 10000}
-                                                                                                onChange={(e) => {
-                                                                                                    const max = parseInt(e.target.value);
-                                                                                                    const currentMin = item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[0] || 1000;
-                                                                                                    const newRules = { ...item.urgencyConfig.tickerConfig?.fakeDataRules, debtRange: [currentMin, max] };
-                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, fakeDataRules: newRules } } as any });
-                                                                                                }}
-                                                                                                className="w-16 border p-1 rounded text-xs"
-                                                                                            />
-                                                                                        </div>
+                                                                                {/* V3: Data Source Management */}
+                                                                                <div className="mt-4 pt-4 border-t border-gray-100">
+                                                                                    <label className="block text-[10px] font-bold text-gray-600 mb-2">데이터 관리</label>
+                                                                                    <div className="flex bg-gray-100 p-1 rounded mb-3">
+                                                                                        <button
+                                                                                            onClick={() => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: undefined } } as any })}
+                                                                                            className={`flex-1 py-1 text-xs rounded ${!item.urgencyConfig.tickerConfig?.customData ? 'bg-white shadow text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-700'}`}
+                                                                                        >
+                                                                                            가상 데이터 자동 생성
+                                                                                        </button>
+                                                                                        <button
+                                                                                            onClick={() => {
+                                                                                                if (!item.urgencyConfig.tickerConfig?.customData) {
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: [] } } as any });
+                                                                                                }
+                                                                                            }}
+                                                                                            className={`flex-1 py-1 text-xs rounded ${item.urgencyConfig.tickerConfig?.customData ? 'bg-white shadow text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-700'}`}
+                                                                                        >
+                                                                                            직접 입력 (Custom)
+                                                                                        </button>
                                                                                     </div>
-                                                                                )}
+
+                                                                                    {/* Case 1: Fake Data Rules */}
+                                                                                    {!item.urgencyConfig.tickerConfig?.customData && (
+                                                                                        <div>
+                                                                                            {item.urgencyConfig.tickerConfig?.columns.find(c => c.type === 'debt' && c.isEnabled) && (
+                                                                                                <div className="bg-white border rounded p-2">
+                                                                                                    <label className="block text-[10px] text-gray-500 mb-1">채무 금액 랜덤 범위 (단위: 만원)</label>
+                                                                                                    <div className="flex gap-2 items-center">
+                                                                                                        <input type="number"
+                                                                                                            value={item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[0] || 1000}
+                                                                                                            onChange={(e) => {
+                                                                                                                const min = parseInt(e.target.value);
+                                                                                                                const currentMax = item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[1] || 10000;
+                                                                                                                const newRules = { ...item.urgencyConfig.tickerConfig?.fakeDataRules, debtRange: [min, currentMax] };
+                                                                                                                updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, fakeDataRules: newRules } } as any });
+                                                                                                            }}
+                                                                                                            className="w-16 border p-1 rounded text-xs"
+                                                                                                        />
+                                                                                                        <span className="text-xs">~</span>
+                                                                                                        <input type="number"
+                                                                                                            value={item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[1] || 10000}
+                                                                                                            onChange={(e) => {
+                                                                                                                const max = parseInt(e.target.value);
+                                                                                                                const currentMin = item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[0] || 1000;
+                                                                                                                const newRules = { ...item.urgencyConfig.tickerConfig?.fakeDataRules, debtRange: [currentMin, max] };
+                                                                                                                updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, fakeDataRules: newRules } } as any });
+                                                                                                            }}
+                                                                                                            className="w-16 border p-1 rounded text-xs"
+                                                                                                        />
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            )}
+                                                                                            <p className="text-[10px] text-gray-400 mt-2">* 활성화된 컬럼 유형에 맞춰 랜덤 데이터가 생성됩니다.</p>
+                                                                                        </div>
+                                                                                    )}
+
+                                                                                    {/* Case 2: Custom Data Input */}
+                                                                                    {item.urgencyConfig.tickerConfig?.customData && (
+                                                                                        <div className="space-y-2">
+                                                                                            {item.urgencyConfig.tickerConfig.customData.map((row, rowIdx) => (
+                                                                                                <div key={rowIdx} className="bg-white border p-2 rounded relative group">
+                                                                                                    <button
+                                                                                                        onClick={() => {
+                                                                                                            const newData = [...item.urgencyConfig.tickerConfig!.customData!];
+                                                                                                            newData.splice(rowIdx, 1);
+                                                                                                            updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
+                                                                                                        }}
+                                                                                                        className="absolute top-1 right-1 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                                    >
+                                                                                                        <X className="w-3 h-3" />
+                                                                                                    </button>
+                                                                                                    <div className="grid grid-cols-2 gap-1 pr-4">
+                                                                                                        {item.urgencyConfig.tickerConfig?.columns.filter(c => c.isEnabled).map((col) => (
+                                                                                                            <div key={col.id}>
+                                                                                                                <label className="text-[9px] text-gray-400 block">{col.label}</label>
+                                                                                                                <input
+                                                                                                                    type="text"
+                                                                                                                    value={row[col.id] || ''}
+                                                                                                                    onChange={(e) => {
+                                                                                                                        const newData = [...item.urgencyConfig.tickerConfig!.customData!];
+                                                                                                                        newData[rowIdx] = { ...row, [col.id]: e.target.value };
+                                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
+                                                                                                                    }}
+                                                                                                                    className="w-full border p-1 rounded text-xs"
+                                                                                                                    placeholder={col.type === 'phone' ? '010-1234-5678' : col.label}
+                                                                                                                />
+                                                                                                            </div>
+                                                                                                        ))}
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            ))}
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    const newData = [...(item.urgencyConfig.tickerConfig?.customData || [])];
+                                                                                                    // Create empty row with keys
+                                                                                                    const newRow: any = {};
+                                                                                                    item.urgencyConfig.tickerConfig?.columns.forEach(c => newRow[c.id] = '');
+                                                                                                    newData.push(newRow);
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
+                                                                                                }}
+                                                                                                className="w-full py-2 bg-blue-50 text-blue-600 font-bold rounded hover:bg-blue-100 text-xs flex items-center justify-center"
+                                                                                            >
+                                                                                                <Plus className="w-3 h-3 mr-1" /> 데이터 추가
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
                                                                         )}
                                                                     </div>

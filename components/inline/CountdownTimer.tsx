@@ -15,7 +15,10 @@ interface CountdownTimerProps {
         labelFontSize?: string;
         labelColor?: string;
         labelFontWeight?: string;
-        labelPosition?: 'top' | 'left';
+        labelPosition?: 'top' | 'left' | 'bottom' | 'right'; // V3: Expanded
+        // V3: New Fields
+        digitColor?: string;
+        isTransparent?: boolean;
     };
 }
 
@@ -58,17 +61,29 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate, label = "�
         }
     })();
 
+    // V3: Flex Direction Logic
+    const getFlexDirection = () => {
+        switch (style?.labelPosition) {
+            case 'top': return 'column';
+            case 'bottom': return 'column-reverse';
+            case 'right': return 'row-reverse';
+            default: return 'row'; // left (default)
+        }
+    };
+
     const customContainerStyle: React.CSSProperties = {
         color: style?.textColor || '#dc2626', // red-600 default
-        backgroundColor: style?.backgroundColor || 'rgba(220, 38, 38, 0.1)', // red-600/10 default
-        borderColor: style?.textColor || '#ef4444',
+        backgroundColor: style?.isTransparent ? 'transparent' : (style?.backgroundColor || 'rgba(220, 38, 38, 0.1)'),
+        borderColor: style?.isTransparent ? 'transparent' : (style?.textColor || '#ef4444'),
         borderRadius: style?.borderRadius || '0.75rem',
         padding: '1rem',
         display: 'flex',
-        flexDirection: style?.labelPosition === 'top' ? 'column' : 'row',
+        flexDirection: getFlexDirection(),
         alignItems: 'center',
-        justifyContent: 'center', // Center content in both axes
-        gap: style?.labelPosition === 'top' ? '0.5rem' : '1rem',
+        justifyContent: 'center',
+        gap: (style?.labelPosition === 'top' || style?.labelPosition === 'bottom') ? '0.5rem' : '1rem',
+        borderWidth: style?.isTransparent ? 0 : '1px',
+        borderStyle: 'solid',
     };
 
     // Label Style
@@ -81,9 +96,9 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate, label = "�
         gap: '0.25rem'
     };
 
-    // Derived text color for numbers
-    const numberStyle: React.CSSProperties = {
-        color: style?.textColor || '#dc2626'
+    // V3: Digit Color Control
+    const digitStyle: React.CSSProperties = {
+        color: style?.digitColor || '#111827', // gray-900 default
     };
 
     if (isExpired) {
@@ -97,31 +112,51 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate, label = "�
     if (!timeLeft) return null;
 
     return (
-        <div style={customContainerStyle} className="border rounded-xl animate-fade-in shadow-lg backdrop-blur-sm">
+        <div style={customContainerStyle} className={`rounded-xl animate-fade-in ${style?.isTransparent ? '' : 'border shadow-lg backdrop-blur-sm'}`}>
             {label && (
                 <div style={labelStyle}>
                     <Clock className="w-3 h-3" /> {label}
                 </div>
             )}
-            <div className={`flex gap-2 font-black tabular-nums tracking-tighter ${fontSizeClass}`} style={numberStyle}>
+            <div className={`flex gap-2 font-black tabular-nums tracking-tighter ${fontSizeClass}`}>
                 <div className="flex flex-col items-center">
-                    <span className="bg-white/80 px-2 py-1 rounded shadow-sm min-w-[2ch] text-center text-gray-900">{String(timeLeft.days).padStart(2, '0')}</span>
-                    <span className="text-[10px] font-normal mt-1 opacity-70">일</span>
+                    <span
+                        className={`px-2 py-1 rounded shadow-sm min-w-[2ch] text-center ${style?.isTransparent ? '' : 'bg-white/80'}`}
+                        style={digitStyle}
+                    >
+                        {String(timeLeft.days).padStart(2, '0')}
+                    </span>
+                    <span className="text-[10px] font-normal mt-1 opacity-70 tracking-widest">일</span>
                 </div>
-                <span className="self-start py-1">:</span>
+                <span className="self-start py-1" style={digitStyle}>:</span>
                 <div className="flex flex-col items-center">
-                    <span className="bg-white/80 px-2 py-1 rounded shadow-sm min-w-[2ch] text-center text-gray-900">{String(timeLeft.hours).padStart(2, '0')}</span>
-                    <span className="text-[10px] font-normal mt-1 opacity-70">시간</span>
+                    <span
+                        className={`px-2 py-1 rounded shadow-sm min-w-[2ch] text-center ${style?.isTransparent ? '' : 'bg-white/80'}`}
+                        style={digitStyle}
+                    >
+                        {String(timeLeft.hours).padStart(2, '0')}
+                    </span>
+                    <span className="text-[10px] font-normal mt-1 opacity-70 tracking-widest">시간</span>
                 </div>
-                <span className="self-start py-1">:</span>
+                <span className="self-start py-1" style={digitStyle}>:</span>
                 <div className="flex flex-col items-center">
-                    <span className="bg-white/80 px-2 py-1 rounded shadow-sm min-w-[2ch] text-center text-gray-900">{String(timeLeft.minutes).padStart(2, '0')}</span>
-                    <span className="text-[10px] font-normal mt-1 opacity-70">분</span>
+                    <span
+                        className={`px-2 py-1 rounded shadow-sm min-w-[2ch] text-center ${style?.isTransparent ? '' : 'bg-white/80'}`}
+                        style={digitStyle}
+                    >
+                        {String(timeLeft.minutes).padStart(2, '0')}
+                    </span>
+                    <span className="text-[10px] font-normal mt-1 opacity-70 tracking-widest">분</span>
                 </div>
-                <span className="self-start py-1">:</span>
+                <span className="self-start py-1" style={digitStyle}>:</span>
                 <div className="flex flex-col items-center">
-                    <span className="bg-white/80 px-2 py-1 rounded shadow-sm min-w-[2ch] text-center text-gray-900">{String(timeLeft.seconds).padStart(2, '0')}</span>
-                    <span className="text-[10px] font-normal mt-1 opacity-70">초</span>
+                    <span
+                        className={`px-2 py-1 rounded shadow-sm min-w-[2ch] text-center ${style?.isTransparent ? '' : 'bg-white/80'}`}
+                        style={digitStyle}
+                    >
+                        {String(timeLeft.seconds).padStart(2, '0')}
+                    </span>
+                    <span className="text-[10px] font-normal mt-1 opacity-70 tracking-widest">초</span>
                 </div>
             </div>
         </div>

@@ -22,6 +22,8 @@ interface ApplicantListProps {
         fakeDataRules?: {
             debtRange?: [number, number];
         };
+        // V3: Custom Data
+        customData?: Record<string, string>[];
     };
     // Legacy support (to be deprecated or mapped)
     speed?: number;
@@ -76,11 +78,41 @@ const ApplicantList: React.FC<ApplicantListProps> = ({
     const ROW_HEIGHT = 40; // px, fixed for simplicity
     const VISIBLE_COUNT = 5;
 
-    // Generate static list of 20 items (enough for looping)
-    const [data] = useState(() => Array.from({ length: 30 }).map((_, i) => ({
-        id: i,
-        cells: generateFakeRow(columns, config?.fakeDataRules, i + Date.now())
-    })));
+    // Generate data (Custom or Fake)
+    const [data, setData] = useState<{ id: number; cells: string[] }[]>([]);
+
+    useEffect(() => {
+        if (config?.customData && config.customData.length > 0) {
+            // V3: Use Custom Data
+            const customRows = config.customData.map((row, i) => ({
+                id: i,
+                cells: activeColumns.map(col => {
+                    // Match column ID to data key
+                    const rawVal = row[col.id];
+                    if (!rawVal) return '-';
+                    // Apply masking if enabled
+                    if (col.masking) {
+                        if (col.type === 'name') return rawVal[0] + '*' + (rawVal.length > 2 ? rawVal.substring(2) : '');
+                        if (col.type === 'phone') {
+                            const parts = rawVal.split('-');
+                            if (parts.length === 3) return `${parts[0]}-****-${parts[2]}`;
+                            return rawVal.replace(/[0-9]/g, '*'); // fallback
+                        }
+                        return rawVal.replace(/./g, '*'); // fallback
+                    }
+                    return rawVal;
+                })
+            }));
+            setData(customRows);
+        } else {
+            // Fallback: Generate static list of 30 fake items
+            const fakeRows = Array.from({ length: 30 }).map((_, i) => ({
+                id: i,
+                cells: generateFakeRow(columns, config?.fakeDataRules, i + Date.now())
+            }));
+            setData(fakeRows);
+        }
+    }, [config?.customData, config?.fakeDataRules, activeColumns.length]); // Re-run if config changes
 
     // V2 Logic: Random Step Scroll
     const [scrollTop, setScrollTop] = useState(0);
