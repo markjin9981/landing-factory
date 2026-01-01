@@ -383,7 +383,11 @@ function handleImageUpload(params) {
   var url = "";
   try {
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    url = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=s3000";
+    if (params.mimeType && params.mimeType.indexOf("image/") === 0) {
+       url = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=s3000";
+    } else {
+       url = "https://drive.google.com/uc?export=download&id=" + file.getId();
+    }
   } catch (permErr) {
     url = "https://drive.google.com/file/d/" + file.getId() + "/view?usp=sharing";
   }
