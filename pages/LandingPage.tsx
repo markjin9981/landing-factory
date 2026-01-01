@@ -15,9 +15,10 @@ const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
 interface Props {
   previewConfig?: LandingConfig; // Optional prop for Live Preview
+  isMobileView?: boolean;
 }
 
-const LandingPage: React.FC<Props> = ({ previewConfig }) => {
+const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) => {
   const { id } = useParams<{ id: string }>();
 
   // 1. Initial State: Try to load from "Hardcoded Configs" (Instant)
@@ -642,7 +643,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
       )}
 
       {/* Render Popup Container */}
-      {config.popupConfig && <PopupContainer config={config.popupConfig} landingId={config.id} isPreview={isPreview} />}
+      {config.popupConfig && <PopupContainer config={config.popupConfig} landingId={config.id} isPreview={isPreview} forceMobile={isMobileView} />}
 
       {/* Render Chat Button */}
       {config.chatConfig && <ChatButton config={config.chatConfig} isPreview={isPreview} />}

@@ -1708,6 +1708,25 @@ const LandingEditor: React.FC = () => {
                                                                         <div className="bg-gray-50 p-2 rounded border border-gray-100 space-y-2">
                                                                             <label className="block text-[10px] font-bold text-gray-600">타이머 디자인 (V3)</label>
 
+                                                                            {/* DESIGN TEMPLATES (NEW) */}
+                                                                            <div className="grid grid-cols-5 gap-1 mb-2">
+                                                                                {[
+                                                                                    { label: '레드', style: { backgroundColor: '#EF4444', textColor: '#ffffff', borderRadius: '8px', digitColor: '#ffffff', isTransparent: false, labelPosition: 'bottom' } },
+                                                                                    { label: '다크', style: { backgroundColor: '#1F2937', textColor: '#E5E7EB', borderRadius: '9999px', digitColor: '#F3F4F6', isTransparent: false, labelPosition: 'right' } },
+                                                                                    { label: '블루', style: { backgroundColor: 'transparent', textColor: '#1E40AF', borderRadius: '0px', digitColor: '#2563EB', isTransparent: true, labelPosition: 'bottom' } },
+                                                                                    { label: '네온', style: { backgroundColor: '#000000', textColor: '#00FF00', borderRadius: '0px', digitColor: '#00FF00', isTransparent: false, labelPosition: 'right' } },
+                                                                                    { label: '골드', style: { backgroundColor: '#78350F', textColor: '#FCD34D', borderRadius: '4px', digitColor: '#FCD34D', isTransparent: false, labelPosition: 'bottom' } },
+                                                                                ].map((t, i) => (
+                                                                                    <button
+                                                                                        key={i}
+                                                                                        onClick={() => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, ...t.style } as any } })}
+                                                                                        className="px-1 py-1 text-[9px] border border-gray-300 rounded hover:bg-white hover:border-blue-500 transition-colors bg-white shadow-sm whitespace-nowrap"
+                                                                                    >
+                                                                                        {t.label}
+                                                                                    </button>
+                                                                                ))}
+                                                                            </div>
+
                                                                             {/* 1. Transparent Mode */}
                                                                             <label className="flex items-center gap-2 text-xs mb-1">
                                                                                 <input
@@ -1796,6 +1815,39 @@ const LandingEditor: React.FC = () => {
 
                                                                 {item.urgencyConfig.showTicker && (
                                                                     <div className="pl-5 animate-fade-in space-y-3">
+
+                                                                        {/* TICKER TEMPLATES (NEW) */}
+                                                                        <div>
+                                                                            <label className="block text-[10px] font-bold text-gray-600 mb-1">📢 디자인 템플릿</label>
+                                                                            <div className="grid grid-cols-5 gap-1 mb-2">
+                                                                                {[
+                                                                                    { label: '기본형', config: { mode: 'horizontal', containerStyle: { backgroundColor: '#F3F4F6', borderRadius: '0px', borderColor: 'transparent' }, scrollMode: 'continuous' } },
+                                                                                    { label: '카드형', config: { mode: 'vertical_list', containerStyle: { backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #E5E7EB', height: '300px' }, scrollMode: 'continuous' } },
+                                                                                    { label: '다크', config: { mode: 'vertical_list', containerStyle: { backgroundColor: 'rgba(0,0,0,0.8)', borderRadius: '16px', borderColor: 'transparent', height: '80px' }, scrollMode: 'continuous' } },
+                                                                                    { label: '투명', config: { mode: 'vertical_list', containerStyle: { backgroundColor: 'transparent', borderRadius: '0px', borderColor: 'transparent' }, scrollMode: 'random_step' } },
+                                                                                    { label: '블루', config: { mode: 'horizontal', containerStyle: { backgroundColor: '#4f46e5', borderRadius: '0px', borderColor: 'transparent', textColor: '#ffffff' }, scrollMode: 'continuous' } },
+                                                                                ].map((t, i) => (
+                                                                                    <button
+                                                                                        key={i}
+                                                                                        onClick={() => {
+                                                                                            const currentTicker = item.urgencyConfig.tickerConfig || { columns: [], containerStyle: {} };
+                                                                                            // @ts-ignore
+                                                                                            const newTicker = {
+                                                                                                ...currentTicker,
+                                                                                                mode: t.config.mode,
+                                                                                                scrollMode: t.config.scrollMode,
+                                                                                                // @ts-ignore
+                                                                                                containerStyle: { ...(currentTicker.containerStyle || {}), ...t.config.containerStyle }
+                                                                                            };
+                                                                                            updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: newTicker } as any });
+                                                                                        }}
+                                                                                        className="px-1 py-1 text-[9px] border border-gray-300 rounded hover:bg-white hover:border-blue-500 transition-colors bg-white shadow-sm whitespace-nowrap"
+                                                                                    >
+                                                                                        {t.label}
+                                                                                    </button>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
                                                                         {/* Mode Selection */}
                                                                         <div>
                                                                             <label className="block text-[10px] text-gray-500 mb-1">표시 방식</label>
@@ -2877,7 +2929,7 @@ const LandingEditor: React.FC = () => {
                             <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-6 bg-gray-800 rounded-b-xl z-50"></div>
                         )}
 
-                        <LandingPage previewConfig={config} />
+                        <LandingPage previewConfig={config} isMobileView={previewMode === 'mobile'} />
                     </div>
                 </div>
 

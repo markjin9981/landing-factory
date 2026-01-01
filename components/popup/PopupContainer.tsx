@@ -6,9 +6,10 @@ interface PopupContainerProps {
     config?: PopupConfig;
     landingId: string;
     isPreview?: boolean;
+    forceMobile?: boolean;
 }
 
-const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPreview = false }) => {
+const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPreview = false, forceMobile = false }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -97,7 +98,8 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
     // If the user toggle "Mobile Preview" in Editor, the iframe width changes. `matchMedia` inside iframe works.
     // If it's just a div, `matchMedia` finds PC.
     // Let's assume standard behavior for now.
-    const styleConfig = isMobile ? config!.mobileStyle : config!.pcStyle;
+    const effectiveIsMobile = forceMobile || isMobile;
+    const styleConfig = effectiveIsMobile ? config!.mobileStyle : config!.pcStyle;
 
     // Default styles if missing
     const containerStyle: React.CSSProperties = {
