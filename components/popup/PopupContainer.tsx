@@ -91,7 +91,9 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
         return () => clearInterval(timer);
     }, [isVisible, config?.autoPlay, config?.autoPlayInterval, activeItems.length]);
 
-    if (!isVisible || activeItems.length === 0) return null;
+    // FIX: Allow Preview to continue even if 'isVisible' is false (e.g. no items),
+    // so that we can show the "Empty Placeholder" later.
+    if (!isPreview && (!isVisible || activeItems.length === 0)) return null;
 
     const currentItem = activeItems[currentIndex];
     // NOTE: In Preview, valid `isMobile` detection is hard without explicit prop.
