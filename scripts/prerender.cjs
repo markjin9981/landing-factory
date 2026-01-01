@@ -110,6 +110,10 @@ async function prerender() {
     <meta name="twitter:title" content="${ogTitle.replace(/"/g, '&quot;')}">
     <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}">
     ${image ? `<meta name="twitter:image" content="${image}">` : ''}
+
+    <!-- Search Engine Verification -->
+    ${config.naverVerification || ''}
+    ${config.googleVerification || ''}
             `;
 
             html = html.replace('</head>', `${metaTags}</head>`);

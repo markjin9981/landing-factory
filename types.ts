@@ -190,7 +190,12 @@ export interface LandingConfig {
   ogImage?: string;
   ogTitle?: string;       // Custom SNS Title
   ogDescription?: string; // Custom SNS Description
+
   keywords?: string;      // New: Meta Keywords for SEO
+
+  // New: Search Engine Verification
+  naverVerification?: string;
+  googleVerification?: string;
 
   theme: LandingTheme;
 

@@ -694,7 +694,8 @@ const LandingEditor: React.FC = () => {
                             { id: 'images', label: '상세', icon: <ImageIcon className="w-4 h-4" /> },
                             { id: 'form', label: '입력폼', icon: <CheckSquare className="w-4 h-4" /> },
                             { id: 'text', label: '텍스트', icon: <AlignLeft className="w-4 h-4" /> },
-                            { id: 'footer', label: '하단', icon: <Anchor className="w-4 h-4" /> }, // New Tab
+                            { id: 'footer', label: '하단', icon: <Anchor className="w-4 h-4" /> },
+                            { id: 'seo', label: '검색엔진', icon: <Globe className="w-4 h-4" /> },
                         ].map(tab => (
                             <button
                                 key={tab.id}
@@ -1833,6 +1834,48 @@ const LandingEditor: React.FC = () => {
                                     >
                                         기본 카피라이트 문구 가져오기
                                     </button>
+                                </div>
+                            </div>
+                        )}
+                        {/* --- SEO TAB (NEW) --- */}
+                        {activeTab === 'seo' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                    <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                        <Globe className="w-4 h-4 text-blue-600" /> 검색엔진 등록 설정
+                                    </h3>
+                                    <p className="text-xs text-gray-500 mb-4 bg-gray-50 p-3 rounded leading-relaxed border border-gray-100">
+                                        네이버나 구글 서치콘솔에서 제공하는 <strong>사이트 소유권 확인 태그(Meta Tag)</strong>를 입력하세요.
+                                        <br />
+                                        예시: <code>&lt;meta name="naver-site-verification" content="..." /&gt;</code>
+                                    </p>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-700 block mb-1">
+                                                네이버 검색엔진 등록 메타(Meta) 태그
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={config.naverVerification || ''}
+                                                onChange={(e) => updateNested(['naverVerification'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm font-mono text-gray-600 bg-gray-50 focus:bg-white transition-colors"
+                                                placeholder='<meta name="naver-site-verification" ... />'
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-700 block mb-1">
+                                                구글 검색엔진 등록 메타(Meta) 태그
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={config.googleVerification || ''}
+                                                onChange={(e) => updateNested(['googleVerification'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm font-mono text-gray-600 bg-gray-50 focus:bg-white transition-colors"
+                                                placeholder='<meta name="google-site-verification" ... />'
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
