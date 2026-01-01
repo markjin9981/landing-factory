@@ -148,16 +148,37 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
       const twTitle = document.querySelector('meta[name="twitter:title"]');
       if (twTitle) twTitle.setAttribute('content', effectiveOgTitle);
 
-      // 9. Inject Custom Fonts (@font-face)
-      if (config.theme?.customFonts && config.theme.customFonts.length > 0) {
-        let styleTag = document.getElementById('custom-font-styles');
-        if (!styleTag) {
-          styleTag = document.createElement('style');
-          styleTag.id = 'custom-font-styles';
-          document.head.appendChild(styleTag);
-        }
+      const twDesc = document.querySelector('meta[name="twitter:description"]');
+      if (twDesc) twDesc.setAttribute('content', effectiveOgDesc);
 
-        const fontFaceRules = config.theme.customFonts.map(font => `
+      const twImageMeta = document.querySelector('meta[name="twitter:image"]');
+      if (twImageMeta) twImageMeta.setAttribute('content', config.ogImage || '/og-image.png');
+    }
+
+    // Only scroll to top if not in preview mode to avoid jumping
+    if (!previewConfig) {
+      window.scrollTo(0, 0);
+    }
+
+    // --- VISIT TRACKING LOGIC ---
+    // Only track if not in preview mode and haven't logged yet
+    if (!isPreview && id && !visitLogged.current) {
+      // ... existing logic ...
+    }
+  }, [config, previewConfig, id]);
+
+  // --- SEPARATE EFFECT FOR FONTS ---
+  // Isolate this to ensure it runs specifically when fonts change
+  useEffect(() => {
+    if (config?.theme?.customFonts) {
+      let styleTag = document.getElementById('custom-font-styles');
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'custom-font-styles';
+        document.head.appendChild(styleTag);
+      }
+
+      const fontFaceRules = config.theme.customFonts.map(font => `
           @font-face {
             font-family: '${font.family}';
             src: url('${font.url}') format('${font.url.endsWith('.woff2') ? 'woff2' : font.url.endsWith('.woff') ? 'woff' : 'truetype'}');
@@ -167,16 +188,13 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
           }
         `).join('\n');
 
-        styleTag.textContent = fontFaceRules;
-      }
-
-      const twDesc = document.querySelector('meta[name="twitter:description"]');
-      if (twDesc) twDesc.setAttribute('content', effectiveOgDesc);
-
-      const twImageMeta = document.querySelector('meta[name="twitter:image"]');
-      if (twImageMeta) twImageMeta.setAttribute('content', config.ogImage || '/og-image.png');
+      styleTag.textContent = fontFaceRules;
+      console.log("Updated Custom Fonts:", config.theme.customFonts.length);
     }
+  }, [config?.theme?.customFonts]);
 
+  // --- VISIT & SCROLL EFFECT ---
+  useEffect(() => {
     // Only scroll to top if not in preview mode to avoid jumping
     if (!previewConfig) {
       window.scrollTo(0, 0);

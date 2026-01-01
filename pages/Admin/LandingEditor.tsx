@@ -148,10 +148,31 @@ const LandingEditor: React.FC = () => {
             loadFromSheet();
 
         } else {
+            // New Page: ID generation moved to saving or keep simplified
             const newId = String(Date.now()).slice(-6);
             setConfig({ ...DEFAULT_CONFIG, id: newId });
         }
     }, [id]);
+
+    // --- SYNC GLOBAL FONTS TO CONFIG ---
+    // This ensures that when fonts are uploaded/synced, the preview immediately sees them.
+    useEffect(() => {
+        if (globalSettings.customFonts) {
+            setConfig(prev => {
+                // Prevent unnecessary re-renders
+                if (JSON.stringify(prev.theme.customFonts) === JSON.stringify(globalSettings.customFonts)) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    theme: {
+                        ...prev.theme,
+                        customFonts: globalSettings.customFonts
+                    }
+                };
+            });
+        }
+    }, [globalSettings.customFonts]);
 
     const saveToLocal = () => {
         const stored = localStorage.getItem('landing_drafts');
