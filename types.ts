@@ -163,6 +163,24 @@ export interface FooterSection {
   copyrightStyle?: TextStyle;
 }
 
+// New: Rich Media Content for Detail Section
+export interface DetailContent {
+  id: string;
+  type: 'image' | 'youtube' | 'map';
+  content: string; // Image URL, YouTube URL, or Address
+
+  // YouTube specific
+  videoSize?: 'sm' | 'md' | 'lg' | 'full';
+  autoPlay?: boolean;
+
+  // Map specific
+  mapPlaceName?: string;
+  mapSize?: 'sm' | 'md' | 'lg' | 'full';
+
+  // Common
+  width?: string;
+}
+
 export interface LandingConfig {
   id: string;
   title: string; // Document Title (Browser Tab)
@@ -180,8 +198,8 @@ export interface LandingConfig {
 
   hero: HeroSection;
 
-  // Image-based detail content (can replace or supplement text sections)
-  detailImages: string[];
+  // Updated: Rich content list instead of simple strings
+  detailContent: DetailContent[];
 
   problem: ProblemSection;
   solution: SolutionSection;

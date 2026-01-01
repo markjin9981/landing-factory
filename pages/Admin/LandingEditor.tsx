@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LandingConfig, FormField, TextStyle, FloatingBanner } from '../../types';
+import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin } from 'lucide-react';
 
 // GitHub Sync Check: Force Update
 // Default empty config template
@@ -40,7 +40,7 @@ const DEFAULT_CONFIG: LandingConfig = {
         backgroundImage: 'https://picsum.photos/1920/1080',
         size: 'md'
     },
-    detailImages: [],
+    detailContent: [],
     problem: { title: '문제 제기 제목', description: '', points: ['문제점 1'] },
     solution: { title: '해결책 제목', description: '', features: [{ title: '특징 1', desc: '설명' }] },
     trust: { reviews: [], stats: [] }, // Default empty to avoid unwanted display
@@ -114,6 +114,18 @@ const LandingEditor: React.FC = () => {
                     // Migration
                     if (!sheetConfig.banners) sheetConfig.banners = [];
                     if (!sheetConfig.footer) sheetConfig.footer = JSON.parse(JSON.stringify(DEFAULT_CONFIG.footer));
+
+                    // Migration: detailImages -> detailContent
+                    if (!sheetConfig.detailContent && (sheetConfig as any).detailImages) {
+                        sheetConfig.detailContent = ((sheetConfig as any).detailImages as string[]).map(url => ({
+                            id: crypto.randomUUID(),
+                            type: 'image',
+                            content: url,
+                            width: '100%'
+                        }));
+                    }
+                    if (!sheetConfig.detailContent) sheetConfig.detailContent = [];
+
                     setConfig(sheetConfig);
                 } else {
                     // Fallback or New
@@ -563,33 +575,47 @@ const LandingEditor: React.FC = () => {
         });
     };
 
-    // Detail Images Logic
-    const addDetailImage = (url: string) => setConfig(prev => ({ ...prev, detailImages: [...(prev.detailImages || []), url] }));
-
-    const addYoutube = () => {
-        const url = prompt('유튜브 영상 링크를 입력하세요 (예: https://youtu.be/...)');
-        if (url) addDetailImage(url);
+    // Detail Content Logic (Image, YouTube, Map)
+    const handleAddDetailContent = (url: string, type: 'image' | 'youtube' | 'map' = 'image') => {
+        if (!url) return;
+        setConfig(prev => ({
+            ...prev,
+            detailContent: [...prev.detailContent, {
+                id: crypto.randomUUID(),
+                type,
+                content: url,
+                width: '100%',
+                videoSize: 'md',
+                autoPlay: false,
+                mapSize: 'md'
+            }]
+        }));
     };
 
-    const updateDetailImage = (index: number, val: string) => {
-        setConfig(prev => {
-            const newImgs = [...(prev.detailImages || [])];
-            newImgs[index] = val;
-            return { ...prev, detailImages: newImgs };
-        });
+    const handleRemoveDetailContent = (index: number) => {
+        setConfig(prev => ({
+            ...prev,
+            detailContent: prev.detailContent.filter((_, i) => i !== index)
+        }));
     };
-    const removeDetailImage = (index: number) => setConfig(prev => ({ ...prev, detailImages: (prev.detailImages || []).filter((_, i) => i !== index) }));
 
-    const moveDetailImage = (index: number, direction: 'up' | 'down') => {
+    const handleDetailContentOrder = (index: number, direction: 'up' | 'down') => {
         setConfig(prev => {
-            const newImgs = [...(prev.detailImages || [])];
+            const newContent = [...prev.detailContent];
             if (direction === 'up' && index > 0) {
-                [newImgs[index], newImgs[index - 1]] = [newImgs[index - 1], newImgs[index]];
-            } else if (direction === 'down' && index < newImgs.length - 1) {
-                [newImgs[index], newImgs[index + 1]] = [newImgs[index + 1], newImgs[index]];
+                [newContent[index], newContent[index - 1]] = [newContent[index - 1], newContent[index]];
+            } else if (direction === 'down' && index < newContent.length - 1) {
+                [newContent[index], newContent[index + 1]] = [newContent[index + 1], newContent[index]];
             }
-            return { ...prev, detailImages: newImgs };
+            return { ...prev, detailContent: newContent };
         });
+    };
+
+    const updateDetailContent = (index: number, updates: Partial<DetailContent>) => {
+        setConfig(prev => ({
+            ...prev,
+            detailContent: prev.detailContent.map((item, i) => i === index ? { ...item, ...updates } : item)
+        }));
     };
 
     // --- Footer Helpers ---
@@ -1022,34 +1048,85 @@ const LandingEditor: React.FC = () => {
                                     <input
                                         type="file" ref={detailImageInputRef} className="hidden" accept="image/*"
                                         onChange={(e) => handleImageUpload(e, (url) => {
-                                            addDetailImage(url);
-                                            if (detailImageInputRef.current) detailImageInputRef.current.value = ''; // reset
+                                            handleAddDetailContent(url, 'image');
+                                            if (detailImageInputRef.current) detailImageInputRef.current.value = '';
                                         })}
                                     />
                                     <div className="space-y-3">
-                                        {(config.detailImages || []).map((img, idx) => (
-                                            <div key={idx} className="bg-white border border-gray-200 p-2 rounded-lg relative group shadow-sm flex gap-3 items-center">
-                                                <div className="flex flex-col gap-1">
-                                                    <button onClick={() => moveDetailImage(idx, 'up')} disabled={idx === 0} className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30">
-                                                        <ArrowUp className="w-3 h-3" />
+                                        {(config.detailContent || []).map((item, idx) => (
+                                            <div key={item.id || idx} className="bg-white border border-gray-200 p-3 rounded-lg relative group shadow-sm flex flex-col gap-3">
+                                                <div className="flex gap-3 items-center">
+                                                    <div className="flex flex-col gap-1">
+                                                        <button onClick={() => handleDetailContentOrder(idx, 'up')} disabled={idx === 0} className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30">
+                                                            <ArrowUp className="w-3 h-3" />
+                                                        </button>
+                                                        <button onClick={() => handleDetailContentOrder(idx, 'down')} disabled={idx === (config.detailContent?.length || 0) - 1} className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30">
+                                                            <ArrowDown className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Thumbnail / Icon Area */}
+                                                    <div className="w-16 h-12 bg-gray-100 rounded shrink-0 overflow-hidden border flex items-center justify-center relative">
+                                                        {item.type === 'youtube' && <Youtube className="w-6 h-6 text-red-600" />}
+                                                        {item.type === 'map' && <MapPin className="w-6 h-6 text-green-600" />}
+                                                        {item.type === 'image' && (
+                                                            item.content ? <img src={item.content} className="w-full h-full object-cover" alt="thumb" /> : <ImageIcon className="w-6 h-6 text-gray-400" />
+                                                        )}
+                                                        <span className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white text-[9px] px-1">
+                                                            {item.type === 'youtube' ? 'VIDEO' : item.type === 'map' ? 'MAP' : 'IMG'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex-1 min-w-0 space-y-2">
+                                                        {/* Content Input */}
+                                                        <input
+                                                            type="text"
+                                                            value={item.content}
+                                                            onChange={(e) => updateDetailContent(idx, { content: e.target.value })}
+                                                            placeholder={item.type === 'youtube' ? '유튜브 링크 (예: https://youtu.be/...)' : item.type === 'map' ? '주소 입력 (예: 서울 강남구...)' : '이미지 주소'}
+                                                            className="w-full border rounded p-1.5 text-xs"
+                                                        />
+
+                                                        {/* Options Row */}
+                                                        <div className="flex gap-2">
+                                                            {/* Size Select */}
+                                                            <select
+                                                                value={item.type === 'youtube' ? (item.videoSize || 'md') : (item.mapSize || 'md')}
+                                                                onChange={(e) => updateDetailContent(idx, item.type === 'youtube' ? { videoSize: e.target.value as any } : { mapSize: e.target.value as any })}
+                                                                className="border rounded text-[10px] p-1 bg-gray-50"
+                                                            >
+                                                                <option value="sm">작게 (50%)</option>
+                                                                <option value="md">중간 (80%)</option>
+                                                                <option value="full">가득 (100%)</option>
+                                                            </select>
+
+                                                            {/* Type Specific Options */}
+                                                            {item.type === 'youtube' && (
+                                                                <label className="flex items-center gap-1 text-[10px] text-gray-600 bg-gray-50 px-2 rounded border cursor-pointer select-none">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={item.autoPlay || false}
+                                                                        onChange={(e) => updateDetailContent(idx, { autoPlay: e.target.checked })}
+                                                                    />
+                                                                    PC 자동재생
+                                                                </label>
+                                                            )}
+                                                            {item.type === 'map' && (
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="장소명 (예: 본점)"
+                                                                    value={item.mapPlaceName || ''}
+                                                                    onChange={(e) => updateDetailContent(idx, { mapPlaceName: e.target.value })}
+                                                                    className="border rounded text-[10px] p-1 w-24"
+                                                                />
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <button onClick={() => handleRemoveDetailContent(idx)} className="p-2 text-gray-400 hover:text-red-500">
+                                                        <Trash2 className="w-4 h-4" />
                                                     </button>
-                                                    <button onClick={() => moveDetailImage(idx, 'down')} disabled={idx === (config.detailImages?.length || 0) - 1} className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30">
-                                                        <ArrowDown className="w-3 h-3" />
-                                                    </button>
                                                 </div>
-                                                <div className="w-16 h-12 bg-gray-100 rounded shrink-0 overflow-hidden border flex items-center justify-center">
-                                                    {img.includes('youtu') ? <Youtube className="w-6 h-6 text-red-600" /> : <img src={img} className="w-full h-full object-cover" alt="thumb" />}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <input
-                                                        type="text" value={img}
-                                                        onChange={(e) => updateDetailImage(idx, e.target.value)}
-                                                        className="w-full border rounded p-1 text-xs truncate"
-                                                    />
-                                                </div>
-                                                <button onClick={() => removeDetailImage(idx)} className="p-2 text-gray-400 hover:text-red-500">
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
                                             </div>
                                         ))}
                                     </div>
@@ -1058,13 +1135,19 @@ const LandingEditor: React.FC = () => {
                                             onClick={() => detailImageInputRef.current?.click()}
                                             className="py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-bold text-xs flex items-center justify-center"
                                         >
-                                            <Upload className="w-3 h-3 mr-1" /> 이미지/GIF 업로드
+                                            <Upload className="w-3 h-3 mr-1" /> 이미지 추가
                                         </button>
                                         <button
-                                            onClick={addYoutube}
+                                            onClick={() => handleAddDetailContent('', 'youtube')}
                                             className="py-2 border-2 border-red-100 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 font-bold text-xs flex items-center justify-center"
                                         >
                                             <Youtube className="w-4 h-4 mr-1" /> 유튜브 추가
+                                        </button>
+                                        <button
+                                            onClick={() => handleAddDetailContent('', 'map')}
+                                            className="py-2 border-2 border-green-100 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 font-bold text-xs flex items-center justify-center col-span-2"
+                                        >
+                                            <MapPin className="w-4 h-4 mr-1" /> 지도 추가
                                         </button>
                                     </div>
                                 </div>

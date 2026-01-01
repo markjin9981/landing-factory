@@ -2,10 +2,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import LANDING_CONFIGS_JSON from '../data/landingConfigs.json';
-import { LandingConfig, FloatingBanner, HeroSection } from '../types';
+import { LandingConfig, FloatingBanner, HeroSection, DetailContent as DetailContentType } from '../types';
 import LeadForm from '../components/LeadForm';
 import { Check, Star, Shield, Clock, ThumbsUp, ArrowRight } from 'lucide-react';
 import { logVisit, fetchLandingConfigById } from '../services/googleSheetService';
+import KakaoMap from '../components/KakaoMap';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
@@ -231,7 +232,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
     );
   }
 
-  const { hero, problem, solution, trust, formConfig, theme, detailImages, banners, footer } = config;
+  const { hero, problem, solution, trust, formConfig, theme, detailContent, banners, footer } = config;
   const formPosition = formConfig.position || 'bottom'; // Default to bottom
 
   const topBanners = banners.filter(b => b.isShow && b.position === 'top');
@@ -291,38 +292,65 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
     }
   };
 
-  // Helper to detect and render YouTube
-  const renderDetailItem = (url: string, index: number) => {
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-    const match = url.match(youtubeRegex);
+  // Helper to render Detail Content (Image, YouTube, Map)
+  const renderDetailContent = (item: DetailContentType, index: number) => {
+    // 1. YouTube
+    if (item.type === 'youtube') {
+      const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+      const match = item.content.match(youtubeRegex);
+      const videoId = match ? match[1] : '';
 
-    if (match && match[1]) {
-      const videoId = match[1];
+      if (!videoId) return null;
+
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const shouldAutoPlay = item.autoPlay && !isMobile;
+      const muteParam = shouldAutoPlay ? '&mute=1' : '';
+      const autoplayParam = shouldAutoPlay ? '&autoplay=1' : '';
+
+      const widthClass = item.videoSize === 'sm' ? 'max-w-md' : item.videoSize === 'lg' ? 'max-w-5xl' : item.videoSize === 'full' ? 'w-full' : 'max-w-3xl';
+
       return (
-        <div key={index} className="w-full max-w-4xl mx-auto aspect-video mb-0">
+        <div key={item.id || index} className={`w-full mx-auto aspect-video mb-4 ${widthClass}`}>
           <iframe
             width="100%"
             height="100%"
-            src={`https://www.youtube.com/embed/${videoId}`}
-            title={`Detail Video ${index}`}
+            src={`https://www.youtube.com/embed/${videoId}?rel=0${autoplayParam}${muteParam}`}
+            title={`Video ${index}`}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="block"
-          ></iframe >
-        </div >
-      );
-    } else {
-      return (
-        <img
-          key={index}
-          src={url}
-          alt={`Detail ${index + 1}`}
-          className="w-full h-auto block max-w-4xl mx-auto"
-          loading="lazy"
-        />
+            className="block rounded-lg shadow-lg"
+          ></iframe>
+        </div>
       );
     }
+
+    // 2. Map
+    if (item.type === 'map') {
+      const widthClass = item.mapSize === 'sm' ? 'max-w-md' : item.mapSize === 'lg' ? 'max-w-5xl' : item.mapSize === 'full' ? 'w-full' : 'max-w-3xl';
+      return (
+        <div key={item.id || index} className={`w-full mx-auto mb-4 ${widthClass}`}>
+          <KakaoMap
+            address={item.content}
+            placeName={item.mapPlaceName}
+            height="400px"
+            width="100%"
+          />
+        </div>
+      );
+    }
+
+    // 3. Image (Default)
+    const widthClass = item.width === '100%' || !item.width ? 'max-w-4xl' : 'w-full';
+    return (
+      <img
+        key={item.id || index}
+        src={item.content}
+        alt={`Detail ${index + 1}`}
+        className={`w-full h-auto block mx-auto mb-0 ${widthClass}`}
+        loading="lazy"
+      />
+    );
   };
 
   const FormComponent = () => (
@@ -451,10 +479,17 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
         {/* FORM POSITION: After Hero */}
         {formPosition === 'after_hero' && <FormComponent />}
 
-        {/* Detail Images / Video Section */}
-        {detailImages && detailImages.length > 0 && (
-          <section className="w-full bg-white max-w-4xl mx-auto">
-            {detailImages.map((imgUrl, idx) => renderDetailItem(imgUrl, idx))}
+        {/* Detail Content Section */}
+        {detailContent && detailContent.length > 0 && (
+          <section className="w-full bg-white max-w-4xl mx-auto flex flex-col items-center">
+            {detailContent.map((item, idx) => renderDetailContent(item, idx))}
+          </section>
+        )}
+
+        {/* Detail Content Section */}
+        {detailContent && detailContent.length > 0 && (
+          <section className="w-full bg-white max-w-4xl mx-auto flex flex-col items-center">
+            {detailContent.map((item, idx) => renderDetailContent(item, idx))}
           </section>
         )}
 
