@@ -19,12 +19,24 @@ async function fetchConfigs() {
             // Convert array to object keyed by ID
             const configMap = {};
             data.forEach(c => configMap[c.id] = c);
+            console.log(`✅ Successfully fetched ${data.length} configs from remote.`);
             return configMap;
         }
         return {};
     } catch (e) {
-        console.warn("⚠️ Failed to fetch from Google Sheets:", e.message);
+        console.error("⚠️ CRITICAL: Failed to fetch from Google Sheets:", e.message);
+        // Important: If we cannot fetch remote configs, we shouldn't just silently deploy nothing.
+        // We should probably fail the build or at least warn very loudly.
+        // However, if the user has NO internet or API is down, maybe they want to deploy local only?
+        // Let's at least log it very clearly.
         console.warn("   Falling back to local data/landingConfigs.json only.");
+
+        // [MODIFIED] Throw error if in CI environment to prevent deploying empty site
+        if (process.env.CI) {
+            console.error("❌ Blocking deployment because remote configs could not be fetched.");
+            process.exit(1);
+        }
+
         return {};
     }
 }
