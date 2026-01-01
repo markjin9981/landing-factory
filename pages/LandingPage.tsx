@@ -189,7 +189,6 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
         `).join('\n');
 
       styleTag.textContent = fontFaceRules;
-      console.log("Updated Custom Fonts:", config.theme.customFonts.length);
     }
   }, [config?.theme?.customFonts]);
 

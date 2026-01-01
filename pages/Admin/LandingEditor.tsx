@@ -231,14 +231,17 @@ const LandingEditor: React.FC = () => {
 
     const updateNested = (path: string[], value: any) => {
         setConfig(prev => {
-            const next = { ...prev };
-            let current: any = next;
-            for (let i = 0; i < path.length - 1; i++) {
-                if (!current[path[i]]) current[path[i]] = {};
-                current = current[path[i]];
-            }
-            current[path[path.length - 1]] = value;
-            return next;
+            const recursiveUpdate = (obj: any, pIndex: number): any => {
+                if (pIndex === path.length) return value;
+
+                const key = path[pIndex];
+                const currentVal = obj ? obj[key] : undefined;
+                const safeObj = obj ? (Array.isArray(obj) ? [...obj] : { ...obj }) : {};
+
+                safeObj[key] = recursiveUpdate(currentVal, pIndex + 1);
+                return safeObj;
+            };
+            return recursiveUpdate(prev, 0);
         });
     };
 
