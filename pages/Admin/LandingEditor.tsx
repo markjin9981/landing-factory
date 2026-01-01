@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont } from '../../types';
+import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings } from '../../types';
 import LandingPage from '../LandingPage';
-import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive } from '../../services/googleSheetService';
+import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings } from '../../services/googleSheetService';
 import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle } from 'lucide-react';
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
+import FontPicker from '../../components/admin/FontPicker';
 
 // GitHub Sync Check: Force Update
 // Default empty config template
@@ -75,19 +76,29 @@ const LandingEditor: React.FC = () => {
     const [activeTab, setActiveTab] = useState('hero');
     const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('mobile');
     const [deployStatus, setDeployStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+    const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({ customFonts: [], favoriteFonts: [] });
     const [fontUploadTab, setFontUploadTab] = useState<'google' | 'file'>('google');
 
     // File input refs
     const heroBgInputRef = useRef<HTMLInputElement>(null);
-    const detailImageInputRef = useRef<HTMLInputElement>(null);
-    const bannerImageInputRef = useRef<HTMLInputElement>(null);
-    const footerImageInputRef = useRef<HTMLInputElement>(null);
     const faviconInputRef = useRef<HTMLInputElement>(null);
     const ogImageInputRef = useRef<HTMLInputElement>(null);
-
+    const bannerImageInputRef = useRef<HTMLInputElement>(null);
+    const detailImageInputRef = useRef<HTMLInputElement>(null);
+    const footerImageInputRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
+        // Fetch Global Settings (Fonts)
+        console.log('Fetching global settings...');
+        const loadGlobalSettings = async () => {
+            const settings = await fetchGlobalSettings();
+            if (settings) {
+                setGlobalSettings(settings);
+            }
+        };
+        loadGlobalSettings();
+
         if (id) {
-            // 1. Try to load from LocalStorage first (Draft)
+            // ... Existing logic ...
             const stored = localStorage.getItem('landing_drafts');
             if (stored) {
                 const drafts = JSON.parse(stored);
@@ -428,25 +439,14 @@ const LandingEditor: React.FC = () => {
                             <input type="text" value={getValue('color') || ''} onChange={e => updateStyle('color', e.target.value)} className="flex-1 border rounded p-1 text-xs" />
                         </div>
                     </div>
-                    <div>
-                        <label className="text-[10px] text-gray-500 block">폰트 (글꼴)</label>
-                        <select
+                    <div className="col-span-2">
+                        <FontPicker
+                            label="폰트 (글꼴)"
                             value={getValue('fontFamily') || ''}
-                            onChange={e => updateStyle('fontFamily', e.target.value)}
-                            className="w-full border rounded p-1 text-xs"
-                        >
-                            <option value="">기본 (Inherit)</option>
-                            {config.theme.fontConfig?.primaryFont && (
-                                <option value={config.theme.fontConfig.primaryFont}>기본 폰트 ({config.theme.fontConfig.primaryFont})</option>
-                            )}
-                            {(config.theme.customFonts || []).map(f => (
-                                <option key={f.id} value={f.family}>{f.name} ({f.family})</option>
-                            ))}
-                            <optgroup label="시스템 폰트">
-                                <option value="sans-serif">고딕 (Sans-serif)</option>
-                                <option value="serif">명조 (Serif)</option>
-                            </optgroup>
-                        </select>
+                            onChange={(val) => updateStyle('fontFamily', val)}
+                            globalSettings={globalSettings}
+                            onSettingsChange={setGlobalSettings}
+                        />
                     </div>
                     <div>
                         <label className="text-[10px] text-gray-500 block">정렬</label>
@@ -540,21 +540,14 @@ const LandingEditor: React.FC = () => {
                             <option value="full">가로 꽉 채움 (Full)</option>
                         </select>
                     </div>
-                    <div>
-                        <label className="text-[10px] text-gray-500 block">폰트 (글꼴)</label>
-                        <select
+                    <div className="col-span-2">
+                        <FontPicker
+                            label="폰트 (글꼴)"
                             value={getValue('fontFamily') || ''}
-                            onChange={e => updateStyle('fontFamily', e.target.value)}
-                            className="w-full border rounded p-1 text-xs"
-                        >
-                            <option value="">기본 (Inherit)</option>
-                            {config.theme.fontConfig?.primaryFont && (
-                                <option value={config.theme.fontConfig.primaryFont}>기본 폰트 ({config.theme.fontConfig.primaryFont})</option>
-                            )}
-                            {(config.theme.customFonts || []).map(f => (
-                                <option key={f.id} value={f.family}>{f.name} ({f.family})</option>
-                            ))}
-                        </select>
+                            onChange={(val) => updateStyle('fontFamily', val)}
+                            globalSettings={globalSettings}
+                            onSettingsChange={setGlobalSettings}
+                        />
                     </div>
                     <div>
                         <label className="text-[10px] text-gray-500 block">정렬 (위치)</label>
@@ -1304,172 +1297,29 @@ const LandingEditor: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
-                                        <Type className="w-3 h-3" /> 기본 폰트
-                                    </label>
-                                    <select
+                                {/* Global Font Picker */}
+                                <div className="mt-4">
+                                    <FontPicker
+                                        label="기본 폰트 설정 (전역 폰트 및 즐겨찾기)"
                                         value={config.theme.fontConfig?.primaryFont || ''}
-                                        onChange={(e) => {
-                                            const fontName = e.target.value;
-                                            const fontObj = GOOGLE_FONTS_LIST.find(f => f.family === fontName);
-                                            updateNested(['theme', 'fontConfig'], {
-                                                primaryFont: fontName,
-                                                source: 'google'
-                                            });
-                                            // Optional: Legacy support
-                                            updateNested(['theme', 'fontFamily'], fontName);
+                                        globalSettings={globalSettings}
+                                        onSettingsChange={(newSettings) => {
+                                            setGlobalSettings(newSettings);
+                                            // Sync global fonts to local config for preview and saving
+                                            updateNested(['theme', 'customFonts'], newSettings.customFonts || []);
                                         }}
-                                        className="w-full border rounded p-1.5 text-xs bg-white"
-                                    >
-                                        <option value="">기본 폰트 (시스템)</option>
-                                        <optgroup label="등록된 커스텀 폰트">
-                                            {(config.theme.customFonts || []).map(f => (
-                                                <option key={f.id} value={f.family}>{f.name}</option>
-                                            ))}
-                                        </optgroup>
-                                        <optgroup label="한글 폰트 (Google)">
-                                            {GOOGLE_FONTS_LIST.filter(f => f.category === 'Korean').map(f => (
-                                                <option key={f.family} value={f.family}>{f.name}</option>
-                                            ))}
-                                        </optgroup>
-                                        <optgroup label="영문/기타 폰트 (Google)">
-                                            {GOOGLE_FONTS_LIST.filter(f => f.category !== 'Korean').map(f => (
-                                                <option key={f.family} value={f.family}>{f.name}</option>
-                                            ))}
-                                        </optgroup>
-                                    </select>
-                                </div>
-
-                                {/* Custom Font Manager */}
-                                <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-4">
-                                    <h4 className="text-xs font-bold text-gray-700 mb-3 flex items-center gap-1">
-                                        <PlusCircle className="w-3 h-3" /> 커스텀 폰트 추가
-                                    </h4>
-
-                                    {/* Existing Custom Fonts List */}
-                                    <div className="space-y-2 mb-3">
-                                        {((config.theme.customFonts || []) as CustomFont[]).map((font, idx) => (
-                                            <div key={font.id} className="flex items-center justify-between bg-white p-2 border rounded text-xs shadow-sm">
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold text-gray-700">{font.name}</span>
-                                                    <span className="text-[10px] text-gray-400">{font.family} ({font.source})</span>
-                                                </div>
-                                                <button
-                                                    onClick={() => {
-                                                        const newFonts = config.theme.customFonts?.filter((_, i) => i !== idx);
-                                                        updateNested(['theme', 'customFonts'], newFonts);
-                                                    }}
-                                                    className="p-1 text-gray-400 hover:text-red-500"
-                                                >
-                                                    <Trash2 className="w-3 h-3" />
-                                                </button>
-                                            </div>
-                                        ))}
-                                        {(!config.theme.customFonts || config.theme.customFonts.length === 0) && (
-                                            <div className="text-center py-2 text-[10px] text-gray-400 border border-dashed rounded bg-white">
-                                                추가된 폰트가 없습니다.
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Add New Font Form */}
-                                    <div className="bg-white p-2 rounded border border-gray-200">
-                                        <div className="flex gap-2 mb-2 border-b">
-                                            <button
-                                                className={`text-[10px] px-2 py-1 ${fontUploadTab === 'google' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-                                                onClick={() => setFontUploadTab('google')}
-                                            >
-                                                구글 폰트
-                                            </button>
-                                            <button
-                                                className={`text-[10px] px-2 py-1 ${fontUploadTab === 'file' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-                                                onClick={() => setFontUploadTab('file')}
-                                            >
-                                                파일 업로드
-                                            </button>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <div>
-                                                <label className="text-[10px] text-gray-500 block">표시 이름 (나만의 이름)</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="예: 우리 브랜드 폰트"
-                                                    id="new-font-name"
-                                                    className="w-full border rounded p-1 text-xs"
-                                                />
-                                            </div>
-
-                                            {fontUploadTab === 'google' ? (
-                                                <div>
-                                                    <label className="text-[10px] text-gray-500 block">구글 폰트 선택</label>
-                                                    <select id="new-font-google" className="w-full border rounded p-1 text-xs">
-                                                        {GOOGLE_FONTS_LIST.map(f => (
-                                                            <option key={f.family} value={f.family}>{f.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    <label className="text-[10px] text-gray-500 block">폰트 파일 (woff2, ttf)</label>
-                                                    <input
-                                                        type="file"
-                                                        id="new-font-file"
-                                                        accept=".woff2,.woff,.ttf"
-                                                        className="w-full border rounded p-1 text-[10px]"
-                                                    />
-                                                </div>
-                                            )}
-
-                                            <button
-                                                onClick={async () => {
-                                                    const nameInput = document.getElementById('new-font-name') as HTMLInputElement;
-                                                    const name = nameInput.value;
-                                                    if (!name) return alert('폰트 이름을 입력해주세요.');
-
-                                                    let family = '';
-                                                    let url = '';
-                                                    let source: 'google' | 'file' = 'google';
-
-                                                    if (fontUploadTab === 'google') {
-                                                        const googleSelect = document.getElementById('new-font-google') as HTMLSelectElement;
-                                                        family = googleSelect.value;
-                                                        source = 'google';
-                                                    } else {
-                                                        const fileInput = document.getElementById('new-font-file') as HTMLInputElement;
-                                                        const file = fileInput.files?.[0];
-                                                        if (!file) return alert('파일을 선택해주세요.');
-
-                                                        // Just use name as family for generic files, or sanitize it
-                                                        family = name.replace(/\s+/g, '');
-                                                        source = 'file';
-
-                                                        // Upload
-                                                        // Note: uploadImageToDrive is generalized for files
-                                                        const uploadedUrl = await uploadImageToDrive(file);
-                                                        if (!uploadedUrl) return;
-                                                        url = uploadedUrl;
-                                                    }
-
-                                                    const newFont: CustomFont = {
-                                                        id: crypto.randomUUID(),
-                                                        name,
-                                                        family,
-                                                        source,
-                                                        url
-                                                    };
-
-                                                    updateNested(['theme', 'customFonts'], [...(config.theme.customFonts || []), newFont]);
-                                                    nameInput.value = '';
-                                                    if (fontUploadTab === 'file') (document.getElementById('new-font-file') as HTMLInputElement).value = '';
-                                                }}
-                                                className="w-full bg-blue-600 text-white text-xs py-1 rounded hover:bg-blue-500 flex items-center justify-center gap-1"
-                                            >
-                                                <PlusCircle className="w-3 h-3" /> 폰트 추가하기
-                                            </button>
-                                        </div>
-                                    </div>
+                                        onChange={(fontFamily) => {
+                                            updateNested(['theme', 'fontConfig'], {
+                                                primaryFont: fontFamily,
+                                                source: 'google' // We rely on name matching for custom fonts
+                                            });
+                                            // Legacy sync
+                                            updateNested(['theme', 'fontFamily'], fontFamily);
+                                        }}
+                                    />
+                                    <p className="text-[10px] text-gray-400 mt-1">
+                                        * 폰트 업로드 및 즐겨찾기는 모든 랜딩페이지에 공유됩니다.
+                                    </p>
                                 </div>
                             </div>
                         )}

@@ -366,7 +366,7 @@ function cleanupOldSessions(sheet) {
 }
 
 function handleImageUpload(params) {
-  var folderName = "landing-factory image"; 
+  var folderName = params.folderName || "landing-factory image"; 
   var file;
   try {
     var data = Utilities.base64Decode(params.base64);

@@ -1,4 +1,4 @@
-import { LeadData, VisitData, LandingConfig } from '../types';
+import { LandingConfig, FormField, VisitData, LeadData, GlobalSettings } from '../types';
 
 /**
  * --------------------------------------------------------------------------
@@ -343,7 +343,7 @@ export const fetchLandingConfigs = async (): Promise<LandingConfig[]> => {
 /**
  * 이미지를 구글 드라이브에 업로드하고 호스팅 URL을 반환합니다.
  */
-export const uploadImageToDrive = async (file: File): Promise<string | null> => {
+export const uploadImageToDrive = async (file: File, folderName: string = "landing-factory image"): Promise<string | null> => {
     if (!isUrlConfigured()) {
         console.warn("Mock Upload: GOOGLE_SCRIPT_URL not configured");
         return URL.createObjectURL(file);
@@ -357,10 +357,11 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
 
             const uploadToBackend = (base64Data: string, mimeType: string, filename: string) => {
                 const formData = new URLSearchParams();
-                formData.append('type', 'upload_image'); // Keep basic type as upload_image for backend compatibility
+                formData.append('type', 'upload_image');
                 formData.append('filename', filename);
                 formData.append('mimeType', mimeType);
                 formData.append('base64', base64Data);
+                formData.append('folderName', folderName);
 
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
@@ -381,7 +382,7 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
                             }
                         } catch (e) {
                             console.error("Server Response:", text);
-                            alert("서버 응답 오류. 권한 설정을 확인하세요.");
+                            alert("서버 응답 오류: " + text);
                             resolve(null);
                         }
                     })
@@ -418,13 +419,10 @@ export const uploadImageToDrive = async (file: File): Promise<string | null> => 
                     uploadToBackend(base64Data, "image/jpeg", filename);
                 };
                 img.onerror = () => {
-                    // Fallback for corrupt images or non-image files misidentified
-                    // Just upload original
                     const base64Data = result.split(',')[1];
                     uploadToBackend(base64Data, file.type, file.name);
                 };
             } else {
-                // Fonts, GIFs, PDFs, etc. -> Upload Original
                 const base64Data = result.split(',')[1];
                 uploadToBackend(base64Data, file.type, file.name);
             }
@@ -633,3 +631,35 @@ export const verifyGoogleToken = async (idToken: string): Promise<{ valid: boole
         return { valid: false, message: "Network Error" };
     }
 };
+
+// --- Global Settings (Fonts) ---
+export const fetchGlobalSettings = async (): Promise<GlobalSettings | null> => {
+    if (!isUrlConfigured()) return null;
+    const res = await fetch(`${GOOGLE_SCRIPT_URL}?type=config&id=system_global_v1`);
+    const data = await res.json();
+    if (data.error) return null;
+    return data;
+}
+
+export const saveGlobalSettings = async (settings: GlobalSettings): Promise<boolean> => {
+    if (!isUrlConfigured()) {
+        alert("Mock Mode: Global Settings Saved");
+        return true;
+    }
+    const formData = new FormData();
+    formData.append('type', 'config_save');
+    formData.append('id', 'system_global_v1');
+    formData.append('config_data', JSON.stringify(settings));
+
+    try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            mode: "no-cors",
+        });
+        return true;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+}

@@ -40,6 +40,11 @@ export interface CustomFont {
   url: string; // Google Font Name or File URL
 }
 
+export interface GlobalSettings {
+  customFonts: CustomFont[];
+  favoriteFonts: string[]; // List of font family names that are starred
+}
+
 export interface TextStyle {
   fontSize?: string; // px or rem
   fontWeight?: string; // '400', '700'
@@ -418,4 +423,12 @@ export interface ChatButtonConfig {
 
   // Advanced
   showLabel: boolean;
+}
+
+export interface VisitData {
+  [key: string]: any; // Allow dynamic keys from Sheet headers
+  timestamp?: string;
+  ip?: string;
+  device?: string;
+  referrer?: string;
 }
