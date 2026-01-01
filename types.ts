@@ -21,9 +21,15 @@ export interface LandingTheme {
   primaryColor: string; // Hex code or Tailwind color class prefix (handled via inline styles or template literals)
   secondaryColor: string;
   fontFamily?: string;
+  fontConfig?: FontConfig; // New: Google Font System
 }
 
 // Typography Style Interface
+export interface FontConfig {
+  primaryFont: string; // e.g., 'Noto Sans KR'
+  secondaryFont?: string; // Optional header font
+  source: 'google' | 'local'; // 'google' usually
+}
 export interface TextStyle {
   fontSize?: string; // px or rem
   fontWeight?: string; // '400', '700'
@@ -350,6 +356,7 @@ export interface PopupStyleConfig {
   widthUnit: 'px' | '%';
   topUnit: 'px' | '%';
   leftUnit: 'px' | '%';
+  isCentered?: boolean; // New: Auto-center horizontally
 }
 
 export interface PopupConfig {
@@ -366,11 +373,13 @@ export interface PopupConfig {
     width: number;
     top: number;
     left: number;
+    isCentered?: boolean; // New
   };
   mobileStyle: {
     width: number; // usually percentage for mobile
     top: number;
     left: number;
+    isCentered?: boolean; // New
   };
 
   // Options

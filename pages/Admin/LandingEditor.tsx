@@ -4,6 +4,7 @@ import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent } fr
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive } from '../../services/googleSheetService';
 import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle } from 'lucide-react';
+import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
 
 // GitHub Sync Check: Force Update
 // Default empty config template
@@ -813,11 +814,21 @@ const LandingEditor: React.FC = () => {
                                                         </div>
                                                         <div>
                                                             <label className="block text-gray-400 text-[10px]">Left</label>
-                                                            <input type="number"
-                                                                className="w-full border rounded p-1"
-                                                                value={config.popupConfig?.pcStyle?.left || 50}
-                                                                onChange={(e) => updateNested(['popupConfig', 'pcStyle', 'left'], parseInt(e.target.value))}
-                                                            />
+                                                            <div className="flex flex-col gap-1">
+                                                                <input type="number"
+                                                                    className={`w-full border rounded p-1 ${config.popupConfig?.pcStyle?.isCentered ? 'bg-gray-100 text-gray-400' : ''}`}
+                                                                    value={config.popupConfig?.pcStyle?.left || 50}
+                                                                    disabled={config.popupConfig?.pcStyle?.isCentered}
+                                                                    onChange={(e) => updateNested(['popupConfig', 'pcStyle', 'left'], parseInt(e.target.value))}
+                                                                />
+                                                                <label className="flex items-center gap-1 text-[10px] cursor-pointer">
+                                                                    <input type="checkbox"
+                                                                        checked={config.popupConfig?.pcStyle?.isCentered || false}
+                                                                        onChange={(e) => updateNested(['popupConfig', 'pcStyle', 'isCentered'], e.target.checked)}
+                                                                    />
+                                                                    <span className="text-blue-600 font-bold">가운데 정렬</span>
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -846,11 +857,21 @@ const LandingEditor: React.FC = () => {
                                                         </div>
                                                         <div>
                                                             <label className="block text-gray-400 text-[10px]">Left</label>
-                                                            <input type="number"
-                                                                className="w-full border rounded p-1"
-                                                                value={config.popupConfig?.mobileStyle?.left || 20}
-                                                                onChange={(e) => updateNested(['popupConfig', 'mobileStyle', 'left'], parseInt(e.target.value))}
-                                                            />
+                                                            <div className="flex flex-col gap-1">
+                                                                <input type="number"
+                                                                    className={`w-full border rounded p-1 ${config.popupConfig?.mobileStyle?.isCentered ? 'bg-gray-100 text-gray-400' : ''}`}
+                                                                    value={config.popupConfig?.mobileStyle?.left || 20}
+                                                                    disabled={config.popupConfig?.mobileStyle?.isCentered}
+                                                                    onChange={(e) => updateNested(['popupConfig', 'mobileStyle', 'left'], parseInt(e.target.value))}
+                                                                />
+                                                                <label className="flex items-center gap-1 text-[10px] cursor-pointer">
+                                                                    <input type="checkbox"
+                                                                        checked={config.popupConfig?.mobileStyle?.isCentered || false}
+                                                                        onChange={(e) => updateNested(['popupConfig', 'mobileStyle', 'isCentered'], e.target.checked)}
+                                                                    />
+                                                                    <span className="text-blue-600 font-bold">가운데 정렬</span>
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -935,8 +956,8 @@ const LandingEditor: React.FC = () => {
                                                                 </div>
                                                                 <div className="flex gap-2">
                                                                     <div className="flex-1">
-                                                                        <label className="block text-[10px] text-gray-500">게시 시작일</label>
-                                                                        <input type="date"
+                                                                        <label className="block text-[10px] text-gray-500">게시 시작일 (YYYY-MM-DD HH:mm)</label>
+                                                                        <input type="datetime-local"
                                                                             className="w-full border rounded p-1 text-xs"
                                                                             value={item.startDate || ''}
                                                                             onChange={(e) => {
@@ -947,8 +968,8 @@ const LandingEditor: React.FC = () => {
                                                                         />
                                                                     </div>
                                                                     <div className="flex-1">
-                                                                        <label className="block text-[10px] text-gray-500">게시 종료일</label>
-                                                                        <input type="date"
+                                                                        <label className="block text-[10px] text-gray-500">게시 종료일 (YYYY-MM-DD HH:mm)</label>
+                                                                        <input type="datetime-local"
                                                                             className="w-full border rounded p-1 text-xs"
                                                                             value={item.endDate || ''}
                                                                             onChange={(e) => {
@@ -1244,6 +1265,37 @@ const LandingEditor: React.FC = () => {
                                             <input type="color" value={config.theme.primaryColor} onChange={(e) => updateNested(['theme', 'primaryColor'], e.target.value)} className="w-6 h-6 rounded cursor-pointer border-none" />
                                             <span className="text-xs font-mono">{config.theme.primaryColor}</span>
                                         </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
+                                            <Type className="w-3 h-3" /> 기본 폰트
+                                        </label>
+                                        <select
+                                            value={config.theme.fontConfig?.primaryFont || ''}
+                                            onChange={(e) => {
+                                                const fontName = e.target.value;
+                                                const fontObj = GOOGLE_FONTS_LIST.find(f => f.family === fontName);
+                                                updateNested(['theme', 'fontConfig'], {
+                                                    primaryFont: fontName,
+                                                    source: 'google'
+                                                });
+                                                // Optional: Legacy support
+                                                updateNested(['theme', 'fontFamily'], fontName);
+                                            }}
+                                            className="w-full border rounded p-1.5 text-xs bg-white"
+                                        >
+                                            <option value="">기본 폰트 (시스템)</option>
+                                            <optgroup label="한글 폰트">
+                                                {GOOGLE_FONTS_LIST.filter(f => f.category === 'Korean').map(f => (
+                                                    <option key={f.family} value={f.family}>{f.name}</option>
+                                                ))}
+                                            </optgroup>
+                                            <optgroup label="영문/기타 폰트">
+                                                {GOOGLE_FONTS_LIST.filter(f => f.category !== 'Korean').map(f => (
+                                                    <option key={f.family} value={f.family}>{f.name}</option>
+                                                ))}
+                                            </optgroup>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
