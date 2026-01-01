@@ -17,15 +17,15 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
 
     // 1. Check Visibility & Active Items
     useEffect(() => {
-        if (!config || !config.usePopup || !config.items || config.items.length === 0) {
-            setIsVisible(false);
+        // Preview Mode: Bypass Checks (Moved to Top)
+        if (isPreview && config?.items) {
+            setActiveItems(config.items);
+            setIsVisible(true);
             return;
         }
 
-        // Preview Mode: Bypass Checks
-        if (isPreview) {
-            setActiveItems(config.items);
-            setIsVisible(true);
+        if (!config || !config.usePopup || !config.items || config.items.length === 0) {
+            setIsVisible(false);
             return;
         }
 
