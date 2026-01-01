@@ -204,7 +204,10 @@ const LeadStats: React.FC = () => {
                     Object.entries(groupedLeads).map(([landingId, groupLeads]) => {
                         const config = configs.find(c => String(c.id) === landingId);
                         const title = config ? config.title : `알 수 없는 페이지 (ID: ${landingId})`;
-                        const { columns, extraKeys } = getColumnsForGroup(landingId, groupLeads);
+                        const { columns } = getColumnsForGroup(landingId, groupLeads);
+
+                        // Preview only top 5
+                        const previewLeads = groupLeads.slice(0, 5);
 
                         return (
                             <div key={landingId} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-fade-in-up">
@@ -218,9 +221,17 @@ const LeadStats: React.FC = () => {
                                             <p className="text-xs text-gray-400 font-mono">ID: {landingId}</p>
                                         </div>
                                     </div>
-                                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
-                                        {groupLeads.length} 건
-                                    </span>
+                                    <div className="flex items-center gap-4">
+                                        <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
+                                            총 {groupLeads.length} 건
+                                        </span>
+                                        <button
+                                            onClick={() => navigate(`/admin/stats/${landingId}`)}
+                                            className="flex items-center gap-1 text-sm font-bold text-gray-600 hover:text-blue-600 bg-white border border-gray-300 hover:border-blue-400 px-3 py-1.5 rounded-lg transition-all"
+                                        >
+                                            상세보기 <ArrowLeft className="w-4 h-4 rotate-180" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="overflow-x-auto">
@@ -228,42 +239,38 @@ const LeadStats: React.FC = () => {
                                         <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 border-b">
                                             <tr>
                                                 <th className="px-6 py-3 w-12 font-medium">No.</th>
-                                                {columns.map(col => (
+                                                {columns.slice(0, 5).map(col => (
                                                     <th key={col.key} className="px-6 py-3 font-medium text-gray-700">
                                                         {col.label}
                                                     </th>
                                                 ))}
-                                                {extraKeys.length > 0 && (
-                                                    <th className="px-6 py-3 font-medium text-gray-500">추가 정보</th>
-                                                )}
+                                                {columns.length > 5 && <th className="px-6 py-3 font-medium text-gray-400">...</th>}
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
-                                            {groupLeads.map((lead, idx) => (
+                                            {previewLeads.map((lead, idx) => (
                                                 <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
                                                     <td className="px-6 py-4 text-gray-400 text-xs">{groupLeads.length - idx}</td>
-                                                    {columns.map(col => (
-                                                        <td key={col.key} className="px-6 py-4 whitespace-nowrap">
-                                                            {/* Try exact key match, then lowercase match */}
+                                                    {columns.slice(0, 5).map(col => (
+                                                        <td key={col.key} className="px-6 py-4 whitespace-nowrap text-gray-600">
                                                             {lead[col.key] || lead[col.key.toLowerCase()] || '-'}
                                                         </td>
                                                     ))}
-                                                    {extraKeys.length > 0 && (
-                                                        <td className="px-6 py-4 text-xs text-gray-500">
-                                                            {extraKeys.map(k => {
-                                                                const val = lead[k];
-                                                                if (!val) return null;
-                                                                return (
-                                                                    <div key={k} className="flex gap-1">
-                                                                        <span className="font-bold text-gray-400">{k}:</span>
-                                                                        <span>{val}</span>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </td>
-                                                    )}
+                                                    {columns.length > 5 && <td className="px-6 py-4 text-gray-300">...</td>}
                                                 </tr>
                                             ))}
+                                            {groupLeads.length > 5 && (
+                                                <tr>
+                                                    <td colSpan={columns.slice(0, 5).length + 2} className="px-6 py-3 text-center bg-gray-50/30">
+                                                        <button
+                                                            onClick={() => navigate(`/admin/stats/${landingId}`)}
+                                                            className="text-xs font-bold text-blue-600 hover:underline"
+                                                        >
+                                                            + {groupLeads.length - 5}개 더보기
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>

@@ -735,6 +735,35 @@ function handleLeadSubmission(params) {
   return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
 }
 
+function doPost(e) {
+  try {
+    var params = e.parameter;
+    var type = params.type;
+
+    if (type === 'upload_file') {
+      return handleFileUpload(e);
+    } else if (type === 'config_submission') {
+      return handleConfigSubmission(params);
+    } else if (type === 'visit_log') {
+      return handleVisitLog(params);
+    } else if (type === 'config_deletion') {
+      return handleConfigDeletion(params);
+    } else if (type === 'lead_delete') {
+      return handleLeadDeletion(params);
+    } else { 
+      return handleLeadSubmission(params);
+    }
+  } catch (criticalError) {
+    // [GLOBAL CATCH]
+    // If ANY unexpected error occurs in doPost (e.g. undefined variables, etc.),
+    // return a valid JSON response so the frontend doesn't get a CORS/Network Error.
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "error",
+      "message": "Critical Server Error: " + criticalError.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
 function handleVisitLog(params) {
   var sheet = getOrCreateSheet("Visits");
   var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
@@ -750,6 +779,123 @@ function handleVisitLog(params) {
   ]);
   
   return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
+}
+
+// =================================================================
+// [NEW] Handle Lead Data Deletion
+// =================================================================
+function handleLeadDeletion(params) {
+  // params.leads should be a JSON string of array of objects: 
+  // [{ timestamp: '...', landing_id: '...', name: '...', phone: '...' }, ...]
+  var targets = [];
+  try {
+    targets = JSON.parse(params.leads);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({"result":"error", "message": "Invalid leads data format"})).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (!targets || targets.length === 0) {
+     return ContentService.createTextOutput(JSON.stringify({"result":"success", "count": 0})).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var sheet = getOrCreateSheet("Leads");
+  var data = sheet.getDataRange().getValues(); // 2D Array
+  var headers = data[0]; // Row 1 is header
+
+  // Find column indices
+  var idxTimestamp = -1;
+  var idxLandingId = -1;
+  var idxName = -1;
+  var idxPhone = -1;
+
+  for (var h=0; h<headers.length; h++) {
+    var hdr = headers[h].toLowerCase();
+    if (hdr === 'timestamp') idxTimestamp = h;
+    else if (hdr === 'landing id' || hdr === 'landing_id') idxLandingId = h;
+    else if (hdr === 'name') idxName = h;
+    else if (hdr === 'phone') idxPhone = h;
+  }
+
+  if (idxTimestamp === -1 || idxLandingId === -1) {
+    return ContentService.createTextOutput(JSON.stringify({"result":"error", "message": "Critical columns missing"})).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Strategy:
+  // Iterate backwards so deleting rows doesn't mess up indices of upcoming rows.
+  // We need to delete ALL matches.
+  
+  var deletedCount = 0;
+
+  for (var t=0; t<targets.length; t++) {
+    var target = targets[t];
+    var tTime = String(target.timestamp || "").trim();
+    var tId = String(target.landing_id || "").trim();
+    var tName = String(target.name || "").trim();
+    var tPhone = String(target.phone || "").trim();
+
+    // Re-fetch data length or rely on loop?
+    // Since we delete rows, the data array becomes stale if we refer to row index.
+    // BUT, getValues() is a snapshot.
+    // If we delete row 5, then row 6 becomes row 5.
+    // So safest is to go completely backwards through the SHEET, checking against our target list.
+    // This is computationally expensive if sheet is huge.
+    // Optimization: Collect all row indices to delete first, then delete.
+    // But `deleteRow` changes indices.
+    // `deleteRows` can delete contiguous, but these might be scattered.
+    // Safest: Go backwards.
+  }
+
+  // Let's optimize:
+  // 1. Snapshot the sheet data.
+  // 2. Identify all matching row INDICES (Using original indices).
+  // 3. Sort indices descending.
+  // 4. Delete one by one (or groups).
+
+  var rowsToDelete = [];
+
+  for (var i = data.length - 1; i >= 1; i--) { // Skip header (row 0)
+    var row = data[i];
+    
+    // Check if this row matches ANY target
+    // Exact match on Timestamp & LandingID is usually enough, but let's add Name/Phone for safety
+    var rTime = String(row[idxTimestamp] || "").trim();
+    var rId = String(row[idxLandingId] || "").trim();
+    var rName = (idxName !== -1) ? String(row[idxName] || "").trim() : "";
+    var rPhone = (idxPhone !== -1) ? String(row[idxPhone] || "").trim() : "";
+
+    for (var t=0; t<targets.length; t++) {
+      var target = targets[t];
+      // Match logic
+      var matchTime = (rTime === String(target.timestamp || "").trim());
+      var matchId = (rId === String(target.landing_id || "").trim());
+      
+      if (matchTime && matchId) {
+        // Optional stronger check
+        if (target.phone && rPhone && target.phone !== rPhone) continue;
+        if (target.name && rName && target.name !== rName) continue;
+        
+        // Exact match found!
+        rowsToDelete.push(i + 1); // Sheet is 1-indexed
+        // Remove this target from search to avoid double counting? No, multiple rows might be duplicate.
+        // Break inner loop to count this row once
+        break; 
+      }
+    }
+  }
+
+  // Delete rows
+  // If we delete row N, N+1 becomes N.
+  // Since we iterated backwards in search? No, `rowsToDelete` might be in any order if we didn't search backwards.
+  // Wait, I iterated `data` backwards (length-1 down to 1). So `rowsToDelete` will be populated in Descending order (Leading with highest index).
+  // e.g. [100, 99, 50, 10]
+  // Perfect. We can just iterate this array and delete.
+  
+  for (var d=0; d<rowsToDelete.length; d++) {
+    sheet.deleteRow(rowsToDelete[d]);
+    deletedCount++;
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({"result":"success", "deleted": deletedCount})).setMimeType(ContentService.MimeType.JSON);
 }
 
 function handleConfigDeletion(params) {

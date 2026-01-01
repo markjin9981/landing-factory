@@ -57,6 +57,76 @@ export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
 };
 
 /**
+ * 고객 DB를 삭제 요청합니다.
+ */
+export const deleteLeads = async (leads: LeadData[]): Promise<{ result: string, deleted?: number, message?: string }> => {
+    if (!isUrlConfigured()) {
+        console.log(" Mock Delete Leads:", leads);
+        alert("Mock Mode: Leads deleted successfully.");
+        return { result: 'success', deleted: leads.length };
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('type', 'lead_delete');
+        formData.append('leads', JSON.stringify(leads));
+
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            mode: "cors" // Use cors to get response count if possible, but standard is no-cors for simple post
+        });
+
+        // GAS POST often requires no-cors if not handling CORS headers perfectly,
+        // but here we just want to fire and forget or check status?
+        // Actually, we can use same trick as other POSTs (no-cors) BUT we can't get response.
+        // If we want response count, we might need to use GET or ensure GAS handles CORS.
+        // For now, let's assume no-cors and return optimistic success.
+        // Wait, 'handleLeadDeletion' backend returns JSON. 
+        // If we use 'no-cors', we get opaque response.
+
+        // Let's try 'cors' first. Most default GAS deployments block CORS unless well configured.
+        // Actually, since we are calling from same domain (if deployed) or localhost?
+        // If localhost, we need CORS.
+        // If 'mode: no-cors', we can't read body.
+
+        // Reverting to fetch strategy similar to 'adminLogin' using GET if payload fits? 
+        // JSON payload might be too large for GET query params.
+
+        // Let's stick to standard form post. 
+        // If we can't read response, we assume success or check via refresh.
+
+        // *Correction* My previous code used `mode: "no-cors"` for submits.
+        // If I want to know if it succeeded, I am blind.
+        // But for deletions, it's critical. `uploadImage` used `application/x-www-form-urlencoded` without `no-cors` explicit? 
+        // No, `uploadImage` used `formData` and `fetch` with specific headers.
+
+        // Let's try to use the `uploadImage` strategy: 
+        // Uses `URLSearchParams` (x-www-form-urlencoded) which sometimes works better with CORS if GAS is set to return JSON.
+
+        const urlParams = new URLSearchParams();
+        urlParams.append('type', 'lead_delete');
+        urlParams.append('leads', JSON.stringify(leads));
+
+        const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: urlParams,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        return json;
+
+    } catch (error) {
+        console.error("Error deleting leads:", error);
+        return { result: 'error', message: String(error) };
+    }
+};
+
+/**
  * 방문자 로그를 기록합니다.
  */
 export const logVisit = async (visit: { landing_id: string, ip: string, device: string, os: string, browser: string, referrer: string }): Promise<void> => {

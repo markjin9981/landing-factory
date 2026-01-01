@@ -12,6 +12,7 @@ import { GOOGLE_CLIENT_ID } from './authConfig';
 const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
 const LandingEditor = lazy(() => import('./pages/Admin/LandingEditor'));
 const LeadStats = lazy(() => import('./pages/Admin/LeadStats'));
+const LeadStatsDetail = lazy(() => import('./pages/Admin/LeadStatsDetail'));
 const TrafficLogs = lazy(() => import('./pages/Admin/TrafficLogs'));
 const TrafficStats = lazy(() => import('./pages/Admin/TrafficStats'));
 const Settings = lazy(() => import('./pages/Admin/Settings'));
@@ -130,6 +131,14 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <LeadStats />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/stats/:id"
+              element={
+                <ProtectedRoute>
+                  <LeadStatsDetail />
                 </ProtectedRoute>
               }
             />
