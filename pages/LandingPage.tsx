@@ -9,6 +9,7 @@ import { logVisit, fetchLandingConfigById } from '../services/googleSheetService
 import KakaoMap from '../components/KakaoMap';
 import BannerBlock from '../components/inline/BannerBlock';
 import PopupContainer from '../components/popup/PopupContainer';
+import ChatButton from '../components/floating/ChatButton';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
@@ -641,7 +642,10 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
       )}
 
       {/* Render Popup Container */}
-      {config.popupConfig && <PopupContainer config={config.popupConfig} landingId={config.id} />}
+      {config.popupConfig && <PopupContainer config={config.popupConfig} landingId={config.id} isPreview={isPreview} />}
+
+      {/* Render Chat Button */}
+      {config.chatConfig && <ChatButton config={config.chatConfig} isPreview={isPreview} />}
     </div>
   );
 };

@@ -281,6 +281,9 @@ export interface LandingConfig {
   // Popup
   popupConfig?: PopupConfig;
 
+  // Chat Button
+  chatConfig?: ChatButtonConfig;
+
   keywords?: string;      // New: Meta Keywords for SEO
 
   // New: Search Engine Verification
@@ -374,4 +377,25 @@ export interface PopupConfig {
   showDoNotOpenToday: boolean;
   closeButtonColor?: string;
   disableOverlay?: boolean; // If true, no dimming background (usually modal vs modeless)
+}
+
+export interface ChatButtonConfig {
+  useChat: boolean;
+  type: 'kakao' | 'naver' | 'tel' | 'custom';
+
+  iconUrl?: string;
+  label?: string; // Bubble text
+
+  // Position
+  position: 'right' | 'left'; // "Bottom" is implied
+  bottom: number; // px
+  side: number; // px (from left or right)
+  size: number; // px
+
+  // Action
+  linkUrl: string;
+  openInNewWindow: boolean;
+
+  // Advanced
+  showLabel: boolean;
 }

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle } from 'lucide-react';
 
 // GitHub Sync Check: Force Update
 // Default empty config template
@@ -714,6 +714,7 @@ const LandingEditor: React.FC = () => {
                             { id: 'form', label: '입력폼', icon: <CheckSquare className="w-4 h-4" /> },
                             { id: 'text', label: '텍스트', icon: <AlignLeft className="w-4 h-4" /> },
                             { id: 'popup', label: '팝업', icon: <Megaphone className="w-4 h-4" /> },
+                            { id: 'chat', label: '문의버튼', icon: <MessageCircle className="w-4 h-4" /> },
                             { id: 'footer', label: '하단', icon: <Anchor className="w-4 h-4" /> },
                             { id: 'seo', label: '검색엔진', icon: <Globe className="w-4 h-4" /> },
                         ].map(tab => (
@@ -977,6 +978,164 @@ const LandingEditor: React.FC = () => {
                                                         등록된 팝업이 없습니다.
                                                     </div>
                                                 )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {/* ... CHAT TAB ... */}
+                        {activeTab === 'chat' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">채팅/문의 버튼 관리</h3>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <span className="text-xs font-bold text-gray-700">버튼 사용</span>
+                                        <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                            <input type="checkbox" className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                checked={config.chatConfig?.useChat || false}
+                                                onChange={(e) => updateNested(['chatConfig', 'useChat'], e.target.checked)}
+                                            />
+                                            <label className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${config.chatConfig?.useChat ? 'bg-blue-600' : 'bg-gray-300'}`}></label>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                {config.chatConfig?.useChat && (
+                                    <>
+                                        {/* 1. Type Select */}
+                                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+                                            <h4 className="text-xs font-bold text-gray-700">유형 선택</h4>
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {[
+                                                    { id: 'kakao', label: '카카오톡', color: 'bg-[#FEE500]' },
+                                                    { id: 'naver', label: '네이버톡톡', color: 'bg-[#03C75A] text-white' },
+                                                    { id: 'tel', label: '전화', color: 'bg-blue-500 text-white' },
+                                                    { id: 'custom', label: '커스텀', color: 'bg-gray-100' }
+                                                ].map(t => (
+                                                    <button
+                                                        key={t.id}
+                                                        onClick={() => updateNested(['chatConfig', 'type'], t.id)}
+                                                        className={`p-2 rounded text-xs font-bold border ${config.chatConfig?.type === t.id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 opacity-60 hover:opacity-100'} ${t.color}`}
+                                                    >
+                                                        {t.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 2. Configuration */}
+                                        <div className="space-y-4">
+                                            {/* Link & Icon */}
+                                            <div className="bg-white border rounded p-3 space-y-3">
+                                                <div>
+                                                    <label className="block text-[10px] text-gray-500 mb-1">
+                                                        {config.chatConfig?.type === 'kakao' ? '카카오 채널 채팅 URL (예: http://pf.kakao.com/_xxxx/chat)' :
+                                                            config.chatConfig?.type === 'naver' ? '네이버 톡톡 URL (예: https://talk.naver.com/Wxxxx)' :
+                                                                config.chatConfig?.type === 'tel' ? '전화번호 (예: 010-1234-5678)' : '연결할 링크 URL'}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={config.chatConfig?.linkUrl || ''}
+                                                        onChange={(e) => {
+                                                            let val = e.target.value;
+                                                            if (config.chatConfig?.type === 'tel' && !val.startsWith('tel:') && /^[0-9-]+$/.test(val)) {
+                                                                val = `tel:${val}`;
+                                                            }
+                                                            updateNested(['chatConfig', 'linkUrl'], val);
+                                                        }}
+                                                        placeholder="https://..."
+                                                        className="w-full border rounded p-2 text-xs"
+                                                    />
+                                                </div>
+
+                                                <label className="flex items-center gap-1 text-xs text-gray-600">
+                                                    <input type="checkbox"
+                                                        checked={config.chatConfig?.openInNewWindow || false}
+                                                        onChange={(e) => updateNested(['chatConfig', 'openInNewWindow'], e.target.checked)}
+                                                    /> 새 창에서 열기
+                                                </label>
+
+                                                <div className="flex gap-4">
+                                                    <div className="w-20 h-20 bg-gray-100 rounded border flex items-center justify-center overflow-hidden shrink-0 relative hover:bg-gray-200 cursor-pointer"
+                                                        onClick={() => document.getElementById('chat-icon-upload')?.click()}>
+                                                        {config.chatConfig?.iconUrl ? (
+                                                            <img src={config.chatConfig.iconUrl} alt="icon" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <div className="text-center text-gray-400">
+                                                                {config.chatConfig?.type === 'custom' ? <Upload className="w-5 h-5 mx-auto" /> : <span className="text-[10px]">기본 아이콘</span>}
+                                                            </div>
+                                                        )}
+                                                        <input type="file" id="chat-icon-upload" className="hidden" accept="image/*"
+                                                            onChange={(e) => handleImageUpload(e, (url) => updateNested(['chatConfig', 'iconUrl'], url))}
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <label className="block text-[10px] text-gray-500 mb-1">말풍선 라벨 텍스트</label>
+                                                        <input type="text"
+                                                            value={config.chatConfig?.label || ''}
+                                                            onChange={(e) => updateNested(['chatConfig', 'label'], e.target.value)}
+                                                            className="w-full border rounded p-2 text-xs mb-2"
+                                                            placeholder="예: 24시간 상담 가능"
+                                                        />
+                                                        <label className="flex items-center gap-1 text-[10px] text-gray-600">
+                                                            <input type="checkbox"
+                                                                checked={config.chatConfig?.showLabel || false}
+                                                                onChange={(e) => updateNested(['chatConfig', 'showLabel'], e.target.checked)}
+                                                            /> 라벨 표시
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Position */}
+                                            <div className="bg-white border rounded p-3">
+                                                <h4 className="text-xs font-bold text-gray-700 mb-3">위치 및 크기</h4>
+
+                                                <div className="grid grid-cols-2 gap-4 text-xs mb-3">
+                                                    <label className="flex items-center gap-1">
+                                                        <input type="radio"
+                                                            name="chat-pos"
+                                                            checked={config.chatConfig?.position === 'right' || !config.chatConfig?.position}
+                                                            onChange={() => updateNested(['chatConfig', 'position'], 'right')}
+                                                        /> 오른쪽 하단
+                                                    </label>
+                                                    <label className="flex items-center gap-1">
+                                                        <input type="radio"
+                                                            name="chat-pos"
+                                                            checked={config.chatConfig?.position === 'left'}
+                                                            onChange={() => updateNested(['chatConfig', 'position'], 'left')}
+                                                        /> 왼쪽 하단
+                                                    </label>
+                                                </div>
+
+                                                <div className="grid grid-cols-3 gap-2 text-xs">
+                                                    <div>
+                                                        <label className="block text-gray-400 text-[10px]">크기 (Size)</label>
+                                                        <input type="number"
+                                                            value={config.chatConfig?.size || 60}
+                                                            onChange={(e) => updateNested(['chatConfig', 'size'], parseInt(e.target.value))}
+                                                            className="w-full border rounded p-1"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-gray-400 text-[10px]">하단 여백 (Bottom)</label>
+                                                        <input type="number"
+                                                            value={config.chatConfig?.bottom || 20}
+                                                            onChange={(e) => updateNested(['chatConfig', 'bottom'], parseInt(e.target.value))}
+                                                            className="w-full border rounded p-1"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-gray-400 text-[10px]">측면 여백 (Side)</label>
+                                                        <input type="number"
+                                                            value={config.chatConfig?.side || 20}
+                                                            onChange={(e) => updateNested(['chatConfig', 'side'], parseInt(e.target.value))}
+                                                            className="w-full border rounded p-1"
+                                                        />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </>

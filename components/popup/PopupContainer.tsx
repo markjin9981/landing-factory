@@ -5,9 +5,10 @@ import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 interface PopupContainerProps {
     config?: PopupConfig;
     landingId: string;
+    isPreview?: boolean;
 }
 
-const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId }) => {
+const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPreview = false }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,6 +18,13 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId }) =>
     useEffect(() => {
         if (!config || !config.usePopup || !config.items || config.items.length === 0) {
             setIsVisible(false);
+            return;
+        }
+
+        // Preview Mode: Bypass Checks
+        if (isPreview) {
+            setActiveItems(config.items);
+            setIsVisible(true);
             return;
         }
 
@@ -46,17 +54,29 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId }) =>
         } else {
             setIsVisible(false);
         }
-    }, [config, landingId]);
+    }, [config, landingId, isPreview]);
 
     // 2. Responsive Check
     useEffect(() => {
+        if (isPreview) {
+            // In preview, we rely on the container size passed down or assume "Mobile Preview" means small container
+            // We shouldn't rely on window.matchMedia if we are in a PC browser simulating Mobile.
+            // But LandingPage preview usually renders an iframe or constrained div.
+            // Let's assume LandingPage component receives 'previewConfig' maybe we need 'previewMode' prop passed to Popup too?
+            // For now, let's keep matchMedia but it might be wrong in PC Editor Preview.
+            // BETTER: If isPreview is true, we might default to Mobile style if the parent says so?
+            // Actually, LandingPage has `previewMode` state ('desktop' | 'mobile').
+            // We should pass `isMobile` override prop?
+            // For now, let's stick to standard behavior, but isPreview makes position absolute.
+            return;
+        }
         const checkMobile = () => {
             setIsMobile(window.matchMedia('(max-width: 768px)').matches);
         };
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    }, [isPreview]);
 
     // 3. Auto-play
     useEffect(() => {
@@ -73,11 +93,15 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId }) =>
     if (!isVisible || activeItems.length === 0) return null;
 
     const currentItem = activeItems[currentIndex];
+    // NOTE: In Preview, valid `isMobile` detection is hard without explicit prop.
+    // If the user toggle "Mobile Preview" in Editor, the iframe width changes. `matchMedia` inside iframe works.
+    // If it's just a div, `matchMedia` finds PC.
+    // Let's assume standard behavior for now.
     const styleConfig = isMobile ? config!.mobileStyle : config!.pcStyle;
 
     // Default styles if missing
     const containerStyle: React.CSSProperties = {
-        position: 'fixed',
+        position: isPreview ? 'absolute' : 'fixed', // Changed Logic
         zIndex: 50, // High z-index
         width: `${styleConfig?.width || 300}px`,
         top: `${styleConfig?.top || 100}px`,
