@@ -24,19 +24,20 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
             return;
         }
 
-        // Check "Don't show today"
+        // Check "Don't show today" using Local Date
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+
         if (config.showDoNotOpenToday) {
-            const today = new Date().toISOString().split('T')[0];
-            const hiddenKey = `landing_popup_hidden_${landingId}_${today}`;
+            const hiddenKey = `landing_popup_hidden_${landingId}_${todayStr}`;
             if (localStorage.getItem(hiddenKey)) {
                 setIsVisible(false);
                 return;
             }
         }
-
-        // Filter valid items by date
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
 
         const valid = config.items.filter(item => {
             if (item.startDate && item.startDate > todayStr) return false;
@@ -123,8 +124,12 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
     const handleClose = (doNotShowToday: boolean) => {
         setIsVisible(false);
         if (doNotShowToday && config?.showDoNotOpenToday) {
-            const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem(`landing_popup_hidden_${landingId}_${today}`, 'true');
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+            localStorage.setItem(`landing_popup_hidden_${landingId}_${todayStr}`, 'true');
         }
     };
 
