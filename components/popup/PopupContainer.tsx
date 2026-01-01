@@ -103,13 +103,24 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
 
     // Default styles if missing
     const containerStyle: React.CSSProperties = {
-        position: isPreview ? 'absolute' : 'fixed', // Changed Logic
-        zIndex: 50, // High z-index
+        position: isPreview ? 'absolute' : 'fixed',
+        zIndex: isPreview ? 100 : 50, // Higher Z-Index for Preview
         width: `${styleConfig?.width || 300}px`,
         top: `${styleConfig?.top || 100}px`,
         left: `${styleConfig?.left || 50}px`,
         backgroundColor: 'transparent',
     };
+
+    // PREVIEW HELPER: If no items, show a placeholder
+    if (isPreview && (!activeItems || activeItems.length === 0)) {
+        return (
+            <div style={{ ...containerStyle, height: '200px' }} className="bg-gray-100 border-2 border-dashed border-gray-400 flex flex-col items-center justify-center text-gray-500 rounded-lg shadow-xl">
+                <span className="text-2xl mb-2">🚫</span>
+                <p className="text-sm font-bold">팝업 없음</p>
+                <p className="text-xs">팝업 목록에 항목을 추가해주세요.</p>
+            </div>
+        );
+    }
 
     // If mobile and values are not set, center it by default?
     // Or users might want absolute control. Let's assume absolute control from config.
@@ -148,12 +159,19 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
         <div style={containerStyle} className="shadow-2xl rounded-lg overflow-hidden flex flex-col bg-white border border-gray-200">
             {/* Image Area */}
             <div className="relative w-full h-full cursor-pointer group" onClick={handleImageClick}>
-                <img
-                    src={currentItem.imageUrl}
-                    alt="Popup"
-                    className="w-full h-auto object-cover block"
-                    style={{ maxHeight: '80vh' }}
-                />
+                {currentItem.imageUrl ? (
+                    <img
+                        src={currentItem.imageUrl}
+                        alt="Popup"
+                        className="w-full h-auto object-cover block"
+                        style={{ maxHeight: '80vh' }}
+                    />
+                ) : (
+                    <div className="w-full h-40 bg-gray-100 flex flex-col items-center justify-center text-gray-400">
+                        <p className="text-xs">이미지 없음</p>
+                        <p className="text-[10px] text-gray-300">이미지를 업로드하세요</p>
+                    </div>
+                )}
 
                 {/* Navigation Arrows (only if multiple) */}
                 {activeItems.length > 1 && (
