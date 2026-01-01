@@ -577,7 +577,7 @@ const LandingEditor: React.FC = () => {
 
     // Detail Content Logic (Image, YouTube, Map)
     const handleAddDetailContent = (url: string, type: 'image' | 'youtube' | 'map' = 'image') => {
-        if (!url) return;
+        if (!url && type === 'image') return;
         setConfig(prev => ({
             ...prev,
             detailContent: [...prev.detailContent, {
