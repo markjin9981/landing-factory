@@ -354,37 +354,171 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                             );
                                         }
 
-                                        // 5. TIME SELECT (06:00 ~ 24:00, 30min)
+                                        // 5. TIME SELECT (Enhanced: AM/PM, Hour, Minute)
                                         if (field.type === 'time') {
-                                            // Generate slots on the fly or use static
-                                            const timeSlots = [];
-                                            for (let h = 6; h <= 24; h++) {
-                                                const hStr = h < 10 ? `0${h}` : `${h}`;
-                                                timeSlots.push(`${hStr}:00`);
-                                                if (h < 24) timeSlots.push(`${hStr}:30`);
-                                            }
+                                            // Helper to parse time string "오후 02:30" or "14:30" or empty
+                                            const parseTime = (val: string) => {
+                                                if (!val) return { ampm: '오전', hour: '09', minute: '00' };
+                                                // If already localized format
+                                                if (val.includes('오전') || val.includes('오후')) {
+                                                    const parts = val.split(' ');
+                                                    if (parts.length >= 3) { // "오후 02 30" style or "오후 02:30"
+                                                        const timePart = parts[1].includes(':') ? parts[1].split(':') : [parts[1], parts[2]];
+                                                        return { ampm: parts[0], hour: timePart[0], minute: timePart[1] };
+                                                    }
+                                                }
+                                                return { ampm: '오전', hour: '09', minute: '00' };
+                                            };
+
+                                            const current = parseTime(formData[field.id]);
+
+                                            const updateTime = (key: 'ampm' | 'hour' | 'minute', val: string) => {
+                                                const newState = { ...current, [key]: val };
+                                                const formatted = `${newState.ampm} ${newState.hour}:${newState.minute}`;
+                                                setFormData({ ...formData, [field.id]: formatted });
+                                            };
 
                                             return (
-                                                <div className="relative">
+                                                <div className="flex gap-2">
                                                     <select
-                                                        name={field.id}
-                                                        required={field.required}
-                                                        value={formData[field.id] || ''}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all appearance-none bg-white pr-10 text-gray-900"
+                                                        value={current.ampm}
+                                                        onChange={(e) => updateTime('ampm', e.target.value)}
+                                                        className="w-1/3 px-2 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
                                                         style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
                                                     >
-                                                        <option value="" disabled>시간을 선택해주세요</option>
-                                                        {timeSlots.map(time => (
-                                                            <option key={time} value={time}>{time}</option>
+                                                        <option value="오전">오전</option>
+                                                        <option value="오후">오후</option>
+                                                    </select>
+                                                    <select
+                                                        value={current.hour}
+                                                        onChange={(e) => updateTime('hour', e.target.value)}
+                                                        className="w-1/3 px-2 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
+                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                    >
+                                                        {Array.from({ length: 12 }, (_, i) => i + 1).map(h => {
+                                                            const hStr = h < 10 ? `0${h}` : `${h}`;
+                                                            return <option key={h} value={hStr}>{h}시</option>;
+                                                        })}
+                                                    </select>
+                                                    <select
+                                                        value={current.minute}
+                                                        onChange={(e) => updateTime('minute', e.target.value)}
+                                                        className="w-1/3 px-2 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
+                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                    >
+                                                        {['00', '10', '20', '30', '40', '50'].map(m => (
+                                                            <option key={m} value={m}>{m}분</option>
                                                         ))}
                                                     </select>
-                                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                                                 </div>
                                             );
                                         }
 
-                                        // 5. DEFAULT TEXT (Short Text)
+                                        // 6. DATE INPUT
+                                        if (field.type === 'date') {
+                                            return (
+                                                <div className="relative">
+                                                    <input
+                                                        type="date"
+                                                        name={field.id}
+                                                        required={field.required}
+                                                        value={formData[field.id] || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
+                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                    />
+                                                </div>
+                                            );
+                                        }
+
+                                        // 7. EMAIL INPUT
+                                        if (field.type === 'email') {
+                                            return (
+                                                <div className="relative">
+                                                    <input
+                                                        type="email"
+                                                        name={field.id}
+                                                        placeholder={field.placeholder || 'example@email.com'}
+                                                        required={field.required}
+                                                        value={formData[field.id] || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
+                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                    />
+                                                </div>
+                                            );
+                                        }
+
+                                        // 8. ADDRESS INPUT (Daum Postcode)
+                                        if (field.type === 'address') {
+                                            const loadDaumPostcode = () => {
+                                                return new Promise((resolve) => {
+                                                    if ((window as any).daum && (window as any).daum.Postcode) {
+                                                        resolve((window as any).daum.Postcode);
+                                                        return;
+                                                    }
+                                                    const script = document.createElement("script");
+                                                    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+                                                    script.onload = () => resolve((window as any).daum.Postcode);
+                                                    document.head.appendChild(script);
+                                                });
+                                            };
+
+                                            const handleAddressSearch = async () => {
+                                                await loadDaumPostcode();
+                                                new (window as any).daum.Postcode({
+                                                    oncomplete: function (data: any) {
+                                                        const fullAddr = data.roadAddress || data.jibunAddress;
+                                                        const extraAddr = data.bname ? ` (${data.bname})` : '';
+                                                        const finalAddr = `[${data.zonecode}] ${fullAddr}${extraAddr}`;
+
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            [field.id]: finalAddr
+                                                        }));
+
+                                                        // Auto focus detailed address input
+                                                        setTimeout(() => {
+                                                            document.getElementById(`${field.id}_detail`)?.focus();
+                                                        }, 100);
+                                                    }
+                                                }).open();
+                                            };
+
+                                            return (
+                                                <div className="space-y-2">
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            readOnly
+                                                            placeholder="주소를 검색해주세요"
+                                                            value={formData[field.id] || ''}
+                                                            onClick={handleAddressSearch}
+                                                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none cursor-pointer text-gray-900"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleAddressSearch}
+                                                            className="px-4 py-3 bg-gray-800 text-white rounded-lg whitespace-nowrap text-sm font-bold hover:bg-gray-700"
+                                                        >
+                                                            주소 검색
+                                                        </button>
+                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        id={`${field.id}_detail`}
+                                                        name={`${field.id}_detail`}
+                                                        placeholder="상세주소를 입력해주세요"
+                                                        value={formData[`${field.id}_detail`] || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
+                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                    />
+                                                </div>
+                                            );
+                                        }
+
+                                        // 9. DEFAULT TEXT (Short Text)
                                         const currentLen = (formData[field.id] || '').length;
                                         return (
                                             <div className="relative">
