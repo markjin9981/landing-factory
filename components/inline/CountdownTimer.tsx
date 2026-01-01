@@ -11,6 +11,11 @@ interface CountdownTimerProps {
         textColor?: string;
         backgroundColor?: string;
         borderRadius?: string;
+        // V2 Labels
+        labelFontSize?: string;
+        labelColor?: string;
+        labelFontWeight?: string;
+        labelPosition?: 'top' | 'left';
     };
 }
 
@@ -58,6 +63,22 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate, label = "ë§
         backgroundColor: style?.backgroundColor || 'rgba(220, 38, 38, 0.1)', // red-600/10 default
         borderColor: style?.textColor || '#ef4444',
         borderRadius: style?.borderRadius || '0.75rem',
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: style?.labelPosition === 'top' ? 'column' : 'row',
+        alignItems: 'center',
+        justifyContent: 'center', // Center content in both axes
+        gap: style?.labelPosition === 'top' ? '0.5rem' : '1rem',
+    };
+
+    // Label Style
+    const labelStyle: React.CSSProperties = {
+        fontSize: style?.labelFontSize || '0.875rem',
+        color: style?.labelColor || (style?.textColor || '#dc2626'),
+        fontWeight: (style?.labelFontWeight as any) || 'bold',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.25rem'
     };
 
     // Derived text color for numbers
@@ -76,8 +97,12 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate, label = "ë§
     if (!timeLeft) return null;
 
     return (
-        <div style={customContainerStyle} className="flex flex-col items-center justify-center gap-2 p-4 border rounded-xl animate-fade-in shadow-lg backdrop-blur-sm">
-            {label && <div className="font-bold text-sm flex items-center gap-1" style={{ color: style?.textColor || '#dc2626' }}><Clock className="w-3 h-3" /> {label}</div>}
+        <div style={customContainerStyle} className="border rounded-xl animate-fade-in shadow-lg backdrop-blur-sm">
+            {label && (
+                <div style={labelStyle}>
+                    <Clock className="w-3 h-3" /> {label}
+                </div>
+            )}
             <div className={`flex gap-2 font-black tabular-nums tracking-tighter ${fontSizeClass}`} style={numberStyle}>
                 <div className="flex flex-col items-center">
                     <span className="bg-white/80 px-2 py-1 rounded shadow-sm min-w-[2ch] text-center text-gray-900">{String(timeLeft.days).padStart(2, '0')}</span>

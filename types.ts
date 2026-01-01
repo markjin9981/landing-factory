@@ -176,6 +176,7 @@ export interface BannerStyle {
   padding: string;
 }
 
+// V2 UPDATE
 export interface UrgencyConfig {
   // Countdown
   showCountdown: boolean;
@@ -183,21 +184,55 @@ export interface UrgencyConfig {
   countdownLabel?: string;  // "Event ends in:"
   countdownExpiredMessage?: string; // "Event Ended"
 
-  // Timer Customization (New)
+  // Timer Customization V2
   timerStyle?: {
     fontSize?: string; // 'sm', 'md', 'lg', 'xl'
     textColor?: string;
     backgroundColor?: string;
     borderRadius?: string;
+
+    // V2: Label Styling
+    labelFontSize?: string;
+    labelColor?: string;
+    labelFontWeight?: string;
+    labelPosition?: 'top' | 'left';
   };
 
-  // Ticker
+  // Ticker (Legacy)
   showTicker: boolean;
   tickerMessage?: string;   // "{name} verified"
+  tickerType?: 'horizontal' | 'vertical_list';
 
-  // Ticker Advanced (New)
-  tickerType?: 'horizontal' | 'vertical_list'; // Default 'horizontal'
-  listTitle?: string; // Header for vertical list
+  // Ticker Configuration V2
+  tickerConfig?: {
+    mode: 'horizontal' | 'vertical_list';
+    scrollMode?: 'continuous' | 'random_step';
+    scrollSpeed?: number; // for continuous
+    randomRange?: [number, number]; // for random_step [min, max] seconds
+
+    containerStyle?: {
+      height?: string;
+      backgroundColor?: string;
+      borderColor?: string;
+      borderRadius?: string;
+    };
+
+    listTitle?: string;
+    columns: {
+      id: string; // unique
+      label: string;
+      type: 'name' | 'phone' | 'debt' | 'text' | 'gender' | 'custom';
+      isEnabled: boolean;
+      masking: boolean;
+    }[];
+
+    fakeDataRules?: {
+      debtRange?: [number, number]; // [min, max] in 'man-won'
+    };
+  };
+
+  // Legacy flat fields (Deprecated)
+  listTitle?: string;
   listColumns?: {
     label: string;
     type: 'name' | 'phone' | 'gender' | 'weight' | 'text';
@@ -205,6 +240,7 @@ export interface UrgencyConfig {
   }[];
   scrollSpeed?: number;
 }
+
 
 export interface DetailContent {
   id: string;

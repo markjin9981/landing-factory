@@ -70,11 +70,15 @@ const BannerBlock: React.FC<BannerBlockProps> = ({ data }) => {
 
                         {urgencyConfig.showTicker && (
                             <>
-                                {urgencyConfig.tickerType === 'vertical_list' ? (
+                                {(urgencyConfig.tickerConfig?.mode === 'vertical_list' || urgencyConfig.tickerType === 'vertical_list') ? (
                                     <ApplicantList
-                                        title={urgencyConfig.listTitle}
-                                        columns={urgencyConfig.listColumns || []}
-                                        speed={urgencyConfig.scrollSpeed}
+                                        title={urgencyConfig.tickerConfig?.listTitle || urgencyConfig.listTitle}
+                                        columns={urgencyConfig.tickerConfig?.columns || (urgencyConfig.listColumns as any) || []}
+                                        config={{
+                                            ...urgencyConfig.tickerConfig,
+                                            // Fallback for legacy global speed if not in config
+                                            scrollSpeed: urgencyConfig.tickerConfig?.scrollSpeed || urgencyConfig.scrollSpeed
+                                        }}
                                     />
                                 ) : (
                                     <ApplicantTicker
