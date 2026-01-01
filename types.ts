@@ -278,6 +278,9 @@ export interface LandingConfig {
   ogTitle?: string;       // Custom SNS Title
   ogDescription?: string; // Custom SNS Description
 
+  // Popup
+  popupConfig?: PopupConfig;
+
   keywords?: string;      // New: Meta Keywords for SEO
 
   // New: Search Engine Verification
@@ -322,4 +325,53 @@ export interface VisitData {
   OS: string;
   Browser: string;
   Referrer: string;
+}
+
+// Popup Interfaces
+export interface PopupItem {
+  id: string;
+  imageUrl: string;
+  linkUrl?: string;
+  openInNewWindow: boolean;
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string;   // YYYY-MM-DD
+}
+
+export interface PopupStyleConfig {
+  width: number; // px for PC, % for Mobile often used, but let's stick to number (px) or string
+  top: number; // px from top
+  left: number; // px from left (or center calculation)
+  // For mobile, maybe we just want "center" or specific offsets?
+  // Let's use simple px/percentage numbers stored as strings or numbers. 
+  // To be precise:
+  widthUnit: 'px' | '%';
+  topUnit: 'px' | '%';
+  leftUnit: 'px' | '%';
+}
+
+export interface PopupConfig {
+  usePopup: boolean;
+  items: PopupItem[];
+
+  // Slider/Playback
+  slideEffect: boolean;
+  autoPlay: boolean;
+  autoPlayInterval: number; // seconds
+
+  // Styles (Container Level)
+  pcStyle: {
+    width: number;
+    top: number;
+    left: number;
+  };
+  mobileStyle: {
+    width: number; // usually percentage for mobile
+    top: number;
+    left: number;
+  };
+
+  // Options
+  showDoNotOpenToday: boolean;
+  closeButtonColor?: string;
+  disableOverlay?: boolean; // If true, no dimming background (usually modal vs modeless)
 }

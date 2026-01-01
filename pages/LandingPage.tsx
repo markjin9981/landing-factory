@@ -8,6 +8,7 @@ import { Check, Star, Shield, Clock, ThumbsUp, ArrowRight } from 'lucide-react';
 import { logVisit, fetchLandingConfigById } from '../services/googleSheetService';
 import KakaoMap from '../components/KakaoMap';
 import BannerBlock from '../components/inline/BannerBlock';
+import PopupContainer from '../components/popup/PopupContainer';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
@@ -639,6 +640,8 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
         </div>
       )}
 
+      {/* Render Popup Container */}
+      {config.popupConfig && <PopupContainer config={config.popupConfig} landingId={config.id} />}
     </div>
   );
 };

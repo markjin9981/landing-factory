@@ -713,6 +713,7 @@ const LandingEditor: React.FC = () => {
                             { id: 'images', label: '상세', icon: <ImageIcon className="w-4 h-4" /> },
                             { id: 'form', label: '입력폼', icon: <CheckSquare className="w-4 h-4" /> },
                             { id: 'text', label: '텍스트', icon: <AlignLeft className="w-4 h-4" /> },
+                            { id: 'popup', label: '팝업', icon: <Megaphone className="w-4 h-4" /> },
                             { id: 'footer', label: '하단', icon: <Anchor className="w-4 h-4" /> },
                             { id: 'seo', label: '검색엔진', icon: <Globe className="w-4 h-4" /> },
                         ].map(tab => (
@@ -732,6 +733,256 @@ const LandingEditor: React.FC = () => {
 
                     {/* Editor Content */}
                     <div className="flex-1 overflow-y-auto p-5 space-y-6">
+
+
+                        {/* ... POPUP TAB ... */}
+                        {activeTab === 'popup' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">팝업 관리</h3>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <span className="text-xs font-bold text-gray-700">팝업 사용</span>
+                                        <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                            <input type="checkbox" name="toggle" id="popup-toggle" className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                checked={config.popupConfig?.usePopup || false}
+                                                onChange={(e) => updateNested(['popupConfig', 'usePopup'], e.target.checked)}
+                                            />
+                                            <label htmlFor="popup-toggle" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${config.popupConfig?.usePopup ? 'bg-blue-600' : 'bg-gray-300'}`}></label>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                {config.popupConfig?.usePopup && (
+                                    <>
+                                        {/* Global Config */}
+                                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+                                            <h4 className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                                                <Layout className="w-3 h-3" /> 공통 설정
+                                            </h4>
+
+                                            {/* Slider Config */}
+                                            <div className="flex gap-4 border-b border-gray-200 pb-3">
+                                                <label className="flex items-center gap-1 text-xs text-gray-600">
+                                                    <input type="checkbox"
+                                                        checked={config.popupConfig?.autoPlay || false}
+                                                        onChange={(e) => updateNested(['popupConfig', 'autoPlay'], e.target.checked)}
+                                                    /> 자동 재생
+                                                </label>
+                                                {config.popupConfig?.autoPlay && (
+                                                    <label className="flex items-center gap-1 text-xs text-gray-600">
+                                                        간격:
+                                                        <input type="number"
+                                                            value={config.popupConfig?.autoPlayInterval || 3}
+                                                            onChange={(e) => updateNested(['popupConfig', 'autoPlayInterval'], parseInt(e.target.value))}
+                                                            className="w-12 border rounded p-0.5 text-center"
+                                                        />초
+                                                    </label>
+                                                )}
+                                                <label className="flex items-center gap-1 text-xs text-gray-600">
+                                                    <input type="checkbox"
+                                                        checked={config.popupConfig?.showDoNotOpenToday || false}
+                                                        onChange={(e) => updateNested(['popupConfig', 'showDoNotOpenToday'], e.target.checked)}
+                                                    /> '오늘 하루 안 보기' 표시
+                                                </label>
+                                            </div>
+
+                                            {/* Positioning Config */}
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="bg-white p-3 rounded border border-gray-100">
+                                                    <div className="flex items-center gap-1 mb-2 text-blue-600">
+                                                        <Monitor className="w-3 h-3" />
+                                                        <span className="text-xs font-bold">PC 위치/크기 (px)</span>
+                                                    </div>
+                                                    <div className="grid grid-cols-3 gap-2 text-xs">
+                                                        <div>
+                                                            <label className="block text-gray-400 text-[10px]">너비</label>
+                                                            <input type="number"
+                                                                className="w-full border rounded p-1"
+                                                                value={config.popupConfig?.pcStyle?.width || 400}
+                                                                onChange={(e) => updateNested(['popupConfig', 'pcStyle', 'width'], parseInt(e.target.value))}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-gray-400 text-[10px]">Top</label>
+                                                            <input type="number"
+                                                                className="w-full border rounded p-1"
+                                                                value={config.popupConfig?.pcStyle?.top || 100}
+                                                                onChange={(e) => updateNested(['popupConfig', 'pcStyle', 'top'], parseInt(e.target.value))}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-gray-400 text-[10px]">Left</label>
+                                                            <input type="number"
+                                                                className="w-full border rounded p-1"
+                                                                value={config.popupConfig?.pcStyle?.left || 50}
+                                                                onChange={(e) => updateNested(['popupConfig', 'pcStyle', 'left'], parseInt(e.target.value))}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="bg-white p-3 rounded border border-gray-100">
+                                                    <div className="flex items-center gap-1 mb-2 text-green-600">
+                                                        <Smartphone className="w-3 h-3" />
+                                                        <span className="text-xs font-bold">모바일 위치/크기 (px)</span>
+                                                    </div>
+                                                    <div className="grid grid-cols-3 gap-2 text-xs">
+                                                        <div>
+                                                            <label className="block text-gray-400 text-[10px]">너비</label>
+                                                            <input type="number"
+                                                                className="w-full border rounded p-1"
+                                                                value={config.popupConfig?.mobileStyle?.width || 300}
+                                                                onChange={(e) => updateNested(['popupConfig', 'mobileStyle', 'width'], parseInt(e.target.value))}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-gray-400 text-[10px]">Top</label>
+                                                            <input type="number"
+                                                                className="w-full border rounded p-1"
+                                                                value={config.popupConfig?.mobileStyle?.top || 80}
+                                                                onChange={(e) => updateNested(['popupConfig', 'mobileStyle', 'top'], parseInt(e.target.value))}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-gray-400 text-[10px]">Left</label>
+                                                            <input type="number"
+                                                                className="w-full border rounded p-1"
+                                                                value={config.popupConfig?.mobileStyle?.left || 20}
+                                                                onChange={(e) => updateNested(['popupConfig', 'mobileStyle', 'left'], parseInt(e.target.value))}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Popup Items */}
+                                        <div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h4 className="text-xs font-bold text-gray-700">팝업 목록 ({config.popupConfig?.items?.length || 0}/5)</h4>
+                                                <button
+                                                    onClick={() => {
+                                                        const currentItems = config.popupConfig?.items || [];
+                                                        if (currentItems.length >= 5) {
+                                                            alert('최대 5개까지만 추가 가능합니다.');
+                                                            return;
+                                                        }
+                                                        updateNested(['popupConfig', 'items'], [
+                                                            ...currentItems,
+                                                            { id: crypto.randomUUID(), imageUrl: '', openInNewWindow: false }
+                                                        ]);
+                                                    }}
+                                                    className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-1 rounded text-xs hover:bg-blue-100 font-bold"
+                                                >
+                                                    <PlusCircle className="w-3 h-3" /> 추가
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                {config.popupConfig?.items?.map((item, idx) => (
+                                                    <div key={item.id} className="bg-white border border-gray-200 rounded p-3 relative group">
+                                                        <button
+                                                            onClick={() => {
+                                                                const newItems = config.popupConfig!.items!.filter((_, i) => i !== idx);
+                                                                updateNested(['popupConfig', 'items'], newItems);
+                                                            }}
+                                                            className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+
+                                                        <div className="flex gap-3">
+                                                            {/* Image Preview / Upload */}
+                                                            <div className="w-20 h-20 shrink-0 bg-gray-100 rounded border flex items-center justify-center overflow-hidden cursor-pointer hover:bg-gray-200 relative"
+                                                                onClick={() => document.getElementById(`popup-upload-${item.id}`)?.click()}
+                                                            >
+                                                                {item.imageUrl ? (
+                                                                    <img src={item.imageUrl} alt="Popup" className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <div className="text-center text-gray-400">
+                                                                        <Upload className="w-5 h-5 mx-auto mb-1" />
+                                                                        <span className="text-[9px]">업로드</span>
+                                                                    </div>
+                                                                )}
+                                                                <input
+                                                                    type="file"
+                                                                    id={`popup-upload-${item.id}`}
+                                                                    className="hidden"
+                                                                    accept="image/*"
+                                                                    onChange={(e) => handleImageUpload(e, (url) => {
+                                                                        const newItems = [...config.popupConfig!.items!];
+                                                                        newItems[idx] = { ...newItems[idx], imageUrl: url };
+                                                                        updateNested(['popupConfig', 'items'], newItems);
+                                                                    })}
+                                                                />
+                                                            </div>
+
+                                                            {/* Infos */}
+                                                            <div className="flex-1 space-y-2">
+                                                                <div>
+                                                                    <label className="block text-[10px] text-gray-500">연결 링크 URL</label>
+                                                                    <input type="text"
+                                                                        className="w-full border rounded p-1 text-xs"
+                                                                        placeholder="https://..."
+                                                                        value={item.linkUrl || ''}
+                                                                        onChange={(e) => {
+                                                                            const newItems = [...config.popupConfig!.items!];
+                                                                            newItems[idx] = { ...newItems[idx], linkUrl: e.target.value };
+                                                                            updateNested(['popupConfig', 'items'], newItems);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <div className="flex-1">
+                                                                        <label className="block text-[10px] text-gray-500">게시 시작일</label>
+                                                                        <input type="date"
+                                                                            className="w-full border rounded p-1 text-xs"
+                                                                            value={item.startDate || ''}
+                                                                            onChange={(e) => {
+                                                                                const newItems = [...config.popupConfig!.items!];
+                                                                                newItems[idx] = { ...newItems[idx], startDate: e.target.value };
+                                                                                updateNested(['popupConfig', 'items'], newItems);
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                    <div className="flex-1">
+                                                                        <label className="block text-[10px] text-gray-500">게시 종료일</label>
+                                                                        <input type="date"
+                                                                            className="w-full border rounded p-1 text-xs"
+                                                                            value={item.endDate || ''}
+                                                                            onChange={(e) => {
+                                                                                const newItems = [...config.popupConfig!.items!];
+                                                                                newItems[idx] = { ...newItems[idx], endDate: e.target.value };
+                                                                                updateNested(['popupConfig', 'items'], newItems);
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <label className="flex items-center gap-1 text-[10px] text-gray-600">
+                                                                    <input type="checkbox"
+                                                                        checked={item.openInNewWindow || false}
+                                                                        onChange={(e) => {
+                                                                            const newItems = [...config.popupConfig!.items!];
+                                                                            newItems[idx] = { ...newItems[idx], openInNewWindow: e.target.checked };
+                                                                            updateNested(['popupConfig', 'items'], newItems);
+                                                                        }}
+                                                                    /> 새 창에서 열기
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {(!config.popupConfig?.items || config.popupConfig.items.length === 0) && (
+                                                    <div className="text-center py-6 text-gray-400 text-xs bg-gray-50 rounded border border-dashed">
+                                                        등록된 팝업이 없습니다.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
 
                         {/* ... BASIC TAB ... */}
                         {activeTab === 'basic' && (

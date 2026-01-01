@@ -1,0 +1,185 @@
+import React, { useState, useEffect } from 'react';
+import { PopupConfig, PopupItem } from '../../types';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+
+interface PopupContainerProps {
+    config?: PopupConfig;
+    landingId: string;
+}
+
+const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [activeItems, setActiveItems] = useState<PopupItem[]>([]);
+
+    // 1. Check Visibility & Active Items
+    useEffect(() => {
+        if (!config || !config.usePopup || !config.items || config.items.length === 0) {
+            setIsVisible(false);
+            return;
+        }
+
+        // Check "Don't show today"
+        if (config.showDoNotOpenToday) {
+            const today = new Date().toISOString().split('T')[0];
+            const hiddenKey = `landing_popup_hidden_${landingId}_${today}`;
+            if (localStorage.getItem(hiddenKey)) {
+                setIsVisible(false);
+                return;
+            }
+        }
+
+        // Filter valid items by date
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+
+        const valid = config.items.filter(item => {
+            if (item.startDate && item.startDate > todayStr) return false;
+            if (item.endDate && item.endDate < todayStr) return false;
+            return true;
+        });
+
+        if (valid.length > 0) {
+            setActiveItems(valid);
+            setIsVisible(true);
+        } else {
+            setIsVisible(false);
+        }
+    }, [config, landingId]);
+
+    // 2. Responsive Check
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // 3. Auto-play
+    useEffect(() => {
+        if (!isVisible || !config?.autoPlay || activeItems.length <= 1) return;
+
+        const intervalMs = (config.autoPlayInterval || 3) * 1000;
+        const timer = setInterval(() => {
+            setCurrentIndex(prev => (prev + 1) % activeItems.length);
+        }, intervalMs);
+
+        return () => clearInterval(timer);
+    }, [isVisible, config?.autoPlay, config?.autoPlayInterval, activeItems.length]);
+
+    if (!isVisible || activeItems.length === 0) return null;
+
+    const currentItem = activeItems[currentIndex];
+    const styleConfig = isMobile ? config!.mobileStyle : config!.pcStyle;
+
+    // Default styles if missing
+    const containerStyle: React.CSSProperties = {
+        position: 'fixed',
+        zIndex: 50, // High z-index
+        width: `${styleConfig?.width || 300}px`,
+        top: `${styleConfig?.top || 100}px`,
+        left: `${styleConfig?.left || 50}px`,
+        backgroundColor: 'transparent',
+    };
+
+    // If mobile and values are not set, center it by default?
+    // Or users might want absolute control. Let's assume absolute control from config.
+    // However, if left is -1 (example of uninitialized), we might default.
+    // Let's stick to config values.
+
+    const handleClose = (doNotShowToday: boolean) => {
+        setIsVisible(false);
+        if (doNotShowToday && config?.showDoNotOpenToday) {
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem(`landing_popup_hidden_${landingId}_${today}`, 'true');
+        }
+    };
+
+    const handleImageClick = () => {
+        if (currentItem.linkUrl) {
+            if (currentItem.openInNewWindow) {
+                window.open(currentItem.linkUrl, '_blank');
+            } else {
+                window.location.href = currentItem.linkUrl;
+            }
+        }
+    };
+
+    const nextSlide = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setCurrentIndex(prev => (prev + 1) % activeItems.length);
+    };
+
+    const prevSlide = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setCurrentIndex(prev => (prev - 1 + activeItems.length) % activeItems.length);
+    };
+
+    return (
+        <div style={containerStyle} className="shadow-2xl rounded-lg overflow-hidden flex flex-col bg-white border border-gray-200">
+            {/* Image Area */}
+            <div className="relative w-full h-full cursor-pointer group" onClick={handleImageClick}>
+                <img
+                    src={currentItem.imageUrl}
+                    alt="Popup"
+                    className="w-full h-auto object-cover block"
+                    style={{ maxHeight: '80vh' }}
+                />
+
+                {/* Navigation Arrows (only if multiple) */}
+                {activeItems.length > 1 && (
+                    <>
+                        <button
+                            onClick={prevSlide}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <button
+                            onClick={nextSlide}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                        {/* Dots */}
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                            {activeItems.map((_, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`w-1.5 h-1.5 rounded-full ${idx === currentIndex ? 'bg-white' : 'bg-white/50'}`}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* Footer Control Area */}
+            <div className="bg-gray-900 text-white text-xs py-2 px-3 flex justify-between items-center">
+                {config?.showDoNotOpenToday ? (
+                    <label className="flex items-center gap-1 cursor-pointer hover:text-gray-200">
+                        <input type="checkbox" onChange={(e) => {
+                            if (e.target.checked) handleClose(true);
+                        }} />
+                        오늘 하루 보지 않기
+                    </label>
+                ) : (
+                    <span /> /* Spacer */
+                )}
+
+                <button
+                    onClick={() => handleClose(false)}
+                    className="font-bold border-b border-transparent hover:border-white transition-colors"
+                >
+                    <X className="w-4 h-4 inline-block mr-1" />
+                    닫기
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default PopupContainer;
