@@ -21,7 +21,8 @@ export interface LandingTheme {
   primaryColor: string; // Hex code or Tailwind color class prefix (handled via inline styles or template literals)
   secondaryColor: string;
   fontFamily?: string;
-  fontConfig?: FontConfig; // New: Google Font System
+  fontConfig?: FontConfig; // Global/Primary
+  customFonts?: CustomFont[]; // New: User-added fonts
 }
 
 // Typography Style Interface
@@ -30,12 +31,22 @@ export interface FontConfig {
   secondaryFont?: string; // Optional header font
   source: 'google' | 'local'; // 'google' usually
 }
+
+export interface CustomFont {
+  id: string; // UUID
+  name: string; // Display Name
+  family: string; // CSS Font Family name
+  source: 'google' | 'file';
+  url: string; // Google Font Name or File URL
+}
+
 export interface TextStyle {
   fontSize?: string; // px or rem
   fontWeight?: string; // '400', '700'
   color?: string;
   textAlign?: 'left' | 'center' | 'right';
   letterSpacing?: string;
+  fontFamily?: string; // New: Granular control
 }
 
 // Button Style Interface

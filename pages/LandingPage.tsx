@@ -12,6 +12,7 @@ import PopupContainer from '../components/popup/PopupContainer';
 import ChatButton from '../components/floating/ChatButton';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
+import { generateGoogleFontUrl } from '../utils/fontUtils';
 
 interface Props {
   previewConfig?: LandingConfig; // Optional prop for Live Preview
@@ -422,6 +423,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
     color: style?.color || defaults?.color,
     textAlign: style?.textAlign || defaults?.textAlign,
     letterSpacing: style?.letterSpacing || defaults?.letterSpacing,
+    fontFamily: style?.fontFamily || defaults?.fontFamily,
   });
 
   return (
