@@ -486,12 +486,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
           </section>
         )}
 
-        {/* Detail Content Section */}
-        {detailContent && detailContent.length > 0 && (
-          <section className="w-full bg-white max-w-4xl mx-auto flex flex-col items-center">
-            {detailContent.map((item, idx) => renderDetailContent(item, idx))}
-          </section>
-        )}
+
 
         {/* 2. Problem Section */}
         {problem.title && (
