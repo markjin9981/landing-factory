@@ -1337,109 +1337,239 @@ const LandingEditor: React.FC = () => {
                                                                 )}
                                                             </div>
 
-                                                            {/* Ticker */}
+                                                            {/* Ticker V2 */}
                                                             <div className="bg-white border p-2 rounded">
                                                                 <label className="flex items-center gap-2 mb-2 cursor-pointer select-none">
                                                                     <input
                                                                         type="checkbox"
                                                                         checked={item.urgencyConfig.showTicker}
-                                                                        onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, showTicker: e.target.checked } })}
+                                                                        onChange={(e) => {
+                                                                            const isChecked = e.target.checked;
+                                                                            // Initialize V2 config if missing
+                                                                            const currentConfig = item.urgencyConfig.tickerConfig || {
+                                                                                mode: 'horizontal',
+                                                                                scrollMode: 'continuous',
+                                                                                columns: [
+                                                                                    { id: 'c1', label: '이름', type: 'name', isEnabled: true, masking: true },
+                                                                                    { id: 'c2', label: '전화번호', type: 'phone', isEnabled: true, masking: true },
+                                                                                    { id: 'c3', label: '채무금액', type: 'debt', isEnabled: true, masking: false },
+                                                                                    { id: 'c4', label: '성별', type: 'gender', isEnabled: false, masking: true },
+                                                                                    { id: 'c5', label: '상담상태', type: 'text', isEnabled: false, masking: false },
+                                                                                ]
+                                                                            };
+                                                                            updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, showTicker: isChecked, tickerConfig: currentConfig } as any });
+                                                                        }}
                                                                     />
                                                                     <span className="font-bold text-gray-700 text-xs">가상 실시간 신청 알림 (Ticker)</span>
                                                                 </label>
+
                                                                 {item.urgencyConfig.showTicker && (
                                                                     <div className="pl-5 animate-fade-in space-y-3">
+                                                                        {/* Mode Selection */}
                                                                         <div>
                                                                             <label className="block text-[10px] text-gray-500 mb-1">표시 방식</label>
                                                                             <div className="flex gap-2">
                                                                                 <button
-                                                                                    onClick={() => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerType: 'horizontal' } })}
-                                                                                    className={`px-3 py-1 rounded text-xs border ${(!item.urgencyConfig?.tickerType || item.urgencyConfig.tickerType === 'horizontal') ? 'bg-blue-50 border-blue-200 text-blue-600 font-bold' : 'bg-white border-gray-200 text-gray-500'}`}
+                                                                                    onClick={() => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerType: 'horizontal', tickerConfig: { ...item.urgencyConfig.tickerConfig!, mode: 'horizontal' } } as any })}
+                                                                                    className={`px-3 py-1 rounded text-xs border ${(!item.urgencyConfig?.tickerConfig?.mode || item.urgencyConfig.tickerConfig.mode === 'horizontal') ? 'bg-blue-50 border-blue-200 text-blue-600 font-bold' : 'bg-white border-gray-200 text-gray-500'}`}
                                                                                 >
                                                                                     가로 흐르기 (기본)
                                                                                 </button>
                                                                                 <button
-                                                                                    onClick={() => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerType: 'vertical_list' } })}
-                                                                                    className={`px-3 py-1 rounded text-xs border ${item.urgencyConfig?.tickerType === 'vertical_list' ? 'bg-blue-50 border-blue-200 text-blue-600 font-bold' : 'bg-white border-gray-200 text-gray-500'}`}
+                                                                                    onClick={() => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerType: 'vertical_list', tickerConfig: { ...item.urgencyConfig.tickerConfig!, mode: 'vertical_list' } } as any })}
+                                                                                    className={`px-3 py-1 rounded text-xs border ${item.urgencyConfig.tickerConfig?.mode === 'vertical_list' ? 'bg-blue-50 border-blue-200 text-blue-600 font-bold' : 'bg-white border-gray-200 text-gray-500'}`}
                                                                                 >
                                                                                     세로 리스트 (표)
                                                                                 </button>
                                                                             </div>
                                                                         </div>
 
-                                                                        {item.urgencyConfig?.tickerType === 'vertical_list' ? (
-                                                                            <div className="bg-gray-50 p-2 rounded border border-gray-100 space-y-2">
-                                                                                <div>
-                                                                                    <label className="block text-[10px] text-gray-500">리스트 제목</label>
-                                                                                    <input
-                                                                                        type="text"
-                                                                                        value={item.urgencyConfig.listTitle || '다이어트 참여 신청자'}
-                                                                                        onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listTitle: e.target.value } })}
-                                                                                        className="w-full border p-1 rounded text-xs"
-                                                                                    />
+                                                                        {/* Horizontal Config */}
+                                                                        {(!item.urgencyConfig.tickerConfig?.mode || item.urgencyConfig.tickerConfig.mode === 'horizontal') && (
+                                                                            <div>
+                                                                                <label className="block text-[10px] text-gray-500 mb-1">메시지 템플릿</label>
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={item.urgencyConfig.tickerMessage || '{name}님이 상담을 신청했습니다.'}
+                                                                                    onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerMessage: e.target.value } })}
+                                                                                    className="w-full border p-1 rounded text-xs"
+                                                                                    placeholder="{name}, {phone}, {city} 사용 가능"
+                                                                                />
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Vertical List Config (V2) */}
+                                                                        {item.urgencyConfig.tickerConfig?.mode === 'vertical_list' && (
+                                                                            <div className="bg-gray-50 p-2 rounded border border-gray-100 space-y-3">
+                                                                                {/* 1. Header & Box Style */}
+                                                                                <div className="grid grid-cols-2 gap-2">
+                                                                                    <div>
+                                                                                        <label className="block text-[10px] text-gray-500">리스트 제목</label>
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            value={item.urgencyConfig.tickerConfig?.listTitle || ''}
+                                                                                            onChange={(e) => {
+                                                                                                const newConf = { ...item.urgencyConfig.tickerConfig!, listTitle: e.target.value };
+                                                                                                updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: newConf } as any });
+                                                                                            }}
+                                                                                            placeholder="실시간 접수 현황"
+                                                                                            className="w-full border p-1 rounded text-xs"
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <label className="block text-[10px] text-gray-500">박스 높이</label>
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            value={item.urgencyConfig.tickerConfig?.containerStyle?.height || '200px'}
+                                                                                            onChange={(e) => {
+                                                                                                const newConf = { ...item.urgencyConfig.tickerConfig!, containerStyle: { ...item.urgencyConfig.tickerConfig!.containerStyle, height: e.target.value } };
+                                                                                                updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: newConf } as any });
+                                                                                            }}
+                                                                                            className="w-full border p-1 rounded text-xs"
+                                                                                            placeholder="예: 200px"
+                                                                                        />
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div>
-                                                                                    <label className="block text-[10px] text-gray-500 mb-1">속도 (초)</label>
-                                                                                    <input
-                                                                                        type="range"
-                                                                                        min="5"
-                                                                                        max="60"
-                                                                                        step="1"
-                                                                                        value={item.urgencyConfig.scrollSpeed || 20}
-                                                                                        onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, scrollSpeed: parseInt(e.target.value) } })}
-                                                                                        className="w-full"
-                                                                                    />
+
+                                                                                <div className="flex gap-2 items-center">
+                                                                                    <div className="flex-1">
+                                                                                        <label className="block text-[10px] text-gray-500">배경 색상</label>
+                                                                                        <div className="flex gap-1">
+                                                                                            <input type="color" className="w-6 h-6 p-0 border-0"
+                                                                                                value={item.urgencyConfig.tickerConfig?.containerStyle?.backgroundColor || '#ffffff'}
+                                                                                                onChange={(e) => {
+                                                                                                    const newConf = { ...item.urgencyConfig.tickerConfig!, containerStyle: { ...item.urgencyConfig.tickerConfig!.containerStyle, backgroundColor: e.target.value } };
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: newConf } as any });
+                                                                                                }}
+                                                                                            />
+                                                                                            <input type="text" className="flex-1 border p-1 text-[10px]"
+                                                                                                value={item.urgencyConfig.tickerConfig?.containerStyle?.backgroundColor || ''}
+                                                                                                onChange={(e) => {
+                                                                                                    const newConf = { ...item.urgencyConfig.tickerConfig!, containerStyle: { ...item.urgencyConfig.tickerConfig!.containerStyle, backgroundColor: e.target.value } };
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: newConf } as any });
+                                                                                                }}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div className="flex-1">
+                                                                                        <label className="block text-[10px] text-gray-500">테두리 색상</label>
+                                                                                        <div className="flex gap-1">
+                                                                                            <input type="color" className="w-6 h-6 p-0 border-0"
+                                                                                                value={item.urgencyConfig.tickerConfig?.containerStyle?.borderColor || '#2563eb'}
+                                                                                                onChange={(e) => {
+                                                                                                    const newConf = { ...item.urgencyConfig.tickerConfig!, containerStyle: { ...item.urgencyConfig.tickerConfig!.containerStyle, borderColor: e.target.value } };
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: newConf } as any });
+                                                                                                }}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
                                                                                 </div>
+
+                                                                                {/* 2. Scroll Animation Mode */}
                                                                                 <div>
-                                                                                    <label className="block text-[10px] text-gray-500 mb-1">컬럼 설정</label>
+                                                                                    <label className="block text-[10px] text-gray-500 mb-1">스크롤 방식</label>
+                                                                                    <div className="flex gap-4 text-xs">
+                                                                                        <label className="flex items-center gap-1">
+                                                                                            <input type="radio"
+                                                                                                checked={item.urgencyConfig.tickerConfig?.scrollMode !== 'random_step'}
+                                                                                                onChange={() => {
+                                                                                                    const newConf = { ...item.urgencyConfig.tickerConfig!, scrollMode: 'continuous' };
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: newConf } as any });
+                                                                                                }}
+                                                                                            /> 일정하게 (부드럽게)
+                                                                                        </label>
+                                                                                        <label className="flex items-center gap-1">
+                                                                                            <input type="radio"
+                                                                                                checked={item.urgencyConfig.tickerConfig?.scrollMode === 'random_step'}
+                                                                                                onChange={() => {
+                                                                                                    const newConf = { ...item.urgencyConfig.tickerConfig!, scrollMode: 'random_step', randomRange: [1, 5] };
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: newConf } as any });
+                                                                                                }}
+                                                                                            /> 불규칙적 (자연스럽게, 1~5초)
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                {/* 3. Column Configuration */}
+                                                                                <div>
+                                                                                    <label className="block text-[10px] font-bold text-gray-600 mb-2">
+                                                                                        표시할 컬럼 (최대 5개 체크)
+                                                                                    </label>
                                                                                     <div className="space-y-1">
-                                                                                        {(item.urgencyConfig.listColumns || [{ label: '이름', type: 'name', masking: true }, { label: '성별', type: 'gender', masking: true }, { label: '몸무게', type: 'weight', masking: true }]).map((col, colIdx) => (
-                                                                                            <div key={colIdx} className="flex gap-1 items-center">
+                                                                                        {item.urgencyConfig.tickerConfig?.columns.map((col, colIdx) => (
+                                                                                            <div key={col.id} className={`flex items-center gap-2 p-1 rounded ${col.isEnabled ? 'bg-blue-50 border border-blue-100' : 'opacity-60'}`}>
+                                                                                                <input
+                                                                                                    type="checkbox"
+                                                                                                    checked={col.isEnabled}
+                                                                                                    onChange={(e) => {
+                                                                                                        // Max 5 limiter
+                                                                                                        const enabledCount = item.urgencyConfig.tickerConfig!.columns.filter(c => c.isEnabled).length;
+                                                                                                        if (e.target.checked && enabledCount >= 5) {
+                                                                                                            alert('최대 5개까지만 선택 가능합니다.');
+                                                                                                            return;
+                                                                                                        }
+                                                                                                        const newCols = [...item.urgencyConfig.tickerConfig!.columns];
+                                                                                                        newCols[colIdx] = { ...col, isEnabled: e.target.checked };
+                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, columns: newCols } } as any });
+                                                                                                    }}
+                                                                                                />
                                                                                                 <input
                                                                                                     type="text"
                                                                                                     value={col.label}
                                                                                                     onChange={(e) => {
-                                                                                                        const newCols = [...(item.urgencyConfig?.listColumns || [{ label: '이름', type: 'name', masking: true }, { label: '성별', type: 'gender', masking: true }, { label: '몸무게', type: 'weight', masking: true }])];
-                                                                                                        newCols[colIdx] = { ...newCols[colIdx], label: e.target.value };
-                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listColumns: newCols } });
+                                                                                                        const newCols = [...item.urgencyConfig.tickerConfig!.columns];
+                                                                                                        newCols[colIdx] = { ...col, label: e.target.value };
+                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, columns: newCols } } as any });
                                                                                                     }}
-                                                                                                    className="flex-1 border p-1 rounded text-xs"
-                                                                                                    placeholder="컬럼명"
+                                                                                                    className="flex-1 text-xs border-b bg-transparent"
                                                                                                 />
-                                                                                                <select
-                                                                                                    value={col.type}
-                                                                                                    onChange={(e) => {
-                                                                                                        const newCols = [...(item.urgencyConfig?.listColumns || [{ label: '이름', type: 'name', masking: true }, { label: '성별', type: 'gender', masking: true }, { label: '몸무게', type: 'weight', masking: true }])];
-                                                                                                        newCols[colIdx] = { ...newCols[colIdx], type: e.target.value as any };
-                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listColumns: newCols } });
-                                                                                                    }}
-                                                                                                    className="border p-1 rounded text-xs w-20"
-                                                                                                >
-                                                                                                    <option value="name">이름</option>
-                                                                                                    <option value="phone">전화번호</option>
-                                                                                                    <option value="gender">성별</option>
-                                                                                                    <option value="weight">몸무게</option>
-                                                                                                </select>
-
-                                                                                                {/* Delete Column Button (Optional, but good for UX) - simplified for now */}
+                                                                                                {col.isEnabled && (
+                                                                                                    <label className="flex items-center gap-1 text-[10px] whitespace-nowrap">
+                                                                                                        <input
+                                                                                                            type="checkbox"
+                                                                                                            checked={col.masking}
+                                                                                                            onChange={(e) => {
+                                                                                                                const newCols = [...item.urgencyConfig.tickerConfig!.columns];
+                                                                                                                newCols[colIdx] = { ...col, masking: e.target.checked };
+                                                                                                                updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, columns: newCols } } as any });
+                                                                                                            }}
+                                                                                                        /> 가리기
+                                                                                                    </label>
+                                                                                                )}
                                                                                             </div>
                                                                                         ))}
                                                                                     </div>
-                                                                                    <div className="mt-1 text-[10px] text-gray-400">
-                                                                                        * 컬럼은 현재 기본 3개(이름, 성별, 몸무게)로 초기화됩니다.
-                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <div>
-                                                                                <label className="block text-[10px] text-gray-500">메시지 템플릿 (자동변환: {'{name}'}, {'{phone}'})</label>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    value={item.urgencyConfig.tickerMessage}
-                                                                                    onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerMessage: e.target.value } })}
-                                                                                    className="w-full border p-1 rounded text-xs"
-                                                                                    placeholder="{name}님 ({phone}) 신청완료!"
-                                                                                />
+
+                                                                                {/* 4. Data Config (e.g. Debt) */}
+                                                                                {item.urgencyConfig.tickerConfig?.columns.find(c => c.type === 'debt' && c.isEnabled) && (
+                                                                                    <div>
+                                                                                        <label className="block text-[10px] text-gray-500 mb-1">채무 금액 랜덤 범위 (단위: 만원)</label>
+                                                                                        <div className="flex gap-2 items-center">
+                                                                                            <input type="number"
+                                                                                                value={item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[0] || 1000}
+                                                                                                onChange={(e) => {
+                                                                                                    const min = parseInt(e.target.value);
+                                                                                                    const currentMax = item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[1] || 10000;
+                                                                                                    const newRules = { ...item.urgencyConfig.tickerConfig?.fakeDataRules, debtRange: [min, currentMax] };
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, fakeDataRules: newRules } } as any });
+                                                                                                }}
+                                                                                                className="w-16 border p-1 rounded text-xs"
+                                                                                            />
+                                                                                            <span className="text-xs">~</span>
+                                                                                            <input type="number"
+                                                                                                value={item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[1] || 10000}
+                                                                                                onChange={(e) => {
+                                                                                                    const max = parseInt(e.target.value);
+                                                                                                    const currentMin = item.urgencyConfig.tickerConfig?.fakeDataRules?.debtRange?.[0] || 1000;
+                                                                                                    const newRules = { ...item.urgencyConfig.tickerConfig?.fakeDataRules, debtRange: [currentMin, max] };
+                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, fakeDataRules: newRules } } as any });
+                                                                                                }}
+                                                                                                className="w-16 border p-1 rounded text-xs"
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
                                                                         )}
                                                                     </div>
