@@ -1336,9 +1336,12 @@ const LandingEditor: React.FC = () => {
                                                     <option value="text">단문 텍스트 (20자)</option>
                                                     <option value="textarea">장문 텍스트 (200자)</option>
                                                     <option value="tel">연락처 (3단 분리)</option>
+                                                    <option value="email">이메일</option>
+                                                    <option value="address">주소 검색 (Daum)</option>
+                                                    <option value="date">날짜 선택</option>
+                                                    <option value="time">시간 선택 (오전/오후 분리)</option>
                                                     <option value="select">선택박스</option>
                                                     <option value="radio">라디오</option>
-                                                    <option value="time">시간 선택 (06:00~밤12시)</option>
                                                 </select>
                                             </div>
                                             <label className="flex items-center gap-2 text-xs text-gray-600">
