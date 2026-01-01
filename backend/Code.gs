@@ -52,9 +52,41 @@ function doGet(e) {
       return handleVerifySession(params);
   } else if (type === 'revoke_session') {
       return handleRevokeSession(params);
+  } else if (type === 'sync_fonts') {
+      return handleSyncFonts(params);
   }
 
-  return ContentService.createTextOutput("Backend Status: Online | Version: 3.1 (Unified) | Drive Access: OK");
+  return ContentService.createTextOutput("Backend Status: Online | Version: 3.2 (Sync Added) | Drive Access: OK");
+}
+
+function handleSyncFonts(params) {
+  var folderName = "Landing-factory font";
+  var folders = DriveApp.getFoldersByName(folderName);
+  var fonts = [];
+  
+  if (folders.hasNext()) {
+    var folder = folders.next();
+    var files = folder.getFiles();
+    while (files.hasNext()) {
+      var file = files.next();
+      var mime = file.getMimeType();
+      var name = file.getName();
+      
+      // Simple check for font extensions or mime types
+      if (name.match(/\.(ttf|otf|woff|woff2)$/i) || mime.indexOf('font') !== -1) {
+         // Create a stable ID based on file ID to prevent duplicates
+         fonts.push({
+           id: file.getId(), 
+           name: name.replace(/\.(ttf|otf|woff|woff2)$/i, ''), // Remove extension for display name
+           family: name.replace(/\.(ttf|otf|woff|woff2)$/i, '').replace(/\s+/g, ''), // CSS Family Name
+           source: 'file',
+           url: "https://drive.google.com/uc?export=download&id=" + file.getId()
+         });
+      }
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(fonts)).setMimeType(ContentService.MimeType.JSON);
 }
 
 function handleConfigRetrieval(params) {

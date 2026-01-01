@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Type, Star, Search, Plus, Trash2, Check, Upload, Loader2 as Loader, ArrowDown } from 'lucide-react';
+import { uploadImageToDrive, saveGlobalSettings, syncFontsFromDrive } from '../../services/googleSheetService';
+import { Type, Star, Search, Plus, Trash2, Check, Upload, Loader2 as Loader, ArrowDown, RefreshCw } from 'lucide-react';
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
 import { CustomFont, GlobalSettings } from '../../types';
-import { uploadImageToDrive, saveGlobalSettings } from '../../services/googleSheetService';
 
 interface FontPickerProps {
     value: string;
@@ -16,6 +16,7 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [uploading, setUploading] = useState(false);
+    const [syncing, setSyncing] = useState(false); // New state for sync
     const fileInputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +41,41 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
         const newSettings = { ...globalSettings, favoriteFonts: newFavorites };
         onSettingsChange(newSettings);
         saveGlobalSettings(newSettings); // Auto-save
+    };
+
+    const handleSync = async () => {
+        setSyncing(true);
+        const driveFonts = await syncFontsFromDrive();
+
+        if (driveFonts.length === 0) {
+            alert("구글 드라이브 폴더에서 새로운 폰트를 찾지 못했습니다.");
+            setSyncing(false);
+            return;
+        }
+
+        const currentFonts = globalSettings.customFonts || [];
+        const existingIds = new Set(currentFonts.map(f => f.family)); // Use family as unique key for checking duplicates
+
+        let addedCount = 0;
+        const newFonts = [...currentFonts];
+
+        driveFonts.forEach((df: CustomFont) => {
+            if (!existingIds.has(df.family)) {
+                newFonts.push(df);
+                existingIds.add(df.family);
+                addedCount++;
+            }
+        });
+
+        if (addedCount > 0) {
+            const newSettings = { ...globalSettings, customFonts: newFonts };
+            onSettingsChange(newSettings);
+            await saveGlobalSettings(newSettings);
+            alert(`${addedCount}개의 폰트를 구글 드라이브에서 동기화했습니다!`);
+        } else {
+            alert("이미 모든 폰트가 동기화되어 있습니다.");
+        }
+        setSyncing(false);
     };
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,14 +184,24 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
                                 autoFocus
                             />
                         </div>
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full flex items-center justify-center gap-1.5 bg-blue-600 text-white p-1.5 rounded text-xs hover:bg-blue-700 transition"
-                            disabled={uploading}
-                        >
-                            {uploading ? <Loader className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                            {uploading ? '업로드 중...' : '새 폰트 업로드'}
-                        </button>
+                        <div className="flex gap-1">
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 text-white p-1.5 rounded text-xs hover:bg-blue-700 transition"
+                                disabled={uploading || syncing}
+                            >
+                                {uploading ? <Loader className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                {uploading ? '업로드...' : '새 폰트'}
+                            </button>
+                            <button
+                                onClick={handleSync}
+                                className="w-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded border border-gray-200 hover:bg-gray-200 transition"
+                                title="구글 드라이브와 폰트 동기화"
+                                disabled={uploading || syncing}
+                            >
+                                <RefreshCw className={`w-3 h-3 ${syncing ? 'animate-spin' : ''}`} />
+                            </button>
+                        </div>
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -166,6 +212,7 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
                     </div>
 
                     {/* Font List */}
+
                     <div className="overflow-y-auto flex-1 p-1">
 
                         {/* Favorites */}

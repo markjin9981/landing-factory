@@ -663,3 +663,15 @@ export const saveGlobalSettings = async (settings: GlobalSettings): Promise<bool
         return false;
     }
 }
+
+export const syncFontsFromDrive = async (): Promise<any[]> => {
+    if (!isUrlConfigured()) return [];
+    try {
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?type=sync_fonts`);
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+    } catch (e) {
+        console.error("Sync Error:", e);
+        return [];
+    }
+}
