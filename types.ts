@@ -164,10 +164,34 @@ export interface FooterSection {
 }
 
 // New: Rich Media Content for Detail Section
+export interface BannerStyle {
+  height: string;       // e.g., '300px', '50vh'
+  backgroundColor: string;
+  backgroundImage?: string;
+  overlayOpacity: number; // 0.0 ~ 1.0
+  textColor: string;
+  fontSize: string;
+  fontWeight: string;
+  textAlign: 'left' | 'center' | 'right';
+  padding: string;
+}
+
+export interface UrgencyConfig {
+  // Countdown
+  showCountdown: boolean;
+  countdownTarget?: string; // ISO Date string
+  countdownLabel?: string;  // "Event ends in:"
+  countdownExpiredMessage?: string; // "Event Ended"
+
+  // Ticker
+  showTicker: boolean;
+  tickerMessage?: string;   // "{name} verified"
+}
+
 export interface DetailContent {
   id: string;
-  type: 'image' | 'youtube' | 'map';
-  content: string; // Image URL, YouTube URL, or Address
+  type: 'image' | 'youtube' | 'map' | 'banner';
+  content: string; // Image URL, YouTube URL, Address, or Banner Text
 
   // YouTube specific
   videoSize?: 'sm' | 'md' | 'lg' | 'full';
@@ -176,6 +200,10 @@ export interface DetailContent {
   // Map specific
   mapPlaceName?: string;
   mapSize?: 'sm' | 'md' | 'lg' | 'full';
+
+  // Banner specific
+  bannerStyle?: BannerStyle;
+  urgencyConfig?: UrgencyConfig;
 
   // Common
   width?: string;

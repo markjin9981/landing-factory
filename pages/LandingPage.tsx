@@ -7,6 +7,7 @@ import LeadForm from '../components/LeadForm';
 import { Check, Star, Shield, Clock, ThumbsUp, ArrowRight } from 'lucide-react';
 import { logVisit, fetchLandingConfigById } from '../services/googleSheetService';
 import KakaoMap from '../components/KakaoMap';
+import BannerBlock from '../components/inline/BannerBlock';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
@@ -294,6 +295,11 @@ const LandingPage: React.FC<Props> = ({ previewConfig }) => {
 
   // Helper to render Detail Content (Image, YouTube, Map)
   const renderDetailContent = (item: DetailContentType, index: number) => {
+    // 0. Banner (New)
+    if (item.type === 'banner') {
+      return <BannerBlock key={item.id || index} data={item} />;
+    }
+
     // 1. YouTube
     if (item.type === 'youtube') {
       const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock } from 'lucide-react';
 
 // GitHub Sync Check: Force Update
 // Default empty config template
@@ -575,20 +575,39 @@ const LandingEditor: React.FC = () => {
         });
     };
 
-    // Detail Content Logic (Image, YouTube, Map)
-    const handleAddDetailContent = (url: string, type: 'image' | 'youtube' | 'map' = 'image') => {
+    // Detail Content Logic (Image, YouTube, Map, Banner)
+    const handleAddDetailContent = (url: string, type: 'image' | 'youtube' | 'map' | 'banner' = 'image') => {
         if (!url && type === 'image') return;
+
+        const newContent: any = {
+            id: crypto.randomUUID(),
+            type,
+            content: url,
+            width: '100%',
+            videoSize: 'md',
+            autoPlay: false,
+            mapSize: 'md'
+        };
+
+        if (type === 'banner') {
+            newContent.bannerStyle = {
+                height: '300px',
+                backgroundColor: '#f3f4f6',
+                textColor: '#000000',
+                textAlign: 'center',
+                fontSize: '1.5rem',
+                overlayOpacity: 0
+            };
+            newContent.urgencyConfig = {
+                showCountdown: false,
+                showTicker: false,
+                tickerMessage: '{name}님 ({phone}) 신청완료!'
+            };
+        }
+
         setConfig(prev => ({
             ...prev,
-            detailContent: [...prev.detailContent, {
-                id: crypto.randomUUID(),
-                type,
-                content: url,
-                width: '100%',
-                videoSize: 'md',
-                autoPlay: false,
-                mapSize: 'md'
-            }]
+            detailContent: [...prev.detailContent, newContent]
         }));
     };
 
@@ -1128,6 +1147,172 @@ const LandingEditor: React.FC = () => {
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </div>
+
+                                                {/* BANNER EDITOR UI */}
+                                                {item.type === 'banner' && item.bannerStyle && item.urgencyConfig && (
+                                                    <div className="mt-2 p-3 bg-gray-50 border rounded text-xs space-y-3">
+                                                        {/* 1. Design Settings */}
+                                                        <div>
+                                                            <div className="font-bold mb-2 flex items-center text-gray-700"><Palette className="w-3 h-3 mr-1" /> 배너 디자인 (높이/배경/글자)</div>
+                                                            <div className="grid grid-cols-2 gap-2 mb-2">
+                                                                <div>
+                                                                    <label className="block text-[10px] text-gray-500">높이 설정</label>
+                                                                    <select
+                                                                        value={item.bannerStyle.height}
+                                                                        onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, height: e.target.value } })}
+                                                                        className="w-full border p-1 rounded"
+                                                                    >
+                                                                        <option value="200px">작게 (200px)</option>
+                                                                        <option value="300px">보통 (300px)</option>
+                                                                        <option value="400px">크게 (400px)</option>
+                                                                        <option value="60vh">화면 60% 높이</option>
+                                                                        <option value="100vh">화면 전체 높이</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] text-gray-500">배경색</label>
+                                                                    <div className="flex items-center gap-1">
+                                                                        <input type="color" value={item.bannerStyle.backgroundColor} onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundColor: e.target.value } })} className="w-5 h-5 p-0 border rounded cursor-pointer" />
+                                                                        <input type="text" value={item.bannerStyle.backgroundColor} onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundColor: e.target.value } })} className="flex-1 border p-1 rounded" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="mb-2">
+                                                                <label className="block text-[10px] text-gray-500 mb-1">배경 이미지 (URL) - 선택사항</label>
+                                                                <div className="flex gap-1">
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="이미지 주소 (https://...)"
+                                                                        value={item.bannerStyle.backgroundImage || ''}
+                                                                        onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundImage: e.target.value } })}
+                                                                        className="flex-1 border p-1 rounded"
+                                                                    />
+                                                                    <input
+                                                                        type="number"
+                                                                        step="0.1"
+                                                                        min="0"
+                                                                        max="1"
+                                                                        value={item.bannerStyle.overlayOpacity}
+                                                                        onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, overlayOpacity: parseFloat(e.target.value) } })}
+                                                                        className="w-12 border p-1 rounded text-center"
+                                                                        title="오버레이 투명도"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                <div>
+                                                                    <label className="block text-[10px] text-gray-500">글자 크기</label>
+                                                                    <select
+                                                                        value={item.bannerStyle.fontSize}
+                                                                        onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, fontSize: e.target.value } })}
+                                                                        className="w-full border p-1 rounded"
+                                                                    >
+                                                                        <option value="1rem">작게</option>
+                                                                        <option value="1.5rem">보통</option>
+                                                                        <option value="2.5rem">크게</option>
+                                                                        <option value="4rem">초대형</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] text-gray-500">글자 색상</label>
+                                                                    <input type="color" value={item.bannerStyle.textColor} onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, textColor: e.target.value } })} className="w-full h-7 border rounded p-0 cursor-pointer" />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] text-gray-500">텍스트 정렬</label>
+                                                                    <select
+                                                                        value={item.bannerStyle.textAlign}
+                                                                        onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, textAlign: e.target.value as any } })}
+                                                                        className="w-full border p-1 rounded"
+                                                                    >
+                                                                        <option value="left">왼쪽</option>
+                                                                        <option value="center">가운데</option>
+                                                                        <option value="right">오른쪽</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div className="mt-2">
+                                                                <label className="block text-[10px] text-gray-500 mb-1">배너 메인 문구 (줄바꿈 가능)</label>
+                                                                <textarea
+                                                                    value={item.content}
+                                                                    onChange={(e) => updateDetailContent(idx, { content: e.target.value })}
+                                                                    className="w-full border rounded p-2 h-20 text-sm"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* 2. Urgency Features */}
+                                                        <div className="border-t pt-2">
+                                                            <div className="font-bold mb-2 flex items-center text-red-600"><Clock className="w-3 h-3 mr-1" /> 마감 임박 / 실시간 알림 기능</div>
+
+                                                            {/* Countdown */}
+                                                            <div className="mb-3 bg-white border p-2 rounded">
+                                                                <label className="flex items-center gap-2 mb-2 cursor-pointer select-none">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={item.urgencyConfig.showCountdown}
+                                                                        onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, showCountdown: e.target.checked } })}
+                                                                    />
+                                                                    <span className="font-bold text-gray-700 text-xs">타이머(카운트다운) 활성화</span>
+                                                                </label>
+                                                                {item.urgencyConfig.showCountdown && (
+                                                                    <div className="pl-5 space-y-2 animate-fade-in">
+                                                                        <div>
+                                                                            <label className="block text-[10px] text-gray-500">종료 날짜/시간 선택</label>
+                                                                            <input
+                                                                                type="datetime-local"
+                                                                                value={item.urgencyConfig.countdownTarget || ''}
+                                                                                onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, countdownTarget: e.target.value } })}
+                                                                                className="w-full border p-1 rounded text-xs"
+                                                                            />
+                                                                        </div>
+                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                            <input
+                                                                                type="text"
+                                                                                placeholder="라벨 (예: 마감 임박)"
+                                                                                value={item.urgencyConfig.countdownLabel || ''}
+                                                                                onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, countdownLabel: e.target.value } })}
+                                                                                className="border p-1 rounded text-xs"
+                                                                            />
+                                                                            <input
+                                                                                type="text"
+                                                                                placeholder="종료 후 메시지"
+                                                                                value={item.urgencyConfig.countdownExpiredMessage || ''}
+                                                                                onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, countdownExpiredMessage: e.target.value } })}
+                                                                                className="border p-1 rounded text-xs"
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Ticker */}
+                                                            <div className="bg-white border p-2 rounded">
+                                                                <label className="flex items-center gap-2 mb-2 cursor-pointer select-none">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={item.urgencyConfig.showTicker}
+                                                                        onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, showTicker: e.target.checked } })}
+                                                                    />
+                                                                    <span className="font-bold text-gray-700 text-xs">가상 실시간 신청 알림 (Ticker)</span>
+                                                                </label>
+                                                                {item.urgencyConfig.showTicker && (
+                                                                    <div className="pl-5 animate-fade-in">
+                                                                        <label className="block text-[10px] text-gray-500">메시지 템플릿 (자동변환: {'{name}'}, {'{phone}'})</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            value={item.urgencyConfig.tickerMessage}
+                                                                            onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerMessage: e.target.value } })}
+                                                                            className="w-full border p-1 rounded text-xs"
+                                                                            placeholder="{name}님 ({phone}) 신청완료!"
+                                                                        />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -1149,6 +1334,12 @@ const LandingEditor: React.FC = () => {
                                             className="py-2 border-2 border-green-100 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 font-bold text-xs flex items-center justify-center col-span-2"
                                         >
                                             <MapPin className="w-4 h-4 mr-1" /> 지도 추가
+                                        </button>
+                                        <button
+                                            onClick={() => handleAddDetailContent('', 'banner')}
+                                            className="py-2 border-2 border-purple-100 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 font-bold text-xs flex items-center justify-center col-span-2"
+                                        >
+                                            <Megaphone className="w-4 h-4 mr-1" /> 배너/이벤트영역 추가
                                         </button>
                                     </div>
                                 </div>
@@ -1881,7 +2072,7 @@ const LandingEditor: React.FC = () => {
                         )}
 
                     </div>
-                </div>
+                </div >
 
                 {/* RIGHT: Live Preview Panel */}
                 {/* ... Same as before ... */}
@@ -1915,8 +2106,8 @@ const LandingEditor: React.FC = () => {
                     </div>
                 </div>
 
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 
