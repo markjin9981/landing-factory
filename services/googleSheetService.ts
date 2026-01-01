@@ -254,6 +254,10 @@ export const saveLandingConfig = async (config: LandingConfig): Promise<boolean>
             mode: "no-cors",
         });
 
+        // CLEAR CACHE: Ensure the next fetch gets the latest data
+        localStorage.removeItem(`landing_config_${config.id}`);
+        console.log(`[Cache Cleared] landing_config_${config.id}`);
+
         return true;
     } catch (error) {
         console.error("Error saving config:", error);
