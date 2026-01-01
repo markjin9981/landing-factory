@@ -149,15 +149,41 @@ const LeadStats: React.FC = () => {
         }
 
         setIsDeleting(true);
-        const success = await deleteLandingConfig(deleteTargetId);
+        const config = configs.find(c => String(c.id) === deleteTargetId);
 
-        if (success) {
-            // Optimistic Update
-            setConfigs(prev => prev.filter(c => String(c.id) !== deleteTargetId));
-            setDeleteStep(0);
-            setDeleteTargetId(null);
+        if (config) {
+            // Case 1: Delete Config
+            const success = await deleteLandingConfig(deleteTargetId);
+
+            if (success) {
+                // Optimistic Update
+                setConfigs(prev => prev.filter(c => String(c.id) !== deleteTargetId));
+                setDeleteStep(0);
+                setDeleteTargetId(null);
+            } else {
+                alert("설정 삭제 실패");
+            }
         } else {
-            alert("삭제 실패");
+            // Case 2: Delete All Leads (Unknown Page)
+            const { deleteLeads } = await import('../../services/googleSheetService');
+            const targetLeads = groupedLeads[deleteTargetId] || [];
+
+            if (targetLeads.length === 0) {
+                setDeleteStep(0);
+                setDeleteTargetId(null);
+                setIsDeleting(false);
+                return;
+            }
+
+            const result = await deleteLeads(targetLeads);
+            if (result.result === 'success') {
+                // Remove these leads from state
+                setLeads(prev => prev.filter(l => String(l['Landing ID'] || 'unknown') !== deleteTargetId));
+                setDeleteStep(0);
+                setDeleteTargetId(null);
+            } else {
+                alert("데이터 삭제 실패: " + result.message);
+            }
         }
         setIsDeleting(false);
     };
@@ -207,6 +233,9 @@ const LeadStats: React.FC = () => {
             </div>
         );
     }
+
+    // Identify if target is unknown for modal text
+    const isTargetUnknown = deleteTargetId && !configs.find(c => String(c.id) === deleteTargetId);
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20 font-sans">
@@ -308,15 +337,13 @@ const LeadStats: React.FC = () => {
                                             상세보기 <ArrowLeft className="w-4 h-4 rotate-180" />
                                         </button>
 
-                                        {!isUnknown && (
-                                            <button
-                                                onClick={() => handleDeleteStart(landingId)}
-                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
-                                                title="페이지 삭제"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        )}
+                                        <button
+                                            onClick={() => handleDeleteStart(landingId)}
+                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                                            title={isUnknown ? "모든 데이터 삭제" : "페이지 삭제"}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     </div>
                                 </div>
 
@@ -384,14 +411,18 @@ const LeadStats: React.FC = () => {
                         </div>
 
                         <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
-                            {deleteStep === 1 ? '페이지 설정을 삭제하시겠습니까?' : '정말 삭제하시겠습니까?'}
+                            {deleteStep === 1 ? (isTargetUnknown ? '해당 목록을 비우시겠습니까?' : '페이지 설정을 삭제하시겠습니까?') : '정말 삭제하시겠습니까?'}
                         </h3>
 
                         <p className="text-center text-gray-500 mb-8 break-keep text-sm">
                             {deleteStep === 1 ? (
-                                <>랜딩페이지 설정이 목록에서 사라집니다.<br />(이미 수집된 DB는 보존되지만 '알 수 없는 페이지'로 분류됩니다.)</>
+                                isTargetUnknown ? (
+                                    <>해당 그룹의 <strong className="text-red-500">모든 DB({groupedLeads[deleteTargetId]?.length}건)</strong>가 삭제됩니다.<br />이 작업은 설정 파일과 무관하게 데이터만 삭제합니다.</>
+                                ) : (
+                                    <>랜딩페이지 설정이 목록에서 사라집니다.<br />(이미 수집된 DB는 보존되지만 '알 수 없는 페이지'로 분류됩니다.)</>
+                                )
                             ) : (
-                                <>삭제된 설정은 <strong className="text-red-500">복구할 수 없습니다.</strong><br />신중하게 결정해 주세요.</>
+                                <>삭제된 데이터는 <strong className="text-red-500">복구할 수 없습니다.</strong><br />신중하게 결정해 주세요.</>
                             )}
                         </p>
 
