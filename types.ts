@@ -85,6 +85,7 @@ export interface FormStyle {
   buttonFontSize?: string;
   buttonWidth?: 'auto' | 'full';
   buttonAlign?: 'left' | 'center' | 'right';
+  buttonFontFamily?: string;
 }
 
 // Updated: Floating Banner with Size

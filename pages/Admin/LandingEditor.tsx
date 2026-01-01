@@ -505,7 +505,7 @@ const LandingEditor: React.FC = () => {
 
         const updateStyle = (key: string, val: any) => {
             if (mode === 'flat_form_button') {
-                const map: any = { backgroundColor: 'buttonBackgroundColor', textColor: 'buttonTextColor', borderRadius: 'buttonRadius', fontSize: 'buttonFontSize', width: 'buttonWidth', alignment: 'buttonAlign' };
+                const map: any = { backgroundColor: 'buttonBackgroundColor', textColor: 'buttonTextColor', borderRadius: 'buttonRadius', fontSize: 'buttonFontSize', width: 'buttonWidth', alignment: 'buttonAlign', fontFamily: 'buttonFontFamily' };
                 updateNested(['formConfig', 'style', map[key]], val);
             } else if (stylePath) {
                 updateNested([...stylePath, key], val);

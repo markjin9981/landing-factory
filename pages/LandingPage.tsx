@@ -192,6 +192,56 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
     }
   }, [config?.theme?.customFonts]);
 
+  // --- GOOGLE FONTS LOADING ---
+  useEffect(() => {
+    if (!config) return;
+
+    const usedFonts = new Set<string>();
+    // Recursively find all 'fontFamily' keys in the config
+    const collectRef = (obj: any) => {
+      if (!obj || typeof obj !== 'object') return;
+      if (Array.isArray(obj)) {
+        obj.forEach(collectRef);
+        return;
+      }
+      for (const key in obj) {
+        if (key === 'fontFamily' && typeof obj[key] === 'string' && obj[key]) {
+          usedFonts.add(obj[key]);
+        } else if (typeof obj[key] === 'object') {
+          collectRef(obj[key]);
+        }
+      }
+    };
+    collectRef(config);
+
+    // Filter out custom fonts and system fonts
+    const customFamilies = new Set((config.theme?.customFonts || []).map(f => f.family));
+    const systemFonts = ['sans-serif', 'serif', 'monospace', 'inherit', 'initial', '', 'Arial', 'Helvetica', 'Times New Roman'];
+
+    const googleFontsToLoad = Array.from(usedFonts).filter(f =>
+      !customFamilies.has(f) &&
+      !systemFonts.includes(f) &&
+      !f.includes(',') // Exclude fallback stacks
+    );
+
+    if (googleFontsToLoad.length > 0) {
+      // Generate URL: family=Roboto:wght@300;400;700;800&family=Open+Sans...
+      const families = googleFontsToLoad.map(f => `family=${f.replace(/\s+/g, '+')}:wght@300;400;700;800`).join('&');
+      const url = `https://fonts.googleapis.com/css2?${families}&display=swap`;
+
+      let link = document.getElementById('dynamic-google-fonts') as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.id = 'dynamic-google-fonts';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      }
+      if (link.href !== url) {
+        link.href = url;
+      }
+    }
+  }, [config]); // Re-run when config structure changes
+
   // --- VISIT & SCROLL EFFECT ---
   useEffect(() => {
     // Only scroll to top if not in preview mode to avoid jumping

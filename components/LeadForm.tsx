@@ -663,7 +663,8 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                 fontSize: formStyle.buttonFontSize || '1.125rem',
                                 width: formStyle.buttonWidth === 'full' ? '100%' : (formStyle.buttonWidth === 'auto' ? 'auto' : (formStyle.buttonWidth || '100%')),
                                 minWidth: formStyle.buttonWidth === 'auto' ? '200px' : undefined, // Optional: ensure not too small if auto
-                                paddingLeft: '2rem', paddingRight: '2rem'
+                                paddingLeft: '2rem', paddingRight: '2rem',
+                                fontFamily: formStyle.buttonFontFamily
                             }}
                         >
                             {status === 'submitting' ? (
