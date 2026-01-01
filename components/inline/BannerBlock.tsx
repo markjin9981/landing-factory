@@ -3,6 +3,7 @@ import React from 'react';
 import { DetailContent } from '../../types';
 import CountdownTimer from './CountdownTimer';
 import ApplicantTicker from './ApplicantTicker';
+import ApplicantList from './ApplicantList';
 
 interface BannerBlockProps {
     data: DetailContent;
@@ -63,13 +64,24 @@ const BannerBlock: React.FC<BannerBlockProps> = ({ data }) => {
                                 targetDate={urgencyConfig.countdownTarget}
                                 label={urgencyConfig.countdownLabel}
                                 expiredMessage={urgencyConfig.countdownExpiredMessage}
+                                style={urgencyConfig.timerStyle}
                             />
                         )}
 
                         {urgencyConfig.showTicker && (
-                            <ApplicantTicker
-                                messageTemplate={urgencyConfig.tickerMessage}
-                            />
+                            <>
+                                {urgencyConfig.tickerType === 'vertical_list' ? (
+                                    <ApplicantList
+                                        title={urgencyConfig.listTitle}
+                                        columns={urgencyConfig.listColumns || []}
+                                        speed={urgencyConfig.scrollSpeed}
+                                    />
+                                ) : (
+                                    <ApplicantTicker
+                                        messageTemplate={urgencyConfig.tickerMessage}
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
                 )}

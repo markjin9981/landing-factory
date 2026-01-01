@@ -1179,7 +1179,7 @@ const LandingEditor: React.FC = () => {
                                                             </div>
 
                                                             <div className="mb-2">
-                                                                <label className="block text-[10px] text-gray-500 mb-1">배경 이미지 (URL) - 선택사항</label>
+                                                                <label className="block text-[10px] text-gray-500 mb-1">배경 이미지</label>
                                                                 <div className="flex gap-1">
                                                                     <input
                                                                         type="text"
@@ -1188,6 +1188,17 @@ const LandingEditor: React.FC = () => {
                                                                         onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundImage: e.target.value } })}
                                                                         className="flex-1 border p-1 rounded"
                                                                     />
+                                                                    <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-700 rounded px-2 flex items-center justify-center text-xs whitespace-nowrap">
+                                                                        <Upload className="w-3 h-3" />
+                                                                        <input
+                                                                            type="file"
+                                                                            className="hidden"
+                                                                            accept="image/*"
+                                                                            onChange={(e) => {
+                                                                                handleImageUpload(e, (url) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundImage: url } }));
+                                                                            }}
+                                                                        />
+                                                                    </label>
                                                                     <input
                                                                         type="number"
                                                                         step="0.1"
@@ -1283,6 +1294,45 @@ const LandingEditor: React.FC = () => {
                                                                                 className="border p-1 rounded text-xs"
                                                                             />
                                                                         </div>
+                                                                        {/* Timer Style Settings */}
+                                                                        <div className="bg-gray-50 p-2 rounded border border-gray-100">
+                                                                            <label className="block text-[10px] font-bold text-gray-600 mb-1">타이머 디자인</label>
+                                                                            <div className="grid grid-cols-2 gap-2 mb-1">
+                                                                                <select
+                                                                                    value={item.urgencyConfig.timerStyle?.fontSize || 'md'}
+                                                                                    onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, fontSize: e.target.value } } })}
+                                                                                    className="border p-1 rounded text-xs"
+                                                                                >
+                                                                                    <option value="sm">작게</option>
+                                                                                    <option value="md">보통</option>
+                                                                                    <option value="lg">크게</option>
+                                                                                    <option value="xl">아주 크게</option>
+                                                                                </select>
+                                                                                <input
+                                                                                    type="text"
+                                                                                    placeholder="테두리 둥글기 (예: 0.5rem)"
+                                                                                    value={item.urgencyConfig.timerStyle?.borderRadius || ''}
+                                                                                    onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, borderRadius: e.target.value } } })}
+                                                                                    className="border p-1 rounded text-xs"
+                                                                                />
+                                                                            </div>
+                                                                            <div className="grid grid-cols-2 gap-2">
+                                                                                <div>
+                                                                                    <label className="text-[10px]">글자색</label>
+                                                                                    <div className="flex items-center gap-1">
+                                                                                        <input type="color" value={item.urgencyConfig.timerStyle?.textColor || '#dc2626'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, textColor: e.target.value } } })} className="w-4 h-4 p-0 border rounded cursor-pointer" />
+                                                                                        <input type="text" value={item.urgencyConfig.timerStyle?.textColor || '#dc2626'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, textColor: e.target.value } } })} className="flex-1 border p-1 rounded text-xs" />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[10px]">배경색</label>
+                                                                                    <div className="flex items-center gap-1">
+                                                                                        <input type="color" value={item.urgencyConfig.timerStyle?.backgroundColor || '#fee2e2'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, backgroundColor: e.target.value } } })} className="w-4 h-4 p-0 border rounded cursor-pointer" />
+                                                                                        <input type="text" value={item.urgencyConfig.timerStyle?.backgroundColor || 'rgba(220, 38, 38, 0.1)'} onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, backgroundColor: e.target.value } } })} className="flex-1 border p-1 rounded text-xs" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -1298,15 +1348,100 @@ const LandingEditor: React.FC = () => {
                                                                     <span className="font-bold text-gray-700 text-xs">가상 실시간 신청 알림 (Ticker)</span>
                                                                 </label>
                                                                 {item.urgencyConfig.showTicker && (
-                                                                    <div className="pl-5 animate-fade-in">
-                                                                        <label className="block text-[10px] text-gray-500">메시지 템플릿 (자동변환: {'{name}'}, {'{phone}'})</label>
-                                                                        <input
-                                                                            type="text"
-                                                                            value={item.urgencyConfig.tickerMessage}
-                                                                            onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerMessage: e.target.value } })}
-                                                                            className="w-full border p-1 rounded text-xs"
-                                                                            placeholder="{name}님 ({phone}) 신청완료!"
-                                                                        />
+                                                                    <div className="pl-5 animate-fade-in space-y-3">
+                                                                        <div>
+                                                                            <label className="block text-[10px] text-gray-500 mb-1">표시 방식</label>
+                                                                            <div className="flex gap-2">
+                                                                                <button
+                                                                                    onClick={() => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerType: 'horizontal' } })}
+                                                                                    className={`px-3 py-1 rounded text-xs border ${(!item.urgencyConfig?.tickerType || item.urgencyConfig.tickerType === 'horizontal') ? 'bg-blue-50 border-blue-200 text-blue-600 font-bold' : 'bg-white border-gray-200 text-gray-500'}`}
+                                                                                >
+                                                                                    가로 흐르기 (기본)
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerType: 'vertical_list' } })}
+                                                                                    className={`px-3 py-1 rounded text-xs border ${item.urgencyConfig?.tickerType === 'vertical_list' ? 'bg-blue-50 border-blue-200 text-blue-600 font-bold' : 'bg-white border-gray-200 text-gray-500'}`}
+                                                                                >
+                                                                                    세로 리스트 (표)
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {item.urgencyConfig?.tickerType === 'vertical_list' ? (
+                                                                            <div className="bg-gray-50 p-2 rounded border border-gray-100 space-y-2">
+                                                                                <div>
+                                                                                    <label className="block text-[10px] text-gray-500">리스트 제목</label>
+                                                                                    <input
+                                                                                        type="text"
+                                                                                        value={item.urgencyConfig.listTitle || '다이어트 참여 신청자'}
+                                                                                        onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listTitle: e.target.value } })}
+                                                                                        className="w-full border p-1 rounded text-xs"
+                                                                                    />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="block text-[10px] text-gray-500 mb-1">속도 (초)</label>
+                                                                                    <input
+                                                                                        type="range"
+                                                                                        min="5"
+                                                                                        max="60"
+                                                                                        step="1"
+                                                                                        value={item.urgencyConfig.scrollSpeed || 20}
+                                                                                        onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, scrollSpeed: parseInt(e.target.value) } })}
+                                                                                        className="w-full"
+                                                                                    />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="block text-[10px] text-gray-500 mb-1">컬럼 설정</label>
+                                                                                    <div className="space-y-1">
+                                                                                        {(item.urgencyConfig.listColumns || [{ label: '이름', type: 'name', masking: true }, { label: '성별', type: 'gender', masking: true }, { label: '몸무게', type: 'weight', masking: true }]).map((col, colIdx) => (
+                                                                                            <div key={colIdx} className="flex gap-1 items-center">
+                                                                                                <input
+                                                                                                    type="text"
+                                                                                                    value={col.label}
+                                                                                                    onChange={(e) => {
+                                                                                                        const newCols = [...(item.urgencyConfig?.listColumns || [{ label: '이름', type: 'name', masking: true }, { label: '성별', type: 'gender', masking: true }, { label: '몸무게', type: 'weight', masking: true }])];
+                                                                                                        newCols[colIdx] = { ...newCols[colIdx], label: e.target.value };
+                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listColumns: newCols } });
+                                                                                                    }}
+                                                                                                    className="flex-1 border p-1 rounded text-xs"
+                                                                                                    placeholder="컬럼명"
+                                                                                                />
+                                                                                                <select
+                                                                                                    value={col.type}
+                                                                                                    onChange={(e) => {
+                                                                                                        const newCols = [...(item.urgencyConfig?.listColumns || [{ label: '이름', type: 'name', masking: true }, { label: '성별', type: 'gender', masking: true }, { label: '몸무게', type: 'weight', masking: true }])];
+                                                                                                        newCols[colIdx] = { ...newCols[colIdx], type: e.target.value as any };
+                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listColumns: newCols } });
+                                                                                                    }}
+                                                                                                    className="border p-1 rounded text-xs w-20"
+                                                                                                >
+                                                                                                    <option value="name">이름</option>
+                                                                                                    <option value="phone">전화번호</option>
+                                                                                                    <option value="gender">성별</option>
+                                                                                                    <option value="weight">몸무게</option>
+                                                                                                </select>
+
+                                                                                                {/* Delete Column Button (Optional, but good for UX) - simplified for now */}
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                    <div className="mt-1 text-[10px] text-gray-400">
+                                                                                        * 컬럼은 현재 기본 3개(이름, 성별, 몸무게)로 초기화됩니다.
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div>
+                                                                                <label className="block text-[10px] text-gray-500">메시지 템플릿 (자동변환: {'{name}'}, {'{phone}'})</label>
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={item.urgencyConfig.tickerMessage}
+                                                                                    onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerMessage: e.target.value } })}
+                                                                                    className="w-full border p-1 rounded text-xs"
+                                                                                    placeholder="{name}님 ({phone}) 신청완료!"
+                                                                                />
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 )}
                                                             </div>

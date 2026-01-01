@@ -183,9 +183,27 @@ export interface UrgencyConfig {
   countdownLabel?: string;  // "Event ends in:"
   countdownExpiredMessage?: string; // "Event Ended"
 
+  // Timer Customization (New)
+  timerStyle?: {
+    fontSize?: string; // 'sm', 'md', 'lg', 'xl'
+    textColor?: string;
+    backgroundColor?: string;
+    borderRadius?: string;
+  };
+
   // Ticker
   showTicker: boolean;
   tickerMessage?: string;   // "{name} verified"
+
+  // Ticker Advanced (New)
+  tickerType?: 'horizontal' | 'vertical_list'; // Default 'horizontal'
+  listTitle?: string; // Header for vertical list
+  listColumns?: {
+    label: string;
+    type: 'name' | 'phone' | 'gender' | 'weight' | 'text';
+    masking: boolean;
+  }[];
+  scrollSpeed?: number;
 }
 
 export interface DetailContent {
