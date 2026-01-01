@@ -133,6 +133,11 @@ const LeadStatsDetail: React.FC = () => {
                 cols.push({ key: field.id, label: field.label });
                 usedKeys.add(field.id);
                 usedKeys.add(field.id.toLowerCase());
+
+                // If it's an address field, mark its detail field as used so it doesn't show in Extra Info
+                if (field.type === 'address') {
+                    usedKeys.add(`${field.id}_detail`);
+                }
             });
         } else {
             // Fallback
@@ -352,7 +357,22 @@ const LeadStatsDetail: React.FC = () => {
                                         </td>
                                         {columns.map(col => (
                                             <td key={col.key} className="px-6 py-4 whitespace-nowrap text-gray-700">
-                                                {lead[col.key] || lead[col.key.toLowerCase()] || '-'}
+                                                {(() => {
+                                                    // Check if this column corresponds to an address field
+                                                    const fieldConfig = config?.formConfig?.fields.find(f => f.id === col.key);
+                                                    if (fieldConfig?.type === 'address') {
+                                                        const mainAddr = lead[col.key] || lead[col.key.toLowerCase()] || '';
+                                                        const detailAddr = lead[`${col.key}_detail`] || lead[`${col.key.toLowerCase()}_detail`] || '';
+                                                        if (!mainAddr && !detailAddr) return '-';
+                                                        return (
+                                                            <div className="whitespace-pre-wrap break-words min-w-[200px]">
+                                                                {mainAddr}
+                                                                {detailAddr && <span className="block text-gray-500 text-xs mt-0.5">{detailAddr}</span>}
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return lead[col.key] || lead[col.key.toLowerCase()] || '-';
+                                                })()}
                                             </td>
                                         ))}
                                         {extraKeys.length > 0 && (

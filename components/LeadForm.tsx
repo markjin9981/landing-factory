@@ -354,62 +354,55 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                             );
                                         }
 
-                                        // 5. TIME SELECT (Enhanced: AM/PM, Hour, Minute)
+                                        // 5. TIME SELECT (Enhanced: Single Select with Config)
                                         if (field.type === 'time') {
-                                            // Helper to parse time string "오후 02:30" or "14:30" or empty
-                                            const parseTime = (val: string) => {
-                                                if (!val) return { ampm: '오전', hour: '09', minute: '00' };
-                                                // If already localized format
-                                                if (val.includes('오전') || val.includes('오후')) {
-                                                    const parts = val.split(' ');
-                                                    if (parts.length >= 3) { // "오후 02 30" style or "오후 02:30"
-                                                        const timePart = parts[1].includes(':') ? parts[1].split(':') : [parts[1], parts[2]];
-                                                        return { ampm: parts[0], hour: timePart[0], minute: timePart[1] };
-                                                    }
+                                            const startTime = field.timeConfig?.startTime || '09:00';
+                                            const endTime = field.timeConfig?.endTime || '18:00';
+                                            const interval = field.timeConfig?.interval || 30;
+
+                                            const generateTimeSlots = () => {
+                                                const slots = [];
+                                                // Create date objects for comparison (fixed date)
+                                                let current = new Date(`2000-01-01T${startTime}`);
+                                                const end = new Date(`2000-01-01T${endTime}`);
+
+                                                // Safety check
+                                                if (current > end) return ['오전 09:00'];
+
+                                                while (current <= end) {
+                                                    const hours = current.getHours();
+                                                    const minutes = current.getMinutes();
+                                                    const ampm = hours >= 12 ? '오후' : '오전';
+                                                    let displayHour = hours % 12;
+                                                    displayHour = displayHour === 0 ? 12 : displayHour;
+                                                    const displayMinute = minutes < 10 ? `0${minutes}` : minutes;
+
+                                                    const value = `${ampm} ${displayHour < 10 ? `0${displayHour}` : displayHour}:${displayMinute}`;
+                                                    slots.push(value);
+
+                                                    // Increment
+                                                    current = new Date(current.getTime() + interval * 60000);
                                                 }
-                                                return { ampm: '오전', hour: '09', minute: '00' };
+                                                return slots;
                                             };
 
-                                            const current = parseTime(formData[field.id]);
-
-                                            const updateTime = (key: 'ampm' | 'hour' | 'minute', val: string) => {
-                                                const newState = { ...current, [key]: val };
-                                                const formatted = `${newState.ampm} ${newState.hour}:${newState.minute}`;
-                                                setFormData({ ...formData, [field.id]: formatted });
-                                            };
+                                            const timeSlots = generateTimeSlots();
 
                                             return (
-                                                <div className="flex gap-2">
+                                                <div className="relative">
                                                     <select
-                                                        value={current.ampm}
-                                                        onChange={(e) => updateTime('ampm', e.target.value)}
-                                                        className="w-1/3 px-2 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
+                                                        name={field.id}
+                                                        value={formData[field.id] || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none appearance-none bg-white text-gray-900"
                                                         style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
                                                     >
-                                                        <option value="오전">오전</option>
-                                                        <option value="오후">오후</option>
-                                                    </select>
-                                                    <select
-                                                        value={current.hour}
-                                                        onChange={(e) => updateTime('hour', e.target.value)}
-                                                        className="w-1/3 px-2 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
-                                                    >
-                                                        {Array.from({ length: 12 }, (_, i) => i + 1).map(h => {
-                                                            const hStr = h < 10 ? `0${h}` : `${h}`;
-                                                            return <option key={h} value={hStr}>{h}시</option>;
-                                                        })}
-                                                    </select>
-                                                    <select
-                                                        value={current.minute}
-                                                        onChange={(e) => updateTime('minute', e.target.value)}
-                                                        className="w-1/3 px-2 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
-                                                    >
-                                                        {['00', '10', '20', '30', '40', '50'].map(m => (
-                                                            <option key={m} value={m}>{m}분</option>
+                                                        <option value="">시간을 선택해주세요</option>
+                                                        {timeSlots.map((slot, idx) => (
+                                                            <option key={idx} value={slot}>{slot}</option>
                                                         ))}
                                                     </select>
+                                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                                                 </div>
                                             );
                                         }
@@ -431,20 +424,84 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                             );
                                         }
 
-                                        // 7. EMAIL INPUT
+                                        // 7. EMAIL INPUT (Split ID @ Domain)
                                         if (field.type === 'email') {
+                                            const DOMAINS = ['naver.com', 'hanmail.net', 'gmail.com', 'nate.com', 'daum.net', 'kakao.com', 'direct'];
+
+                                            // Helper to parse "id@domain"
+                                            const parseEmail = (val: string) => {
+                                                if (!val) return { id: '', domain: 'naver.com', direct: '' };
+                                                const parts = val.split('@');
+                                                if (parts.length < 2) return { id: val, domain: 'naver.com', direct: '' };
+
+                                                const d = parts[1];
+                                                const isKnown = DOMAINS.includes(d);
+                                                return {
+                                                    id: parts[0],
+                                                    domain: isKnown ? d : 'direct',
+                                                    direct: isKnown ? '' : d
+                                                };
+                                            };
+
+                                            const { id, domain, direct } = parseEmail(formData[field.id]);
+
+                                            const updateEmail = (type: 'id' | 'domain' | 'direct', val: string) => {
+                                                let newId = id;
+                                                let newDomain = domain;
+                                                let newDirect = direct;
+
+                                                if (type === 'id') newId = val;
+                                                if (type === 'domain') {
+                                                    newDomain = val;
+                                                    if (val !== 'direct') newDirect = '';
+                                                }
+                                                if (type === 'direct') {
+                                                    newDirect = val;
+                                                    newDomain = 'direct';
+                                                }
+
+                                                const finalDomain = newDomain === 'direct' ? newDirect : newDomain;
+                                                setFormData({ ...formData, [field.id]: `${newId}@${finalDomain}` });
+                                            };
+
                                             return (
-                                                <div className="relative">
+                                                <div className="flex flex-wrap gap-2 items-center">
                                                     <input
-                                                        type="email"
-                                                        name={field.id}
-                                                        placeholder={field.placeholder || 'example@email.com'}
-                                                        required={field.required}
-                                                        value={formData[field.id] || ''}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
+                                                        type="text"
+                                                        placeholder="이메일 아이디"
+                                                        value={id}
+                                                        onChange={(e) => updateEmail('id', e.target.value)}
+                                                        className="flex-1 min-w-[120px] px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
                                                         style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
                                                     />
+                                                    <span className="text-gray-400">@</span>
+                                                    <div className="relative flex-1 min-w-[140px]">
+                                                        <select
+                                                            value={domain}
+                                                            onChange={(e) => updateEmail('domain', e.target.value)}
+                                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none appearance-none bg-white pr-10 text-gray-900"
+                                                            style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        >
+                                                            <option value="naver.com">naver.com</option>
+                                                            <option value="hanmail.net">hanmail.net</option>
+                                                            <option value="daum.net">daum.net</option>
+                                                            <option value="gmail.com">gmail.com</option>
+                                                            <option value="nate.com">nate.com</option>
+                                                            <option value="kakao.com">kakao.com</option>
+                                                            <option value="direct">직접입력</option>
+                                                        </select>
+                                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                                                    </div>
+                                                    {domain === 'direct' && (
+                                                        <input
+                                                            type="text"
+                                                            placeholder="도메인 입력"
+                                                            value={direct}
+                                                            onChange={(e) => updateEmail('direct', e.target.value)}
+                                                            className="w-full md:w-auto md:flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
+                                                            style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        />
+                                                    )}
                                                 </div>
                                             );
                                         }

@@ -1401,6 +1401,57 @@ const LandingEditor: React.FC = () => {
                                                     </div>
                                                 </div>
                                             )}
+
+                                            {/* Time Configuration */}
+                                            {field.type === 'time' && (
+                                                <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200">
+                                                    <label className="text-xs font-bold text-blue-800 block mb-2">
+                                                        시간 선택 설정 (시작/종료/간격)
+                                                    </label>
+                                                    <div className="grid grid-cols-3 gap-2">
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block">시작 시간</label>
+                                                            <input
+                                                                type="time"
+                                                                value={field.timeConfig?.startTime || '09:00'}
+                                                                onChange={(e) => {
+                                                                    const newConfig = { ...field.timeConfig, startTime: e.target.value };
+                                                                    updateField(idx, 'timeConfig', newConfig);
+                                                                }}
+                                                                className="w-full border p-1 rounded text-xs"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block">종료 시간</label>
+                                                            <input
+                                                                type="time"
+                                                                value={field.timeConfig?.endTime || '18:00'}
+                                                                onChange={(e) => {
+                                                                    const newConfig = { ...field.timeConfig, endTime: e.target.value };
+                                                                    updateField(idx, 'timeConfig', newConfig);
+                                                                }}
+                                                                className="w-full border p-1 rounded text-xs"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block">간격 (분)</label>
+                                                            <select
+                                                                value={field.timeConfig?.interval || 30}
+                                                                onChange={(e) => {
+                                                                    const newConfig = { ...field.timeConfig, interval: Number(e.target.value) };
+                                                                    updateField(idx, 'timeConfig', newConfig);
+                                                                }}
+                                                                className="w-full border p-1 rounded text-xs"
+                                                            >
+                                                                <option value="10">10분</option>
+                                                                <option value="15">15분</option>
+                                                                <option value="30">30분</option>
+                                                                <option value="60">1시간</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                     <button onClick={() => setConfig(prev => ({

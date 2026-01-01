@@ -10,6 +10,11 @@ export interface FormField {
   placeholder?: string;
   required: boolean;
   options?: FieldOption[]; // For select or radio types
+  timeConfig?: {
+    startTime?: string; // "09:00"
+    endTime?: string;   // "18:00"
+    interval?: number;  // 30
+  };
 }
 
 export interface LandingTheme {
