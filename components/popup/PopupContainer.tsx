@@ -34,6 +34,7 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
         if (config.showDoNotOpenToday) {
             const hiddenKey = `landing_popup_hidden_${landingId}_${todayStr}`;
             if (localStorage.getItem(hiddenKey)) {
+                console.log("Popup hidden by 'Do Not Show Today' preference:", hiddenKey);
                 setIsVisible(false);
                 return;
             }
@@ -45,10 +46,13 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
             return true;
         });
 
+        console.log(`Popup Debug: ${valid.length} valid items found for today (${todayStr})`);
+
         if (valid.length > 0) {
             setActiveItems(valid);
             setIsVisible(true);
         } else {
+            console.log("Popup Debug: No valid items for today.");
             setIsVisible(false);
         }
     }, [config, landingId, isPreview]);
@@ -98,7 +102,7 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
     // Default styles if missing
     const containerStyle: React.CSSProperties = {
         position: isPreview ? 'absolute' : 'fixed',
-        zIndex: isPreview ? 100 : 50, // Higher Z-Index for Preview
+        zIndex: isPreview ? 100 : 9999, // MAX Z-Index for Live Site
         width: `${styleConfig?.width || 300}px`,
         top: `${styleConfig?.top || 100}px`,
         left: `${styleConfig?.left || 50}px`,
