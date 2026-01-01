@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Loader2, LogOut, ChevronDown, ChevronUp, Database, Calendar } from 'lucide-react';
-import { fetchLeads, fetchLandingConfigs } from '../../services/googleSheetService';
+import { ArrowLeft, RefreshCw, Loader2, LogOut, Database, Calendar, Clock, Trash2 } from 'lucide-react';
+import { fetchLeads, fetchLandingConfigs, deleteLandingConfig } from '../../services/googleSheetService';
 import { LandingConfig, FormField } from '../../types';
+import { RecentLeadsModal } from '../../components/RecentLeadsModal';
 
 // Meta fields to hide from the main columns unless explicitly requested
 const SYSTEM_FIELDS = [
@@ -37,6 +38,16 @@ const LeadStats: React.FC = () => {
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+
+    // Modal State
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalLeads, setModalLeads] = useState<any[]>([]);
+
+    // Delete State
+    const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+    const [deleteStep, setDeleteStep] = useState(0); // 0: None, 1: Confirm, 2: Final
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const loadData = async () => {
         setLoading(true);
@@ -78,43 +89,92 @@ const LeadStats: React.FC = () => {
 
     // 2. Dashboard Stats
     const stats = useMemo(() => {
+        const now = new Date().getTime();
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const todayTs = today.getTime();
+        const oneHourAgoTs = now - (60 * 60 * 1000);
 
-        let todayCount = 0;
-        let totalCount = leads.length;
+        const todayLeads: any[] = [];
+        const hourLeads: any[] = [];
 
         leads.forEach(lead => {
-            if (parseKoreanDate(lead['Timestamp']) >= todayTs) {
-                todayCount++;
+            const ts = parseKoreanDate(lead['Timestamp']);
+            if (ts >= todayTs) {
+                todayLeads.push(lead);
+            }
+            if (ts >= oneHourAgoTs) {
+                hourLeads.push(lead);
             }
         });
 
-        return { todayCount, totalCount };
+        return {
+            todayCount: todayLeads.length,
+            todayLeads,
+            hourCount: hourLeads.length,
+            hourLeads,
+            totalCount: leads.length
+        };
     }, [leads]);
+
+    const landingTitles = useMemo(() => {
+        const map: Record<string, string> = {};
+        configs.forEach(c => map[String(c.id)] = c.title);
+        return map;
+    }, [configs]);
+
+    // Handlers
+    const openRecentModal = (type: 'today' | 'hour') => {
+        if (type === 'today') {
+            setModalTitle('오늘 수집된 DB');
+            setModalLeads(stats.todayLeads);
+        } else {
+            setModalTitle('최근 1시간 내 수집된 DB');
+            setModalLeads(stats.hourLeads);
+        }
+        setModalOpen(true);
+    };
+
+    const handleDeleteStart = (id: string) => {
+        setDeleteTargetId(id);
+        setDeleteStep(1);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteTargetId) return;
+
+        if (deleteStep === 1) {
+            setDeleteStep(2);
+            return;
+        }
+
+        setIsDeleting(true);
+        const success = await deleteLandingConfig(deleteTargetId);
+
+        if (success) {
+            // Optimistic Update
+            setConfigs(prev => prev.filter(c => String(c.id) !== deleteTargetId));
+            setDeleteStep(0);
+            setDeleteTargetId(null);
+        } else {
+            alert("삭제 실패");
+        }
+        setIsDeleting(false);
+    };
 
     // Helper: Determine Columns for a Group
     const getColumnsForGroup = (landingId: string, groupLeads: any[]) => {
         const config = configs.find(c => String(c.id) === landingId);
-
-        // 1. Standard Columns
-        const columns = [
-            { key: 'Timestamp', label: '시간' },
-        ];
-
-        // 2. Dynamic Columns from Config
+        const columns = [{ key: 'Timestamp', label: '시간' }];
         const usedKeys = new Set(['Timestamp', 'Landing ID']);
 
         if (config?.formConfig?.fields) {
             config.formConfig.fields.forEach((field: FormField) => {
                 columns.push({ key: field.id, label: field.label });
                 usedKeys.add(field.id);
-                // Also add lower case version to excluded set just in case
                 usedKeys.add(field.id.toLowerCase());
             });
         } else {
-            // Fallback: If no config, try to guess 'name' and 'phone'
             if (groupLeads.length > 0) {
                 const sample = groupLeads[0];
                 if (sample['Name']) { columns.push({ key: 'Name', label: '이름' }); usedKeys.add('Name'); }
@@ -122,8 +182,6 @@ const LeadStats: React.FC = () => {
             }
         }
 
-        // 3. Collect "Extra" keys found in data but not in config
-        // meaningful extra data (e.g. utm tags, or fields added later)
         const extraKeys = new Set<string>();
         groupLeads.forEach(lead => {
             Object.keys(lead).forEach(k => {
@@ -134,7 +192,6 @@ const LeadStats: React.FC = () => {
             });
         });
 
-        // Always put 'Memo' at the end if it exists
         if (extraKeys.has('Memo')) {
             extraKeys.delete('Memo');
             columns.push({ key: 'Memo', label: '메모' });
@@ -175,15 +232,35 @@ const LeadStats: React.FC = () => {
 
                 {/* 1. Dashboard Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-5">
-                        <div className="p-4 bg-blue-50 text-blue-600 rounded-lg">
+                    {/* Today Card */}
+                    <div
+                        onClick={() => openRecentModal('today')}
+                        className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-5 cursor-pointer hover:border-blue-400 hover:shadow-md transition-all group"
+                    >
+                        <div className="p-4 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
                             <Calendar className="w-8 h-8" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-bold mb-1">오늘 수집된 DB</p>
+                            <p className="text-sm text-gray-500 font-bold mb-1 group-hover:text-blue-600">오늘 수집된 DB</p>
                             <h2 className="text-3xl font-bold text-gray-900">{stats.todayCount} <span className="text-lg text-gray-400 font-normal">건</span></h2>
                         </div>
                     </div>
+
+                    {/* 1 Hour Card */}
+                    <div
+                        onClick={() => openRecentModal('hour')}
+                        className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-5 cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all group"
+                    >
+                        <div className="p-4 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                            <Clock className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-bold mb-1 group-hover:text-emerald-600">최근 1시간 내 수집</p>
+                            <h2 className="text-3xl font-bold text-gray-900">{stats.hourCount} <span className="text-lg text-gray-400 font-normal">건</span></h2>
+                        </div>
+                    </div>
+
+                    {/* Total Card */}
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-5">
                         <div className="p-4 bg-purple-50 text-purple-600 rounded-lg">
                             <Database className="w-8 h-8" />
@@ -205,9 +282,8 @@ const LeadStats: React.FC = () => {
                         const config = configs.find(c => String(c.id) === landingId);
                         const title = config ? config.title : `알 수 없는 페이지 (ID: ${landingId})`;
                         const { columns } = getColumnsForGroup(landingId, groupLeads);
-
-                        // Preview only top 5
                         const previewLeads = groupLeads.slice(0, 5);
+                        const isUnknown = !config;
 
                         return (
                             <div key={landingId} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-fade-in-up">
@@ -221,8 +297,8 @@ const LeadStats: React.FC = () => {
                                             <p className="text-xs text-gray-400 font-mono">ID: {landingId}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
+                                    <div className="flex items-center gap-2">
+                                        <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mr-2">
                                             총 {groupLeads.length} 건
                                         </span>
                                         <button
@@ -231,6 +307,16 @@ const LeadStats: React.FC = () => {
                                         >
                                             상세보기 <ArrowLeft className="w-4 h-4 rotate-180" />
                                         </button>
+
+                                        {!isUnknown && (
+                                            <button
+                                                onClick={() => handleDeleteStart(landingId)}
+                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                                                title="페이지 삭제"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
 
@@ -279,6 +365,54 @@ const LeadStats: React.FC = () => {
                     })
                 )}
             </main>
+
+            {/* Recent Leads Modal */}
+            <RecentLeadsModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={modalTitle}
+                leads={modalLeads}
+                landingTitles={landingTitles}
+            />
+
+            {/* Delete Page Confirmation Modal */}
+            {deleteTargetId && deleteStep > 0 && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
+                        <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+                            <Trash2 className="w-6 h-6" />
+                        </div>
+
+                        <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+                            {deleteStep === 1 ? '페이지 설정을 삭제하시겠습니까?' : '정말 삭제하시겠습니까?'}
+                        </h3>
+
+                        <p className="text-center text-gray-500 mb-8 break-keep text-sm">
+                            {deleteStep === 1 ? (
+                                <>랜딩페이지 설정이 목록에서 사라집니다.<br />(이미 수집된 DB는 보존되지만 '알 수 없는 페이지'로 분류됩니다.)</>
+                            ) : (
+                                <>삭제된 설정은 <strong className="text-red-500">복구할 수 없습니다.</strong><br />신중하게 결정해 주세요.</>
+                            )}
+                        </p>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => { setDeleteStep(0); setDeleteTargetId(null); }}
+                                className="flex-1 py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-bold hover:bg-gray-50 transition-colors"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handleDeleteConfirm}
+                                disabled={isDeleting}
+                                className="flex-1 py-3 px-4 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200 disabled:opacity-70 disabled:cursor-wait flex justify-center items-center"
+                            >
+                                {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : (deleteStep === 1 ? '계속하기' : '삭제 확정')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
