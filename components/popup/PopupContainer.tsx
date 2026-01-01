@@ -17,12 +17,7 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
 
     // 1. Check Visibility & Active Items
     useEffect(() => {
-        // Preview Mode: Bypass Checks (Moved to Top)
-        if (isPreview && config?.items) {
-            setActiveItems(config.items);
-            setIsVisible(true);
-            return;
-        }
+        if (isPreview) return; // Preview handled via derived state
 
         if (!config || !config.usePopup || !config.items || config.items.length === 0) {
             setIsVisible(false);
@@ -57,20 +52,13 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
         }
     }, [config, landingId, isPreview]);
 
+    // DERIVED STATE: Use config.items directly in Preview to avoid State Sync Lag
+    const effectiveItems = isPreview ? (config?.items || []) : activeItems;
+
     // 2. Responsive Check
     useEffect(() => {
-        if (isPreview) {
-            // In preview, we rely on the container size passed down or assume "Mobile Preview" means small container
-            // We shouldn't rely on window.matchMedia if we are in a PC browser simulating Mobile.
-            // But LandingPage preview usually renders an iframe or constrained div.
-            // Let's assume LandingPage component receives 'previewConfig' maybe we need 'previewMode' prop passed to Popup too?
-            // For now, let's keep matchMedia but it might be wrong in PC Editor Preview.
-            // BETTER: If isPreview is true, we might default to Mobile style if the parent says so?
-            // Actually, LandingPage has `previewMode` state ('desktop' | 'mobile').
-            // We should pass `isMobile` override prop?
-            // For now, let's stick to standard behavior, but isPreview makes position absolute.
-            return;
-        }
+        if (isPreview) return;
+
         const checkMobile = () => {
             setIsMobile(window.matchMedia('(max-width: 768px)').matches);
         };
@@ -81,21 +69,24 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
 
     // 3. Auto-play
     useEffect(() => {
-        if (!isVisible || !config?.autoPlay || activeItems.length <= 1) return;
+        if (!isVisible && !isPreview) return; // Only stop if not visible AND not preview (Preview is always visible)
+        if (!config?.autoPlay || effectiveItems.length <= 1) return;
 
         const intervalMs = (config.autoPlayInterval || 3) * 1000;
         const timer = setInterval(() => {
-            setCurrentIndex(prev => (prev + 1) % activeItems.length);
+            setCurrentIndex(prev => (prev + 1) % effectiveItems.length);
         }, intervalMs);
 
         return () => clearInterval(timer);
-    }, [isVisible, config?.autoPlay, config?.autoPlayInterval, activeItems.length]);
+    }, [isVisible, isPreview, config?.autoPlay, config?.autoPlayInterval, effectiveItems.length]);
 
-    // FIX: Allow Preview to continue even if 'isVisible' is false (e.g. no items),
-    // so that we can show the "Empty Placeholder" later.
-    if (!isPreview && (!isVisible || activeItems.length === 0)) return null;
+    // Logic: In Production, hide if !isVisible or no items. In Preview, always show (unless 0 items -> Placeholder)
+    if (!isPreview && (!isVisible || effectiveItems.length === 0)) return null;
 
-    const currentItem = activeItems[currentIndex];
+    // Ensure index is valid (in case items changed)
+    const safeIndex = currentIndex >= effectiveItems.length ? 0 : currentIndex;
+    const currentItem = effectiveItems[safeIndex];
+
     // NOTE: In Preview, valid `isMobile` detection is hard without explicit prop.
     // If the user toggle "Mobile Preview" in Editor, the iframe width changes. `matchMedia` inside iframe works.
     // If it's just a div, `matchMedia` finds PC.
@@ -114,7 +105,7 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
     };
 
     // PREVIEW HELPER: If no items, show a placeholder
-    if (isPreview && (!activeItems || activeItems.length === 0)) {
+    if (isPreview && effectiveItems.length === 0) {
         return (
             <div style={{ ...containerStyle, height: '200px' }} className="bg-gray-100 border-2 border-dashed border-gray-400 flex flex-col items-center justify-center text-gray-500 rounded-lg shadow-xl">
                 <span className="text-2xl mb-2">🚫</span>
@@ -149,12 +140,12 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
 
     const nextSlide = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setCurrentIndex(prev => (prev + 1) % activeItems.length);
+        setCurrentIndex(prev => (prev + 1) % effectiveItems.length);
     };
 
     const prevSlide = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setCurrentIndex(prev => (prev - 1 + activeItems.length) % activeItems.length);
+        setCurrentIndex(prev => (prev - 1 + effectiveItems.length) % effectiveItems.length);
     };
 
     return (
@@ -176,7 +167,7 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
                 )}
 
                 {/* Navigation Arrows (only if multiple) */}
-                {activeItems.length > 1 && (
+                {effectiveItems.length > 1 && (
                     <>
                         <button
                             onClick={prevSlide}
@@ -192,7 +183,7 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
                         </button>
                         {/* Dots */}
                         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                            {activeItems.map((_, idx) => (
+                            {effectiveItems.map((_, idx) => (
                                 <div
                                     key={idx}
                                     className={`w-1.5 h-1.5 rounded-full ${idx === currentIndex ? 'bg-white' : 'bg-white/50'}`}
