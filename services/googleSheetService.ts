@@ -680,3 +680,51 @@ export const syncFontsFromDrive = async (): Promise<any[]> => {
         return [];
     }
 }
+
+// --- Virtual Data Management ---
+
+export const manageVirtualData = async (landingId: string, action: 'init_sheet' | 'sync_data'): Promise<any> => {
+    if (!isUrlConfigured()) {
+        alert("Mock: Virtual Data Action " + action);
+        return action === 'sync_data' ? { result: 'success', data: [] } : { result: 'success', url: '#' };
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('type', 'virtual_data');
+        formData.append('landing_id', landingId);
+        formData.append('action', action);
+
+        // For this one, we NEED the response.
+        // Google Apps Script `doPost` returns JSON.
+        // `mode: 'cors'` is required to read it.
+        // The backend `Code.gs` MUST be deployed as "Anyone" and usually handles CORS by redirect if not strict, 
+        // OR we use the GET hack if POST fails. But let's try POST + Redirect follow first.
+
+        // Actually, standard Apps Script `doPost` DOES support redirect-based CORS if we follow the redirect.
+        // But fetch's `redirect: 'follow'` (default) + `mode: 'cors'` often works.
+        // If it fails due to CORS options, we might have to use `application/x-www-form-urlencoded`.
+
+        const urlParams = new URLSearchParams();
+        urlParams.append('type', 'virtual_data');
+        urlParams.append('landing_id', landingId);
+        urlParams.append('action', action);
+
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: urlParams,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+
+        // GAS returns 302 Redirect to content. Fetch follows it automatically usually.
+        // We expect valid JSON at the end.
+        const json = await response.json();
+        return json;
+
+    } catch (e) {
+        console.error("Virtual Data Error:", e);
+        return { result: 'error', message: String(e) };
+    }
+}

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings } from '../../types';
 import LandingPage from '../LandingPage';
-import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle } from 'lucide-react';
+import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw } from 'lucide-react';
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
 import FontPicker from '../../components/admin/FontPicker';
 
@@ -2194,54 +2194,142 @@ const LandingEditor: React.FC = () => {
                                                                                         </div>
                                                                                     )}
 
-                                                                                    {/* Case 2: Custom Data Input */}
+                                                                                    {/* Case 2: Custom Data Management */}
                                                                                     {item.urgencyConfig.tickerConfig?.customData && (
-                                                                                        <div className="space-y-2">
-                                                                                            {item.urgencyConfig.tickerConfig.customData.map((row, rowIdx) => (
-                                                                                                <div key={rowIdx} className="bg-white border p-2 rounded relative group">
-                                                                                                    <button
-                                                                                                        onClick={() => {
-                                                                                                            const newData = [...item.urgencyConfig.tickerConfig!.customData!];
-                                                                                                            newData.splice(rowIdx, 1);
-                                                                                                            updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
-                                                                                                        }}
-                                                                                                        className="absolute top-1 right-1 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                                                    >
-                                                                                                        <X className="w-3 h-3" />
-                                                                                                    </button>
-                                                                                                    <div className="grid grid-cols-2 gap-1 pr-4">
-                                                                                                        {item.urgencyConfig.tickerConfig?.columns.filter(c => c.isEnabled).map((col) => (
-                                                                                                            <div key={col.id}>
-                                                                                                                <label className="text-[9px] text-gray-400 block">{col.label}</label>
-                                                                                                                <input
-                                                                                                                    type="text"
-                                                                                                                    value={row[col.id] || ''}
-                                                                                                                    onChange={(e) => {
-                                                                                                                        const newData = [...item.urgencyConfig.tickerConfig!.customData!];
-                                                                                                                        newData[rowIdx] = { ...row, [col.id]: e.target.value };
-                                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
-                                                                                                                    }}
-                                                                                                                    className="w-full border p-1 rounded text-xs"
-                                                                                                                    placeholder={col.type === 'phone' ? '010-1234-5678' : col.label}
-                                                                                                                />
-                                                                                                            </div>
-                                                                                                        ))}
-                                                                                                    </div>
+                                                                                        <div className="space-y-3">
+                                                                                            {/* Google Sheet Sync */}
+                                                                                            <div className="bg-green-50 p-2 rounded border border-green-200">
+                                                                                                <div className="flex items-center justify-between mb-2">
+                                                                                                    <span className="text-[10px] font-bold text-green-800 flex items-center gap-1">
+                                                                                                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                                                                                        구글 시트 연동 관리
+                                                                                                    </span>
                                                                                                 </div>
-                                                                                            ))}
-                                                                                            <button
-                                                                                                onClick={() => {
-                                                                                                    const newData = [...(item.urgencyConfig.tickerConfig?.customData || [])];
-                                                                                                    // Create empty row with keys
-                                                                                                    const newRow: any = {};
-                                                                                                    item.urgencyConfig.tickerConfig?.columns.forEach(c => newRow[c.id] = '');
-                                                                                                    newData.push(newRow);
-                                                                                                    updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
-                                                                                                }}
-                                                                                                className="w-full py-2 bg-blue-50 text-blue-600 font-bold rounded hover:bg-blue-100 text-xs flex items-center justify-center"
-                                                                                            >
-                                                                                                <Plus className="w-3 h-3 mr-1" /> 데이터 추가
-                                                                                            </button>
+                                                                                                <p className="text-[9px] text-green-700 mb-2">
+                                                                                                    전용 시트에 데이터를 대량으로 입력하고,<br />
+                                                                                                    '데이터 가져오기'를 누르면 항목명과 내용이 자동 적용됩니다.
+                                                                                                </p>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <button
+                                                                                                        onClick={async () => {
+                                                                                                            if (!config.id) { alert('랜딩페이지 저장 후 이용 가능합니다.'); return; }
+                                                                                                            const res = await manageVirtualData(config.id, 'init_sheet');
+                                                                                                            if (res.result === 'success' && res.url) {
+                                                                                                                window.open(res.url, '_blank');
+                                                                                                            } else {
+                                                                                                                alert('시트 열기 실패: ' + (res.message || 'Unknown'));
+                                                                                                            }
+                                                                                                        }}
+                                                                                                        className="flex-1 py-1.5 bg-white border border-green-300 text-green-700 text-[10px] rounded hover:bg-green-100 flex items-center justify-center gap-1"
+                                                                                                    >
+                                                                                                        <ExternalLink className="w-3 h-3" /> 관리 시트 열기
+                                                                                                    </button>
+                                                                                                    <button
+                                                                                                        onClick={async () => {
+                                                                                                            if (!config.id) { alert('랜딩페이지 저장 후 이용 가능합니다.'); return; }
+                                                                                                            if (!confirm('시트의 내용으로 현재 데이터를 덮어쓰시겠습니까?')) return;
+
+                                                                                                            const res = await manageVirtualData(config.id, 'sync_data');
+                                                                                                            if (res.result === 'success') {
+                                                                                                                const headers = res.headers as string[];
+                                                                                                                const rows = res.data as string[][];
+
+                                                                                                                // 1. Update Columns
+                                                                                                                const newCols = [...item.urgencyConfig.tickerConfig!.columns];
+                                                                                                                // Ensure we enable enough columns if sheet has more
+                                                                                                                headers.forEach((h, i) => {
+                                                                                                                    if (i < 6) { // Max 6 defined in code usually
+                                                                                                                        if (!newCols[i]) {
+                                                                                                                            // Ticker usually has fixed 6 in data model? 
+                                                                                                                            // checking data model... usually defined in const?
+                                                                                                                            // Actually ApplicantListProps defines specific types. 
+                                                                                                                            // But TickerConfig columns is array of {id, label...}
+                                                                                                                        }
+                                                                                                                        if (newCols[i]) {
+                                                                                                                            newCols[i] = { ...newCols[i], label: h, isEnabled: true };
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                });
+
+                                                                                                                // 2. Update Data
+                                                                                                                const newData = rows.map((r, i) => {
+                                                                                                                    const rowObj: any = {};
+                                                                                                                    newCols.forEach((c, cIdx) => {
+                                                                                                                        rowObj[c.id] = r[cIdx] || '';
+                                                                                                                    });
+                                                                                                                    return rowObj;
+                                                                                                                });
+
+                                                                                                                updateDetailContent(idx, {
+                                                                                                                    urgencyConfig: {
+                                                                                                                        ...item.urgencyConfig!,
+                                                                                                                        tickerConfig: {
+                                                                                                                            ...item.urgencyConfig.tickerConfig!,
+                                                                                                                            columns: newCols,
+                                                                                                                            customData: newData
+                                                                                                                        }
+                                                                                                                    } as any
+                                                                                                                });
+                                                                                                                alert(`${rows.length}개의 데이터가 동기화되었습니다.`);
+                                                                                                            } else {
+                                                                                                                alert('동기화 실패: ' + (res.message || 'Unknown'));
+                                                                                                            }
+                                                                                                        }}
+                                                                                                        className="flex-1 py-1.5 bg-green-600 text-white text-[10px] rounded hover:bg-green-700 flex items-center justify-center gap-1 font-bold"
+                                                                                                    >
+                                                                                                        <RefreshCw className="w-3 h-3" /> 데이터 가져오기
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            {/* Manual Input Fallback */}
+                                                                                            <div className="space-y-2">
+                                                                                                {item.urgencyConfig.tickerConfig.customData.map((row, rowIdx) => (
+                                                                                                    <div key={rowIdx} className="bg-white border p-2 rounded relative group">
+                                                                                                        <button
+                                                                                                            onClick={() => {
+                                                                                                                const newData = [...item.urgencyConfig.tickerConfig!.customData!];
+                                                                                                                newData.splice(rowIdx, 1);
+                                                                                                                updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
+                                                                                                            }}
+                                                                                                            className="absolute top-1 right-1 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                                        >
+                                                                                                            <X className="w-3 h-3" />
+                                                                                                        </button>
+                                                                                                        <div className="grid grid-cols-2 gap-1 pr-4">
+                                                                                                            {item.urgencyConfig.tickerConfig?.columns.filter(c => c.isEnabled).map((col) => (
+                                                                                                                <div key={col.id}>
+                                                                                                                    <label className="text-[9px] text-gray-400 block">{col.label}</label>
+                                                                                                                    <input
+                                                                                                                        type="text"
+                                                                                                                        value={row[col.id] || ''}
+                                                                                                                        onChange={(e) => {
+                                                                                                                            const newData = [...item.urgencyConfig.tickerConfig!.customData!];
+                                                                                                                            newData[rowIdx] = { ...row, [col.id]: e.target.value };
+                                                                                                                            updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
+                                                                                                                        }}
+                                                                                                                        className="w-full border p-1 rounded text-xs"
+                                                                                                                        placeholder={col.type === 'phone' ? '010-1234-5678' : col.label}
+                                                                                                                    />
+                                                                                                                </div>
+                                                                                                            ))}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                ))}
+                                                                                                <button
+                                                                                                    onClick={() => {
+                                                                                                        const newData = [...(item.urgencyConfig.tickerConfig?.customData || [])];
+                                                                                                        // Create empty row with keys
+                                                                                                        const newRow: any = {};
+                                                                                                        item.urgencyConfig.tickerConfig?.columns.forEach(c => newRow[c.id] = '');
+                                                                                                        newData.push(newRow);
+                                                                                                        updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, tickerConfig: { ...item.urgencyConfig.tickerConfig!, customData: newData } } as any });
+                                                                                                    }}
+                                                                                                    className="w-full py-2 bg-blue-50 text-blue-600 font-bold rounded hover:bg-blue-100 text-xs flex items-center justify-center"
+                                                                                                >
+                                                                                                    <Plus className="w-3 h-3 mr-1" /> 데이터 추가
+                                                                                                </button>
+                                                                                            </div>
                                                                                         </div>
                                                                                     )}
                                                                                 </div>

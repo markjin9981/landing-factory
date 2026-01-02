@@ -200,6 +200,8 @@ function doPost(e) {
       return handleRemoveAdminUser(params);
     } else if (type === 'lead_delete') {
       return handleLeadDeletion(params);
+    } else if (type === 'virtual_data') {
+      return handleVirtualData(params);
     } else { 
       // Default to lead submission
       return handleLeadSubmission(params);
@@ -444,6 +446,83 @@ function handleConfigSubmission(params) {
   return ContentService.createTextOutput(JSON.stringify({"result":"success", "id": configId})).setMimeType(ContentService.MimeType.JSON);
 }
 
+// =================================================================
+// [NEW] Virtual Data Sync Handler
+// =================================================================
+function handleVirtualData(params) {
+  var action = params.action; // 'init_sheet' or 'sync_data'
+  var landingId = params.landing_id;
+  
+  if (!landingId) return ContentService.createTextOutput(JSON.stringify({"result": "error", "message": "Landing ID required"})).setMimeType(ContentService.MimeType.JSON);
+
+  var rootFolder = DriveApp.getRootFolder();
+  var folderName = "Landing-factory Data";
+  var folder;
+  var folders = rootFolder.getFoldersByName(folderName);
+  
+  if (folders.hasNext()) {
+    folder = folders.next();
+  } else {
+    folder = rootFolder.createFolder(folderName);
+  }
+
+  var fileName = "LandingData_" + landingId;
+
+  if (action === 'init_sheet') {
+    var files = folder.getFilesByName(fileName);
+    var file;
+    var ss;
+
+    if (files.hasNext()) {
+      file = files.next();
+      file.setTrashed(false); // Restore if trashed
+    } else {
+      ss = SpreadsheetApp.create(fileName);
+      file = DriveApp.getFileById(ss.getId());
+      file.moveTo(folder);
+      
+      // Initialize with template
+      var sheet = ss.getSheets()[0];
+      sheet.setName("VirtualData");
+      sheet.getRange(1, 1, 1, 6).setValues([["이름", "전화번호", "직업", "나이", "지역", "기타"]]);
+      // Add sample
+      sheet.getRange(2, 1, 1, 6).setValues([["김철수", "010-1234-5678", "회사원", "30대", "서울", "-"]]);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "success", 
+      "url": file.getUrl(),
+      "fileId": file.getId()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'sync_data') {
+    var files = folder.getFilesByName(fileName);
+    if (!files.hasNext()) {
+       return ContentService.createTextOutput(JSON.stringify({"result": "error", "message": "Sheet not found. Please init first."})).setMimeType(ContentService.MimeType.JSON);
+    }
+    var file = files.next();
+    var ss = SpreadsheetApp.openById(file.getId());
+    var sheet = ss.getSheets()[0];
+    var lastRow = sheet.getLastRow();
+    var lastCol = sheet.getLastColumn(); // Max 6 enforced in frontend usually, but read all here
+    
+    if (lastRow < 1) return ContentService.createTextOutput(JSON.stringify({"result": "success", "headers": [], "data": []})).setMimeType(ContentService.MimeType.JSON);
+
+    var range = sheet.getRange(1, 1, lastRow, lastCol);
+    var values = range.getDisplayValues();
+    
+    var headers = values[0]; // Row 1 is Header
+    var data = values.slice(1); // Row 2+ is Data
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "success",
+      "headers": headers,
+      "data": data
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
 function handleLeadSubmission(params) {
   var sheet = getOrCreateSheet("Leads");
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
@@ -454,7 +533,7 @@ function handleLeadSubmission(params) {
   var newHeaders = [];
   
   for (var key in params) {
-    if (key === 'type') continue;
+    if (key === 'type' || key === 'formatted_fields') continue; // Skip internal fields
     var targetHeader = standardMapping[key] || key;
     if (!headerMap[targetHeader.toLowerCase()] && !headerMap[key.toLowerCase()]) {
        newHeaders.push(targetHeader);
@@ -484,7 +563,7 @@ function handleLeadSubmission(params) {
   
   // Email Notification
   try {
-    var recipient = "beanhull@gmail.com";
+    var recipient = "beanhull@gmail.com"; // Consider making this dynamic if needed
     var pageTitle = params.page_title || ("랜딩 ID " + params.landing_id);
     var landingId = params.landing_id || "Unknown";
     var dateObj = new Date();
@@ -497,16 +576,31 @@ function handleLeadSubmission(params) {
     body += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     body += "■ 랜딩페이지: " + pageTitle + " (ID: " + landingId + ")\n\n";
     
-    var priorityKeys = ['name', 'phone'];
-    priorityKeys.forEach(function(k) { if (params[k]) body += "■ " + k.toUpperCase() + ": " + params[k] + "\n"; });
+    // [NEW] Use Formatted Fields if available (Strict Order from Editor)
+    if (params.formatted_fields) {
+        try {
+            var fields = JSON.parse(params.formatted_fields);
+            // fields = [{label: '이름', value: '홍길동'}, {label: '직업', value: '학생'} ...]
+            for (var i = 0; i < fields.length; i++) {
+                body += "■ " + fields[i].label + ": " + fields[i].value + "\n";
+            }
+        } catch (jsonErr) {
+            // Fallback (Should not happen)
+             body += "■ (데이터 파싱 오류 - 원본 데이터 확인 필요)\n";
+        }
+    } else {
+        // Fallback to legacy logic (Dump defined keys)
+        var priorityKeys = ['name', 'phone'];
+        priorityKeys.forEach(function(k) { if (params[k]) body += "■ " + k.toUpperCase() + ": " + params[k] + "\n"; });
 
-    var systemKeys = ['type', 'page_title', 'landing_id', 'timestamp', 'user_agent', 'referrer', 'marketing_consent', 'third_party_consent', 'privacy_consent', 'ip', 'device'];
-    
-    for (var k in params) {
-      if (priorityKeys.indexOf(k) !== -1) continue;
-      if (systemKeys.indexOf(k) !== -1) continue;
-      if (k.indexOf('consent') !== -1) continue;
-      body += "■ " + k + ": " + params[k] + "\n";
+        var systemKeys = ['type', 'page_title', 'landing_id', 'timestamp', 'user_agent', 'referrer', 'marketing_consent', 'third_party_consent', 'privacy_consent', 'ip', 'device', 'formatted_fields'];
+        
+        for (var k in params) {
+          if (priorityKeys.indexOf(k) !== -1) continue;
+          if (systemKeys.indexOf(k) !== -1) continue;
+          if (k.indexOf('consent') !== -1) continue;
+          body += "■ " + k + ": " + params[k] + "\n";
+        }
     }
     
     body += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
@@ -515,7 +609,9 @@ function handleLeadSubmission(params) {
     body += "\n(본 메일은 랜딩페이지 팩토리에서 자동으로 발송되었습니다.)";
     
     MailApp.sendEmail(recipient, subject, body);
-  } catch (e) {}
+  } catch (e) {
+      // Mail fail suppression
+  }
 
   return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
 }
