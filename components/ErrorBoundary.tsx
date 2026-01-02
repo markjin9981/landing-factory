@@ -23,6 +23,26 @@ class ErrorBoundary extends Component<Props, State> {
     componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         console.error("Uncaught error:", error, errorInfo);
         this.setState({ errorInfo });
+
+        // Auto-reload on Chunk Load Error
+        // This usually happens when a new version is deployed and the browser tries to fetch old chunks.
+        if (
+            error.message.includes('Failed to fetch dynamically imported module') ||
+            error.message.includes('Importing a module script failed')
+        ) {
+            const storageKey = 'reload_on_chunk_error';
+            const hasReloaded = sessionStorage.getItem(storageKey);
+
+            if (!hasReloaded) {
+                console.log('Chunk load error detected. Reloading page...');
+                sessionStorage.setItem(storageKey, 'true');
+                window.location.reload();
+            } else {
+                // Already reloaded once and failed again? Clean up so we don't loop forever,
+                // but show the error UI.
+                sessionStorage.removeItem(storageKey);
+            }
+        }
     }
 
     render() {

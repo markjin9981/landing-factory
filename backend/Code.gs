@@ -56,7 +56,7 @@ function doGet(e) {
       return handleSyncFonts(params);
   }
 
-  return ContentService.createTextOutput("Backend Status: Online | Version: 3.2 (Sync Added) | Drive Access: OK");
+  return ContentService.createTextOutput("Backend Status: Online | Version: 3.3 (Email + Virtual Data) | Drive Access: OK");
 }
 
 function handleSyncFonts(params) {
