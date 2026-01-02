@@ -681,6 +681,29 @@ export const syncFontsFromDrive = async (): Promise<any[]> => {
     }
 }
 
+/**
+ * [NEW] Base64 Font Proxy Fetcher
+ * Fetches the font file via backend proxy to bypass CORS.
+ */
+export const fetchProxyFont = async (fileId: string): Promise<{ data: string, format: string } | null> => {
+    if (!isUrlConfigured()) return null;
+    try {
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?type=proxy_font&id=${fileId}`);
+        const json = await res.json();
+
+        if (json.result === 'success' && json.data) {
+            // Construct Data URI: data:font/woff2;base64,.....
+            const mime = json.mime || 'font/in-process'; // Fallback
+            const dataUri = `data:${mime};base64,${json.data}`;
+            return { data: dataUri, format: json.format || 'truetype' };
+        }
+        return null;
+    } catch (e) {
+        console.error("Proxy Font Error:", e);
+        return null;
+    }
+}
+
 // --- Virtual Data Management ---
 
 export const manageVirtualData = async (landingId: string, action: 'init_sheet' | 'sync_data'): Promise<any> => {

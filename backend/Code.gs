@@ -53,10 +53,41 @@ function doGet(e) {
   } else if (type === 'revoke_session') {
       return handleRevokeSession(params);
   } else if (type === 'sync_fonts') {
+  } else if (type === 'sync_fonts') {
       return handleSyncFonts(params);
+  } else if (type === 'proxy_font') {
+      return handleFontProxy(params);
   }
 
-  return ContentService.createTextOutput("Backend Status: Online | Version: 3.3 (Email + Virtual Data) | Drive Access: OK");
+  return ContentService.createTextOutput("Backend Status: Online | Version: 3.4 (Font Proxy) | Drive Access: OK");
+}
+
+function handleFontProxy(params) {
+  var fileId = params.id;
+  if (!fileId) return ContentService.createTextOutput(JSON.stringify({"error": "No File ID"})).setMimeType(ContentService.MimeType.JSON);
+
+  try {
+    var file = DriveApp.getFileById(fileId);
+    var blob = file.getBlob();
+    var base64 = Utilities.base64Encode(blob.getBytes());
+    var mimeType = file.getMimeType();
+    
+    // Determine format hint if possible
+    var name = file.getName().toLowerCase();
+    var format = 'truetype';
+    if (name.endsWith('.woff2')) format = 'woff2';
+    else if (name.endsWith('.woff')) format = 'woff';
+    else if (name.endsWith('.otf')) format = 'opentype';
+
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "success",
+      "data": base64,
+      "mime": mimeType,
+      "format": format
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({"error": "Fetch Failed: " + e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
 }
 
 function handleSyncFonts(params) {

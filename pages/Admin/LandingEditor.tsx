@@ -169,39 +169,33 @@ const LandingEditor: React.FC = () => {
     }, [id]);
 
     // NEW: Inject Custom Fonts into Editor Document so FontPicker can render them
+    // [SECURE LOAD] Fetch font data via Proxy to bypass CORS
     useEffect(() => {
-        if (globalSettings?.customFonts) {
-            // 1. Style Tag
-            let styleTag = document.getElementById('editor-custom-font-styles');
-            if (!styleTag) {
-                styleTag = document.createElement('style');
-                styleTag.id = 'editor-custom-font-styles';
-                document.head.appendChild(styleTag);
-            }
+        if (globalSettings?.customFonts && globalSettings.customFonts.length > 0) {
+            import('../../services/googleSheetService').then(({ fetchProxyFont }) => {
+                globalSettings.customFonts.forEach(async (font) => {
+                    const styleId = `editor-font-style-${font.id}`;
+                    if (document.getElementById(styleId)) return;
 
-            const fontFaceRules = globalSettings.customFonts.map(font => `
-              @font-face {
-                font-family: '${font.family}';
-                src: url('${font.url}') format('${font.format || (font.url.endsWith('.woff2') ? 'woff2' : font.url.endsWith('.woff') ? 'woff' : 'truetype')}');
-                font-weight: normal;
-                font-style: normal;
-                font-display: swap;
-              }
-            `).join('\n');
-
-            styleTag.textContent = fontFaceRules;
-
-            // 2. Preload Links (Force CORS)
-            document.querySelectorAll('link[data-editor-font-preload="true"]').forEach(el => el.remove());
-
-            globalSettings.customFonts.forEach(font => {
-                const link = document.createElement('link');
-                link.rel = 'preload';
-                link.as = 'font';
-                link.href = font.url;
-                link.crossOrigin = 'anonymous';
-                link.setAttribute('data-editor-font-preload', 'true');
-                document.head.appendChild(link);
+                    const proxyData = await fetchProxyFont(font.id || '');
+                    if (proxyData) {
+                        const styleTag = document.createElement('style');
+                        styleTag.id = styleId;
+                        styleTag.textContent = `
+                           @font-face {
+                               font-family: '${font.family}';
+                               src: url('${proxyData.data}') format('${proxyData.format}');
+                               font-weight: normal;
+                               font-style: normal;
+                               font-display: swap;
+                           }
+                       `;
+                        document.head.appendChild(styleTag);
+                    } else {
+                        console.warn("Editor Proxy load failed for", font.family);
+                        // Fallback
+                    }
+                });
             });
         }
     }, [globalSettings.customFonts]);
