@@ -108,6 +108,18 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
     if (!config.solution) config.solution = { title: '', description: '', features: [] };
     if (!config.trust) config.trust = { reviews: [], stats: [] };
     if (!config.formConfig) config.formConfig = { title: '', fields: [], style: {} } as any;
+
+    // Theme Safety
+    if (!config.theme) {
+      config.theme = {
+        primaryColor: '#0ea5e9',
+        secondaryColor: '#0f172a',
+        fontConfig: { primaryFont: 'Inter', source: 'google' },
+        customFonts: []
+      };
+    }
+    if (!config.theme.primaryColor) config.theme.primaryColor = '#0ea5e9';
+    if (!config.theme.customFonts) config.theme.customFonts = [];
   }
 
   const isPreview = !!previewConfig;
