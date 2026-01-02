@@ -105,7 +105,8 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
         zIndex: isPreview ? 100 : 9999, // MAX Z-Index for Live Site
         width: `${styleConfig?.width || 300}px`,
         top: `${styleConfig?.top || 100}px`,
-        left: `${styleConfig?.left || 50}px`,
+        left: styleConfig?.isCentered ? '50%' : `${styleConfig?.left || 50}px`,
+        transform: styleConfig?.isCentered ? 'translateX(-50%)' : undefined,
         backgroundColor: 'transparent',
     };
 

@@ -1008,8 +1008,8 @@ const LandingEditor: React.FC = () => {
                                                                         }}
                                                                     />
                                                                 </div>
-                                                                <div className="flex gap-2">
-                                                                    <div className="flex-1">
+                                                                <div className="space-y-2">
+                                                                    <div>
                                                                         <label className="block text-[10px] text-gray-500">게시 시작일 (YYYY-MM-DD HH:mm)</label>
                                                                         <input type="datetime-local"
                                                                             className="w-full border rounded p-1 text-xs"
@@ -1021,7 +1021,7 @@ const LandingEditor: React.FC = () => {
                                                                             }}
                                                                         />
                                                                     </div>
-                                                                    <div className="flex-1">
+                                                                    <div>
                                                                         <label className="block text-[10px] text-gray-500">게시 종료일 (YYYY-MM-DD HH:mm)</label>
                                                                         <input type="datetime-local"
                                                                             className="w-full border rounded p-1 text-xs"
