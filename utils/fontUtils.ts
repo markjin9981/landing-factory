@@ -2,11 +2,22 @@
 export interface GoogleFont {
     name: string;
     family: string;
-    category: 'Korean' | 'English' | 'Handwriting' | 'Display' | 'Naver';
+    category: 'Korean' | 'English' | 'Handwriting' | 'Display' | 'Naver' | 'Baemin';
     url?: string; // Optional custom URL for non-Google fonts (e.g. Naver)
 }
 
 export const GOOGLE_FONTS_LIST: GoogleFont[] = [
+
+    // --- BAEMIN (Woowa Brothers) ---
+    { name: 'Baemin DoHyeon', family: 'Do Hyeon', category: 'Baemin' }, // Google Font
+    { name: 'Baemin Jua', family: 'Jua', category: 'Baemin' }, // Google Font
+    { name: 'Baemin YeonSung', family: 'Yeon Sung', category: 'Baemin' }, // Google Font
+    { name: 'Baemin Kirang Haerang', family: 'Kirang Haerang', category: 'Baemin' }, // Google Font
+    { name: 'Baemin Hanna Pro', family: 'BMHANNAPro', category: 'Baemin', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_seven@1.0/BMHANNAPro.woff' },
+    { name: 'Baemin Hanna Air', family: 'BMHANNAAir', category: 'Baemin', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_four@1.0/BMHANNAAir.woff' },
+    { name: 'Baemin Euljiro', family: 'BMEULJIRO', category: 'Baemin', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/BMEULJIRO.woff' },
+    { name: 'Baemin Euljiro 10Yrs', family: 'BMEULJIRO10YEARSLATER', category: 'Baemin', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10-21@1.0/BMEULJIRO10YEARSLATER.woff' },
+
     // --- NAVER FONTS ---
     { name: 'Nanum Square Neo', family: 'NanumSquareNeo', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/nanum-square-neo.css' },
     { name: 'Nanum Square', family: 'NanumSquare', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css' },
@@ -20,8 +31,6 @@ export const GOOGLE_FONTS_LIST: GoogleFont[] = [
     { name: 'Noto Sans KR', family: 'Noto Sans KR', category: 'Korean' },
     { name: 'Nanum Gothic', family: 'Nanum Gothic', category: 'Korean' },
     { name: 'Gothic A1', family: 'Gothic A1', category: 'Korean' },
-    { name: 'Do Hyeon', family: 'Do Hyeon', category: 'Korean' },
-    { name: 'Jua', family: 'Jua', category: 'Korean' },
     { name: 'Sunflower', family: 'Sunflower', category: 'Korean' },
     { name: 'Stylish', family: 'Stylish', category: 'Korean' },
     { name: 'Gowun Dodum', family: 'Gowun Dodum', category: 'Korean' },
