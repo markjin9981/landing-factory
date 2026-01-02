@@ -27,7 +27,25 @@ export const GOOGLE_FONTS_LIST: GoogleFont[] = [
     { name: 'Maru Buri', family: 'MaruBuri', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css' },
     { name: 'D2Coding', family: 'D2Coding', category: 'Naver', url: 'https://d2.coding-font.com/d2coding.css' }, // Popular for tech landing pages
 
-    // --- KOREAN GOTHIC (Sans-Serif) ---
+
+    // --- KOREAN POPULAR (Sans/Gothic) ---
+    { name: 'Pretendard', family: 'Pretendard', category: 'Korean', url: 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css' },
+    { name: 'Gmarket Sans', family: 'GmarketSansMedium', category: 'Korean', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff' },
+    { name: 'Spoqa Han Sans Neo', family: 'Spoqa Han Sans Neo', category: 'Korean', url: 'https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans/css/SpoqaHanSansNeo.css' },
+    { name: 'Tmoney RoundWind', family: 'TmoneyRoundWindRegular', category: 'Korean', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/TmoneyRoundWindRegular.woff' },
+    { name: 'PyeongChang Peace', family: 'PyeongChangPeace-Bold', category: 'Korean', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2206-02@1.0/PyeongChangPeace-Bold.woff2' },
+
+    // --- KOREAN DISPLAY / BRAND ---
+    { name: 'Cafe24 Ssurround', family: 'Cafe24Ssurround', category: 'Display', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24Ssurround.woff' },
+    { name: 'Cafe24 Ssurround Air', family: 'Cafe24SsurroundAir', category: 'Display', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24SsurroundAir.woff' },
+    { name: 'Cafe24 Classictype', family: 'Cafe24ClassicType-Regular', category: 'Display', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/Cafe24ClassicType-Regular.woff' },
+    { name: 'Cafe24 Ohsquare', family: 'Cafe24Ohsquare', category: 'Display', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/Cafe24Ohsquare.woff' },
+    { name: 'CookieRun', family: 'CookieRun-Regular', category: 'Display', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff' },
+    { name: 'Mapo Golden Pier', family: 'MapoGoldenPier', category: 'Display', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/MapoGoldenPierA.woff' },
+    { name: 'Mapo Flower Island', family: 'MapoFlowerIsland', category: 'Display', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/MapoFlowerIslandA.woff' },
+    { name: 'Sam3KR (Pixel)', family: 'Sam3KRFont', category: 'Display', url: 'https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/Sam3KRFont.woff' },
+
+    // --- KOREAN GOTHIC (Standard) ---
     { name: 'Noto Sans KR', family: 'Noto Sans KR', category: 'Korean' },
     { name: 'Nanum Gothic', family: 'Nanum Gothic', category: 'Korean' },
     { name: 'Gothic A1', family: 'Gothic A1', category: 'Korean' },
