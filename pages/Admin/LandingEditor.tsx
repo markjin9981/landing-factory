@@ -115,6 +115,13 @@ const LandingEditor: React.FC = () => {
                     if (!loadedConfig.footer) {
                         loadedConfig.footer = JSON.parse(JSON.stringify(DEFAULT_CONFIG.footer));
                     }
+                    // Ensure Critical Sections exist
+                    if (!loadedConfig.hero) loadedConfig.hero = JSON.parse(JSON.stringify(DEFAULT_CONFIG.hero));
+                    if (!loadedConfig.problem) loadedConfig.problem = JSON.parse(JSON.stringify(DEFAULT_CONFIG.problem));
+                    if (!loadedConfig.solution) loadedConfig.solution = JSON.parse(JSON.stringify(DEFAULT_CONFIG.solution));
+                    if (!loadedConfig.trust) loadedConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
+                    if (!loadedConfig.formConfig) loadedConfig.formConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.formConfig));
+
                     setConfig(loadedConfig);
                     return; // Loaded from draft, stop.
                 }
@@ -138,6 +145,13 @@ const LandingEditor: React.FC = () => {
                         }));
                     }
                     if (!sheetConfig.detailContent) sheetConfig.detailContent = [];
+
+                    // Ensure Critical Sections exist
+                    if (!sheetConfig.hero) sheetConfig.hero = JSON.parse(JSON.stringify(DEFAULT_CONFIG.hero));
+                    if (!sheetConfig.problem) sheetConfig.problem = JSON.parse(JSON.stringify(DEFAULT_CONFIG.problem));
+                    if (!sheetConfig.solution) sheetConfig.solution = JSON.parse(JSON.stringify(DEFAULT_CONFIG.solution));
+                    if (!sheetConfig.trust) sheetConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
+                    if (!sheetConfig.formConfig) sheetConfig.formConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.formConfig));
 
                     setConfig(sheetConfig);
                 } else {

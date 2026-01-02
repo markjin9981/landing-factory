@@ -91,6 +91,25 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
     config = { ...rawConfig, banners: [] };
   }
 
+  // Runtime Safety for Critical Sections
+  if (config) {
+    if (!config.hero) {
+      config.hero = {
+        headline: '내용 없음',
+        subHeadline: '',
+        headlineStyle: { fontSize: '3rem', fontWeight: '800', color: '#ffffff', textAlign: 'center' },
+        subHeadlineStyle: {},
+        ctaText: '신청하기',
+        size: 'md',
+        backgroundImage: ''
+      };
+    }
+    if (!config.problem) config.problem = { title: '', description: '', points: [] };
+    if (!config.solution) config.solution = { title: '', description: '', features: [] };
+    if (!config.trust) config.trust = { reviews: [], stats: [] };
+    if (!config.formConfig) config.formConfig = { title: '', fields: [], style: {} } as any;
+  }
+
   const isPreview = !!previewConfig;
   const visitLogged = useRef(false);
 
