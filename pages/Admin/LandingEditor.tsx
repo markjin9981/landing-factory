@@ -171,6 +171,7 @@ const LandingEditor: React.FC = () => {
     // NEW: Inject Custom Fonts into Editor Document so FontPicker can render them
     useEffect(() => {
         if (globalSettings?.customFonts) {
+            // 1. Style Tag
             let styleTag = document.getElementById('editor-custom-font-styles');
             if (!styleTag) {
                 styleTag = document.createElement('style');
@@ -189,6 +190,19 @@ const LandingEditor: React.FC = () => {
             `).join('\n');
 
             styleTag.textContent = fontFaceRules;
+
+            // 2. Preload Links (Force CORS)
+            document.querySelectorAll('link[data-editor-font-preload="true"]').forEach(el => el.remove());
+
+            globalSettings.customFonts.forEach(font => {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'font';
+                link.href = font.url;
+                link.crossOrigin = 'anonymous';
+                link.setAttribute('data-editor-font-preload', 'true');
+                document.head.appendChild(link);
+            });
         }
     }, [globalSettings.customFonts]);
 

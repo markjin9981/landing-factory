@@ -202,6 +202,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
   // Isolate this to ensure it runs specifically when fonts change
   useEffect(() => {
     if (config?.theme?.customFonts) {
+      // 1. Inject Style Tag
       let styleTag = document.getElementById('custom-font-styles');
       if (!styleTag) {
         styleTag = document.createElement('style');
@@ -220,6 +221,21 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
         `).join('\n');
 
       styleTag.textContent = fontFaceRules;
+
+      // 2. Inject Preload Links (To force CORS / Caching)
+      // Remove old preloads first to avoid duplicates/leaks
+      document.querySelectorAll('link[data-font-preload="true"]').forEach(el => el.remove());
+
+      config.theme.customFonts.forEach(font => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'font';
+        link.href = font.url;
+        // link.type = ... // optional, but we have format
+        link.crossOrigin = 'anonymous';
+        link.setAttribute('data-font-preload', 'true');
+        document.head.appendChild(link);
+      });
     }
   }, [config?.theme?.customFonts]);
 
