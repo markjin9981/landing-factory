@@ -212,7 +212,12 @@ const fetchData = async (type: 'leads' | 'visits' | 'config' | 'configs' | 'admi
             url += `&id=${id}`;
         }
 
-        const response = await fetch(url);
+        const fetchPromise = fetch(url);
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timed out')), 10000)
+        );
+
+        const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
 
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);

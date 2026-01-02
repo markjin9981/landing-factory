@@ -22,14 +22,13 @@ const AdminDashboard: React.FC = () => {
             Object.values(LANDING_CONFIGS).forEach(c => configMap.set(c.id, c));
 
             // 2. Remote (Google Sheets) - Overwrites Hardcoded
-            try {
-                // Import dynamically or assume it's available via closure scope if I modify imports
-                // To be safe I will use the imported function
-                const remoteConfigs = await fetchLandingConfigs();
-                remoteConfigs.forEach(c => configMap.set(c.id, c));
-            } catch (e) {
-                console.error("Failed to load remote configs", e);
-            }
+            const remotePromise = fetchLandingConfigs()
+                .then(remoteConfigs => {
+                    remoteConfigs.forEach(c => configMap.set(c.id, c));
+                })
+                .catch(e => {
+                    console.error("Failed to load remote configs", e);
+                });
 
             // 3. Local Drafts - Overwrites everything (Highest priority for editor)
             try {
@@ -44,23 +43,43 @@ const AdminDashboard: React.FC = () => {
                 console.error("Failed to load drafts", e);
             }
 
-            // Convert to array and sort by ID
-            const sorted = Array.from(configMap.values()).sort((a, b) => {
-                // Try numeric sort
-                const idA = Number(a.id);
-                const idB = Number(b.id);
+            // Wait for remote fetch or timeout
+            console.log("AdminDashboard: Waiting for configs...");
+            await Promise.race([
+                remotePromise,
+                new Promise(resolve => setTimeout(resolve, 12000)) // Safety timeout slightly longer than fetch timeout
+            ]);
+            console.log("AdminDashboard: Fetch/Timeout finished.");
 
-                // Compare based on sortOrder
-                if (!isNaN(idA) && !isNaN(idB)) {
-                    return sortOrder === 'newest' ? idB - idA : idA - idB;
-                }
-                return sortOrder === 'newest'
-                    ? b.id.localeCompare(a.id)
-                    : a.id.localeCompare(b.id);
-            });
+            try {
+                // Convert to array and sort by ID
+                const sorted = Array.from(configMap.values()).sort((a, b) => {
+                    // Safety check for ID
+                    if (!a?.id || !b?.id) return 0;
 
-            setConfigs(sorted);
-            setLoading(false);
+                    // Try numeric sort
+                    const idA = Number(a.id);
+                    const idB = Number(b.id);
+
+                    // Compare based on sortOrder
+                    if (!isNaN(idA) && !isNaN(idB)) {
+                        return sortOrder === 'newest' ? idB - idA : idA - idB;
+                    }
+                    return sortOrder === 'newest'
+                        ? String(b.id).localeCompare(String(a.id))
+                        : String(a.id).localeCompare(String(b.id));
+                });
+
+                console.log("AdminDashboard: Setting configs.", sorted);
+                setConfigs(sorted);
+            } catch (sortError) {
+                console.error("AdminDashboard: Error sorting/setting configs", sortError);
+                // If sort fails, just show unsorted values safely
+                setConfigs(Array.from(configMap.values()));
+            } finally {
+                console.log("AdminDashboard: Disabling loading.");
+                setLoading(false);
+            }
         };
 
         loadAllConfigs();
@@ -204,7 +223,7 @@ const AdminDashboard: React.FC = () => {
                                         <OgStatusBadge id={config.id} expectedTitle={config.title || config.hero?.headline || ''} />
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-800 mb-1">{config.title || '(제목 없음)'}</h3>
-                                    <p className="text-sm text-gray-500 line-clamp-1">{config.hero.headline || '(헤드라인 없음)'}</p>
+                                    <p className="text-sm text-gray-500 line-clamp-1">{config.hero?.headline || '(헤드라인 없음)'}</p>
                                 </div>
 
                                 <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0">
