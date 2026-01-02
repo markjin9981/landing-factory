@@ -19,6 +19,7 @@ interface CountdownTimerProps {
         // V3: New Fields
         digitColor?: string;
         isTransparent?: boolean;
+        labelFontFamily?: string;
     };
 }
 
@@ -93,7 +94,8 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate, label = "ë§
         fontWeight: (style?.labelFontWeight as any) || 'bold',
         display: 'flex',
         alignItems: 'center',
-        gap: '0.25rem'
+        gap: '0.25rem',
+        fontFamily: style?.labelFontFamily
     };
 
     // V3: Digit Color Control

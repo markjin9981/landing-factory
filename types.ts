@@ -292,6 +292,7 @@ export interface BannerStyle {
   fontWeight: string;
   textAlign: 'left' | 'center' | 'right';
   padding: string;
+  fontFamily?: string;
 }
 
 // V2/V3 UPDATE

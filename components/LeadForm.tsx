@@ -220,7 +220,8 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                         style={{
                             fontSize: formStyle.titleFontSize || '1.5rem',
                             color: formStyle.titleColor || 'white',
-                            textAlign: (formStyle.titleAlign || 'center') as any
+                            textAlign: (formStyle.titleAlign || 'center') as any,
+                            fontFamily: formStyle.titleFontFamily
                         }}
                     >
                         {config.title}
@@ -256,7 +257,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         value={formData[field.id] || ''}
                                                         onChange={handleChange}
                                                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all appearance-none bg-white pr-10 text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     >
                                                         <option value="" disabled>선택해주세요</option>
                                                         {field.options.map(opt => (
@@ -311,7 +312,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                             value={p1}
                                                             onChange={(e) => handlePhonePartChange(field.id, 'p1', e.target.value)}
                                                             className="w-full px-2 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-center appearance-none text-gray-900"
-                                                            style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                            style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                         >
                                                             {PHONE_PREFIXES.map(pre => (
                                                                 <option key={pre} value={pre}>{pre}</option>
@@ -328,7 +329,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         maxLength={4}
                                                         placeholder="0000"
                                                         className="flex-1 min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-center bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     />
                                                     <span className="text-gray-400 shrink-0">-</span>
                                                     <input
@@ -339,7 +340,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         maxLength={4}
                                                         placeholder="0000"
                                                         className="flex-1 min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-center bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     />
                                                 </div>
                                             );
@@ -358,7 +359,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         onChange={handleTextareaChange}
                                                         maxLength={200}
                                                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all resize-none h-32 bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     />
                                                     <div className="absolute bottom-3 right-3 text-xs text-gray-400 font-mono">
                                                         {currentLen}/200
@@ -408,7 +409,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         value={formData[field.id] || ''}
                                                         onChange={handleChange}
                                                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none appearance-none bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     >
                                                         <option value="">시간을 선택해주세요</option>
                                                         {timeSlots.map((slot, idx) => (
@@ -431,7 +432,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         value={formData[field.id] || ''}
                                                         onChange={handleChange}
                                                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     />
                                                 </div>
                                             );
@@ -485,7 +486,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         value={id}
                                                         onChange={(e) => updateEmail('id', e.target.value)}
                                                         className="flex-1 min-w-[120px] px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     />
                                                     <span className="text-gray-400">@</span>
                                                     <div className="relative flex-1 min-w-[140px]">
@@ -493,7 +494,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                             value={domain}
                                                             onChange={(e) => updateEmail('domain', e.target.value)}
                                                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none appearance-none bg-white pr-10 text-gray-900"
-                                                            style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                            style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                         >
                                                             <option value="naver.com">naver.com</option>
                                                             <option value="hanmail.net">hanmail.net</option>
@@ -512,7 +513,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                             value={direct}
                                                             onChange={(e) => updateEmail('direct', e.target.value)}
                                                             className="w-full md:w-auto md:flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
-                                                            style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                            style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                         />
                                                     )}
                                                 </div>
@@ -582,7 +583,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         value={formData[`${field.id}_detail`] || ''}
                                                         onChange={handleChange}
                                                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     />
                                                 </div>
                                             );
@@ -601,7 +602,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                     onChange={handleChange}
                                                     maxLength={20}
                                                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all pr-12 bg-white text-gray-900"
-                                                    style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
+                                                    style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                 />
                                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 font-mono">
                                                     {currentLen}/20
@@ -696,29 +697,31 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                         <div className="flex items-center gap-1">개인정보 암호화</div>
                     </div>
                 </form>
-            </div>
+            </div >
 
             {/* Policy Modal */}
-            {modalContent && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[80vh] flex flex-col">
-                        <div className="p-4 border-b flex justify-between items-center">
-                            <h3 className="font-bold text-lg text-gray-900">{modalContent.title}</h3>
-                            <button onClick={() => setModalContent(null)} className="p-1 hover:bg-gray-100 rounded-full">
-                                <X className="w-6 h-6 text-gray-500" />
-                            </button>
-                        </div>
-                        <div className="p-4 overflow-y-auto whitespace-pre-wrap text-sm text-gray-700 leading-relaxed">
-                            {modalContent.content}
-                        </div>
-                        <div className="p-4 border-t text-right">
-                            <button onClick={() => setModalContent(null)} className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-bold">
-                                닫기
-                            </button>
+            {
+                modalContent && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                        <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[80vh] flex flex-col">
+                            <div className="p-4 border-b flex justify-between items-center">
+                                <h3 className="font-bold text-lg text-gray-900">{modalContent.title}</h3>
+                                <button onClick={() => setModalContent(null)} className="p-1 hover:bg-gray-100 rounded-full">
+                                    <X className="w-6 h-6 text-gray-500" />
+                                </button>
+                            </div>
+                            <div className="p-4 overflow-y-auto whitespace-pre-wrap text-sm text-gray-700 leading-relaxed">
+                                {modalContent.content}
+                            </div>
+                            <div className="p-4 border-t text-right">
+                                <button onClick={() => setModalContent(null)} className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-bold">
+                                    닫기
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
         </>
     );
 };

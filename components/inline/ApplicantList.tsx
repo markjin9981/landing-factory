@@ -27,6 +27,8 @@ interface ApplicantListProps {
     };
     // Legacy support (to be deprecated or mapped)
     speed?: number;
+    titleFontFamily?: string;
+    contentFontFamily?: string;
 }
 
 // Helper: Korean Currency Formatter
@@ -72,7 +74,9 @@ const generateFakeRow = (columns: ApplicantListProps['columns'], rules: any, see
 const ApplicantList: React.FC<ApplicantListProps> = ({
     title = "실시간 참여 현황",
     columns = [],
-    config
+    config,
+    titleFontFamily,
+    contentFontFamily
 }) => {
     const activeColumns = columns.filter(c => c.isEnabled);
     const ROW_HEIGHT = 40; // px, fixed for simplicity
@@ -156,7 +160,7 @@ const ApplicantList: React.FC<ApplicantListProps> = ({
             {/* Header */}
             {title && (
                 <div className="bg-blue-600 text-white font-bold text-center py-3 text-lg md:text-xl shrink-0"
-                    style={{ backgroundColor: config?.containerStyle?.borderColor || '#2563eb' }}>
+                    style={{ backgroundColor: config?.containerStyle?.borderColor || '#2563eb', fontFamily: titleFontFamily }}>
                     {title}
                 </div>
             )}
@@ -183,7 +187,7 @@ const ApplicantList: React.FC<ApplicantListProps> = ({
                         {[...data, ...data].map((row, rowIdx) => (
                             <div key={rowIdx} className="grid border-b border-gray-100 text-sm text-gray-700 h-[40px] items-center" style={{ gridTemplateColumns: `repeat(${activeColumns.length}, 1fr)` }}>
                                 {row.cells.map((cell, cellIdx) => (
-                                    <div key={cellIdx} className="text-center truncate px-1">
+                                    <div key={cellIdx} className="text-center truncate px-1" style={{ fontFamily: contentFontFamily }}>
                                         {cell}
                                     </div>
                                 ))}
@@ -200,7 +204,7 @@ const ApplicantList: React.FC<ApplicantListProps> = ({
                         {[...data, ...data, ...data].map((row, rowIdx) => (
                             <div key={rowIdx} className="grid border-b border-gray-100 text-sm text-gray-700 h-[40px] items-center" style={{ gridTemplateColumns: `repeat(${activeColumns.length}, 1fr)` }}>
                                 {row.cells.map((cell, cellIdx) => (
-                                    <div key={cellIdx} className="text-center truncate px-1">
+                                    <div key={cellIdx} className="text-center truncate px-1" style={{ fontFamily: contentFontFamily }}>
                                         {cell}
                                     </div>
                                 ))}

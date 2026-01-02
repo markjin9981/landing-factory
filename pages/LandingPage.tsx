@@ -523,7 +523,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
       >
         <div
           className={`w-full max-w-4xl mx-auto flex items-center justify-center relative ${styles.py} ${styles.text} ${banner.imageUrl ? 'p-0' : ''}`}
-          style={{ fontSize: banner.fontSize }}
+          style={{ fontSize: banner.fontSize, fontFamily: banner.fontFamily }}
         >
           {banner.imageUrl ? (
             <img src={banner.imageUrl} alt="Banner" className={`w-full h-auto ${styles.imgHeight} object-cover block`} />

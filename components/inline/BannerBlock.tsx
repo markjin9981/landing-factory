@@ -34,6 +34,7 @@ const BannerBlock: React.FC<BannerBlockProps> = ({ data }) => {
         zIndex: 10,
         whiteSpace: 'pre-wrap', // Allow line breaks
         textAlign: bannerStyle.textAlign,
+        fontFamily: bannerStyle.fontFamily
     };
 
     return (
@@ -64,7 +65,7 @@ const BannerBlock: React.FC<BannerBlockProps> = ({ data }) => {
                                 targetDate={urgencyConfig.countdownTarget}
                                 label={urgencyConfig.countdownLabel}
                                 expiredMessage={urgencyConfig.countdownExpiredMessage}
-                                style={urgencyConfig.timerStyle}
+                                style={{ ...urgencyConfig.timerStyle, labelFontFamily: urgencyConfig.timerLabelFontFamily }}
                             />
                         )}
 
@@ -79,6 +80,9 @@ const BannerBlock: React.FC<BannerBlockProps> = ({ data }) => {
                                             // Fallback for legacy global speed if not in config
                                             scrollSpeed: urgencyConfig.tickerConfig?.scrollSpeed || urgencyConfig.scrollSpeed
                                         }}
+
+                                        titleFontFamily={urgencyConfig.listTitleFontFamily}
+                                        contentFontFamily={urgencyConfig.listContentFontFamily}
                                     />
                                 ) : (
                                     <ApplicantTicker
