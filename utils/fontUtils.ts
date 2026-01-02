@@ -10,8 +10,11 @@ export const GOOGLE_FONTS_LIST: GoogleFont[] = [
     // --- NAVER FONTS ---
     { name: 'Nanum Square Neo', family: 'NanumSquareNeo', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/nanum-square-neo.css' },
     { name: 'Nanum Square', family: 'NanumSquare', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css' },
+    { name: 'Nanum Square Round', family: 'NanumSquareRound', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/nanum-square-round.css' },
     { name: 'Nanum Barun Gothic', family: 'NanumBarunGothic', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css' },
     { name: 'Nanum Barun Pen', family: 'NanumBarunpen', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-pen.css' },
+    { name: 'Maru Buri', family: 'MaruBuri', category: 'Naver', url: 'https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css' },
+    { name: 'D2Coding', family: 'D2Coding', category: 'Naver', url: 'https://d2.coding-font.com/d2coding.css' }, // Popular for tech landing pages
 
     // --- KOREAN GOTHIC (Sans-Serif) ---
     { name: 'Noto Sans KR', family: 'Noto Sans KR', category: 'Korean' },
