@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings } from '../../types';
 import LandingPage from '../LandingPage';
@@ -1533,6 +1533,15 @@ const LandingEditor: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
+                                                            <FontPicker
+                                                                label="배너 폰트"
+                                                                value={banner.fontFamily || ''}
+                                                                onChange={(val) => updateBanner(idx, 'fontFamily', val)}
+                                                                globalSettings={globalSettings}
+                                                                onSettingsChange={setGlobalSettings}
+                                                            />
+                                                        </div>
+                                                        <div>
                                                             <label className="text-[10px] text-gray-500 block flex justify-between">
                                                                 이미지 URL (문구 대신 노출)
                                                                 <button
@@ -1861,6 +1870,7 @@ const LandingEditor: React.FC = () => {
                                                                                     <option value="lg">크기: 크게</option>
                                                                                     <option value="xl">크기: 아주 크게</option>
                                                                                 </select>
+                                                <div className="mt-1"><FontPicker label="라벨 폰트" value={item.urgencyConfig.timerLabelFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerLabelFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} /></div>
                                                                                 <select
                                                                                     value={item.urgencyConfig.timerStyle?.labelPosition || 'left'}
                                                                                     onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, labelPosition: e.target.value as any } } })}
@@ -2011,6 +2021,8 @@ const LandingEditor: React.FC = () => {
                                                                                             placeholder="실시간 접수 현황"
                                                                                             className="w-full border p-1 rounded text-xs"
                                                                                         />
+                                                        <FontPicker label="제목 폰트" value={item.urgencyConfig.listTitleFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listTitleFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} />
+                                                        <div className="mt-1"><FontPicker label="내용(리스트) 폰트" value={item.urgencyConfig.listContentFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listContentFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} /></div>
                                                                                     </div>
                                                                                     <div>
                                                                                         <label className="block text-[10px] text-gray-500">박스 높이</label>
@@ -2552,6 +2564,15 @@ const LandingEditor: React.FC = () => {
                                                     placeholder="inherit"
                                                 />
                                             </div>
+                                            <div className="col-span-2 border rounded p-1">
+                                                <FontPicker
+                                                    label="제목 폰트"
+                                                    value={config.formConfig.style?.titleFontFamily || ''}
+                                                    onChange={(val) => updateNested(['formConfig', 'style', 'titleFontFamily'], val)}
+                                                    globalSettings={globalSettings}
+                                                    onSettingsChange={setGlobalSettings}
+                                                />
+                                            </div>
                                             <div className="col-span-2">
                                                 <label className="text-[10px] text-gray-500 block">정렬</label>
                                                 <select value={config.formConfig.style?.titleAlign || 'left'} onChange={(e) => updateNested(['formConfig', 'style', 'titleAlign'], e.target.value)} className="w-full border rounded p-1 text-xs">
@@ -2559,6 +2580,22 @@ const LandingEditor: React.FC = () => {
                                                     <option value="center">가운데</option>
                                                     <option value="right">오른쪽</option>
                                                 </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Input Field Style */}
+                                    <div className="pt-4 border-t mb-4">
+                                        <h4 className="text-xs font-bold text-gray-700 mb-2">입력 필드 스타일</h4>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <div>
+                                                <FontPicker
+                                                    label="입력 필드 폰트"
+                                                    value={config.formConfig.style?.inputFontFamily || ''}
+                                                    onChange={(val) => updateNested(['formConfig', 'style', 'inputFontFamily'], val)}
+                                                    globalSettings={globalSettings}
+                                                    onSettingsChange={setGlobalSettings}
+                                                />
                                             </div>
                                         </div>
                                     </div>

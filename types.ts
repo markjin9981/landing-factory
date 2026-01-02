@@ -66,28 +66,6 @@ export interface ButtonStyle {
 }
 
 // Form Design Interface
-export interface FormStyle {
-  backgroundColor?: string;
-  borderColor?: string;
-  borderWidth?: string; // px
-  borderRadius?: string; // px or rem
-  textColor?: string;
-
-  // Title Styling
-  titleColor?: string;
-  titleFontSize?: string;
-  titleAlign?: 'left' | 'center' | 'right';
-
-  // Button Styling
-  buttonBackgroundColor?: string;
-  buttonTextColor?: string;
-  buttonRadius?: string;
-  buttonFontSize?: string;
-  buttonWidth?: 'auto' | 'full';
-  buttonAlign?: 'left' | 'center' | 'right';
-  buttonFontFamily?: string;
-}
-
 // Updated: Floating Banner with Size
 export interface FloatingBanner {
   id: string; // Unique ID for array key
@@ -100,6 +78,123 @@ export interface FloatingBanner {
   position: 'top' | 'bottom';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // New: 5-level size adjustment
   fontSize?: string; // px or rem (overrides size preset)
+  fontFamily?: string; // New: Custom Font
+}
+
+export interface HeroSection {
+  headline: string;
+  headlineStyle?: TextStyle;
+  subHeadline: string;
+  subHeadlineStyle?: TextStyle;
+  ctaText: string;
+  ctaStyle?: ButtonStyle;
+  backgroundImage?: string;
+  size?: '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'; // Expanded range
+}
+// ... (Skipping Problem/Solution/Trust for brevity in matching, only showing relevant interfaces if needed context, but I will target specific lines or blocks)
+
+// Using multiple replace blocks to be precise.
+
+// 1. FormStyle
+export interface FormStyle {
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: string; // px
+  borderRadius?: string; // px or rem
+  textColor?: string;
+
+  // Title Styling
+  titleColor?: string;
+  titleFontSize?: string;
+  titleAlign?: 'left' | 'center' | 'right';
+  titleFontFamily?: string; // New: Custom Font
+
+  // Input Field Styling
+  inputFontFamily?: string; // New: Custom Font
+
+  // Button Styling
+  buttonBackgroundColor?: string;
+  buttonTextColor?: string;
+  buttonRadius?: string;
+  buttonFontSize?: string;
+  buttonWidth?: 'auto' | 'full';
+  buttonAlign?: 'left' | 'center' | 'right';
+  buttonFontFamily?: string;
+}
+
+// 2. UrgencyConfig
+export interface UrgencyConfig {
+  // Countdown
+  showCountdown: boolean;
+  countdownTarget?: string; // ISO Date string
+  countdownLabel?: string;  // "Event ends in:"
+  countdownExpiredMessage?: string; // "Event Ended"
+
+  // Timer Customization
+  timerStyle?: {
+    fontSize?: string; // 'sm', 'md', 'lg', 'xl'
+    textColor?: string;
+    backgroundColor?: string;
+    borderRadius?: string;
+
+    // V3: Advanced Styling
+    labelFontSize?: string;
+    labelColor?: string;
+    labelFontWeight?: string;
+    labelPosition?: 'top' | 'left' | 'bottom' | 'right'; // Expanded to 4 directions
+    digitColor?: string; // New: Color for the numbers
+    isTransparent?: boolean; // New: No background/border
+  };
+
+  timerLabelFontFamily?: string; // New
+
+  // Ticker (Legacy)
+  showTicker: boolean;
+  tickerMessage?: string;   // "{name} verified"
+  tickerType?: 'horizontal' | 'vertical_list';
+
+  // Ticker Configuration V2/V3
+  tickerConfig?: {
+    mode: 'horizontal' | 'vertical_list';
+    scrollMode?: 'continuous' | 'random_step';
+    scrollSpeed?: number; // for continuous
+    randomRange?: [number, number]; // for random_step [min, max] seconds
+
+    containerStyle?: {
+      height?: string;
+      backgroundColor?: string;
+      borderColor?: string;
+      borderRadius?: string;
+    };
+
+    listTitle?: string;
+    columns: {
+      id: string; // unique
+      label: string;
+      type: 'name' | 'phone' | 'debt' | 'text' | 'gender' | 'custom';
+      isEnabled: boolean;
+      masking: boolean;
+    }[];
+
+    fakeDataRules?: {
+      debtRange?: [number, number]; // [min, max] in 'man-won'
+    };
+
+    // V3: Custom Data Override
+    customData?: Record<string, string>[]; // Array of row objects { colId: value }
+  };
+
+  listTitleFontFamily?: string; // New
+  listContentFontFamily?: string; // New
+
+  // Legacy flat fields (Deprecated)
+  listTitle?: string;
+  listColumns?: {
+    label: string;
+    type: 'name' | 'phone' | 'gender' | 'weight' | 'text';
+    masking: boolean;
+  }[];
+  scrollSpeed?: number;
 }
 
 export interface HeroSection {

@@ -86,6 +86,10 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
     }, [isVisible, isPreview, config?.autoPlay, config?.autoPlayInterval, effectiveItems.length]);
 
     // Logic: In Production, hide if !isVisible or no items. In Preview, always show (unless 0 items -> Placeholder)
+
+    // FIX: If "Use Popup" is OFF, do not show it even in Preview.
+    if (!config?.usePopup) return null;
+
     if (!isPreview && (!isVisible || effectiveItems.length === 0)) return null;
 
     // Ensure index is valid (in case items changed)

@@ -260,15 +260,21 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
       const families = googleFontsToLoad.map(f => `family=${f.replace(/\s+/g, '+')}:wght@300;400;700;800`).join('&');
       const url = `https://fonts.googleapis.com/css2?${families}&display=swap`;
 
-      let link = document.getElementById('dynamic-google-fonts') as HTMLLinkElement;
+      const linkId = 'dynamic-google-fonts';
+      let link = document.getElementById(linkId) as HTMLLinkElement;
+
+      // Force update logic: If URL changed, replace the element entirely to ensure browser repaint
+      if (link && link.href !== url) {
+        link.remove();
+        link = null as any;
+      }
+
       if (!link) {
         link = document.createElement('link');
-        link.id = 'dynamic-google-fonts';
+        link.id = linkId;
         link.rel = 'stylesheet';
-        document.head.appendChild(link);
-      }
-      if (link.href !== url) {
         link.href = url;
+        document.head.appendChild(link);
       }
     }
   }, [config]); // Re-run when config structure changes
