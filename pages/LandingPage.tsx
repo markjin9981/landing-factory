@@ -634,7 +634,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
 
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
                 <ul className="space-y-6">
-                  {problem.points.map((point, idx) => (
+                  {(problem.points || []).map((point, idx) => (
                     <li key={idx} className="flex items-start">
                       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mt-1 mr-4">
                         <span className="text-red-500 font-bold">!</span>
@@ -662,7 +662,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
               </div>
 
               <div className="grid md:grid-cols-3 gap-8">
-                {solution.features.map((feature, idx) => (
+                {(solution.features || []).map((feature, idx) => (
                   <div
                     key={idx}
                     className="text-center p-6 transition-colors duration-300"
@@ -692,13 +692,13 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
         )}
 
         {/* 4. Trust Section (Social Proof) - Hide if no reviews */}
-        {trust.reviews.length > 0 && (
+        {(trust.reviews?.length > 0 || trust.stats?.length > 0) && (
           <section className="py-20 px-4 max-w-4xl mx-auto w-full" style={{ backgroundColor: trust.backgroundColor || '#111827', color: trust.textColor || '#ffffff' }}>
             <div className="w-full mx-auto">
               {/* Stats */}
               {trust.stats && (
                 <div className="grid grid-cols-2 md:grid-cols-2 gap-8 mb-16 border-b border-gray-800 pb-12">
-                  {trust.stats.map((stat, idx) => (
+                  {(trust.stats || []).map((stat, idx) => (
                     <div key={idx} className="text-center">
                       <div className="text-4xl md:text-5xl font-bold mb-2" style={{ color: theme.primaryColor }}>{stat.value}</div>
                       <div className="opacity-60 font-medium uppercase tracking-wider text-sm break-keep">{stat.label}</div>
@@ -709,10 +709,10 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
 
               {/* Reviews */}
               <div className="grid md:grid-cols-2 gap-6">
-                {trust.reviews.map((review, idx) => (
+                {(trust.reviews || []).map((review, idx) => (
                   <div key={idx} className="bg-white/10 p-6 rounded-xl backdrop-blur-sm">
                     <div className="flex text-yellow-400 mb-3">
-                      {[...Array(review.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                      {[...Array(review.rating || 5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                     </div>
                     <p className="opacity-90 mb-4 italic break-keep">"{review.text}"</p>
                     <div className="font-bold">- {review.name}</div>
@@ -732,7 +732,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
             <div>
               {safeFooter.images && safeFooter.images.length > 0 && (
                 <div className="flex flex-col items-center">
-                  {safeFooter.images.map((img, idx) => (
+                  {(safeFooter.images || []).map((img, idx) => (
                     <img
                       key={idx}
                       src={img}

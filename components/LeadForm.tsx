@@ -137,13 +137,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
         // NEW: Generate formatted fields for Email
         // This ensures the email respects the ORDER of fields in the editor
         // and uses the correct LABEL instead of internal IDs.
-        const formattedFields = config.fields.map(field => {
+        const formattedFields = (config.fields || []).map(field => {
             let val = formData[field.id] || '';
             // Enhance value formatting if needed (e.g. adding 'Hour' to time?)
             // For now, raw value is fine as the form inputs are quite explicit.
             return { label: field.label, value: val };
         });
         (payload as any).formatted_fields = JSON.stringify(formattedFields);
+
+        console.log("Submitting Payload:", payload); // Debug log for robust tracking
 
         const success = await submitLeadToSheet(payload);
 
