@@ -38,6 +38,7 @@ export interface CustomFont {
   family: string; // CSS Font Family name
   source: 'google' | 'file';
   url: string; // Google Font Name or File URL
+  format?: string; // e.g. 'woff2', 'woff', 'truetype'
 }
 
 export interface GlobalSettings {

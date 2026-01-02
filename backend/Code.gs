@@ -73,14 +73,22 @@ function handleSyncFonts(params) {
       var name = file.getName();
       
       // Simple check for font extensions or mime types
-      if (name.match(/\.(ttf|otf|woff|woff2)$/i) || mime.indexOf('font') !== -1) {
+      var match = name.match(/\.(ttf|otf|woff|woff2)$/i);
+      if (match || mime.indexOf('font') !== -1) {
+         var ext = match ? match[1].toLowerCase() : '';
+         var format = 'truetype'; // default
+         if (ext === 'woff2') format = 'woff2';
+         else if (ext === 'woff') format = 'woff';
+         else if (ext === 'otf') format = 'opentype';
+
          // Create a stable ID based on file ID to prevent duplicates
          fonts.push({
            id: file.getId(), 
            name: name.replace(/\.(ttf|otf|woff|woff2)$/i, ''), // Remove extension for display name
            family: name.replace(/\.(ttf|otf|woff|woff2)$/i, '').replace(/\s+/g, ''), // CSS Family Name
            source: 'file',
-           url: "https://drive.google.com/uc?export=download&id=" + file.getId()
+           url: "https://drive.google.com/uc?export=download&id=" + file.getId(),
+           format: format
          });
       }
     }

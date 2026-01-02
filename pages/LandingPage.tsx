@@ -212,7 +212,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
       const fontFaceRules = config.theme.customFonts.map(font => `
           @font-face {
             font-family: '${font.family}';
-            src: url('${font.url}') format('${font.url.endsWith('.woff2') ? 'woff2' : font.url.endsWith('.woff') ? 'woff' : 'truetype'}');
+            src: url('${font.url}') format('${font.format || (font.url.endsWith('.woff2') ? 'woff2' : font.url.endsWith('.woff') ? 'woff' : 'truetype')}');
             font-weight: normal;
             font-style: normal;
             font-display: swap;

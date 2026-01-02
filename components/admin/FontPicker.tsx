@@ -92,12 +92,19 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
 
         if (!url) return;
 
+        // Determine format from filename
+        let format = 'truetype';
+        if (file.name.toLowerCase().endsWith('.woff2')) format = 'woff2';
+        else if (file.name.toLowerCase().endsWith('.woff')) format = 'woff';
+        else if (file.name.toLowerCase().endsWith('.otf')) format = 'opentype';
+
         const newFont: CustomFont = {
             id: crypto.randomUUID(),
             name: fontName,
             family: fontName.replace(/\s+/g, ''), // Simple sanitization
             source: 'file',
-            url: url
+            url: url,
+            format: format
         };
 
         const newSettings = {
