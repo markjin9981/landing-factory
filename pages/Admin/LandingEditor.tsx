@@ -168,6 +168,30 @@ const LandingEditor: React.FC = () => {
         }
     }, [id]);
 
+    // NEW: Inject Custom Fonts into Editor Document so FontPicker can render them
+    useEffect(() => {
+        if (globalSettings?.customFonts) {
+            let styleTag = document.getElementById('editor-custom-font-styles');
+            if (!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = 'editor-custom-font-styles';
+                document.head.appendChild(styleTag);
+            }
+
+            const fontFaceRules = globalSettings.customFonts.map(font => `
+              @font-face {
+                font-family: '${font.family}';
+                src: url('${font.url}') format('${font.format || (font.url.endsWith('.woff2') ? 'woff2' : font.url.endsWith('.woff') ? 'woff' : 'truetype')}');
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap;
+              }
+            `).join('\n');
+
+            styleTag.textContent = fontFaceRules;
+        }
+    }, [globalSettings.customFonts]);
+
     // --- SYNC GLOBAL FONTS TO CONFIG ---
     // This ensures that when fonts are uploaded/synced, the preview immediately sees them.
     useEffect(() => {
@@ -1870,7 +1894,7 @@ const LandingEditor: React.FC = () => {
                                                                                     <option value="lg">크기: 크게</option>
                                                                                     <option value="xl">크기: 아주 크게</option>
                                                                                 </select>
-                                                <div className="mt-1"><FontPicker label="라벨 폰트" value={item.urgencyConfig.timerLabelFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerLabelFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} /></div>
+                                                                                <div className="mt-1"><FontPicker label="라벨 폰트" value={item.urgencyConfig.timerLabelFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerLabelFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} /></div>
                                                                                 <select
                                                                                     value={item.urgencyConfig.timerStyle?.labelPosition || 'left'}
                                                                                     onChange={(e) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, timerStyle: { ...item.urgencyConfig?.timerStyle, labelPosition: e.target.value as any } } })}
@@ -2021,8 +2045,8 @@ const LandingEditor: React.FC = () => {
                                                                                             placeholder="실시간 접수 현황"
                                                                                             className="w-full border p-1 rounded text-xs"
                                                                                         />
-                                                        <FontPicker label="제목 폰트" value={item.urgencyConfig.listTitleFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listTitleFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} />
-                                                        <div className="mt-1"><FontPicker label="내용(리스트) 폰트" value={item.urgencyConfig.listContentFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listContentFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} /></div>
+                                                                                        <FontPicker label="제목 폰트" value={item.urgencyConfig.listTitleFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listTitleFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} />
+                                                                                        <div className="mt-1"><FontPicker label="내용(리스트) 폰트" value={item.urgencyConfig.listContentFontFamily || ''} onChange={(val) => updateDetailContent(idx, { urgencyConfig: { ...item.urgencyConfig!, listContentFontFamily: val } })} globalSettings={globalSettings} onSettingsChange={setGlobalSettings} /></div>
                                                                                     </div>
                                                                                     <div>
                                                                                         <label className="block text-[10px] text-gray-500">박스 높이</label>
