@@ -47,34 +47,30 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
         setSyncing(true);
         const driveFonts = await syncFontsFromDrive();
 
+        // [Fix] Full Sync: Drive is the source of truth.
+        // We replace the local list with the list from Drive.
+        // This ensures deleted fonts are removed from the list.
+
         if (driveFonts.length === 0) {
-            alert("구글 드라이브 폴더에서 새로운 폰트를 찾지 못했습니다.");
+            // Check if we previously had fonts, if so, we should probably clear them?
+            // Yes, if Drive is empty, local should be empty too.
+            if ((globalSettings.customFonts || []).length > 0) {
+                const newSettings = { ...globalSettings, customFonts: [] };
+                onSettingsChange(newSettings);
+                await saveGlobalSettings(newSettings);
+                alert("구글 드라이브에 폰트가 없어 로컬 목록을 초기화했습니다.");
+            } else {
+                alert("구글 드라이브 폴더에서 폰트를 찾지 못했습니다.");
+            }
             setSyncing(false);
             return;
         }
 
-        const currentFonts = globalSettings.customFonts || [];
-        const existingIds = new Set(currentFonts.map(f => f.family)); // Use family as unique key for checking duplicates
+        const newSettings = { ...globalSettings, customFonts: driveFonts };
+        onSettingsChange(newSettings);
+        await saveGlobalSettings(newSettings);
 
-        let addedCount = 0;
-        const newFonts = [...currentFonts];
-
-        driveFonts.forEach((df: CustomFont) => {
-            if (!existingIds.has(df.family)) {
-                newFonts.push(df);
-                existingIds.add(df.family);
-                addedCount++;
-            }
-        });
-
-        if (addedCount > 0) {
-            const newSettings = { ...globalSettings, customFonts: newFonts };
-            onSettingsChange(newSettings);
-            await saveGlobalSettings(newSettings);
-            alert(`${addedCount}개의 폰트를 구글 드라이브에서 동기화했습니다!`);
-        } else {
-            alert("이미 모든 폰트가 동기화되어 있습니다.");
-        }
+        alert(`동기화 완료! 총 ${driveFonts.length}개의 폰트를 로드했습니다.`);
         setSyncing(false);
     };
 
