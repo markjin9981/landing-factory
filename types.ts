@@ -106,6 +106,7 @@ export interface FormStyle {
   borderWidth?: string; // px
   borderRadius?: string; // px or rem
   textColor?: string;
+  preset?: string; // New: Selected preset ID (e.g. 'standard', 'dark')
 
   // Title Styling
   titleColor?: string;

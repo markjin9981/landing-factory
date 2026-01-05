@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings } from '../../types';
+import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
 import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw } from 'lucide-react';
@@ -21,6 +21,82 @@ const formatSizeValue = (val: string) => {
 const displaySizeValue = (val: string | undefined) => {
     if (!val) return '';
     return val.replace(/^(\d+(\.\d+)?)px$/, '$1');
+};
+
+// --- Constants ---
+const FORM_PRESETS: Record<string, { label: string, style: FormStyle }> = {
+    standard: {
+        label: '기본형 (Standard)',
+        style: {
+            backgroundColor: '#ffffff',
+            borderColor: '#e5e7eb',
+            borderWidth: '1px',
+            borderRadius: '16px',
+            textColor: '#1f2937',
+            titleColor: '#ffffff',
+            titleFontSize: '1.5rem',
+            titleAlign: 'center',
+            buttonBackgroundColor: '#0ea5e9', // Primary Blue
+            buttonTextColor: '#ffffff',
+            buttonRadius: '12px',
+            buttonWidth: 'full',
+            buttonAlign: 'center'
+        }
+    },
+    dark: {
+        label: '다크 임팩트 (Dark)',
+        style: {
+            backgroundColor: '#1f2937', // Dark Gray
+            borderColor: '#374151',
+            borderWidth: '1px',
+            borderRadius: '12px',
+            textColor: '#f9fafb', // Light Text
+            titleColor: '#ffffff',
+            titleFontSize: '1.5rem',
+            titleAlign: 'center',
+            buttonBackgroundColor: '#f59e0b', // Amber/Orange
+            buttonTextColor: '#1f2937',
+            buttonRadius: '8px',
+            buttonWidth: 'full',
+            buttonAlign: 'center'
+        }
+    },
+    soft: {
+        label: '소프트 라운드 (Soft)',
+        style: {
+            backgroundColor: '#f8fafc', // Slate 50
+            borderColor: '#e2e8f0',
+            borderWidth: '0px', // Shadow driven
+            borderRadius: '24px',
+            textColor: '#334155',
+            titleColor: '#0ea5e9', // Title matches primary
+            titleFontSize: '1.25rem',
+            titleAlign: 'center',
+            buttonBackgroundColor: '#3b82f6',
+            buttonTextColor: '#ffffff',
+            buttonRadius: '9999px', // Pill
+            buttonWidth: 'auto',
+            buttonAlign: 'center'
+        }
+    },
+    clean: {
+        label: '심플 미니멀 (Clean)',
+        style: {
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
+            borderWidth: '0px',
+            borderRadius: '0px',
+            textColor: '#111827',
+            titleColor: '#111827',
+            titleFontSize: '1.5rem',
+            titleAlign: 'left',
+            buttonBackgroundColor: '#111827', // Black
+            buttonTextColor: '#ffffff',
+            buttonRadius: '4px',
+            buttonWidth: 'full',
+            buttonAlign: 'center'
+        }
+    }
 };
 
 const DEFAULT_CONFIG: LandingConfig = {
@@ -2465,44 +2541,62 @@ const LandingEditor: React.FC = () => {
                         {activeTab === 'form' && (
                             <div className="space-y-6 animate-fade-in">
 
-                                {/* 1. Form Presets (New) */}
+                                {/* 1. Form Presets (Dynamic) */}
                                 <div className="bg-white border rounded-lg p-4 shadow-sm">
                                     <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4">
                                         <Palette className="w-4 h-4 text-blue-600" /> 폼 디자인 템플릿 (Presets)
                                     </h3>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <button onClick={() => applyFormPreset('default')} className="border hover:border-blue-500 rounded p-2 text-xs text-left bg-white hover:bg-gray-50 transition-colors">
-                                            <div className="font-bold mb-1">⚪ 기본형 (흰색)</div>
-                                            <div className="w-full h-8 bg-white border border-gray-200 rounded mb-1"></div>
-                                            <span className="text-[10px] text-gray-400">가장 무난한 스타일</span>
-                                        </button>
-                                        <button onClick={() => applyFormPreset('dark')} className="border hover:border-blue-500 rounded p-2 text-xs text-left bg-blue-50 hover:bg-blue-100 transition-colors">
-                                            <div className="font-bold mb-1">🔵 파랑/빨강 (강조)</div>
-                                            <div className="w-full h-8 bg-blue-900 rounded mb-1 flex items-center justify-center"><div className="w-8 h-2 bg-red-600 rounded"></div></div>
-                                            <span className="text-[10px] text-gray-400">전환율이 높은 배색</span>
-                                        </button>
-                                        <button onClick={() => applyFormPreset('pastel')} className="border hover:border-blue-500 rounded p-2 text-xs text-left bg-gray-50 hover:bg-gray-100 transition-colors">
-                                            <div className="font-bold mb-1">🎨 파스텔 (소프트)</div>
-                                            <div className="w-full h-8 bg-sky-50 border border-sky-200 rounded mb-1"></div>
-                                            <span className="text-[10px] text-gray-400">부드러운 느낌</span>
-                                        </button>
-                                        <button onClick={() => applyFormPreset('border')} className="border hover:border-blue-500 rounded p-2 text-xs text-left bg-orange-50 hover:bg-orange-100 transition-colors">
-                                            <div className="font-bold mb-1">🟧 주황 테두리</div>
-                                            <div className="w-full h-8 bg-white border-2 border-orange-500 rounded mb-1"></div>
-                                            <span className="text-[10px] text-gray-400">가독성 높은 스타일</span>
-                                        </button>
-                                        <button onClick={() => applyFormPreset('grid')} className="col-span-2 border hover:border-blue-500 rounded p-2 text-xs text-left bg-gray-50 hover:bg-gray-100 transition-colors">
-                                            <div className="font-bold mb-1 flex items-center justify-between">
-                                                <span>🔳 2열 배치 (가로형)</span>
-                                                <span className="text-[10px] bg-gray-200 px-1 rounded">PC 전용</span>
-                                            </div>
-                                            <div className="w-full h-8 bg-white border border-gray-200 rounded mb-1 flex gap-1 p-1">
-                                                <div className="flex-1 bg-gray-100 rounded"></div>
-                                                <div className="flex-1 bg-gray-100 rounded"></div>
-                                            </div>
-                                            <span className="text-[10px] text-gray-400">입력 항목이 많을 때 추천 (모바일은 1열)</span>
-                                        </button>
+                                        {Object.entries(FORM_PRESETS).map(([key, preset]) => (
+                                            <button
+                                                key={key}
+                                                onClick={() => {
+                                                    // Merge preset styles
+                                                    // Use 'updateNested' to update the whole style object or individual properties
+                                                    // Since we want to overwrite style, we can try replacing the whole style object
+                                                    // But we should preserve 'preset' key
+                                                    const newStyle = { ...preset.style, preset: key };
+                                                    updateNested(['form', 'style'], newStyle);
+                                                }}
+                                                className={`p-3 border rounded-lg text-xs font-bold transition-all text-left flex flex-col gap-2
+                                                    ${config.form.style?.preset === key
+                                                        ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
+                                                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50 text-gray-600'
+                                                    }`}
+                                            >
+                                                <div className="flex justify-between items-center w-full">
+                                                    <span>{preset.label}</span>
+                                                    {config.form.style?.preset === key && <CheckCircle className="w-4 h-4 text-blue-600" />}
+                                                </div>
+
+                                                {/* Mini Preview */}
+                                                <div
+                                                    className="w-full h-12 rounded flex flex-col justify-center items-center gap-1 border"
+                                                    style={{
+                                                        backgroundColor: preset.style.backgroundColor === 'transparent' ? '#eee' : preset.style.backgroundColor,
+                                                        borderColor: preset.style.borderColor || 'transparent',
+                                                        borderWidth: preset.style.borderWidth,
+                                                        borderRadius: preset.style.borderRadius === '9999px' ? '12px' : preset.style.borderRadius
+                                                    }}
+                                                >
+                                                    <div className="w-3/4 h-2 bg-gray-200 rounded-sm opacity-50"></div>
+                                                    <div
+                                                        className="w-1/2 h-3 text-[8px] flex items-center justify-center text-white"
+                                                        style={{
+                                                            backgroundColor: preset.style.buttonBackgroundColor,
+                                                            color: preset.style.buttonTextColor,
+                                                            borderRadius: preset.style.buttonRadius
+                                                        }}
+                                                    >
+                                                        Button
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
                                     </div>
+                                    <p className="text-[10px] text-gray-400 mt-2 text-right">
+                                        * 템플릿 선택 시 색상/테두리 스타일이 일괄 변경됩니다.
+                                    </p>
                                 </div>
 
                                 {/* Position Setting */}
