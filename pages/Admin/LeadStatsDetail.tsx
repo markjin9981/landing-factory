@@ -238,20 +238,20 @@ const LeadStatsDetail: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 pb-20 font-sans">
             {/* Header */}
-            <header className="bg-white border-b border-gray-200 px-8 py-5 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                <div className="flex items-center gap-4">
+            <header className="bg-white border-b border-gray-200 px-4 py-4 md:px-8 md:py-5 flex flex-col md:flex-row items-center justify-between sticky top-0 z-10 shadow-sm gap-4 md:gap-0">
+                <div className="flex items-center gap-4 w-full md:w-auto">
                     <button onClick={() => navigate('/admin/stats')} className="p-2 hover:bg-gray-100 rounded-full">
                         <ArrowLeft className="w-5 h-5 text-gray-600" />
                     </button>
-                    <div>
-                        <h1 className="text-xl font-bold flex items-center gap-2">
-                            {config ? config.title : `페이지 ID: ${landingId}`}
-                            <span className="text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{leads.length}건</span>
+                    <div className="min-w-0">
+                        <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
+                            <span className="truncate">{config ? config.title : `페이지 ID: ${landingId}`}</span>
+                            <span className="text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full shrink-0">{leads.length}건</span>
                         </h1>
                     </div>
                 </div>
-                <div className="flex gap-2">
-                    <button onClick={loadData} className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm font-bold">
+                <div className="flex gap-2 w-full md:w-auto justify-end">
+                    <button onClick={loadData} className="flex-1 md:flex-none justify-center items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm font-bold">
                         <RefreshCw className="w-4 h-4 mr-2" /> 새로고침
                     </button>
                 </div>
@@ -259,34 +259,34 @@ const LeadStatsDetail: React.FC = () => {
 
             <main className="max-w-7xl mx-auto p-8 space-y-6">
                 {/* Control Bar */}
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap gap-4 items-center justify-between">
-                    <div className="flex flex-wrap items-center gap-4">
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
                         {/* Search */}
-                        <div className="relative">
+                        <div className="relative w-full md:w-auto">
                             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
                                 placeholder="이름 또는 전화번호 검색"
                                 value={searchTerm}
                                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                                className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64"
+                                className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64"
                             />
                         </div>
 
                         {/* Date Range */}
-                        <div className="flex items-center gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
-                            <span className="text-gray-500">기간:</span>
-                            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="bg-transparent outline-none text-gray-700 font-medium" />
+                        <div className="flex items-center justify-between gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 w-full md:w-auto">
+                            <span className="text-gray-500 shrink-0">기간:</span>
+                            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="bg-transparent outline-none text-gray-700 font-medium w-full" />
                             <span className="text-gray-400">~</span>
-                            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="bg-transparent outline-none text-gray-700 font-medium" />
+                            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="bg-transparent outline-none text-gray-700 font-medium w-full" />
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="grid grid-cols-2 md:flex items-center gap-3">
                         {/* Sort */}
                         <button
                             onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
-                            className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 text-gray-700 font-bold"
+                            className="flex items-center justify-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 text-gray-700 font-bold"
                         >
                             <ArrowUpDown className="w-4 h-4" />
                             {sortOrder === 'desc' ? '최신순' : '오래된순'}
@@ -295,20 +295,20 @@ const LeadStatsDetail: React.FC = () => {
                         {/* Delete Mode Toggle */}
                         <button
                             onClick={() => { setIsDeleteMode(!isDeleteMode); setSelectedIndices(new Set()); }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${isDeleteMode
+                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${isDeleteMode
                                 ? 'bg-red-50 text-red-600 border border-red-200'
                                 : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
                                 }`}
                         >
                             <Trash2 className="w-4 h-4" />
-                            {isDeleteMode ? '삭제 취소' : '항목 삭제'}
+                            {isDeleteMode ? '취소' : '삭제'}
                         </button>
 
                         {/* Delete Action Button (Visible only in delete mode and selection exists) */}
                         {isDeleteMode && selectedIndices.size > 0 && (
                             <button
                                 onClick={handleDeleteStart}
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm animate-fade-in"
+                                className="col-span-2 md:col-span-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm animate-fade-in"
                             >
                                 {selectedIndices.size}개 삭제하기
                             </button>
@@ -316,9 +316,10 @@ const LeadStatsDetail: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Table */}
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden min-h-[400px]">
-                    <div className="overflow-x-auto">
+                {/* Table / Cards Container */}
+                <div className="bg-white border md:border-gray-200 rounded-xl shadow-sm overflow-hidden min-h-[400px]">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-sm text-left">
                             <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
                                 <tr>
@@ -400,6 +401,94 @@ const LeadStatsDetail: React.FC = () => {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden divide-y divide-gray-100">
+                        {isDeleteMode && (
+                            <div className="p-3 bg-red-50 flex items-center gap-2 border-b border-red-100">
+                                <input
+                                    type="checkbox"
+                                    onChange={toggleSelectAll}
+                                    checked={selectedIndices.size > 0 && selectedIndices.size === paginatedLeads.length}
+                                    className="rounded border-red-300 text-red-600 focus:ring-red-500"
+                                />
+                                <span className="text-xs font-bold text-red-700">전체 선택 ({paginatedLeads.length})</span>
+                            </div>
+                        )}
+
+                        {paginatedLeads.map((lead, idx) => (
+                            <div
+                                key={idx}
+                                className={`p-4 transition-colors ${isDeleteMode && selectedIndices.has(idx) ? 'bg-red-50/30' : 'bg-white'}`}
+                                onClick={() => isDeleteMode && toggleSelect(idx)}
+                            >
+                                <div className="flex items-start gap-3">
+                                    {isDeleteMode && (
+                                        <div className="mt-1">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedIndices.has(idx)}
+                                                onChange={() => toggleSelect(idx)}
+                                                className="rounded border-gray-300 text-red-600 focus:ring-red-500 pointer-events-none" // handled by parent onClick
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="flex-1 space-y-3">
+                                        {/* Header Row: Num + Time */}
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-mono text-gray-400">#{processedLeads.length - ((currentPage - 1) * ITEMS_PER_PAGE + idx)}</span>
+                                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                {lead['Timestamp'] || '-'}
+                                            </span>
+                                        </div>
+
+                                        {/* Main Content Fields */}
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {columns.filter(col => col.key !== 'Timestamp').map(col => (
+                                                <div key={col.key} className="flex flex-col">
+                                                    <span className="text-[10px] text-gray-400 uppercase tracking-wide">{col.label}</span>
+                                                    <span className={`text-sm ${col.key === 'Phone' ? 'text-blue-600 font-bold' : 'text-gray-900'}`}>
+                                                        {(() => {
+                                                            const fieldConfig = config?.formConfig?.fields.find(f => f.id === col.key);
+                                                            if (fieldConfig?.type === 'address') {
+                                                                const mainAddr = lead[col.key] || lead[col.key.toLowerCase()] || '';
+                                                                const detailAddr = lead[`${col.key}_detail`] || lead[`${col.key.toLowerCase()}_detail`] || '';
+                                                                return (
+                                                                    <span>{mainAddr} {detailAddr}</span>
+                                                                );
+                                                            }
+                                                            return lead[col.key] || lead[col.key.toLowerCase()] || '-'
+                                                        })()}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Extra Info */}
+                                        {extraKeys.length > 0 && (
+                                            <div className="bg-gray-50 p-2 rounded text-xs text-gray-600 space-y-1 mt-2">
+                                                {extraKeys.map(k => {
+                                                    const val = lead[k];
+                                                    if (!val) return null;
+                                                    return (
+                                                        <div key={k} className="flex justify-between">
+                                                            <span className="font-bold text-gray-400">{k}</span>
+                                                            <span>{val}</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {paginatedLeads.length === 0 && (
+                            <div className="p-10 text-center text-gray-400">
+                                데이터가 없습니다.
+                            </div>
+                        )}
                     </div>
                 </div>
 
