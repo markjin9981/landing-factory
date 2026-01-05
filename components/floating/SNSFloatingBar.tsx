@@ -10,7 +10,7 @@ interface Props {
 const SNSFloatingBar: React.FC<Props> = ({ config, isMobileView }) => {
     if (!config || !config.isShow) return null;
 
-    const { position = 'right', kakao, naverBlog, instagram, youtube } = config;
+    const { position = 'bottom-right', kakao, naverBlog, instagram, youtube } = config;
 
     // Collect valid links
     const links = [
@@ -23,9 +23,16 @@ const SNSFloatingBar: React.FC<Props> = ({ config, isMobileView }) => {
     if (links.length === 0) return null;
 
     const baseClasses = "fixed z-50 flex flex-col gap-3 transition-all duration-300";
-    const posClasses = isMobileView
-        ? "bottom-4 right-4"
-        : position === 'left' ? "bottom-8 left-8" : "bottom-8 right-8";
+    const getPositionClasses = () => {
+        if (isMobileView) return "bottom-4 right-4"; // Mobile always bottom-right
+        switch (position) {
+            case 'bottom-left': return "bottom-8 left-8";
+            case 'side-right': return "top-1/2 right-4 -translate-y-1/2";
+            case 'side-left': return "top-1/2 left-4 -translate-y-1/2";
+            case 'bottom-right': default: return "bottom-8 right-8";
+        }
+    };
+    const posClasses = getPositionClasses();
 
     return (
         <div className={`${baseClasses} ${posClasses}`}>
@@ -41,7 +48,7 @@ const SNSFloatingBar: React.FC<Props> = ({ config, isMobileView }) => {
                     {React.cloneElement(item.icon as React.ReactElement, { size: 24 })}
 
                     {!isMobileView && (
-                        <span className={`absolute ${position === 'left' ? 'left-full ml-3' : 'right-full mr-3'} px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none`}>
+                        <span className={`absolute ${position.includes('left') ? 'left-full ml-3' : 'right-full mr-3'} px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none`}>
                             {item.label}
                         </span>
                     )}

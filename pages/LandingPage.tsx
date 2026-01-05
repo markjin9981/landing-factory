@@ -12,7 +12,9 @@ import ChatButton from '../components/floating/ChatButton';
 import NavigationBar from '../components/sections/NavigationBar';
 import GalleryBlock from '../components/sections/GalleryBlock';
 import BoardBlock from '../components/sections/BoardBlock';
+import LocationBlock from '../components/sections/LocationBlock'; // New
 import SNSFloatingBar from '../components/floating/SNSFloatingBar';
+import SNSBlock from '../components/sections/SNSBlock'; // New
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 import { generateGoogleFontUrl, GOOGLE_FONTS_LIST } from '../utils/fontUtils';
@@ -163,7 +165,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
   if (!config) return <div className="min-h-screen flex items-center justify-center">404 Not Found</div>;
 
   const { hero, problem, solution, trust, formConfig, theme, detailContent, banners, footer,
-    layoutMode = 'mobile', navigation, gallery, board, snsConfig
+    layoutMode = 'mobile', navigation, gallery, board, snsConfig, location
   } = config;
 
   const formPosition = formConfig.position || 'bottom';
@@ -173,10 +175,12 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
   // --- Layout Logic ---
   const isFullLayout = layoutMode === 'full';
 
-  // View Modes
+  // View Modes & Visibility Logic
   const isMainView = viewMode === 'all';
-  const isGalleryView = viewMode === 'gallery' || viewMode === 'all';
-  const isBoardView = viewMode === 'board' || viewMode === 'all';
+  const isGalleryView = viewMode === 'gallery' || (isMainView && gallery?.showOnMainPage !== false);
+  const isBoardView = viewMode === 'board' || (isMainView && board?.showOnMainPage !== false);
+  // Location is always on main unless we add viewMode for it later, currently assuming Main Page section
+  const isLocationView = isMainView;
 
   const contentWrapperClass = isFullLayout ? 'max-w-7xl mx-auto px-4 md:px-8' : 'max-w-4xl mx-auto px-4';
   const heroContainerClass = isFullLayout ? 'w-full' : 'max-w-4xl mx-auto';
@@ -354,6 +358,13 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           </div>
         )}
 
+        {/* Location (New) */}
+        {location && location.isShow && isLocationView && (
+          <div className={isFullLayout ? 'w-full bg-white' : 'max-w-4xl mx-auto'}>
+            <LocationBlock data={location} isMobileView={isMobileView || isPreview} />
+          </div>
+        )}
+
         {/* Trust/Reviews */}
         {(trust.reviews?.length > 0 || trust.stats?.length > 0) && isMainView && (
           <section className={`py-20 ${sectionBgClass}`} style={{ backgroundColor: trust.backgroundColor || '#111827', color: trust.textColor || '#ffffff' }}>
@@ -382,6 +393,13 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         )}
 
         {(formPosition === 'bottom' || !formPosition) && isMainView && <FormComponent />}
+
+        {/* SNS Block Mode (New) */}
+        {snsConfig && snsConfig.displayMode === 'block' && isMainView && (
+          <div className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
+            <SNSBlock config={snsConfig} isMobileView={isMobileView || isPreview} />
+          </div>
+        )}
 
         {safeFooter.isShow && (
           <footer className="bg-white border-t border-gray-200 max-w-4xl mx-auto pb-12 pt-8">

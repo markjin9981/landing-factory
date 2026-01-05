@@ -143,7 +143,12 @@ const DEFAULT_CONFIG: LandingConfig = {
         images: [],
         copyrightText: '© 2025 Company Name. All Rights Reserved.',
         copyrightStyle: { fontSize: '0.75rem', fontWeight: '400', color: '#9ca3af', textAlign: 'center' }
-    }
+    },
+    navigation: { isShow: false, showHome: false, items: [] }, // Default
+    gallery: { isShow: false, showOnMainPage: true, title: '갤러리', images: [] },
+    board: { isShow: false, showOnMainPage: true, title: '게시판', type: 'list', items: [] },
+    location: { isShow: false, title: '오시는 길', address: '서울 강남구 테헤란로 123', showMap: true },
+    snsConfig: { isShow: false, position: 'bottom-right', displayMode: 'floating', style: {} }
 };
 
 const LandingEditor: React.FC = () => {
@@ -228,7 +233,9 @@ const LandingEditor: React.FC = () => {
                     if (!sheetConfig.problem) sheetConfig.problem = JSON.parse(JSON.stringify(DEFAULT_CONFIG.problem));
                     if (!sheetConfig.solution) sheetConfig.solution = JSON.parse(JSON.stringify(DEFAULT_CONFIG.solution));
                     if (!sheetConfig.trust) sheetConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
+                    if (!sheetConfig.trust) sheetConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
                     if (!sheetConfig.formConfig) sheetConfig.formConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.formConfig));
+                    if (!sheetConfig.location) sheetConfig.location = JSON.parse(JSON.stringify(DEFAULT_CONFIG.location)); // Ensure Location exists
 
                     setConfig(sheetConfig);
                 } else {
@@ -892,8 +899,8 @@ const LandingEditor: React.FC = () => {
                             { id: 'images', label: '상세', icon: <ImageIcon className="w-4 h-4" /> },
                             { id: 'gallery', label: '갤러리', icon: <Grid className="w-4 h-4" /> },
                             { id: 'board', label: '게시판', icon: <List className="w-4 h-4" /> },
+                            { id: 'location', label: '위치', icon: <MapPin className="w-4 h-4" /> }, // New Tab
                             { id: 'form', label: '입력폼', icon: <CheckSquare className="w-4 h-4" /> },
-                            { id: 'text', label: '텍스트', icon: <AlignLeft className="w-4 h-4" /> },
                             { id: 'popup', label: '팝업', icon: <Megaphone className="w-4 h-4" /> },
                             { id: 'chat', label: '문의버튼', icon: <MessageCircle className="w-4 h-4" /> },
                             { id: 'sns', label: 'SNS 링크', icon: <Share2 className="w-4 h-4" /> },
@@ -2977,6 +2984,65 @@ const LandingEditor: React.FC = () => {
                             </div>
                         )}
 
+                        {/* --- LOCATION TAB (NEW) --- */}
+                        {activeTab === 'location' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                            <MapPin className="w-4 h-4 text-blue-600" /> 위치(Location) 섹션
+                                        </h3>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <span className="text-xs font-bold text-gray-700">사용</span>
+                                            <input type="checkbox" className="toggle-checkbox"
+                                                checked={config.location?.isShow || false}
+                                                onChange={e => updateNested(['location', 'isShow'], e.target.checked)}
+                                            />
+                                        </label>
+                                    </div>
+
+                                    {config.location?.isShow && (
+                                        <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">섹션 제목</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.location?.title || ''}
+                                                    onChange={e => updateNested(['location', 'title'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm"
+                                                    placeholder="오시는 길"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">주소</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.location?.address || ''}
+                                                    onChange={e => updateNested(['location', 'address'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm"
+                                                    placeholder="예: 서울 강남구 테헤란로 123"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">상세 주소 (선택)</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.location?.detailAddress || ''}
+                                                    onChange={e => updateNested(['location', 'detailAddress'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm"
+                                                    placeholder="예: 1층 로비"
+                                                />
+                                            </div>
+                                            <label className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                                                <input type="checkbox" checked={config.location?.showMap !== false} onChange={e => updateNested(['location', 'showMap'], e.target.checked)} />
+                                                <span>지도 표시 (카카오맵)</span>
+                                            </label>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {/* --- TEXT SECTION TAB --- */}
                         {activeTab === 'text' && (
                             <div className="space-y-6 animate-fade-in">
@@ -3274,7 +3340,7 @@ const LandingEditor: React.FC = () => {
                                         <Globe className="w-4 h-4 text-blue-600" /> 검색엔진 등록 설정
                                     </h3>
                                     <p className="text-xs text-gray-500 mb-4 bg-gray-50 p-3 rounded leading-relaxed border border-gray-100">
-                                        네이버나 구글 서치콘솔에서 제공하는 <strong>사이트 소유권 확인 태그(Meta Tag)</strong>를 입력하세요.
+                                        네이버나 구글 서치콘솔에서 제공하는 <strong>사이트 소유권 확인 태그(Meta)</strong>를 입력하세요.
                                         <br />
                                         예시: <code>&lt;meta name="naver-site-verification" content="..." /&gt;</code>
                                     </p>
@@ -3357,6 +3423,10 @@ const LandingEditor: React.FC = () => {
 
                                     {config.navigation?.isShow && (
                                         <div className="space-y-4">
+                                            <label className="flex items-center gap-2">
+                                                <input type="checkbox" checked={config.navigation?.showHome || false} onChange={e => updateNested(['navigation', 'showHome'], e.target.checked)} />
+                                                <span>홈 버튼 표시 (좌측 집 아이콘)</span>
+                                            </label>
                                             {/* Style Config */}
                                             <div className="grid grid-cols-2 gap-2 text-xs">
                                                 <div>
@@ -3457,6 +3527,10 @@ const LandingEditor: React.FC = () => {
 
                                     {config.gallery?.isShow && (
                                         <div className="space-y-4">
+                                            <label className="flex items-center gap-2 text-sm text-gray-600">
+                                                <input type="checkbox" checked={config.gallery?.showOnMainPage !== false} onChange={e => updateNested(['gallery', 'showOnMainPage'], e.target.checked)} />
+                                                <span>메인 페이지에 노출</span>
+                                            </label>
                                             <div>
                                                 <label className="text-xs font-bold text-gray-500 mb-1 block">섹션 제목</label>
                                                 <input type="text" className="w-full border rounded p-2 text-sm"
@@ -3548,6 +3622,10 @@ const LandingEditor: React.FC = () => {
 
                                     {config.board?.isShow && (
                                         <div className="space-y-4">
+                                            <label className="flex items-center gap-2 text-sm text-gray-600">
+                                                <input type="checkbox" checked={config.board?.showOnMainPage !== false} onChange={e => updateNested(['board', 'showOnMainPage'], e.target.checked)} />
+                                                <span>메인 페이지에 노출</span>
+                                            </label>
                                             <div>
                                                 <label className="text-xs font-bold text-gray-500 mb-1 block">게시판 제목</label>
                                                 <input type="text" className="w-full border rounded p-2 text-sm"
@@ -3656,18 +3734,51 @@ const LandingEditor: React.FC = () => {
 
                                     {config.snsConfig?.isShow && (
                                         <div className="space-y-4">
-                                            <div>
-                                                <label className="text-xs font-bold text-gray-500 mb-1 block">위치 (Position)</label>
-                                                <select className="w-full border rounded p-2 text-sm"
-                                                    value={config.snsConfig.position || 'right'}
-                                                    onChange={(e) => updateNested(['snsConfig', 'position'], e.target.value)}
-                                                >
-                                                    <option value="left">왼쪽 (Left)</option>
-                                                    <option value="right">오른쪽 (Right)</option>
-                                                </select>
+                                            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                                <label className="block text-xs font-bold text-gray-500 mb-2">표시 방식</label>
+                                                <div className="flex gap-4">
+                                                    <label className={`flex-1 p-3 border rounded-lg cursor-pointer flex flex-col items-center gap-2 ${config.snsConfig?.displayMode === 'floating' || !config.snsConfig?.displayMode ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-white hover:bg-gray-50'}`}>
+                                                        <input
+                                                            type="radio"
+                                                            name="snsDisplayMode"
+                                                            className="hidden"
+                                                            checked={config.snsConfig?.displayMode === 'floating' || !config.snsConfig?.displayMode}
+                                                            onChange={() => updateNested(['snsConfig', 'displayMode'], 'floating')}
+                                                        />
+                                                        <Share2 className="w-5 h-5 text-blue-500" />
+                                                        <span className="text-xs font-bold">플로팅 (화면 고정)</span>
+                                                    </label>
+                                                    <label className={`flex-1 p-3 border rounded-lg cursor-pointer flex flex-col items-center gap-2 ${config.snsConfig?.displayMode === 'block' ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-white hover:bg-gray-50'}`}>
+                                                        <input
+                                                            type="radio"
+                                                            name="snsDisplayMode"
+                                                            className="hidden"
+                                                            checked={config.snsConfig?.displayMode === 'block'}
+                                                            onChange={() => updateNested(['snsConfig', 'displayMode'], 'block')}
+                                                        />
+                                                        <Layout className="w-5 h-5 text-blue-500" />
+                                                        <span className="text-xs font-bold">배너 (하단 고정)</span>
+                                                    </label>
+                                                </div>
                                             </div>
 
-                                            <div className="space-y-3">
+                                            {(config.snsConfig?.displayMode === 'floating' || !config.snsConfig?.displayMode) && (
+                                                <div>
+                                                    <label className="text-xs font-bold text-gray-500 mb-1 block">위치 (플로팅 모드)</label>
+                                                    <select
+                                                        value={config.snsConfig?.position || 'bottom-right'}
+                                                        onChange={e => updateNested(['snsConfig', 'position'], e.target.value)}
+                                                        className="w-full border rounded p-2 text-sm"
+                                                    >
+                                                        <option value="bottom-right">우측 하단</option>
+                                                        <option value="bottom-left">좌측 하단</option>
+                                                        <option value="side-right">우측 사이드</option>
+                                                        <option value="side-left">좌측 사이드</option>
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            <div className="border-t border-gray-200 pt-4 space-y-3">
                                                 <h4 className="text-xs font-bold text-gray-700">계정 설정</h4>
 
                                                 {/* Kakao */}

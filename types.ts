@@ -452,11 +452,22 @@ export interface SNSLink {
 
 export interface SNSConfig {
   isShow: boolean;
-  position?: 'left' | 'right';
+  position: 'bottom-right' | 'bottom-left' | 'side-right' | 'side-left';
+  displayMode?: 'floating' | 'block'; // New
+  style: {
+    iconSize?: number;
+    gap?: number;
+  };
   kakao?: string;
   naverBlog?: string;
   instagram?: string;
   youtube?: string;
+  items?: Array<{ // Kept for backward compatibility or custom
+    type: 'instagram' | 'youtube' | 'kakao' | 'blog' | 'custom';
+    url: string;
+    label?: string;
+    iconUrl?: string; // Optional custom icon
+  }>;
 }
 
 export interface NavigationItem {
@@ -466,6 +477,7 @@ export interface NavigationItem {
 
 export interface NavigationConfig {
   isShow: boolean;
+  showHome?: boolean; // New
   items: NavigationItem[];
   backgroundColor?: string;
   textColor?: string;
@@ -480,11 +492,13 @@ export interface GalleryItem {
 
 export interface GallerySection {
   isShow: boolean;
+  showOnMainPage?: boolean; // New
   title: string;
   description?: string;
+  layout?: 'grid-2' | 'grid-3' | 'grid-4' | 'masonry';
+  gridCols?: number; // 2, 3, 4
+  gap?: number; // 2, 4, 6, 8
   images: string[];
-  gridCols?: number;
-  gap?: number;
 }
 
 export interface BoardItem {
@@ -497,9 +511,64 @@ export interface BoardItem {
 
 export interface BoardSection {
   isShow: boolean;
+  showOnMainPage?: boolean; // New
+  type: 'notice' | 'faq' | 'accordion' | 'list'; // 'notice'='list', 'faq'='accordion'
   title: string;
-  type: 'list' | 'accordion';
   items: BoardItem[];
+}
+
+export interface LocationSection {
+  isShow: boolean;
+  title: string;
+  address: string;
+  detailAddress?: string;
+  lat?: number;
+  lng?: number;
+  showMap: boolean;
+}
+
+export interface LandingConfig {
+  id: string;
+  theme: LandingTheme; // Changed from LandingTheme to ThemeConfig
+  font?: string; // Global Font Family
+  title: string; // Browser Tab Title
+
+  // New: SEO & Identity Fields
+  favicon?: string;
+  ogImage?: string;
+  ogTitle?: string;       // Custom SNS Title
+  ogDescription?: string; // Custom SNS Description
+
+  // Popup
+  popupConfig?: PopupConfig;
+
+  // Chat Button
+  chatConfig?: ChatButtonConfig;
+
+  keywords?: string;      // New: Meta Keywords for SEO
+
+  // New: Search Engine Verification
+  naverVerification?: string;
+  googleVerification?: string;
+
+  // Sections
+  banners: FloatingBanner[]; // Changed from single banner to array
+  hero: HeroSection;
+  detailContent: DetailContent[];
+  problem: ProblemSection;
+  solution: SolutionSection;
+  trust: TrustSection;
+  formConfig: FormSection;
+  footer?: FooterSection; // New Footer Section
+
+  // --- NEW FEATURES (Website Mode) ---
+  layoutMode?: 'mobile' | 'full'; // Default 'mobile'
+
+  snsConfig?: SNSConfig;
+  navigation?: NavigationConfig;
+  gallery?: GallerySection;
+  board?: BoardSection;
+  location?: LocationSection; // New
 }
 
 export interface LeadData {
