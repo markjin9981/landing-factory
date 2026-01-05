@@ -316,30 +316,41 @@ const LeadStats: React.FC = () => {
 
                         return (
                             <div key={landingId} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-fade-in-up">
-                                <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-white p-2 border border-gray-200 rounded-lg shrink-0">
-                                            <Database className="w-4 h-4 text-blue-600" />
+                                <div className="px-4 py-3 md:px-6 md:py-4 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0">
+                                    <div className="flex items-start justify-between w-full md:w-auto md:justify-start gap-3">
+                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                            <div className="bg-white p-2 border border-gray-200 rounded-lg shrink-0">
+                                                <Database className="w-4 h-4 text-blue-600" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <h3 className="font-bold text-gray-800 text-base md:text-lg truncate pr-2">{title}</h3>
+                                                <p className="text-xs text-gray-400 font-mono truncate">ID: {landingId}</p>
+                                            </div>
                                         </div>
-                                        <div className="min-w-0">
-                                            <h3 className="font-bold text-gray-800 text-lg truncate pr-2">{title}</h3>
-                                            <p className="text-xs text-gray-400 font-mono truncate">ID: {landingId}</p>
+                                        {/* Mobile Badge Position: Top Right */}
+                                        <div className="md:hidden shrink-0">
+                                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-[10px] font-bold">
+                                                총 {groupLeads.length}건
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mr-2">
+
+                                    <div className="flex items-center justify-end gap-2 w-full md:w-auto">
+                                        {/* Desktop Badge Position */}
+                                        <span className="hidden md:inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mr-2">
                                             총 {groupLeads.length} 건
                                         </span>
+
                                         <button
                                             onClick={() => navigate(`/admin/stats/${landingId}`)}
-                                            className="flex items-center gap-1 text-sm font-bold text-gray-600 hover:text-blue-600 bg-white border border-gray-300 hover:border-blue-400 px-3 py-1.5 rounded-lg transition-all"
+                                            className="flex-1 md:flex-none justify-center items-center gap-1 text-xs md:text-sm font-bold text-gray-600 hover:text-blue-600 bg-white border border-gray-300 hover:border-blue-400 px-3 py-1.5 rounded-lg transition-all flex"
                                         >
-                                            상세보기 <ArrowLeft className="w-4 h-4 rotate-180" />
+                                            상세보기 <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 rotate-180" />
                                         </button>
 
                                         <button
                                             onClick={() => handleDeleteStart(landingId)}
-                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                                            className="p-1.5 md:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
                                             title={isUnknown ? "모든 데이터 삭제" : "페이지 삭제"}
                                         >
                                             <Trash2 className="w-4 h-4" />
