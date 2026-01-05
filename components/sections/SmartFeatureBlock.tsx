@@ -19,7 +19,7 @@ const SmartFeatureBlock: React.FC<Props> = ({ data, isMobileView }) => {
 
                 <div className="space-y-24">
                     {data.items.map((item, idx) => (
-                        <FeatureRow key={item.id || idx} item={item} index={idx} />
+                        <FeatureRow key={item.id || idx} item={item} index={idx} isMobileView={isMobileView} />
                     ))}
                 </div>
             </div>
@@ -27,7 +27,7 @@ const SmartFeatureBlock: React.FC<Props> = ({ data, isMobileView }) => {
     );
 };
 
-const FeatureRow: React.FC<{ item: FeatureItem; index: number }> = ({ item, index }) => {
+const FeatureRow: React.FC<{ item: FeatureItem; index: number; isMobileView?: boolean }> = ({ item, index, isMobileView }) => {
     const ref = useRef<HTMLDivElement>(null);
     const [isVisible, setIsVisible] = useState(false);
 
@@ -62,13 +62,26 @@ const FeatureRow: React.FC<{ item: FeatureItem; index: number }> = ({ item, inde
         }
     };
 
+    // Layout Logic: Force vertical if isMobileView is true, otherwise use responsive md:flex-row
+    const containerClasses = isMobileView
+        ? "flex flex-col items-center gap-8"
+        : "flex flex-col md:flex-row items-center gap-8 md:gap-16";
+
+    const imageWrapperClasses = isMobileView
+        ? "w-full"
+        : `w-full md:w-1/2 ${isEven ? 'md:order-1' : 'md:order-2'}`;
+
+    const textWrapperClasses = isMobileView
+        ? "w-full text-center"
+        : `w-full md:w-1/2 ${isEven ? 'md:order-2' : 'md:order-1'}`;
+
     return (
         <div
             ref={ref}
-            className={`flex flex-col md:flex-row items-center gap-8 md:gap-16 transition-all duration-700 ${isVisible ? 'opacity-100' : 'opacity-0 translate-y-10'}`}
+            className={`${containerClasses} transition-all duration-700 ${isVisible ? 'opacity-100' : 'opacity-0 translate-y-10'}`}
         >
             {/* Image Side */}
-            <div className={`w-full md:w-1/2 ${isEven ? 'md:order-1' : 'md:order-2'}`}>
+            <div className={imageWrapperClasses}>
                 {item.imageUrl ? (
                     <div className={`rounded-2xl overflow-hidden shadow-2xl transform transition-transform duration-700 hover:scale-[1.02] ${isVisible ? 'scale-100' : 'scale-95'}`}>
                         <img src={item.imageUrl} alt={item.title} className="w-full h-auto object-cover" />
@@ -81,8 +94,8 @@ const FeatureRow: React.FC<{ item: FeatureItem; index: number }> = ({ item, inde
             </div>
 
             {/* Text Side */}
-            <div className={`w-full md:w-1/2 ${isEven ? 'md:order-2' : 'md:order-1'}`}>
-                <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 leading-tight">
+            <div className={textWrapperClasses}>
+                <h3 className={`font-bold mb-6 text-gray-900 leading-tight ${isMobileView ? 'text-2xl' : 'text-2xl md:text-3xl'}`}>
                     {item.title}
                 </h3>
                 <p className="text-lg text-gray-600 leading-relaxed whitespace-pre-line">
@@ -92,5 +105,6 @@ const FeatureRow: React.FC<{ item: FeatureItem; index: number }> = ({ item, inde
         </div>
     );
 };
+
 
 export default SmartFeatureBlock;

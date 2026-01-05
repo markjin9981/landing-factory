@@ -120,9 +120,7 @@ const DEFAULT_CONFIG: LandingConfig = {
         size: 'md'
     },
     detailContent: [],
-    problem: { title: '문제 제기 제목', description: '', points: ['문제점 1'] },
-    solution: { title: '해결책 제목', description: '', features: [{ title: '특징 1', desc: '설명' }] },
-    trust: { reviews: [], stats: [] }, // Default empty to avoid unwanted display
+
     formConfig: {
         title: '무료 상담 신청',
         subTitle: '',
@@ -207,9 +205,7 @@ const LandingEditor: React.FC = () => {
                     }
                     // Ensure Critical Sections exist
                     if (!loadedConfig.hero) loadedConfig.hero = JSON.parse(JSON.stringify(DEFAULT_CONFIG.hero));
-                    if (!loadedConfig.problem) loadedConfig.problem = JSON.parse(JSON.stringify(DEFAULT_CONFIG.problem));
-                    if (!loadedConfig.solution) loadedConfig.solution = JSON.parse(JSON.stringify(DEFAULT_CONFIG.solution));
-                    if (!loadedConfig.trust) loadedConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
+
                     if (!loadedConfig.formConfig) loadedConfig.formConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.formConfig));
 
                     setConfig(loadedConfig);
@@ -238,10 +234,7 @@ const LandingEditor: React.FC = () => {
 
                     // Ensure Critical Sections exist
                     if (!sheetConfig.hero) sheetConfig.hero = JSON.parse(JSON.stringify(DEFAULT_CONFIG.hero));
-                    if (!sheetConfig.problem) sheetConfig.problem = JSON.parse(JSON.stringify(DEFAULT_CONFIG.problem));
-                    if (!sheetConfig.solution) sheetConfig.solution = JSON.parse(JSON.stringify(DEFAULT_CONFIG.solution));
-                    if (!sheetConfig.trust) sheetConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
-                    if (!sheetConfig.trust) sheetConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
+
                     if (!sheetConfig.formConfig) sheetConfig.formConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.formConfig));
                     if (!sheetConfig.location) sheetConfig.location = JSON.parse(JSON.stringify(DEFAULT_CONFIG.location));
                     if (!sheetConfig.features) sheetConfig.features = JSON.parse(JSON.stringify(DEFAULT_CONFIG.features));
@@ -249,6 +242,10 @@ const LandingEditor: React.FC = () => {
                     // Migration for SNS items
                     if (sheetConfig.snsConfig && !sheetConfig.snsConfig.items) {
                         sheetConfig.snsConfig.items = [];
+                    }
+                    if (!sheetConfig.features) sheetConfig.features = JSON.parse(JSON.stringify(DEFAULT_CONFIG.features));
+                    if (sheetConfig.features && !sheetConfig.features.items) {
+                        sheetConfig.features.items = [];
                     }
 
                     setConfig(sheetConfig);
@@ -506,58 +503,7 @@ const LandingEditor: React.FC = () => {
     };
 
     // --- TEXT SECTION HELPERS ---
-    // ... (Same as before) ...
-    const addProblemPoint = () => {
-        setConfig(prev => ({
-            ...prev,
-            problem: {
-                ...prev.problem,
-                points: [...prev.problem.points, '새로운 문제점']
-            }
-        }));
-    };
-    const updateProblemPoint = (index: number, val: string) => {
-        setConfig(prev => {
-            const newPoints = [...prev.problem.points];
-            newPoints[index] = val;
-            return { ...prev, problem: { ...prev.problem, points: newPoints } };
-        });
-    };
-    const removeProblemPoint = (index: number) => {
-        setConfig(prev => ({
-            ...prev,
-            problem: {
-                ...prev.problem,
-                points: prev.problem.points.filter((_, i) => i !== index)
-            }
-        }));
-    };
 
-    const addSolutionFeature = () => {
-        setConfig(prev => ({
-            ...prev,
-            solution: {
-                ...prev.solution,
-                features: [...prev.solution.features, { title: '새 특징', desc: '설명' }]
-            }
-        }));
-    };
-    const updateSolutionFeature = (index: number, key: 'title' | 'desc', val: string) => {
-        setConfig(prev => {
-            const newFeatures = [...prev.solution.features];
-            newFeatures[index] = { ...newFeatures[index], [key]: val };
-            return { ...prev, solution: { ...prev.solution, features: newFeatures } };
-        });
-    };
-    const removeSolutionFeature = (index: number) => {
-        setConfig(prev => ({
-            ...prev,
-            solution: {
-                ...prev.solution,
-                features: prev.solution.features.filter((_, i) => i !== index)
-            }
-        }));
-    };
 
 
     // --- COMPONENT RENDERERS ---
@@ -870,36 +816,35 @@ const LandingEditor: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-gray-100 flex flex-col font-sans overflow-hidden">
+        <div className="lg:h-screen min-h-screen bg-gray-100 flex flex-col font-sans lg:overflow-hidden overflow-y-auto">
             {/* Header */}
             <header className="bg-gray-900 border-b border-gray-700 px-4 py-3 flex items-center justify-between shrink-0 z-20 shadow-md">
-                {/* ... Same as before ... */}
                 <div className="flex items-center gap-3">
                     <button onClick={() => navigate('/admin')} className="p-2 hover:bg-gray-700 rounded-full text-white transition">
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div>
-                        <h1 className="text-white font-bold flex items-center gap-2">
+                        <h1 className="text-white font-bold flex items-center gap-2 text-sm md:text-xl">
                             랜딩페이지 에디터
-                            <span className="text-xs font-mono bg-gray-700 px-2 py-0.5 rounded text-gray-300">ID: {config.id}</span>
+                            <span className="text-xs font-mono bg-gray-700 px-2 py-0.5 rounded text-gray-300 hidden md:inline-flex">ID: {config.id}</span>
                         </h1>
                     </div>
                 </div>
-                <div className="flex gap-2">
-                    <button onClick={saveToLocal} className="flex items-center px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded border border-gray-600">
-                        <Save className="w-3 h-3 mr-1.5" />
-                        임시 저장
+                <div className="flex gap-1 md:gap-2">
+                    <button onClick={saveToLocal} className="flex items-center px-2 md:px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded border border-gray-600">
+                        <Save className="w-4 h-4 md:mr-1.5" />
+                        <span className="hidden md:inline">임시 저장</span>
                     </button>
-                    <button onClick={handleDeploy} disabled={deployStatus === 'saving'} className="flex items-center px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded font-bold shadow-sm w-32 justify-center disabled:opacity-50">
-                        {deployStatus === 'saving' ? <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> 저장중...</> :
-                            deployStatus === 'success' ? <><CheckCircle className="w-3 h-3 mr-1.5" /> 저장완료!</> :
-                                deployStatus === 'error' ? <><AlertCircle className="w-3 h-3 mr-1.5" /> 저장실패</> :
-                                    <><Send className="w-3 h-3 mr-1.5" /> 저장 및 배포</>}
+                    <button onClick={handleDeploy} disabled={deployStatus === 'saving'} className="flex items-center px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded font-bold shadow-sm md:w-32 justify-center disabled:opacity-50">
+                        {deployStatus === 'saving' ? <><Loader2 className="w-3 h-3 md:mr-1.5 animate-spin" /> <span className="hidden md:inline">저장중...</span></> :
+                            deployStatus === 'success' ? <><CheckCircle className="w-3 h-3 md:mr-1.5" /> <span className="hidden md:inline">저장완료!</span></> :
+                                deployStatus === 'error' ? <><AlertCircle className="w-3 h-3 md:mr-1.5" /> <span className="hidden md:inline">저장실패</span></> :
+                                    <><Send className="w-3 h-3 md:mr-1.5" /> <span className="hidden md:inline">저장 및 배포</span><span className="md:hidden">배포</span></>}
                     </button>
                 </div>
             </header>
 
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden overflow-visible">
 
                 {/* LEFT: Editor Panel */}
                 <div className="w-full lg:w-[450px] bg-white border-r border-gray-200 flex flex-col shadow-xl z-10 relative">
@@ -910,10 +855,8 @@ const LandingEditor: React.FC = () => {
                             { id: 'basic', label: '기본', icon: <AlignLeft className="w-4 h-4" /> },
                             { id: 'layout', label: '레이아웃/GNB', icon: <Layout className="w-4 h-4" /> },
                             { id: 'hero', label: '타이틀', icon: <Smartphone className="w-4 h-4" /> },
-                            { id: 'problem', label: '문제제기', icon: <ArrowDown className="w-4 h-4" /> },
-                            { id: 'solution', label: '해결책', icon: <CheckCircle className="w-4 h-4" /> },
                             { id: 'features', label: '특징(Ani)', icon: <Layout className="w-4 h-4 text-purple-500" /> }, // New Tab
-                            { id: 'trust', label: '신뢰요소', icon: <MessageCircle className="w-4 h-4" /> },
+
                             { id: 'images', label: '상세', icon: <ImageIcon className="w-4 h-4" /> },
                             { id: 'gallery', label: '갤러리', icon: <Grid className="w-4 h-4" /> },
                             { id: 'board', label: '게시판', icon: <List className="w-4 h-4" /> },
@@ -940,7 +883,7 @@ const LandingEditor: React.FC = () => {
                     </div>
 
                     {/* Editor Content */}
-                    <div className="flex-1 overflow-y-auto p-5 space-y-6">
+                    <div className="flex-1 lg:overflow-y-auto overflow-visible p-5 space-y-6">
 
 
                         {/* ... POPUP TAB ... */}
@@ -3388,186 +3331,7 @@ const LandingEditor: React.FC = () => {
                             </div>
                         )}
 
-                        {/* --- TEXT SECTION TAB --- */}
-                        {activeTab === 'text' && (
-                            <div className="space-y-6 animate-fade-in">
-                                {/* ... Existing Text Tab Content ... */}
-                                <div className="bg-yellow-50 p-3 rounded border border-yellow-200 text-xs text-yellow-800 mb-4">
-                                    상세 이미지 섹션을 사용할 경우, 아래 텍스트 섹션의 제목을 비워두면 화면에 표시되지 않습니다.
-                                </div>
-                                <div className="space-y-3">
 
-                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
-                                        문제 제기 섹션
-                                        <div className="flex items-center gap-2">
-                                            <input type="color" value={config.problem.backgroundColor || '#f9fafb'} onChange={(e) => updateNested(['problem', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                            <span className="text-xs font-normal text-gray-500">배경색</span>
-                                        </div>
-                                    </h3>
-                                    <input
-                                        type="text" value={config.problem.title}
-                                        onChange={(e) => updateNested(['problem', 'title'], e.target.value)}
-                                        className="w-full border p-2 rounded text-sm" placeholder="섹션 제목 (비우면 숨김)"
-                                    />
-                                    <TextStyleEditor label="제목" stylePath={['problem', 'titleStyle']} />
-
-                                    <textarea
-                                        value={config.problem.description}
-                                        onChange={(e) => updateNested(['problem', 'description'], e.target.value)}
-                                        className="w-full border p-2 rounded text-sm h-20" placeholder="설명"
-                                    />
-                                    <TextStyleEditor label="설명 본문" stylePath={['problem', 'descriptionStyle']} />
-
-                                    <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                                        <label className="text-xs font-bold text-gray-500 block mb-2 flex justify-between">
-                                            문제점 리스트
-                                            <button onClick={addProblemPoint} className="text-blue-600 hover:underline flex items-center">
-                                                <Plus className="w-3 h-3 mr-1" /> 추가
-                                            </button>
-                                        </label>
-                                        <TextStyleEditor label="리스트 텍스트" stylePath={['problem', 'pointStyle']} />
-                                        <div className="space-y-2">
-                                            {config.problem.points.map((point, idx) => (
-                                                <div key={idx} className="flex gap-2">
-                                                    <input
-                                                        type="text" value={point}
-                                                        onChange={(e) => updateProblemPoint(idx, e.target.value)}
-                                                        className="flex-1 border p-1 rounded text-xs"
-                                                        placeholder="문제점 입력"
-                                                    />
-                                                    <button onClick={() => removeProblemPoint(idx)} className="text-gray-400 hover:text-red-500 p-1">
-                                                        <X className="w-3 h-3" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="space-y-3 border-t pt-4">
-                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
-                                        해결책 섹션
-                                        <div className="flex items-center gap-2">
-                                            <input type="color" value={config.solution.backgroundColor || '#ffffff'} onChange={(e) => updateNested(['solution', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                            <span className="text-xs font-normal text-gray-500">배경색</span>
-                                        </div>
-                                    </h3>
-                                    <input
-                                        type="text" value={config.solution.title}
-                                        onChange={(e) => updateNested(['solution', 'title'], e.target.value)}
-                                        className="w-full border p-2 rounded text-sm" placeholder="섹션 제목 (비우면 숨김)"
-                                    />
-                                    <TextStyleEditor label="제목" stylePath={['solution', 'titleStyle']} />
-
-                                    <textarea
-                                        value={config.solution.description}
-                                        onChange={(e) => updateNested(['solution', 'description'], e.target.value)}
-                                        className="w-full border p-2 rounded text-sm h-20" placeholder="해결책 설명 (선택)"
-                                    />
-                                    <TextStyleEditor label="설명 본문" stylePath={['solution', 'descriptionStyle']} />
-
-                                    <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                                        <label className="text-xs font-bold text-gray-500 block mb-2 flex justify-between">
-                                            카드 스타일 디자인
-                                        </label>
-                                        <div className="grid grid-cols-2 gap-2 mb-4">
-                                            <div>
-                                                <label className="text-[10px] text-gray-500 block">카드 배경색</label>
-                                                <div className="flex items-center gap-1">
-                                                    <input type="color" value={config.solution.cardStyle?.backgroundColor || 'transparent'} onChange={(e) => updateNested(['solution', 'cardStyle', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                                    <input type="text" value={config.solution.cardStyle?.backgroundColor || ''} onChange={(e) => updateNested(['solution', 'cardStyle', 'backgroundColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label className="text-[10px] text-gray-500 block">카드 텍스트색</label>
-                                                <div className="flex items-center gap-1">
-                                                    <input type="color" value={config.solution.cardStyle?.textColor || '#000000'} onChange={(e) => updateNested(['solution', 'cardStyle', 'textColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                                    <input type="text" value={config.solution.cardStyle?.textColor || ''} onChange={(e) => updateNested(['solution', 'cardStyle', 'textColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label className="text-[10px] text-gray-500 block">테두리 색상</label>
-                                                <div className="flex items-center gap-1">
-                                                    <input type="color" value={config.solution.cardStyle?.borderColor || '#e5e7eb'} onChange={(e) => updateNested(['solution', 'cardStyle', 'borderColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                                    <input type="text" value={config.solution.cardStyle?.borderColor || ''} onChange={(e) => updateNested(['solution', 'cardStyle', 'borderColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label className="text-[10px] text-gray-500 block">테두리 두께</label>
-                                                <input type="text" value={displaySizeValue(config.solution.cardStyle?.borderWidth)} onChange={(e) => updateNested(['solution', 'cardStyle', 'borderWidth'], formatSizeValue(e.target.value))} className="w-full border rounded p-1 text-xs" placeholder="0" />
-                                            </div>
-                                            <div>
-                                                <label className="text-[10px] text-gray-500 block">모서리 둥글게</label>
-                                                <input type="text" value={displaySizeValue(config.solution.cardStyle?.borderRadius)} onChange={(e) => updateNested(['solution', 'cardStyle', 'borderRadius'], formatSizeValue(e.target.value))} className="w-full border rounded p-1 text-xs" placeholder="0" />
-                                            </div>
-                                            <div>
-                                                <label className="text-[10px] text-gray-500 block">그림자 효과</label>
-                                                <select
-                                                    value={config.solution.cardStyle?.shadow ? 'true' : 'false'}
-                                                    onChange={(e) => updateNested(['solution', 'cardStyle', 'shadow'], e.target.value === 'true')}
-                                                    className="w-full border rounded p-1 text-xs"
-                                                >
-                                                    <option value="false">없음</option>
-                                                    <option value="true">있음</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <label className="text-xs font-bold text-gray-500 block mb-2 flex justify-between">
-                                            특징 리스트 (3개 권장)
-                                            <button onClick={addSolutionFeature} className="text-blue-600 hover:underline flex items-center">
-                                                <Plus className="w-3 h-3 mr-1" /> 추가
-                                            </button>
-                                        </label>
-                                        <div className="space-y-3">
-                                            {config.solution.features.map((feat, idx) => (
-                                                <div key={idx} className="bg-white border p-2 rounded relative">
-                                                    <button onClick={() => removeSolutionFeature(idx)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500">
-                                                        <X className="w-3 h-3" />
-                                                    </button>
-                                                    <div className="mb-1">
-                                                        <input
-                                                            type="text" value={feat.title}
-                                                            onChange={(e) => updateSolutionFeature(idx, 'title', e.target.value)}
-                                                            className="w-full border-b p-1 text-xs font-bold focus:border-blue-500 outline-none"
-                                                            placeholder="특징 제목"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <textarea
-                                                            value={feat.desc}
-                                                            onChange={(e) => updateSolutionFeature(idx, 'desc', e.target.value)}
-                                                            className="w-full p-1 text-xs resize-none h-12 outline-none"
-                                                            placeholder="특징 설명"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="space-y-3 border-t pt-4">
-                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
-                                        신뢰/리뷰 섹션 스타일
-                                        <div className="flex items-center gap-2">
-                                            <input type="color" value={config.trust?.backgroundColor || '#f9fafb'} onChange={(e) => updateNested(['trust', 'backgroundColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                            <span className="text-xs font-normal text-gray-500">배경색</span>
-                                        </div>
-                                    </h3>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                            <label className="text-[10px] text-gray-500 block">텍스트 색상 (기본)</label>
-                                            <div className="flex items-center gap-1">
-                                                <input type="color" value={config.trust?.textColor || '#000000'} onChange={(e) => updateNested(['trust', 'textColor'], e.target.value)} className="w-6 h-6 border rounded cursor-pointer p-0" />
-                                                <input type="text" value={config.trust?.textColor || ''} onChange={(e) => updateNested(['trust', 'textColor'], e.target.value)} className="flex-1 border rounded p-1 text-xs" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p className="text-[10px] text-gray-400 mt-2">
-                                        * 현재 리뷰 및 통계 데이터 입력은 준비중입니다.
-                                    </p>
-                                </div>
-                            </div>
-                        )}
 
                         {/* --- FOOTER TAB (NEW) --- */}
                         {activeTab === 'footer' && (
@@ -4178,7 +3942,7 @@ const LandingEditor: React.FC = () => {
 
                 {/* RIGHT: Live Preview Panel */}
                 {/* ... Same as before ... */}
-                <div className="flex-1 bg-gray-200 flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="lg:flex-1 w-full lg:h-full min-h-[900px] shrink-0 bg-gray-200 flex flex-col items-center justify-center relative overflow-hidden border-t-8 border-gray-300 lg:border-t-0">
                     <div className="absolute top-4 flex gap-2 bg-white p-1 rounded-lg shadow-lg z-20">
                         <button
                             onClick={() => setPreviewMode('mobile')}

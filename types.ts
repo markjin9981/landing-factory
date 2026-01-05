@@ -214,39 +214,11 @@ export interface HeroSection {
   size?: '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'; // Expanded range
 }
 
-export interface ProblemSection {
-  title: string;
-  titleStyle?: TextStyle; // New
-  description: string;
-  descriptionStyle?: TextStyle; // New
-  points: string[];
-  pointStyle?: TextStyle; // New: Style for individual points
-  backgroundColor?: string; // New
-}
 
-export interface SolutionSection {
-  title: string;
-  titleStyle?: TextStyle; // New
-  description: string;
-  descriptionStyle?: TextStyle; // New
-  features: { title: string; desc: string; icon?: string }[];
-  cardStyle?: { // New: Card specific styling
-    backgroundColor?: string;
-    textColor?: string;
-    borderRadius?: string;
-    shadow?: boolean;
-    borderColor?: string;
-    borderWidth?: string;
-  };
-  backgroundColor?: string; // New
-}
 
-export interface TrustSection {
-  reviews: { name: string; text: string; rating: number }[];
-  stats?: { label: string; value: string }[];
-  backgroundColor?: string; // New
-  textColor?: string; // New
-}
+
+
+
 
 export interface FormSection {
   title: string;
@@ -393,52 +365,7 @@ export interface DetailContent {
   width?: string;
 }
 
-export interface LandingConfig {
-  id: string;
-  title: string; // Document Title (Browser Tab)
 
-  // New: SEO & Identity Fields
-  favicon?: string;
-  ogImage?: string;
-  ogTitle?: string;       // Custom SNS Title
-  ogDescription?: string; // Custom SNS Description
-
-  // Popup
-  popupConfig?: PopupConfig;
-
-  // Chat Button
-  chatConfig?: ChatButtonConfig;
-
-  keywords?: string;      // New: Meta Keywords for SEO
-
-  // New: Search Engine Verification
-  naverVerification?: string;
-  googleVerification?: string;
-
-  theme: LandingTheme;
-
-  banners: FloatingBanner[]; // Changed from single banner to array
-
-  hero: HeroSection;
-
-  // Updated: Rich content list instead of simple strings
-  detailContent: DetailContent[];
-
-  problem: ProblemSection;
-  solution: SolutionSection;
-  trust: TrustSection;
-  formConfig: FormSection;
-
-  footer?: FooterSection; // New Footer Section
-
-  // --- NEW FEATURES (Website Mode) ---
-  layoutMode?: 'mobile' | 'full'; // Default 'mobile'
-
-  snsConfig?: SNSConfig;
-  navigation?: NavigationConfig;
-  gallery?: GallerySection;
-  board?: BoardSection;
-}
 
 // --- NEW INTERFACES ---
 
@@ -578,9 +505,9 @@ export interface LandingConfig {
   banners: FloatingBanner[]; // Changed from single banner to array
   hero: HeroSection;
   detailContent: DetailContent[];
-  problem: ProblemSection;
-  solution: SolutionSection;
-  trust: TrustSection;
+  // problem: ProblemSection; // Removed
+  // solution: SolutionSection; // Removed
+  // trust: TrustSection; // Removed
   formConfig: FormSection;
   footer?: FooterSection; // New Footer Section
 

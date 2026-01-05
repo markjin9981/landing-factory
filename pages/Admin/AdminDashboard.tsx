@@ -177,14 +177,19 @@ const AdminDashboard: React.FC = () => {
                     </Link>
                 </div>
 
-                <div className="flex justify-between items-end mb-4 border-b pb-2">
-                    <div>
-                        <h2 className="text-lg font-bold mb-1">보유 중인 랜딩페이지</h2>
-                        <div className="flex items-center gap-4">
-                            <p className="text-gray-500 text-sm">
+                <div className="flex flex-col md:flex-row justify-between md:items-end gap-4 mb-6 border-b pb-4">
+                    <div className="w-full md:w-auto">
+                        <div className="flex justify-between items-center mb-2 md:mb-1">
+                            <h2 className="text-xl font-bold text-gray-800">보유 중인 랜딩페이지</h2>
+                            {/* Sort Dropdown - Mobile only placement could be here, but let's keep it consistent */}
+                        </div>
+
+                        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                            <p className="text-gray-500 text-sm hidden md:block">
                                 Google Sheets와 연동된 모든 랜딩페이지 목록입니다.
                             </p>
-                            <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-lg">
+
+                            <div className="flex items-center gap-2 text-sm text-gray-600 bg-white md:bg-gray-100 md:px-3 py-1 rounded-lg self-start">
                                 <span className="font-bold">정렬:</span>
                                 <select
                                     value={sortOrder}
@@ -197,9 +202,10 @@ const AdminDashboard: React.FC = () => {
                             </div>
                         </div>
                     </div>
+
                     <Link
                         to="/admin/editor"
-                        className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-bold shadow-md"
+                        className="flex items-center justify-center w-full md:w-auto px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors text-sm font-bold shadow-md"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         새 페이지 만들기

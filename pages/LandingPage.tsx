@@ -75,9 +75,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
   // Runtime Safety
   if (config) {
     if (!config.hero) config.hero = { headline: '내용 없음', subHeadline: '', ctaText: '신청하기', size: 'md' } as any;
-    if (!config.problem) config.problem = { title: '', description: '', points: [] };
-    if (!config.solution) config.solution = { title: '', description: '', features: [] };
-    if (!config.trust) config.trust = { reviews: [], stats: [] };
+
     if (!config.formConfig) config.formConfig = { title: '', fields: [], style: {} } as any;
     if (!config.theme) config.theme = { primaryColor: '#0ea5e9', secondaryColor: '#0f172a', fontConfig: { primaryFont: 'Inter', source: 'google' }, customFonts: [] };
     if (!config.theme.customFonts) config.theme.customFonts = [];
@@ -165,7 +163,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!config) return <div className="min-h-screen flex items-center justify-center">404 Not Found</div>;
 
-  const { hero, problem, solution, trust, formConfig, theme, detailContent, banners, footer,
+  const { hero, formConfig, theme, detailContent, banners, footer,
     layoutMode = 'mobile', navigation, gallery, board, snsConfig, location, features
   } = config;
 
@@ -229,7 +227,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     if (item.type === 'youtube') return <div key={index} className="w-full aspect-video mb-4"><iframe src={item.content} className="w-full h-full" /></div>;
 
     const widthClass = item.width === '100%' || !item.width ? (isFullLayout ? 'max-w-5xl' : 'max-w-4xl') : 'w-full';
-    return <img key={index} src={item.content} className={`block mx-auto mb-0 h-auto ${widthClass}`} />;
+    return <img key={index} src={item.content} className={`block mx-auto mb-0 h-auto ${widthClass} max-w-full`} />;
   };
 
   const FormComponent = () => (
@@ -251,9 +249,22 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
   const BannerItem = ({ banner }: { banner: FloatingBanner }) => {
     const styles = getSizeStyles(banner.size);
+
+    // Sliding Logic
+    const isSliding = banner.isSliding;
+    const animationStyle = isSliding ? {
+      animationDuration: `${banner.slideSpeed || 15}s`,
+      width: '100%',
+    } : {};
+
     return (
-      <a href={banner.linkUrl || "#lead-form"} className="block shadow-lg relative bg-gray-900 text-white" style={{ backgroundColor: banner.backgroundColor, color: banner.textColor }}>
-        <div className={`p-3 text-center ${styles.text}`}>{banner.text}</div>
+      <a href={banner.linkUrl || "#lead-form"} className="block shadow-lg relative bg-gray-900 text-white overflow-hidden" style={{ backgroundColor: banner.backgroundColor, color: banner.textColor }}>
+        <div
+          className={`p-3 text-center ${styles.text} ${isSliding ? 'animate-marquee' : ''}`}
+          style={animationStyle}
+        >
+          {banner.text}
+        </div>
       </a>
     );
   };
@@ -308,47 +319,14 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           </section>
         )}
 
-        {/* 2. Problem Section */}
-        {problem.title && isMainView && (
-          <section id="section-problem" className={`py-20 ${sectionBgClass}`} style={{ backgroundColor: problem.backgroundColor || '#f9fafb' }}>
-            <div className={contentWrapperClass}>
-              <div className="text-center mb-12">
-                <h2 className="mb-4 text-3xl font-bold">{problem.title}</h2>
-                <p className="text-gray-600">{problem.description}</p>
-              </div>
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-3xl mx-auto">
-                <ul className="space-y-6">
-                  {problem.points.map((pt, i) => <li key={i} className="flex gap-4"><span className="text-red-500 font-bold">!</span>{pt}</li>)}
-                </ul>
-              </div>
-            </div>
-          </section>
-        )}
 
-        {/* 3. Solution Section */}
-        {solution.title && isMainView && (
-          <section id="section-solution" className={`py-20 ${sectionBgClass}`} style={{ backgroundColor: solution.backgroundColor || '#ffffff' }}>
-            <div className={contentWrapperClass}>
-              <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold mb-4">{solution.title}</h2>
-                <p className="text-gray-600">{solution.description}</p>
-              </div>
-              <div className="grid md:grid-cols-3 gap-8">
-                {solution.features.map((f, i) => (
-                  <div key={i} className="p-6 rounded-xl border border-gray-100 text-center">
-                    <h3 className="font-bold text-xl mb-2">{f.title}</h3>
-                    <p className="text-gray-500">{f.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+
+
 
         {/* Smart Feature Block (Animated) - New Phase 3 */}
         {features && features.isShow && isMainView && (
           <div className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
-            <SmartFeatureBlock data={features} />
+            <SmartFeatureBlock data={features} isMobileView={isMobileView || isPreview} />
           </div>
         )}
 
@@ -373,39 +351,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           </div>
         )}
 
-        {/* Trust/Reviews */}
-        {(trust.reviews?.length > 0 || trust.stats?.length > 0) && isMainView && (
-          <section className={`py-20 ${sectionBgClass}`} style={{ backgroundColor: trust.backgroundColor || '#111827', color: trust.textColor || '#ffffff' }}>
-            <div className={contentWrapperClass}>
-              {trust.stats && (
-                <div className="grid grid-cols-2 md:grid-cols-2 gap-8 mb-16 border-b border-gray-800 pb-12">
-                  {trust.stats.map((stat, idx) => (
-                    <div key={idx} className="text-center">
-                      <div className="text-4xl md:text-5xl font-bold mb-2" style={{ color: theme.primaryColor }}>{stat.value}</div>
-                      <div className="opacity-60 font-medium uppercase tracking-wider text-sm break-keep">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div className="grid md:grid-cols-2 gap-6">
-                {trust.reviews?.map((review, idx) => (
-                  <div key={idx} className="bg-white/10 p-6 rounded-xl backdrop-blur-sm">
-                    <div className="flex text-yellow-400 mb-3">{[...Array(review.rating || 5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}</div>
-                    <p className="opacity-90 mb-4 italic">"{review.text}"</p>
-                    <div className="font-bold">- {review.name}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
 
-        {/* Location Section (New Phase 3) */}
-        {location && location.isShow && isLocationView && (
-          <div className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
-            <LocationBlock data={location} />
-          </div>
-        )}
 
         {(formPosition === 'bottom' || !formPosition) && isMainView && <FormComponent />}
 
@@ -429,7 +375,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
       {
         bottomBanners.length > 0 && (
-          <div className={`${isPreview ? 'absolute bottom-0 w-full' : 'fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl'} z-50 flex flex-col-reverse shadow-xl-up`}>
+          <div className={`${isPreview ? 'absolute bottom-0 w-full' : (isFullLayout ? 'fixed bottom-0 left-0 w-full' : 'fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl')} z-50 flex flex-col-reverse shadow-xl-up`}>
             {bottomBanners.map(b => <BannerItem key={b.id} banner={b} />)}
           </div>
         )
