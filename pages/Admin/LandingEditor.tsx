@@ -2556,17 +2556,17 @@ const LandingEditor: React.FC = () => {
                                                     // Since we want to overwrite style, we can try replacing the whole style object
                                                     // But we should preserve 'preset' key
                                                     const newStyle = { ...preset.style, preset: key };
-                                                    updateNested(['form', 'style'], newStyle);
+                                                    updateNested(['formConfig', 'style'], newStyle);
                                                 }}
                                                 className={`p-3 border rounded-lg text-xs font-bold transition-all text-left flex flex-col gap-2
-                                                    ${config.form.style?.preset === key
+                                                    ${config.formConfig.style?.preset === key
                                                         ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
                                                         : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50 text-gray-600'
                                                     }`}
                                             >
                                                 <div className="flex justify-between items-center w-full">
                                                     <span>{preset.label}</span>
-                                                    {config.form.style?.preset === key && <CheckCircle className="w-4 h-4 text-blue-600" />}
+                                                    {config.formConfig.style?.preset === key && <CheckCircle className="w-4 h-4 text-blue-600" />}
                                                 </div>
 
                                                 {/* Mini Preview */}
