@@ -34,6 +34,7 @@ const DEFAULT_CONFIG: LandingConfig = {
     theme: { primaryColor: '#0ea5e9', secondaryColor: '#0f172a', fontConfig: { primaryFont: '', source: 'google' }, customFonts: [] },
     banners: [],
     hero: {
+        isShow: true, // Default: Show Hero
         headline: '메인 카피를 입력하세요',
         headlineStyle: { fontSize: '3rem', fontWeight: '800', color: '#ffffff', textAlign: 'center' },
         subHeadline: '서브 카피를 입력하세요',
@@ -1398,76 +1399,93 @@ const LandingEditor: React.FC = () => {
                         {activeTab === 'hero' && (
                             <div className="space-y-4 animate-fade-in">
                                 {/* ... Existing Hero Content ... */}
-                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">상단 히어로 섹션</h3>
-                                <div>
-                                    <label className="text-xs font-bold text-gray-500 mb-1 flex justify-between">
-                                        배경 이미지
-                                        <button onClick={() => heroBgInputRef.current?.click()} className="text-blue-600 hover:underline flex items-center">
-                                            <Upload className="w-3 h-3 mr-1" /> 업로드
-                                        </button>
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">상단 히어로 섹션</h3>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <span className="text-xs font-bold text-gray-700">섹션 사용</span>
+                                        <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                            <input type="checkbox" className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                checked={config.hero.isShow ?? true}
+                                                onChange={(e) => updateNested(['hero', 'isShow'], e.target.checked)}
+                                            />
+                                            <label className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${(config.hero.isShow ?? true) ? 'bg-blue-600' : 'bg-gray-300'}`}></label>
+                                        </div>
                                     </label>
-                                    <input
-                                        type="file" ref={heroBgInputRef} className="hidden" accept="image/*"
-                                        onChange={(e) => handleImageUpload(e, (url) => updateNested(['hero', 'backgroundImage'], url))}
-                                    />
-                                    <input
-                                        type="text" value={config.hero.backgroundImage}
-                                        onChange={(e) => updateNested(['hero', 'backgroundImage'], e.target.value)}
-                                        className="w-full border rounded p-2 text-sm mb-2" placeholder="http://..."
-                                    />
-                                    {config.hero.backgroundImage && (
-                                        <img src={config.hero.backgroundImage} alt="Preview" className="w-full h-24 object-cover rounded border" />
-                                    )}
                                 </div>
-                                <div>
-                                    <label className="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
-                                        <Maximize className="w-3 h-3" /> 섹션 크기 (높이)
-                                    </label>
-                                    <select
-                                        value={config.hero.size || 'md'}
-                                        onChange={(e) => updateNested(['hero', 'size'], e.target.value)}
-                                        className="w-full border rounded p-2 text-sm"
-                                    >
-                                        <option value="3xs">① 매우 작게 (Tiny)</option>
-                                        <option value="2xs">② 더 작게 (Ex-Small)</option>
-                                        <option value="xs">③ 작게 (Small)</option>
-                                        <option value="sm">④ 약간 작게 (Semi-Small)</option>
-                                        <option value="md">⑤ 보통 (Medium)</option>
-                                        <option value="lg">⑥ 약간 크게 (Semi-Large)</option>
-                                        <option value="xl">⑦ 크게 (Large)</option>
-                                        <option value="2xl">⑧ 더 크게 (Ex-Large)</option>
-                                        <option value="3xl">⑨ 매우 크게 (Huge)</option>
-                                    </select>
-                                </div>
-                                <div className="border-t pt-4">
-                                    <label className="text-xs font-bold text-gray-500 mb-1 block">메인 헤드카피</label>
-                                    <textarea
-                                        value={config.hero.headline}
-                                        onChange={(e) => updateNested(['hero', 'headline'], e.target.value)}
-                                        className="w-full border rounded p-2 text-sm h-16 resize-none mb-2"
-                                    />
-                                    <TextStyleEditor label="헤드카피" stylePath={['hero', 'headlineStyle']} />
-                                </div>
-                                <div className="border-t pt-4">
-                                    <label className="text-xs font-bold text-gray-500 mb-1 block">서브 카피</label>
-                                    <textarea
-                                        value={config.hero.subHeadline}
-                                        onChange={(e) => updateNested(['hero', 'subHeadline'], e.target.value)}
-                                        className="w-full border rounded p-2 text-sm h-16 resize-none mb-2"
-                                    />
-                                    <TextStyleEditor label="서브카피" stylePath={['hero', 'subHeadlineStyle']} />
-                                </div>
-                                <div className="border-t pt-4">
-                                    <label className="text-xs font-bold text-gray-500 mb-1 block">신청하기(CTA) 버튼 문구</label>
-                                    <input
-                                        type="text"
-                                        value={config.hero.ctaText}
-                                        onChange={(e) => updateNested(['hero', 'ctaText'], e.target.value)}
-                                        className="w-full border rounded p-2 text-sm mb-2"
-                                        placeholder="예: 무료 상담 신청하기"
-                                    />
-                                    <ButtonStyleEditor label="CTA 버튼" stylePath={['hero', 'ctaStyle']} />
-                                </div>
+
+                                {(config.hero.isShow ?? true) && (
+                                    <>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 mb-1 flex justify-between">
+                                                배경 이미지
+                                                <button onClick={() => heroBgInputRef.current?.click()} className="text-blue-600 hover:underline flex items-center">
+                                                    <Upload className="w-3 h-3 mr-1" /> 업로드
+                                                </button>
+                                            </label>
+                                            <input
+                                                type="file" ref={heroBgInputRef} className="hidden" accept="image/*"
+                                                onChange={(e) => handleImageUpload(e, (url) => updateNested(['hero', 'backgroundImage'], url))}
+                                            />
+                                            <input
+                                                type="text" value={config.hero.backgroundImage}
+                                                onChange={(e) => updateNested(['hero', 'backgroundImage'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm mb-2" placeholder="http://..."
+                                            />
+                                            {config.hero.backgroundImage && (
+                                                <img src={config.hero.backgroundImage} alt="Preview" className="w-full h-24 object-cover rounded border" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
+                                                <Maximize className="w-3 h-3" /> 섹션 크기 (높이)
+                                            </label>
+                                            <select
+                                                value={config.hero.size || 'md'}
+                                                onChange={(e) => updateNested(['hero', 'size'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                            >
+                                                <option value="3xs">① 매우 작게 (Tiny)</option>
+                                                <option value="2xs">② 더 작게 (Ex-Small)</option>
+                                                <option value="xs">③ 작게 (Small)</option>
+                                                <option value="sm">④ 약간 작게 (Semi-Small)</option>
+                                                <option value="md">⑤ 보통 (Medium)</option>
+                                                <option value="lg">⑥ 약간 크게 (Semi-Large)</option>
+                                                <option value="xl">⑦ 크게 (Large)</option>
+                                                <option value="2xl">⑧ 더 크게 (Ex-Large)</option>
+                                                <option value="3xl">⑨ 매우 크게 (Huge)</option>
+                                            </select>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <label className="text-xs font-bold text-gray-500 mb-1 block">메인 헤드카피</label>
+                                            <textarea
+                                                value={config.hero.headline}
+                                                onChange={(e) => updateNested(['hero', 'headline'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm h-16 resize-none mb-2"
+                                            />
+                                            <TextStyleEditor label="헤드카피" stylePath={['hero', 'headlineStyle']} />
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <label className="text-xs font-bold text-gray-500 mb-1 block">서브 카피</label>
+                                            <textarea
+                                                value={config.hero.subHeadline}
+                                                onChange={(e) => updateNested(['hero', 'subHeadline'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm h-16 resize-none mb-2"
+                                            />
+                                            <TextStyleEditor label="서브카피" stylePath={['hero', 'subHeadlineStyle']} />
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <label className="text-xs font-bold text-gray-500 mb-1 block">신청하기(CTA) 버튼 문구</label>
+                                            <input
+                                                type="text"
+                                                value={config.hero.ctaText}
+                                                onChange={(e) => updateNested(['hero', 'ctaText'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm mb-2"
+                                                placeholder="예: 무료 상담 신청하기"
+                                            />
+                                            <ButtonStyleEditor label="CTA 버튼" stylePath={['hero', 'ctaStyle']} />
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
 

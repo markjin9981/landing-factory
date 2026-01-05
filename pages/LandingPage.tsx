@@ -618,47 +618,49 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
         )}
 
         {/* 1. Hero Section */}
-        <section
-          className={`relative bg-gray-900 text-white px-4 overflow-hidden max-w-4xl mx-auto ${getHeroPadding(hero.size)}`}
-        >
-          <div className="absolute inset-0 z-0 opacity-20">
-            {hero.backgroundImage && <img src={hero.backgroundImage} alt="Background" className="w-full h-full object-cover" />}
-            <div className="absolute inset-0 bg-black/50"></div>
-          </div>
-
-          <div className="relative z-10 w-full text-center">
-            {/* Removed 'Limited Offer' Badge as per user request */}
-
-            <h1
-              className="mb-6 leading-tight break-keep"
-              style={getTextStyle(hero.headlineStyle, { fontSize: '3.75rem', fontWeight: '800', color: 'white', textAlign: 'center', letterSpacing: '-0.025em' })}
-            >
-              {hero.headline}
-            </h1>
-            <p
-              className="mb-10 max-w-2xl mx-auto break-keep"
-              style={getTextStyle(hero.subHeadlineStyle, { fontSize: '1.25rem', fontWeight: '400', color: '#d1d5db', textAlign: 'center' })}
-            >
-              {hero.subHeadline}
-            </p>
-            <div style={{ textAlign: (hero.ctaStyle?.alignment || 'center') as any, marginTop: '2.5rem' }}>
-              <button
-                onClick={scrollToForm}
-                className="inline-flex items-center px-8 py-4 font-bold transition-transform transform hover:scale-105 shadow-lg shadow-blue-500/30 justify-center"
-                style={{
-                  backgroundColor: hero.ctaStyle?.backgroundColor || theme.primaryColor,
-                  color: hero.ctaStyle?.textColor || 'white',
-                  fontSize: hero.ctaStyle?.fontSize || '1.125rem',
-                  borderRadius: hero.ctaStyle?.borderRadius || '9999px',
-                  width: getCTAWidth(hero.ctaStyle?.width),
-                }}
-              >
-                {hero.ctaText || '신청하기'}
-                {(!hero.ctaStyle || !hero.ctaStyle.width || hero.ctaStyle.width === 'auto') && <ArrowRight className="ml-2 w-5 h-5" />}
-              </button>
+        {(hero.isShow ?? true) && (
+          <section
+            className={`relative bg-gray-900 text-white px-4 overflow-hidden max-w-4xl mx-auto ${getHeroPadding(hero.size)}`}
+          >
+            <div className="absolute inset-0 z-0 opacity-20">
+              {hero.backgroundImage && <img src={hero.backgroundImage} alt="Background" className="w-full h-full object-cover" />}
+              <div className="absolute inset-0 bg-black/50"></div>
             </div>
-          </div>
-        </section>
+
+            <div className="relative z-10 w-full text-center">
+              {/* Removed 'Limited Offer' Badge as per user request */}
+
+              <h1
+                className="mb-6 leading-tight break-keep"
+                style={getTextStyle(hero.headlineStyle, { fontSize: '3.75rem', fontWeight: '800', color: 'white', textAlign: 'center', letterSpacing: '-0.025em' })}
+              >
+                {hero.headline}
+              </h1>
+              <p
+                className="mb-10 max-w-2xl mx-auto break-keep"
+                style={getTextStyle(hero.subHeadlineStyle, { fontSize: '1.25rem', fontWeight: '400', color: '#d1d5db', textAlign: 'center' })}
+              >
+                {hero.subHeadline}
+              </p>
+              <div style={{ textAlign: (hero.ctaStyle?.alignment || 'center') as any, marginTop: '2.5rem' }}>
+                <button
+                  onClick={scrollToForm}
+                  className="inline-flex items-center px-8 py-4 font-bold transition-transform transform hover:scale-105 shadow-lg shadow-blue-500/30 justify-center"
+                  style={{
+                    backgroundColor: hero.ctaStyle?.backgroundColor || theme.primaryColor,
+                    color: hero.ctaStyle?.textColor || 'white',
+                    fontSize: hero.ctaStyle?.fontSize || '1.125rem',
+                    borderRadius: hero.ctaStyle?.borderRadius || '9999px',
+                    width: getCTAWidth(hero.ctaStyle?.width),
+                  }}
+                >
+                  {hero.ctaText || '신청하기'}
+                  {(!hero.ctaStyle || !hero.ctaStyle.width || hero.ctaStyle.width === 'auto') && <ArrowRight className="ml-2 w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* FORM POSITION: After Hero */}
         {formPosition === 'after_hero' && <FormComponent />}

@@ -83,6 +83,7 @@ export interface FloatingBanner {
 }
 
 export interface HeroSection {
+  isShow?: boolean; // New: Toggle Hero Section
   headline: string;
   headlineStyle?: TextStyle;
   subHeadline: string;
@@ -199,6 +200,7 @@ export interface UrgencyConfig {
 }
 
 export interface HeroSection {
+  isShow?: boolean; // New: Toggle Hero Section
   headline: string;
   headlineStyle?: TextStyle;
   subHeadline: string;
