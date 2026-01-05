@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { NavigationConfig } from '../../types';
 import { Menu, X } from 'lucide-react';
 
@@ -6,10 +7,12 @@ interface Props {
     config: NavigationConfig;
     siteTitle: string;
     isMobileView?: boolean;
+    landingId: string;
 }
 
-const NavigationBar: React.FC<Props> = ({ config, siteTitle, isMobileView }) => {
+const NavigationBar: React.FC<Props> = ({ config, siteTitle, isMobileView, landingId }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
     if (!config || !config.isShow) return null;
 
@@ -17,6 +20,7 @@ const NavigationBar: React.FC<Props> = ({ config, siteTitle, isMobileView }) => 
 
     const handleLinkClick = (e: React.MouseEvent<HTMLElement>, link: string) => {
         setMobileMenuOpen(false);
+
         if (link.startsWith('#')) {
             e.preventDefault();
             const id = link.substring(1);
@@ -31,8 +35,12 @@ const NavigationBar: React.FC<Props> = ({ config, siteTitle, isMobileView }) => 
                 top: offsetPosition,
                 behavior: "smooth"
             });
+        } else if (!link.startsWith('http')) {
+            // Internal Page Navigation (e.g. 'gallery', 'board')
+            e.preventDefault();
+            navigate(`/${landingId}/${link}`);
         }
-        // If not hash link, let default behavior handle it (external link)
+        // If http/https, let default behavior handle it (external link)
     };
 
     return (
@@ -43,7 +51,7 @@ const NavigationBar: React.FC<Props> = ({ config, siteTitle, isMobileView }) => 
             >
                 <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
                     {/* Logo / Title */}
-                    <div className="font-bold text-xl truncate cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                    <div className="font-bold text-xl truncate cursor-pointer" onClick={() => navigate(`/${landingId}`)}>
                         {siteTitle}
                     </div>
 

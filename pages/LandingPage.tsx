@@ -18,11 +18,12 @@ const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 import { generateGoogleFontUrl, GOOGLE_FONTS_LIST } from '../utils/fontUtils';
 
 interface Props {
-  previewConfig?: LandingConfig; // Optional prop for Live Preview
+  previewConfig?: LandingConfig;
   isMobileView?: boolean;
+  viewMode?: 'all' | 'gallery' | 'board';
 }
 
-const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) => {
+const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, viewMode = 'all' }) => {
   const { id } = useParams<{ id: string }>();
 
   // 1. Initial State
@@ -171,6 +172,12 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
 
   // --- Layout Logic ---
   const isFullLayout = layoutMode === 'full';
+
+  // View Modes
+  const isMainView = viewMode === 'all';
+  const isGalleryView = viewMode === 'gallery' || viewMode === 'all';
+  const isBoardView = viewMode === 'board' || viewMode === 'all';
+
   const contentWrapperClass = isFullLayout ? 'max-w-7xl mx-auto px-4 md:px-8' : 'max-w-4xl mx-auto px-4';
   const heroContainerClass = isFullLayout ? 'w-full' : 'max-w-4xl mx-auto';
   const sectionBgClass = isFullLayout ? 'w-full px-0' : 'max-w-4xl mx-auto px-4';
@@ -253,7 +260,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
     <div className={`font-sans text-gray-900 bg-white ${isPreview ? 'h-full relative overflow-hidden' : 'min-h-screen'}`}>
 
       {/* Navigation Bar (New) */}
-      {navigation && <NavigationBar config={navigation} siteTitle={config.title} isMobileView={isMobileView} />}
+      {navigation && <NavigationBar config={navigation} siteTitle={config.title} isMobileView={isMobileView} landingId={config.id} />}
 
       <div
         className={isPreview ? "h-full overflow-y-auto" : ""}
@@ -267,7 +274,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
 
         {/* 1. Hero Section */}
         <div id="section-hero">
-          {(hero.isShow ?? true) && (
+          {(hero.isShow ?? true) && isMainView && (
             <section className={`relative bg-gray-900 text-white overflow-hidden mx-auto ${heroContainerClass} px-4 ${getHeroPadding(hero.size)}`}>
               <div className="absolute inset-0 z-0 opacity-20">
                 {hero.backgroundImage && <img src={hero.backgroundImage} alt="Background" className="w-full h-full object-cover" />}
@@ -288,16 +295,16 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
           )}
         </div>
 
-        {formPosition === 'after_hero' && <FormComponent />}
+        {formPosition === 'after_hero' && isMainView && <FormComponent />}
 
-        {detailContent && detailContent.length > 0 && (
+        {detailContent && detailContent.length > 0 && isMainView && (
           <section className={`w-full bg-white mx-auto flex flex-col items-center ${isFullLayout ? 'max-w-7xl px-4 py-10' : 'max-w-4xl py-0'}`}>
             {detailContent.map((item, idx) => renderDetailContent(item, idx))}
           </section>
         )}
 
         {/* 2. Problem Section */}
-        {problem.title && (
+        {problem.title && isMainView && (
           <section id="section-problem" className={`py-20 ${sectionBgClass}`} style={{ backgroundColor: problem.backgroundColor || '#f9fafb' }}>
             <div className={contentWrapperClass}>
               <div className="text-center mb-12">
@@ -314,7 +321,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
         )}
 
         {/* 3. Solution Section */}
-        {solution.title && (
+        {solution.title && isMainView && (
           <section id="section-solution" className={`py-20 ${sectionBgClass}`} style={{ backgroundColor: solution.backgroundColor || '#ffffff' }}>
             <div className={contentWrapperClass}>
               <div className="text-center mb-16">
@@ -334,21 +341,21 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
         )}
 
         {/* Gallery */}
-        {gallery && gallery.isShow && (
+        {gallery && gallery.isShow && isGalleryView && (
           <div className={isFullLayout ? 'w-full bg-white' : 'max-w-4xl mx-auto'}>
             <GalleryBlock data={gallery} isMobileView={isMobileView || isPreview} />
           </div>
         )}
 
         {/* Board */}
-        {board && board.isShow && (
+        {board && board.isShow && isBoardView && (
           <div className={isFullLayout ? 'w-full bg-gray-50' : 'max-w-4xl mx-auto'}>
             <BoardBlock data={board} isMobileView={isMobileView || isPreview} />
           </div>
         )}
 
         {/* Trust/Reviews */}
-        {(trust.reviews?.length > 0 || trust.stats?.length > 0) && (
+        {(trust.reviews?.length > 0 || trust.stats?.length > 0) && isMainView && (
           <section className={`py-20 ${sectionBgClass}`} style={{ backgroundColor: trust.backgroundColor || '#111827', color: trust.textColor || '#ffffff' }}>
             <div className={contentWrapperClass}>
               {trust.stats && (
@@ -374,7 +381,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
           </section>
         )}
 
-        {(formPosition === 'bottom' || !formPosition) && <FormComponent />}
+        {(formPosition === 'bottom' || !formPosition) && isMainView && <FormComponent />}
 
         {safeFooter.isShow && (
           <footer className="bg-white border-t border-gray-200 max-w-4xl mx-auto pb-12 pt-8">

@@ -161,6 +161,8 @@ const App: React.FC = () => {
 
             {/* Dynamic Route for Landing Pages (Eager) */}
             <Route path="/:id" element={<LandingPage />} />
+            <Route path="/:id/gallery" element={<LandingPage viewMode="gallery" />} />
+            <Route path="/:id/board" element={<LandingPage viewMode="board" />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
