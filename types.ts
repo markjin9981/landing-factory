@@ -450,24 +450,30 @@ export interface SNSLink {
   label?: string; // Tooltip
 }
 
+export interface SNSItem {
+  id: string; // Unique ID
+  type: 'instagram' | 'youtube' | 'kakao' | 'blog' | 'custom';
+  url: string;
+  label?: string;
+  iconType?: 'builtin' | 'upload'; // New
+  customIconUrl?: string; // New
+}
+
 export interface SNSConfig {
   isShow: boolean;
   position: 'bottom-right' | 'bottom-left' | 'side-right' | 'side-left';
-  displayMode?: 'floating' | 'block'; // New
+  displayMode?: 'floating' | 'block';
   style: {
-    iconSize?: number;
+    iconSize?: number; // Global size override
     gap?: number;
   };
+  // Deprecated fields kept for migration scripts if needed, but UI will use 'items'
   kakao?: string;
   naverBlog?: string;
   instagram?: string;
   youtube?: string;
-  items?: Array<{ // Kept for backward compatibility or custom
-    type: 'instagram' | 'youtube' | 'kakao' | 'blog' | 'custom';
-    url: string;
-    label?: string;
-    iconUrl?: string; // Optional custom icon
-  }>;
+
+  items: SNSItem[]; // Main source of truth now
 }
 
 export interface NavigationItem {
@@ -520,11 +526,28 @@ export interface BoardSection {
 export interface LocationSection {
   isShow: boolean;
   title: string;
+  titleStyle?: TextStyle; // New
   address: string;
+  addressStyle?: TextStyle; // New
   detailAddress?: string;
   lat?: number;
   lng?: number;
   showMap: boolean;
+}
+
+export interface FeatureItem {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl?: string;
+  animation?: 'fade-up' | 'fade-in' | 'slide-left' | 'slide-right' | 'zoom-in';
+}
+
+export interface FeatureSection {
+  isShow: boolean; // New Section
+  title: string;
+  description?: string;
+  items: FeatureItem[];
 }
 
 export interface LandingConfig {
@@ -569,6 +592,7 @@ export interface LandingConfig {
   gallery?: GallerySection;
   board?: BoardSection;
   location?: LocationSection; // New
+  features?: FeatureSection; // New Smart Feature Block
 }
 
 export interface LeadData {

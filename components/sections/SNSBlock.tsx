@@ -1,46 +1,67 @@
 import React from 'react';
 import { SNSConfig } from '../../types';
-import { Instagram, Youtube, MessageCircle, Globe } from 'lucide-react';
+import { MessageCircle, Globe, Instagram, Youtube, Share2 } from 'lucide-react';
 
-interface Props {
+interface SNSBlockProps {
     config?: SNSConfig;
-    isMobileView?: boolean;
 }
 
-const SNSBlock: React.FC<Props> = ({ config, isMobileView }) => {
+const SNSBlock: React.FC<SNSBlockProps> = ({ config }) => {
     if (!config || !config.isShow) return null;
 
-    const { kakao, naverBlog, instagram, youtube } = config;
+    // Helper to get icon
+    const getIcon = (type: string, customUrl?: string) => {
+        if (customUrl) return <img src={customUrl} alt={type} className="w-12 h-12 object-cover rounded-full" />;
 
-    // Collect valid links
-    const links = [
-        { type: 'kakao', url: kakao, icon: <MessageCircle />, label: '카카오톡', bg: 'bg-yellow-400 text-black border-yellow-500' },
-        { type: 'blog', url: naverBlog, icon: <Globe />, label: '블로그', bg: 'bg-green-600 text-white' },
-        { type: 'instagram', url: instagram, icon: <Instagram />, label: '인스타그램', bg: 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white' },
-        { type: 'youtube', url: youtube, icon: <Youtube />, label: '유튜브', bg: 'bg-red-600 text-white' },
-    ].filter(link => !!link.url);
+        const size = 24;
+        switch (type) {
+            case 'kakao': return <MessageCircle size={size} />;
+            case 'blog': return <span className="font-bold text-xs">Blog</span>;
+            case 'instagram': return <Instagram size={size} />;
+            case 'youtube': return <Youtube size={size} />;
+            default: return <Share2 size={size} />;
+        }
+    };
 
-    if (links.length === 0) return null;
+    // Helper to get color
+    const getColor = (type: string) => {
+        switch (type) {
+            case 'kakao': return '#FEE500';
+            case 'blog': return '#03C75A';
+            case 'instagram': return '#E4405F';
+            case 'youtube': return '#FF0000';
+            default: return '#1F2937';
+        }
+    };
+
+    // Helper to get text color
+    const getTextColor = (type: string) => {
+        return type === 'kakao' ? '#000000' : '#ffffff';
+    };
 
     return (
-        <section className="py-12 bg-gray-50 border-t border-gray-200">
-            <div className="max-w-4xl mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
-                <h3 className="text-lg font-bold text-gray-500 uppercase tracking-widest hidden md:block">Connect With Us</h3>
-
-                <div className="flex gap-6">
-                    {links.map((item, idx) => (
-                        <a
-                            key={idx}
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`flex items-center gap-3 px-6 py-3 rounded-full shadow-sm hover:shadow-md transition-all ${item.bg} bg-opacity-90 hover:bg-opacity-100 hover:-translate-y-1`}
+        <section className="py-12 bg-gray-50 border-t">
+            <div className="max-w-7xl mx-auto px-4 flex justify-center flex-wrap gap-6">
+                {config.items?.map((item) => (
+                    <a
+                        key={item.id}
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-3 px-6 py-3 rounded-full shadow-sm hover:shadow-md transition-shadow bg-white border border-gray-100 min-w-[160px] justify-center"
+                    >
+                        <div
+                            className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                            style={{
+                                backgroundColor: item.customIconUrl ? 'transparent' : getColor(item.type),
+                                color: getTextColor(item.type)
+                            }}
                         >
-                            {React.cloneElement(item.icon as React.ReactElement, { size: 20 })}
-                            <span className="font-bold text-sm">{item.label}</span>
-                        </a>
-                    ))}
-                </div>
+                            {getIcon(item.type, item.customIconUrl)}
+                        </div>
+                        <span className="font-bold text-gray-700">{item.label || item.type}</span>
+                    </a>
+                ))}
             </div>
         </section>
     );

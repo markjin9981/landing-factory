@@ -70,7 +70,7 @@ const NavigationBar: React.FC<Props> = ({ config, siteTitle, isMobileView, landi
                     </div>
 
                     {/* Desktop Menu */}
-                    <div className="hidden md:flex items-center gap-8">
+                    <div className={`${isMobileView ? 'hidden' : 'hidden md:flex'} items-center gap-8`}>
                         {items?.map((item, idx) => (
                             <a
                                 key={idx}
@@ -86,7 +86,7 @@ const NavigationBar: React.FC<Props> = ({ config, siteTitle, isMobileView, landi
 
                     {/* Mobile Menu Toggle */}
                     <button
-                        className="md:hidden p-2 -mr-2"
+                        className={`${isMobileView ? 'block' : 'md:hidden'} p-2 -mr-2`}
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         style={{ color: textColor }}
                     >
@@ -97,7 +97,7 @@ const NavigationBar: React.FC<Props> = ({ config, siteTitle, isMobileView, landi
 
             {/* Mobile Drawer */}
             {mobileMenuOpen && (
-                <div className="fixed inset-0 z-50 md:hidden animate-fade-in">
+                <div className={`fixed inset-0 z-50 animate-fade-in ${isMobileView ? 'block' : 'md:hidden'}`}>
                     {/* Backdrop */}
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}></div>
 

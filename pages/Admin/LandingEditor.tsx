@@ -144,11 +144,19 @@ const DEFAULT_CONFIG: LandingConfig = {
         copyrightText: '© 2025 Company Name. All Rights Reserved.',
         copyrightStyle: { fontSize: '0.75rem', fontWeight: '400', color: '#9ca3af', textAlign: 'center' }
     },
-    navigation: { isShow: false, showHome: false, items: [] }, // Default
+    navigation: { isShow: false, showHome: false, items: [] },
     gallery: { isShow: false, showOnMainPage: true, title: '갤러리', images: [] },
     board: { isShow: false, showOnMainPage: true, title: '게시판', type: 'list', items: [] },
-    location: { isShow: false, title: '오시는 길', address: '서울 강남구 테헤란로 123', showMap: true },
-    snsConfig: { isShow: false, position: 'bottom-right', displayMode: 'floating', style: {} }
+    location: {
+        isShow: false,
+        title: '오시는 길',
+        address: '서울 강남구 테헤란로 123',
+        showMap: true,
+        titleStyle: { fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', textAlign: 'center' },
+        addressStyle: { fontSize: '1rem', fontWeight: '400', color: '#4b5563', textAlign: 'center' }
+    },
+    snsConfig: { isShow: false, position: 'bottom-right', displayMode: 'floating', style: {}, items: [] },
+    features: { isShow: false, title: '주요 특징', description: '우리 서비스의 특별한 점을 소개합니다.', items: [] }
 };
 
 const LandingEditor: React.FC = () => {
@@ -235,7 +243,13 @@ const LandingEditor: React.FC = () => {
                     if (!sheetConfig.trust) sheetConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
                     if (!sheetConfig.trust) sheetConfig.trust = JSON.parse(JSON.stringify(DEFAULT_CONFIG.trust));
                     if (!sheetConfig.formConfig) sheetConfig.formConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.formConfig));
-                    if (!sheetConfig.location) sheetConfig.location = JSON.parse(JSON.stringify(DEFAULT_CONFIG.location)); // Ensure Location exists
+                    if (!sheetConfig.location) sheetConfig.location = JSON.parse(JSON.stringify(DEFAULT_CONFIG.location));
+                    if (!sheetConfig.features) sheetConfig.features = JSON.parse(JSON.stringify(DEFAULT_CONFIG.features));
+                    if (!sheetConfig.snsConfig) sheetConfig.snsConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.snsConfig));
+                    // Migration for SNS items
+                    if (sheetConfig.snsConfig && !sheetConfig.snsConfig.items) {
+                        sheetConfig.snsConfig.items = [];
+                    }
 
                     setConfig(sheetConfig);
                 } else {
@@ -895,15 +909,19 @@ const LandingEditor: React.FC = () => {
                         {[
                             { id: 'basic', label: '기본', icon: <AlignLeft className="w-4 h-4" /> },
                             { id: 'layout', label: '레이아웃/GNB', icon: <Layout className="w-4 h-4" /> },
-                            { id: 'hero', label: '상단', icon: <ImageIcon className="w-4 h-4" /> },
+                            { id: 'hero', label: '타이틀', icon: <Smartphone className="w-4 h-4" /> },
+                            { id: 'problem', label: '문제제기', icon: <ArrowDown className="w-4 h-4" /> },
+                            { id: 'solution', label: '해결책', icon: <CheckCircle className="w-4 h-4" /> },
+                            { id: 'features', label: '특징(Ani)', icon: <Layout className="w-4 h-4 text-purple-500" /> }, // New Tab
+                            { id: 'trust', label: '신뢰요소', icon: <MessageCircle className="w-4 h-4" /> },
                             { id: 'images', label: '상세', icon: <ImageIcon className="w-4 h-4" /> },
                             { id: 'gallery', label: '갤러리', icon: <Grid className="w-4 h-4" /> },
                             { id: 'board', label: '게시판', icon: <List className="w-4 h-4" /> },
-                            { id: 'location', label: '위치', icon: <MapPin className="w-4 h-4" /> }, // New Tab
+                            { id: 'location', label: '위치', icon: <MapPin className="w-4 h-4" /> },
                             { id: 'form', label: '입력폼', icon: <CheckSquare className="w-4 h-4" /> },
                             { id: 'popup', label: '팝업', icon: <Megaphone className="w-4 h-4" /> },
                             { id: 'chat', label: '문의버튼', icon: <MessageCircle className="w-4 h-4" /> },
-                            { id: 'sns', label: 'SNS 링크', icon: <Share2 className="w-4 h-4" /> },
+                            { id: 'sns', label: 'SNS/외부', icon: <Share2 className="w-4 h-4" /> },
                             { id: 'footer', label: '하단', icon: <Anchor className="w-4 h-4" /> },
                             { id: 'seo', label: '검색엔진', icon: <Globe className="w-4 h-4" /> },
                         ].map(tab => (
@@ -2986,60 +3004,387 @@ const LandingEditor: React.FC = () => {
 
                         {/* --- LOCATION TAB (NEW) --- */}
                         {activeTab === 'location' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <div className="bg-white border rounded-lg p-4 shadow-sm">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                                            <MapPin className="w-4 h-4 text-blue-600" /> 위치(Location) 섹션
-                                        </h3>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <span className="text-xs font-bold text-gray-700">사용</span>
-                                            <input type="checkbox" className="toggle-checkbox"
-                                                checked={config.location?.isShow || false}
-                                                onChange={e => updateNested(['location', 'isShow'], e.target.checked)}
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">오시는 길 (지도)</h3>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <span className="text-xs font-bold text-gray-700">섹션 사용</span>
+                                        <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                            <input type="checkbox" className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                checked={config.location?.isShow ?? false}
+                                                onChange={(e) => updateNested(['location', 'isShow'], e.target.checked)}
                                             />
-                                        </label>
-                                    </div>
+                                            <label className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${(config.location?.isShow ?? false) ? 'bg-blue-600' : 'bg-gray-300'}`}></label>
+                                        </div>
+                                    </label>
+                                </div>
 
-                                    {config.location?.isShow && (
-                                        <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                {(config.location?.isShow ?? false) && (
+                                    <>
+                                        <div className="space-y-3">
                                             <div>
                                                 <label className="text-xs font-bold text-gray-500 mb-1 block">섹션 제목</label>
                                                 <input
                                                     type="text"
                                                     value={config.location?.title || ''}
-                                                    onChange={e => updateNested(['location', 'title'], e.target.value)}
+                                                    onChange={(e) => updateNested(['location', 'title'], e.target.value)}
                                                     className="w-full border rounded p-2 text-sm"
-                                                    placeholder="오시는 길"
+                                                    placeholder="예: 오시는 길"
                                                 />
                                             </div>
+                                            <TextStyleEditor label="제목" stylePath={['location', 'titleStyle']} />
+
                                             <div>
                                                 <label className="text-xs font-bold text-gray-500 mb-1 block">주소</label>
                                                 <input
                                                     type="text"
                                                     value={config.location?.address || ''}
-                                                    onChange={e => updateNested(['location', 'address'], e.target.value)}
+                                                    onChange={(e) => updateNested(['location', 'address'], e.target.value)}
                                                     className="w-full border rounded p-2 text-sm"
-                                                    placeholder="예: 서울 강남구 테헤란로 123"
+                                                    placeholder="예: 서울시 강남구..."
                                                 />
                                             </div>
+                                            <TextStyleEditor label="주소" stylePath={['location', 'addressStyle']} />
+
                                             <div>
                                                 <label className="text-xs font-bold text-gray-500 mb-1 block">상세 주소 (선택)</label>
                                                 <input
                                                     type="text"
                                                     value={config.location?.detailAddress || ''}
-                                                    onChange={e => updateNested(['location', 'detailAddress'], e.target.value)}
+                                                    onChange={(e) => updateNested(['location', 'detailAddress'], e.target.value)}
                                                     className="w-full border rounded p-2 text-sm"
-                                                    placeholder="예: 1층 로비"
+                                                    placeholder="예: 2층 201호"
                                                 />
                                             </div>
-                                            <label className="flex items-center gap-2 mt-2 text-sm text-gray-600">
-                                                <input type="checkbox" checked={config.location?.showMap !== false} onChange={e => updateNested(['location', 'showMap'], e.target.checked)} />
-                                                <span>지도 표시 (카카오맵)</span>
-                                            </label>
                                         </div>
-                                    )}
+
+                                        <div className="bg-yellow-50 p-3 rounded text-xs text-yellow-800 border border-yellow-200">
+                                            <strong>지도 설정:</strong> 네이버/카카오 지도 API 연동 전에는 주소 텍스트만 표시되거나,
+                                            관리자가 직접 상세페이지(Images) 탭에서 지도 스크린샷을 추가하는 것을 권장합니다.
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {/* --- SNS TAB --- */}
+                        {activeTab === 'sns' && (
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">SNS / 외부 링크</h3>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <span className="text-xs font-bold text-gray-700">활성화</span>
+                                        <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                            <input type="checkbox" className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                checked={config.snsConfig?.isShow ?? false}
+                                                onChange={(e) => updateNested(['snsConfig', 'isShow'], e.target.checked)}
+                                            />
+                                            <label className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${(config.snsConfig?.isShow ?? false) ? 'bg-blue-600' : 'bg-gray-300'}`}></label>
+                                        </div>
+                                    </label>
                                 </div>
+
+                                {(config.snsConfig?.isShow ?? false) && (
+                                    <div className="space-y-6">
+                                        {/* Display Mode */}
+                                        <div className="bg-gray-50 p-3 rounded border">
+                                            <label className="text-xs font-bold text-gray-700 block mb-2">표시 방식</label>
+                                            <div className="flex gap-2">
+                                                {[
+                                                    { id: 'floating', label: '플로팅 버튼 (화면 고정)' },
+                                                    { id: 'block', label: '하단 고정 배너 (섹션)' }
+                                                ].map(mode => (
+                                                    <button
+                                                        key={mode.id}
+                                                        onClick={() => updateNested(['snsConfig', 'displayMode'], mode.id)}
+                                                        className={`flex-1 py-2 px-3 rounded text-xs border ${config.snsConfig?.displayMode === mode.id ? 'bg-white border-blue-500 text-blue-600 font-bold shadow-sm' : 'bg-gray-100 border-transparent text-gray-500'}`}
+                                                    >
+                                                        {mode.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Position (Floating Only) */}
+                                        {config.snsConfig?.displayMode !== 'block' && (
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">플로팅 위치</label>
+                                                <select
+                                                    value={config.snsConfig?.position || 'bottom-right'}
+                                                    onChange={(e) => updateNested(['snsConfig', 'position'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm"
+                                                >
+                                                    <option value="bottom-right">오른쪽 하단</option>
+                                                    <option value="bottom-left">왼쪽 하단</option>
+                                                    <option value="side-right">오른쪽 사이드</option>
+                                                    <option value="side-left">왼쪽 사이드</option>
+                                                </select>
+                                            </div>
+                                        )}
+
+                                        {/* Style Config */}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">아이콘 크기 (px)</label>
+                                                <input
+                                                    type="number"
+                                                    value={config.snsConfig?.style?.iconSize || 48}
+                                                    onChange={(e) => updateNested(['snsConfig', 'style', 'iconSize'], parseInt(e.target.value))}
+                                                    className="w-full border rounded p-1 text-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-500 block">간격 (gap)</label>
+                                                <input
+                                                    type="number"
+                                                    value={config.snsConfig?.style?.gap || 12}
+                                                    onChange={(e) => updateNested(['snsConfig', 'style', 'gap'], parseInt(e.target.value))}
+                                                    className="w-full border rounded p-1 text-sm"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Dynamic Items List */}
+                                        <div>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <label className="text-xs font-bold text-gray-700">SNS 링크 목록</label>
+                                                <button
+                                                    onClick={() => {
+                                                        const newItem = { id: crypto.randomUUID(), type: 'custom', url: '', label: 'New Link' };
+                                                        const currentItems = config.snsConfig?.items || [];
+                                                        updateNested(['snsConfig', 'items'], [...currentItems, newItem]);
+                                                    }}
+                                                    className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-500"
+                                                >
+                                                    + 링크 추가
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                {(config.snsConfig?.items || []).map((item, idx) => (
+                                                    <div key={item.id || idx} className="border p-3 rounded-lg bg-white relative group">
+                                                        <div className="flex justify-end mb-2">
+                                                            <button
+                                                                onClick={() => {
+                                                                    const newItems = config.snsConfig?.items.filter((_, i) => i !== idx);
+                                                                    updateNested(['snsConfig', 'items'], newItems);
+                                                                }}
+                                                                className="text-gray-400 hover:text-red-500"
+                                                            >
+                                                                <Trash2 className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
+                                                        <div className="grid grid-cols-[60px_1fr] gap-3">
+                                                            {/* Icon Select/Upload */}
+                                                            <div className="flex flex-col items-center gap-1">
+                                                                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden border">
+                                                                    {item.iconType === 'upload' && item.customIconUrl ? (
+                                                                        <img src={item.customIconUrl} alt="icon" className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <span className="text-[9px] text-gray-400">{item.type}</span>
+                                                                    )}
+                                                                </div>
+                                                                <select
+                                                                    value={item.type}
+                                                                    onChange={(e) => {
+                                                                        const newType = e.target.value as any;
+                                                                        const newItems = [...(config.snsConfig?.items || [])];
+                                                                        newItems[idx] = { ...newItems[idx], type: newType };
+                                                                        updateNested(['snsConfig', 'items'], newItems);
+                                                                    }}
+                                                                    className="w-full text-[9px] border rounded"
+                                                                >
+                                                                    <option value="instagram">인스타</option>
+                                                                    <option value="youtube">유튜브</option>
+                                                                    <option value="blog">블로그</option>
+                                                                    <option value="kakao">카카오</option>
+                                                                    <option value="custom">직접입력</option>
+                                                                </select>
+
+                                                                <label className="text-[8px] text-blue-600 cursor-pointer underline">
+                                                                    아이콘 업로드
+                                                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, (url) => {
+                                                                        const newItems = [...(config.snsConfig?.items || [])];
+                                                                        newItems[idx] = { ...newItems[idx], iconType: 'upload', customIconUrl: url };
+                                                                        updateNested(['snsConfig', 'items'], newItems);
+                                                                    })} />
+                                                                </label>
+                                                            </div>
+
+                                                            {/* Inputs */}
+                                                            <div className="space-y-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={item.label || ''}
+                                                                    onChange={(e) => {
+                                                                        const newItems = [...(config.snsConfig?.items || [])];
+                                                                        newItems[idx] = { ...newItems[idx], label: e.target.value };
+                                                                        updateNested(['snsConfig', 'items'], newItems);
+                                                                    }}
+                                                                    className="w-full border rounded p-1 text-xs"
+                                                                    placeholder="라벨 (툴팁)"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={item.url}
+                                                                    onChange={(e) => {
+                                                                        const newItems = [...(config.snsConfig?.items || [])];
+                                                                        newItems[idx] = { ...newItems[idx], url: e.target.value };
+                                                                        updateNested(['snsConfig', 'items'], newItems);
+                                                                    }}
+                                                                    className="w-full border rounded p-1 text-xs"
+                                                                    placeholder="https://..."
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* --- FEATURES TAB (Smart Block) --- */}
+                        {activeTab === 'features' && (
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">주요 특징 (Animated)</h3>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <span className="text-xs font-bold text-gray-700">섹션 사용</span>
+                                        <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                            <input type="checkbox" className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                checked={config.features?.isShow ?? false}
+                                                onChange={(e) => updateNested(['features', 'isShow'], e.target.checked)}
+                                            />
+                                            <label className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${(config.features?.isShow ?? false) ? 'bg-blue-600' : 'bg-gray-300'}`}></label>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                {(config.features?.isShow ?? false) && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 mb-1 block">섹션 제목</label>
+                                            <input
+                                                type="text"
+                                                value={config.features?.title || ''}
+                                                onChange={(e) => updateNested(['features', 'title'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 mb-1 block">섹션 설명</label>
+                                            <input
+                                                type="text"
+                                                value={config.features?.description || ''}
+                                                onChange={(e) => updateNested(['features', 'description'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                            />
+                                        </div>
+
+                                        <div className="border-t pt-4">
+                                            <div className="flex justify-between items-center mb-3">
+                                                <h4 className="text-xs font-bold text-gray-700">특징 항목 리스트</h4>
+                                                <button
+                                                    onClick={() => {
+                                                        const newItem = { id: crypto.randomUUID(), title: '새로운 특징', description: '설명을 입력하세요', animation: 'fade-up' };
+                                                        const currentItems = config.features?.items || [];
+                                                        updateNested(['features', 'items'], [...currentItems, newItem]);
+                                                    }}
+                                                    className="text-xs bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-500"
+                                                >
+                                                    + 항목 추가
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-6">
+                                                {(config.features?.items || []).map((item, idx) => (
+                                                    <div key={item.id || idx} className="bg-white border rounded-lg p-4 shadow-sm relative">
+                                                        <button
+                                                            onClick={() => {
+                                                                const newItems = config.features?.items.filter((_, i) => i !== idx);
+                                                                updateNested(['features', 'items'], newItems);
+                                                            }}
+                                                            className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+
+                                                        <div className="flex flex-col gap-3">
+                                                            {/* Image Upload */}
+                                                            <div className="w-full aspect-video bg-gray-100 rounded border flex items-center justify-center overflow-hidden relative group">
+                                                                {item.imageUrl ? (
+                                                                    <img src={item.imageUrl} alt="feature" className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <span className="text-xs text-gray-400">이미지 없음</span>
+                                                                )}
+
+                                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <label className="cursor-pointer text-white text-xs underline">
+                                                                        이미지 업로드
+                                                                        <input type="file" className="hidden" accept="image/*"
+                                                                            onChange={(e) => handleImageUpload(e, (url) => {
+                                                                                const newItems = [...(config.features?.items || [])];
+                                                                                newItems[idx] = { ...newItems[idx], imageUrl: url };
+                                                                                updateNested(['features', 'items'], newItems);
+                                                                            })}
+                                                                        />
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="text-[10px] text-gray-500 block">제목</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={item.title}
+                                                                    onChange={(e) => {
+                                                                        const newItems = [...(config.features?.items || [])];
+                                                                        newItems[idx] = { ...newItems[idx], title: e.target.value };
+                                                                        updateNested(['features', 'items'], newItems);
+                                                                    }}
+                                                                    className="w-full border rounded p-1 text-sm font-bold"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-[10px] text-gray-500 block">설명</label>
+                                                                <textarea
+                                                                    value={item.description}
+                                                                    onChange={(e) => {
+                                                                        const newItems = [...(config.features?.items || [])];
+                                                                        newItems[idx] = { ...newItems[idx], description: e.target.value };
+                                                                        updateNested(['features', 'items'], newItems);
+                                                                    }}
+                                                                    className="w-full border rounded p-1 text-xs h-16 resize-none"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-[10px] text-gray-500 block">애니메이션 효과</label>
+                                                                <select
+                                                                    value={item.animation || 'fade-up'}
+                                                                    onChange={(e) => {
+                                                                        const newItems = [...(config.features?.items || [])];
+                                                                        newItems[idx] = { ...newItems[idx], animation: e.target.value as any };
+                                                                        updateNested(['features', 'items'], newItems);
+                                                                    }}
+                                                                    className="w-full border rounded p-1 text-xs"
+                                                                >
+                                                                    <option value="fade-up">위로 떠오르기 (Fade Up)</option>
+                                                                    <option value="fade-in">서서히 나타나기 (Fade In)</option>
+                                                                    <option value="slide-left">왼쪽에서 슬라이드</option>
+                                                                    <option value="slide-right">오른쪽에서 슬라이드</option>
+                                                                    <option value="zoom-in">확대되며 등장 (Zoom In)</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 

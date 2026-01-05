@@ -1,6 +1,6 @@
 import React from 'react';
 import { SNSConfig } from '../../types';
-import { Instagram, Youtube, MessageCircle, Globe } from 'lucide-react';
+import { Instagram, Youtube, MessageCircle, Globe, Share2 } from 'lucide-react';
 
 interface Props {
     config?: SNSConfig;
@@ -8,21 +8,10 @@ interface Props {
 }
 
 const SNSFloatingBar: React.FC<Props> = ({ config, isMobileView }) => {
-    if (!config || !config.isShow) return null;
+    if (!config || !config.isShow || !config.items || config.items.length === 0) return null;
 
-    const { position = 'bottom-right', kakao, naverBlog, instagram, youtube } = config;
+    const { position = 'bottom-right' } = config;
 
-    // Collect valid links
-    const links = [
-        { type: 'kakao', url: kakao, icon: <MessageCircle />, label: '카카오톡', bg: 'bg-yellow-400 text-black border border-yellow-500' },
-        { type: 'blog', url: naverBlog, icon: <Globe />, label: '블로그', bg: 'bg-green-600 text-white' },
-        { type: 'instagram', url: instagram, icon: <Instagram />, label: '인스타그램', bg: 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white' },
-        { type: 'youtube', url: youtube, icon: <Youtube />, label: '유튜브', bg: 'bg-red-600 text-white' },
-    ].filter(link => !!link.url);
-
-    if (links.length === 0) return null;
-
-    const baseClasses = "fixed z-50 flex flex-col gap-3 transition-all duration-300";
     const getPositionClasses = () => {
         if (isMobileView) return "bottom-4 right-4"; // Mobile always bottom-right
         switch (position) {
@@ -32,23 +21,59 @@ const SNSFloatingBar: React.FC<Props> = ({ config, isMobileView }) => {
             case 'bottom-right': default: return "bottom-8 right-8";
         }
     };
-    const posClasses = getPositionClasses();
+    const posClass = getPositionClasses();
+
+    // Helper to get icon
+    const getIcon = (type: string, customUrl?: string) => {
+        if (customUrl) return <img src={customUrl} alt={type} className="w-full h-full object-cover rounded-full" />;
+
+        switch (type) {
+            case 'kakao': return <MessageCircle className="w-full h-full p-1" />;
+            case 'blog': return <span className="font-bold text-xs">Blog</span>;
+            case 'instagram': return <Instagram className="w-full h-full p-1" />;
+            case 'youtube': return <Youtube className="w-full h-full p-1" />;
+            default: return <Share2 className="w-full h-full p-2" />;
+        }
+    };
+
+    // Helper to get color
+    const getColor = (type: string) => {
+        switch (type) {
+            case 'kakao': return '#FEE500';
+            case 'blog': return '#03C75A';
+            case 'instagram': return '#E4405F';
+            case 'youtube': return '#FF0000';
+            default: return '#1F2937';
+        }
+    };
+
+    // Helper to get text color
+    const getTextColor = (type: string) => {
+        return type === 'kakao' ? '#000000' : '#ffffff';
+    };
 
     return (
-        <div className={`${baseClasses} ${posClasses}`}>
-            {links.map((item, idx) => (
+        <div className={`fixed z-50 flex ${config.position?.includes('side') ? 'flex-col' : 'flex-row'} gap-3 ${posClass}`} style={{ gap: config.style?.gap }}>
+            {config.items?.map((item) => (
                 <a
-                    key={idx}
+                    key={item.id}
                     href={item.url}
                     target="_blank"
-                    rel="noopener noreferrer"
-                    className={`relative group flex items-center justify-center rounded-full shadow-lg hover:scale-110 transition-transform w-[50px] h-[50px] ${item.bg}`}
-                    title={item.label}
+                    rel="noreferrer"
+                    className="relative group flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                    style={{
+                        width: config.style?.iconSize || 48,
+                        height: config.style?.iconSize || 48,
+                        backgroundColor: item.customIconUrl ? 'transparent' : getColor(item.type),
+                        color: getTextColor(item.type),
+                        borderRadius: '50%',
+                    }}
                 >
-                    {React.cloneElement(item.icon as React.ReactElement, { size: 24 })}
+                    {getIcon(item.type, item.customIconUrl)}
 
-                    {!isMobileView && (
-                        <span className={`absolute ${position.includes('left') ? 'left-full ml-3' : 'right-full mr-3'} px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none`}>
+                    {/* Tooltip */}
+                    {item.label && (
+                        <span className="absolute whitespace-nowrap bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none -top-8 left-1/2 -translate-x-1/2">
                             {item.label}
                         </span>
                     )}

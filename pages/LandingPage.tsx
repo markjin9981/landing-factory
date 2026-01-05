@@ -15,6 +15,7 @@ import BoardBlock from '../components/sections/BoardBlock';
 import LocationBlock from '../components/sections/LocationBlock'; // New
 import SNSFloatingBar from '../components/floating/SNSFloatingBar';
 import SNSBlock from '../components/sections/SNSBlock'; // New
+import SmartFeatureBlock from '../components/sections/SmartFeatureBlock';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 import { generateGoogleFontUrl, GOOGLE_FONTS_LIST } from '../utils/fontUtils';
@@ -165,7 +166,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
   if (!config) return <div className="min-h-screen flex items-center justify-center">404 Not Found</div>;
 
   const { hero, problem, solution, trust, formConfig, theme, detailContent, banners, footer,
-    layoutMode = 'mobile', navigation, gallery, board, snsConfig, location
+    layoutMode = 'mobile', navigation, gallery, board, snsConfig, location, features
   } = config;
 
   const formPosition = formConfig.position || 'bottom';
@@ -344,6 +345,13 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           </section>
         )}
 
+        {/* Smart Feature Block (Animated) - New Phase 3 */}
+        {features && features.isShow && isMainView && (
+          <div className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
+            <SmartFeatureBlock data={features} />
+          </div>
+        )}
+
         {/* Gallery */}
         {gallery && gallery.isShow && isGalleryView && (
           <div className={isFullLayout ? 'w-full bg-white' : 'max-w-4xl mx-auto'}>
@@ -392,12 +400,19 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           </section>
         )}
 
+        {/* Location Section (New Phase 3) */}
+        {location && location.isShow && isLocationView && (
+          <div className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
+            <LocationBlock data={location} />
+          </div>
+        )}
+
         {(formPosition === 'bottom' || !formPosition) && isMainView && <FormComponent />}
 
         {/* SNS Block Mode (New) */}
         {snsConfig && snsConfig.displayMode === 'block' && isMainView && (
           <div className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
-            <SNSBlock config={snsConfig} isMobileView={isMobileView || isPreview} />
+            <SNSBlock config={snsConfig} />
           </div>
         )}
 
@@ -412,11 +427,13 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
       </div>
 
-      {bottomBanners.length > 0 && (
-        <div className={`${isPreview ? 'absolute bottom-0 w-full' : 'fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl'} z-50 flex flex-col-reverse shadow-xl-up`}>
-          {bottomBanners.map(b => <BannerItem key={b.id} banner={b} />)}
-        </div>
-      )}
+      {
+        bottomBanners.length > 0 && (
+          <div className={`${isPreview ? 'absolute bottom-0 w-full' : 'fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl'} z-50 flex flex-col-reverse shadow-xl-up`}>
+            {bottomBanners.map(b => <BannerItem key={b.id} banner={b} />)}
+          </div>
+        )
+      }
 
       {config.popupConfig && <PopupContainer config={config.popupConfig} landingId={config.id} isPreview={isPreview} forceMobile={isMobileView} />}
       {config.chatConfig && <ChatButton config={config.chatConfig} isPreview={isPreview} />}
@@ -424,7 +441,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
       {/* SNS Floating Bar (New) */}
       {snsConfig && <SNSFloatingBar config={snsConfig} isMobileView={isMobileView || isPreview} />}
 
-    </div>
+    </div >
   );
 };
 
