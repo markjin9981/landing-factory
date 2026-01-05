@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List } from 'lucide-react';
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
 import FontPicker from '../../components/admin/FontPicker';
 
@@ -887,12 +887,16 @@ const LandingEditor: React.FC = () => {
                     <div className="flex border-b border-gray-200 bg-gray-50 overflow-x-auto no-scrollbar">
                         {[
                             { id: 'basic', label: '기본', icon: <AlignLeft className="w-4 h-4" /> },
+                            { id: 'layout', label: '레이아웃/GNB', icon: <Layout className="w-4 h-4" /> },
                             { id: 'hero', label: '상단', icon: <ImageIcon className="w-4 h-4" /> },
                             { id: 'images', label: '상세', icon: <ImageIcon className="w-4 h-4" /> },
+                            { id: 'gallery', label: '갤러리', icon: <Grid className="w-4 h-4" /> },
+                            { id: 'board', label: '게시판', icon: <List className="w-4 h-4" /> },
                             { id: 'form', label: '입력폼', icon: <CheckSquare className="w-4 h-4" /> },
                             { id: 'text', label: '텍스트', icon: <AlignLeft className="w-4 h-4" /> },
                             { id: 'popup', label: '팝업', icon: <Megaphone className="w-4 h-4" /> },
                             { id: 'chat', label: '문의버튼', icon: <MessageCircle className="w-4 h-4" /> },
+                            { id: 'sns', label: 'SNS 링크', icon: <Share2 className="w-4 h-4" /> },
                             { id: 'footer', label: '하단', icon: <Anchor className="w-4 h-4" /> },
                             { id: 'seo', label: '검색엔진', icon: <Globe className="w-4 h-4" /> },
                         ].map(tab => (
@@ -3304,6 +3308,414 @@ const LandingEditor: React.FC = () => {
                                 </div>
                             </div>
                         )}
+
+                        {/* --- LAYOUT TAB (NEW) --- */}
+                        {activeTab === 'layout' && (
+                            <div className="space-y-6 animate-fade-in">
+                                {/* Layout Mode */}
+                                <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                    <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                        <Layout className="w-4 h-4 text-blue-600" /> 레이아웃 모드
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div
+                                            onClick={() => updateNested(['layoutMode'], 'mobile')}
+                                            className={`cursor-pointer border-2 rounded-lg p-3 text-center transition-all ${config.layoutMode === 'mobile' || !config.layoutMode ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                                        >
+                                            <div className="w-8 h-12 bg-gray-200 mx-auto mb-2 rounded border border-gray-300"></div>
+                                            <div className="text-xs font-bold">모바일 (기본)</div>
+                                            <div className="text-[10px] text-gray-500">중앙 정렬 (최대 420px)</div>
+                                        </div>
+                                        <div
+                                            onClick={() => updateNested(['layoutMode'], 'full')}
+                                            className={`cursor-pointer border-2 rounded-lg p-3 text-center transition-all ${config.layoutMode === 'full' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                                        >
+                                            <div className="w-16 h-10 bg-gray-200 mx-auto mb-4 rounded border border-gray-300"></div>
+                                            <div className="text-xs font-bold">풀스크린 (PC)</div>
+                                            <div className="text-[10px] text-gray-500">화면 꽉 차게 표시</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Navigation Bar (GNB) */}
+                                <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                            <Menu className="w-4 h-4 text-blue-600" /> 상단 네비게이션 (GNB)
+                                        </h3>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <span className="text-xs font-bold text-gray-700">사용</span>
+                                            <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                <input type="checkbox" className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                    checked={config.navigation?.isShow || false}
+                                                    onChange={(e) => updateNested(['navigation', 'isShow'], e.target.checked)}
+                                                />
+                                                <label className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${(config.navigation?.isShow || false) ? 'bg-blue-600' : 'bg-gray-300'}`}></label>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {config.navigation?.isShow && (
+                                        <div className="space-y-4">
+                                            {/* Style Config */}
+                                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                                <div>
+                                                    <label className="block text-gray-500 mb-1">배경색</label>
+                                                    <div className="flex items-center gap-1">
+                                                        <input type="color" className="w-6 h-6 border rounded cursor-pointer p-0"
+                                                            value={config.navigation.backgroundColor || '#ffffff'}
+                                                            onChange={(e) => updateNested(['navigation', 'backgroundColor'], e.target.value)}
+                                                        />
+                                                        <input type="text" className="full border rounded p-1"
+                                                            value={config.navigation.backgroundColor || '#ffffff'}
+                                                            onChange={(e) => updateNested(['navigation', 'backgroundColor'], e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-gray-500 mb-1">글자색</label>
+                                                    <div className="flex items-center gap-1">
+                                                        <input type="color" className="w-6 h-6 border rounded cursor-pointer p-0"
+                                                            value={config.navigation.textColor || '#333333'}
+                                                            onChange={(e) => updateNested(['navigation', 'textColor'], e.target.value)}
+                                                        />
+                                                        <input type="text" className="full border rounded p-1"
+                                                            value={config.navigation.textColor || '#333333'}
+                                                            onChange={(e) => updateNested(['navigation', 'textColor'], e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Menu Items */}
+                                            <div>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="text-xs font-bold text-gray-700">메뉴 항목</h4>
+                                                    <button
+                                                        onClick={() => updateNested(['navigation', 'items'], [...(config.navigation?.items || []), { label: '메뉴명', link: '#section-id' }])}
+                                                        className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 flex items-center gap-1"
+                                                    >
+                                                        <Plus className="w-3 h-3" />추가
+                                                    </button>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {(config.navigation?.items || []).map((item, idx) => (
+                                                        <div key={idx} className="flex gap-2 items-center bg-gray-50 p-2 rounded border">
+                                                            <input type="text" className="w-1/3 border rounded p-1.5 text-xs"
+                                                                placeholder="메뉴명"
+                                                                value={item.label}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(config.navigation?.items || [])];
+                                                                    newItems[idx].label = e.target.value;
+                                                                    updateNested(['navigation', 'items'], newItems);
+                                                                }}
+                                                            />
+                                                            <input type="text" className="flex-1 border rounded p-1.5 text-xs font-mono"
+                                                                placeholder="#section-id 또는 URL"
+                                                                value={item.link}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(config.navigation?.items || [])];
+                                                                    newItems[idx].link = e.target.value;
+                                                                    updateNested(['navigation', 'items'], newItems);
+                                                                }}
+                                                            />
+                                                            <button onClick={() => {
+                                                                const newItems = (config.navigation?.items || []).filter((_, i) => i !== idx);
+                                                                updateNested(['navigation', 'items'], newItems);
+                                                            }} className="text-gray-400 hover:text-red-500">
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <p className="text-[10px] text-gray-400 mt-2">
+                                                    * 연결할 섹션 ID: #hero, #problem, #solution, #form 등
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* --- GALLERY TAB (NEW) --- */}
+                        {activeTab === 'gallery' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                            <Grid className="w-4 h-4 text-blue-600" /> 갤러리 섹션
+                                        </h3>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <span className="text-xs font-bold text-gray-700">사용</span>
+                                            <input type="checkbox" className="toggle-checkbox"
+                                                checked={config.gallery?.isShow || false}
+                                                onChange={(e) => updateNested(['gallery', 'isShow'], e.target.checked)}
+                                            />
+                                        </label>
+                                    </div>
+
+                                    {config.gallery?.isShow && (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">섹션 제목</label>
+                                                <input type="text" className="w-full border rounded p-2 text-sm"
+                                                    value={config.gallery.title || ''}
+                                                    onChange={(e) => updateNested(['gallery', 'title'], e.target.value)}
+                                                    placeholder="갤러리"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">설명 (선택)</label>
+                                                <input type="text" className="w-full border rounded p-2 text-sm"
+                                                    value={config.gallery.description || ''}
+                                                    onChange={(e) => updateNested(['gallery', 'description'], e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="text-xs font-bold text-gray-500 mb-1 block">한 줄당 이미지 수</label>
+                                                    <select className="w-full border rounded p-2 text-sm"
+                                                        value={config.gallery.gridCols || 2}
+                                                        onChange={(e) => updateNested(['gallery', 'gridCols'], parseInt(e.target.value))}
+                                                    >
+                                                        <option value="1">1개</option>
+                                                        <option value="2">2개</option>
+                                                        <option value="3">3개</option>
+                                                        <option value="4">4개</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-bold text-gray-500 mb-1 block">간격 (Gap)</label>
+                                                    <select className="w-full border rounded p-2 text-sm"
+                                                        value={config.gallery.gap || 4}
+                                                        onChange={(e) => updateNested(['gallery', 'gap'], parseInt(e.target.value))}
+                                                    >
+                                                        <option value="2">좁게 (2)</option>
+                                                        <option value="4">보통 (4)</option>
+                                                        <option value="8">넓게 (8)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            {/* Images List */}
+                                            <div>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="text-xs font-bold text-gray-700">이미지 목록</h4>
+                                                    <button onClick={() => document.getElementById('gallery-upload')?.click()} className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 flex items-center gap-1">
+                                                        <Upload className="w-3 h-3" /> 업로드
+                                                    </button>
+                                                    <input type="file" id="gallery-upload" className="hidden" accept="image/*"
+                                                        onChange={(e) => handleImageUpload(e, (url) => updateNested(['gallery', 'images'], [...(config.gallery?.images || []), url]))}
+                                                    />
+                                                </div>
+                                                <div className="grid grid-cols-3 gap-2">
+                                                    {(config.gallery?.images || []).map((img, idx) => (
+                                                        <div key={idx} className="relative group aspect-square bg-gray-100 rounded overflow-hidden border">
+                                                            <img src={img} alt="gallery" className="w-full h-full object-cover" />
+                                                            <button onClick={() => {
+                                                                const newImages = (config.gallery?.images || []).filter((_, i) => i !== idx);
+                                                                updateNested(['gallery', 'images'], newImages);
+                                                            }} className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* --- BOARD TAB (NEW) --- */}
+                        {activeTab === 'board' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                            <List className="w-4 h-4 text-blue-600" /> 게시판/공지사항 섹션
+                                        </h3>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <span className="text-xs font-bold text-gray-700">사용</span>
+                                            <input type="checkbox" className="toggle-checkbox"
+                                                checked={config.board?.isShow || false}
+                                                onChange={(e) => updateNested(['board', 'isShow'], e.target.checked)}
+                                            />
+                                        </label>
+                                    </div>
+
+                                    {config.board?.isShow && (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">게시판 제목</label>
+                                                <input type="text" className="w-full border rounded p-2 text-sm"
+                                                    value={config.board.title || ''}
+                                                    onChange={(e) => updateNested(['board', 'title'], e.target.value)}
+                                                    placeholder="공지사항"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">유형 (Type)</label>
+                                                <div className="flex gap-4">
+                                                    <label className="flex items-center gap-1 cursor-pointer">
+                                                        <input type="radio" checked={config.board.type === 'list'} onChange={() => updateNested(['board', 'type'], 'list')} />
+                                                        <span className="text-sm">리스트형</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-1 cursor-pointer">
+                                                        <input type="radio" checked={config.board.type === 'accordion'} onChange={() => updateNested(['board', 'type'], 'accordion')} />
+                                                        <span className="text-sm">아코디언 (FAQ)</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            {/* Items */}
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="text-xs font-bold text-gray-700">게시글 목록</h4>
+                                                    <button onClick={() => updateNested(['board', 'items'], [...(config.board?.items || []), { id: crypto.randomUUID(), title: '새 글', date: new Date().toISOString().split('T')[0] }])} className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 flex items-center gap-1">
+                                                        <Plus className="w-3 h-3" /> 추가
+                                                    </button>
+                                                </div>
+                                                {(config.board?.items || []).map((item, idx) => (
+                                                    <div key={item.id} className="bg-gray-50 border rounded p-3 relative space-y-2">
+                                                        <button onClick={() => {
+                                                            const newItems = (config.board?.items || []).filter((_, i) => i !== idx);
+                                                            updateNested(['board', 'items'], newItems);
+                                                        }} className="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+
+                                                        <input type="text" className="w-full border rounded p-2 text-sm font-bold"
+                                                            value={item.title}
+                                                            onChange={(e) => {
+                                                                const newItems = [...(config.board?.items || [])];
+                                                                newItems[idx].title = e.target.value;
+                                                                updateNested(['board', 'items'], newItems);
+                                                            }}
+                                                            placeholder="제목"
+                                                        />
+
+                                                        {config.board.type === 'accordion' && (
+                                                            <textarea className="w-full border rounded p-2 text-sm h-20"
+                                                                value={item.content || ''}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(config.board?.items || [])];
+                                                                    newItems[idx].content = e.target.value;
+                                                                    updateNested(['board', 'items'], newItems);
+                                                                }}
+                                                                placeholder="내용"
+                                                            />
+                                                        )}
+
+                                                        <div className="flex gap-2">
+                                                            <input type="text" className="w-1/3 border rounded p-1 text-xs text-gray-500"
+                                                                value={item.category || ''}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(config.board?.items || [])];
+                                                                    newItems[idx].category = e.target.value;
+                                                                    updateNested(['board', 'items'], newItems);
+                                                                }}
+                                                                placeholder="카테고리"
+                                                            />
+                                                            <input type="date" className="w-1/3 border rounded p-1 text-xs text-gray-500"
+                                                                value={item.date}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(config.board?.items || [])];
+                                                                    newItems[idx].date = e.target.value;
+                                                                    updateNested(['board', 'items'], newItems);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* --- SNS TAB (NEW) --- */}
+                        {activeTab === 'sns' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                            <Share2 className="w-4 h-4 text-blue-600" /> SNS 플로팅 바
+                                        </h3>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <span className="text-xs font-bold text-gray-700">사용</span>
+                                            <input type="checkbox" className="toggle-checkbox"
+                                                checked={config.snsConfig?.isShow || false}
+                                                onChange={(e) => updateNested(['snsConfig', 'isShow'], e.target.checked)}
+                                            />
+                                        </label>
+                                    </div>
+
+                                    {config.snsConfig?.isShow && (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">위치 (Position)</label>
+                                                <select className="w-full border rounded p-2 text-sm"
+                                                    value={config.snsConfig.position || 'right'}
+                                                    onChange={(e) => updateNested(['snsConfig', 'position'], e.target.value)}
+                                                >
+                                                    <option value="left">왼쪽 (Left)</option>
+                                                    <option value="right">오른쪽 (Right)</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <h4 className="text-xs font-bold text-gray-700">계정 설정</h4>
+
+                                                {/* Kakao */}
+                                                <div>
+                                                    <label className="block text-xs text-gray-600 mb-1">카카오톡 채널 링크</label>
+                                                    <input type="text" className="w-full border rounded p-2 text-xs"
+                                                        value={config.snsConfig.kakao || ''}
+                                                        onChange={(e) => updateNested(['snsConfig', 'kakao'], e.target.value)}
+                                                        placeholder="http://pf.kakao.com/..."
+                                                    />
+                                                </div>
+
+                                                {/* Naver Blog */}
+                                                <div>
+                                                    <label className="block text-xs text-gray-600 mb-1">네이버 블로그 링크</label>
+                                                    <input type="text" className="w-full border rounded p-2 text-xs"
+                                                        value={config.snsConfig.naverBlog || ''}
+                                                        onChange={(e) => updateNested(['snsConfig', 'naverBlog'], e.target.value)}
+                                                        placeholder="https://blog.naver.com/..."
+                                                    />
+                                                </div>
+
+                                                {/* Instagram */}
+                                                <div>
+                                                    <label className="block text-xs text-gray-600 mb-1">인스타그램 링크</label>
+                                                    <input type="text" className="w-full border rounded p-2 text-xs"
+                                                        value={config.snsConfig.instagram || ''}
+                                                        onChange={(e) => updateNested(['snsConfig', 'instagram'], e.target.value)}
+                                                        placeholder="https://instagram.com/..."
+                                                    />
+                                                </div>
+
+                                                {/* YouTube */}
+                                                <div>
+                                                    <label className="block text-xs text-gray-600 mb-1">유튜브 링크</label>
+                                                    <input type="text" className="w-full border rounded p-2 text-xs"
+                                                        value={config.snsConfig.youtube || ''}
+                                                        onChange={(e) => updateNested(['snsConfig', 'youtube'], e.target.value)}
+                                                        placeholder="https://youtube.com/..."
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
 
                     </div>
                 </div >

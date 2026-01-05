@@ -430,6 +430,76 @@ export interface LandingConfig {
   formConfig: FormSection;
 
   footer?: FooterSection; // New Footer Section
+
+  // --- NEW FEATURES (Website Mode) ---
+  layoutMode?: 'mobile' | 'full'; // Default 'mobile'
+
+  snsConfig?: SNSConfig;
+  navigation?: NavigationConfig;
+  gallery?: GallerySection;
+  board?: BoardSection;
+}
+
+// --- NEW INTERFACES ---
+
+export interface SNSLink {
+  id: string;
+  type: 'instagram' | 'youtube' | 'blog' | 'kakao' | 'custom';
+  url: string;
+  iconUrl?: string; // For custom
+  label?: string; // Tooltip
+}
+
+export interface SNSConfig {
+  isShow: boolean;
+  position?: 'left' | 'right';
+  kakao?: string;
+  naverBlog?: string;
+  instagram?: string;
+  youtube?: string;
+}
+
+export interface NavigationItem {
+  label: string;
+  link: string;
+}
+
+export interface NavigationConfig {
+  isShow: boolean;
+  items: NavigationItem[];
+  backgroundColor?: string;
+  textColor?: string;
+  isSticky?: boolean;
+}
+
+export interface GalleryItem {
+  id: string;
+  url: string;
+  caption?: string;
+}
+
+export interface GallerySection {
+  isShow: boolean;
+  title: string;
+  description?: string;
+  images: string[];
+  gridCols?: number;
+  gap?: number;
+}
+
+export interface BoardItem {
+  id: string;
+  title: string;
+  content?: string;
+  date: string;
+  category?: string;
+}
+
+export interface BoardSection {
+  isShow: boolean;
+  title: string;
+  type: 'list' | 'accordion';
+  items: BoardItem[];
 }
 
 export interface LeadData {
