@@ -552,6 +552,66 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false }) =
   const BannerItem = ({ banner }: { banner: FloatingBanner }) => {
     const styles = getSizeStyles(banner.size);
 
+    // Sliding Logic
+    if (banner.isSliding && !banner.imageUrl) {
+      const speed = banner.slideSpeed || 15;
+      const animationName = `marquee-${banner.id}`;
+
+      return (
+        <a
+          href={banner.linkUrl || "#lead-form"}
+          onClick={(e) => {
+            if (!banner.linkUrl) {
+              e.preventDefault();
+              scrollToForm();
+            }
+          }}
+          className={`block shadow-lg overflow-hidden relative group transition-opacity hover:opacity-95`}
+          style={{
+            backgroundColor: banner.backgroundColor,
+            color: banner.textColor,
+            cursor: 'pointer',
+            border: 'none',
+          }}
+        >
+          <style>
+            {`
+                    @keyframes ${animationName} {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(-50%); }
+                    }
+                `}
+          </style>
+          <div
+            className="flex whitespace-nowrap will-change-transform" // Performance opt
+            style={{
+              animation: `${animationName} ${speed}s linear infinite`,
+              width: 'fit-content',
+              minWidth: '200%',
+            }}
+          >
+            {/* Content Chunk 1 */}
+            <div
+              className={`flex items-center justify-center ${styles.py} ${styles.text}`}
+              style={{ fontSize: banner.fontSize, fontFamily: banner.fontFamily, minWidth: '100%' }}
+            >
+              <span className="mr-2">📢</span>
+              <span className="font-bold">{banner.text}</span>
+            </div>
+            {/* Content Chunk 2 (Duplicate for Loop) */}
+            <div
+              className={`flex items-center justify-center ${styles.py} ${styles.text}`}
+              style={{ fontSize: banner.fontSize, fontFamily: banner.fontFamily, minWidth: '100%' }}
+            >
+              <span className="mr-2">📢</span>
+              <span className="font-bold">{banner.text}</span>
+            </div>
+          </div>
+        </a>
+      );
+    }
+
+    // Default Static Logic
     return (
       <a
         href={banner.linkUrl || "#lead-form"}

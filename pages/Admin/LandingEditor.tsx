@@ -1572,6 +1572,31 @@ const LandingEditor: React.FC = () => {
                                                                 placeholder="배너 문구 입력"
                                                             />
                                                         </div>
+                                                        <div className="flex gap-2 items-center bg-gray-100 p-2 rounded">
+                                                            <label className="flex items-center gap-1 text-[10px] cursor-pointer">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={banner.isSliding || false}
+                                                                    onChange={(e) => updateBanner(idx, 'isSliding', e.target.checked)}
+                                                                /> 텍스트 흐르기 (슬라이딩)
+                                                            </label>
+                                                            {banner.isSliding && (
+                                                                <div className="flex items-center gap-1">
+                                                                    <span className="text-[10px] text-gray-500 border-l pl-2 ml-1">속도:</span>
+                                                                    <select
+                                                                        value={banner.slideSpeed || 15}
+                                                                        onChange={(e) => updateBanner(idx, 'slideSpeed', parseInt(e.target.value))}
+                                                                        className="text-[10px] border rounded p-0.5"
+                                                                    >
+                                                                        <option value="30">매우 느림 (30s)</option>
+                                                                        <option value="20">느림 (20s)</option>
+                                                                        <option value="15">보통 (15s)</option>
+                                                                        <option value="10">빠름 (10s)</option>
+                                                                        <option value="5">매우 빠름 (5s)</option>
+                                                                    </select>
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                         <div>
                                                             <label className="text-[10px] text-gray-500 block">글자 크기 (직접 입력, e.g. 18)</label>
                                                             <input

@@ -80,6 +80,8 @@ export interface FloatingBanner {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // New: 5-level size adjustment
   fontSize?: string; // px or rem (overrides size preset)
   fontFamily?: string; // New: Custom Font
+  isSliding?: boolean; // New: Marquee effect
+  slideSpeed?: number; // New: Duration in seconds (e.g. 10, 20)
 }
 
 export interface HeroSection {
