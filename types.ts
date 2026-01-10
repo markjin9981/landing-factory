@@ -6,7 +6,7 @@ export interface FieldOption {
 export interface FormField {
   id: string; // Internal ID for the field (e.g., 'name', 'phone', 'location')
   label: string;
-  type: 'text' | 'tel' | 'email' | 'select' | 'textarea' | 'radio' | 'time' | 'date' | 'address';
+  type: 'text' | 'tel' | 'email' | 'select' | 'textarea' | 'radio' | 'checkbox' | 'time' | 'date' | 'address';
   placeholder?: string;
   required: boolean;
   options?: FieldOption[]; // For select or radio types
@@ -513,6 +513,7 @@ export interface LandingConfig {
 
   // --- NEW FEATURES (Website Mode) ---
   template?: 'standard' | 'dynamic_step'; // New: Template Selection
+  steps?: DynamicStepItem[]; // New: Step Builder Configuration
   layoutMode?: 'mobile' | 'full'; // Default 'mobile'
 
   snsConfig?: SNSConfig;
@@ -521,6 +522,48 @@ export interface LandingConfig {
   board?: BoardSection;
   location?: LocationSection; // New
   features?: FeatureSection; // New Smart Feature Block
+}
+
+export interface DynamicStepItem {
+  id: string;
+  type: 'intro' | 'content' | 'form' | 'outro';
+
+  // For 'content': Reference to a DetailContent item
+  contentId?: string;
+
+  // For 'form': List of field IDs to show on this step
+  fieldIds?: string[];
+
+  // Step specific overrides
+  title?: string;
+  buttonText?: string;
+
+  // Navigation
+  showPrevButton?: boolean;
+  prevButtonText?: string;
+
+  // Styling
+  buttonStyle?: {
+    backgroundColor?: string;
+    textColor?: string;
+    fontSize?: string;
+    borderRadius?: string;
+  };
+  formStyle?: {
+    questionColor?: string;
+    questionSize?: string;
+    answerColor?: string;
+    answerBgColor?: string;
+    answerBorderColor?: string;
+  };
+
+  // Outro Specific
+  policyConfig?: {
+    showPrivacy?: boolean;
+    showTerms?: boolean;
+    showMarketing?: boolean;
+    showThirdParty?: boolean;
+  };
 }
 
 export interface LeadData {

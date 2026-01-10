@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag } from 'lucide-react';
+
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
 import FontPicker from '../../components/admin/FontPicker';
 
@@ -782,6 +783,53 @@ const LandingEditor: React.FC = () => {
         }));
     };
 
+    // --- STEP BUILDER HELPERS ---
+    const addStep = (type: 'intro' | 'content' | 'form' | 'outro') => {
+        setConfig(prev => ({
+            ...prev,
+            steps: [
+                ...(prev.steps || []),
+                {
+                    id: `s_${Date.now()}`,
+                    type,
+                    title: type === 'intro' ? '시작하기' : type === 'outro' ? '마지막 단계' : undefined,
+                    buttonText: type === 'outro' ? '제출하기' : '다음',
+                    fieldIds: type === 'form' ? [] : undefined,
+                    contentId: type === 'content' ? '' : undefined,
+                    showPrevButton: type !== 'intro',
+                    prevButtonText: '이전'
+                }
+            ]
+        }));
+    };
+
+    const removeStep = (index: number) => {
+        setConfig(prev => ({
+            ...prev,
+            steps: (prev.steps || []).filter((_, i) => i !== index)
+        }));
+    };
+
+    const updateStep = (index: number, updates: Partial<any>) => {
+        setConfig(prev => {
+            const newSteps = [...(prev.steps || [])];
+            newSteps[index] = { ...newSteps[index], ...updates };
+            return { ...prev, steps: newSteps };
+        });
+    };
+
+    const moveStep = (index: number, direction: 'up' | 'down') => {
+        setConfig(prev => {
+            const newSteps = [...(prev.steps || [])];
+            if (direction === 'up' && index > 0) {
+                [newSteps[index], newSteps[index - 1]] = [newSteps[index - 1], newSteps[index]];
+            } else if (direction === 'down' && index < newSteps.length - 1) {
+                [newSteps[index], newSteps[index + 1]] = [newSteps[index + 1], newSteps[index]];
+            }
+            return { ...prev, steps: newSteps };
+        });
+    };
+
     // --- Footer Helpers ---
     const addFooterImage = (url: string) => {
         setConfig(prev => {
@@ -856,6 +904,7 @@ const LandingEditor: React.FC = () => {
                             { id: 'layout', label: '레이아웃/GNB', icon: <Layout className="w-4 h-4" /> },
                             { id: 'hero', label: '타이틀', icon: <Smartphone className="w-4 h-4" /> },
                             { id: 'features', label: '특징(Ani)', icon: <Layout className="w-4 h-4 text-purple-500" /> }, // New Tab
+                            ...(config.template === 'dynamic_step' || (config.steps && config.steps.length > 0) ? [{ id: 'steps', label: '스텝 빌더', icon: <ListOrdered className="w-4 h-4 text-blue-600" /> }] : []),
 
                             { id: 'images', label: '상세', icon: <ImageIcon className="w-4 h-4" /> },
                             { id: 'gallery', label: '갤러리', icon: <Grid className="w-4 h-4" /> },
@@ -2392,9 +2441,9 @@ const LandingEditor: React.FC = () => {
                                                                                                                 headers.forEach((h, i) => {
                                                                                                                     if (i < 6) { // Max 6 defined in code usually
                                                                                                                         if (!newCols[i]) {
-                                                                                                                            // Ticker usually has fixed 6 in data model? 
+                                                                                                                            // Ticker usually has fixed 6 in data model?
                                                                                                                             // checking data model... usually defined in const?
-                                                                                                                            // Actually ApplicantListProps defines specific types. 
+                                                                                                                            // Actually ApplicantListProps defines specific types.
                                                                                                                             // But TickerConfig columns is array of {id, label...}
                                                                                                                         }
                                                                                                                         if (newCols[i]) {
@@ -2840,6 +2889,7 @@ const LandingEditor: React.FC = () => {
                                                     <option value="time">시간 선택 (오전/오후 분리)</option>
                                                     <option value="select">선택박스</option>
                                                     <option value="radio">라디오</option>
+                                                    <option value="checkbox">체크박스</option>
                                                 </select>
                                             </div>
                                             <label className="flex items-center gap-2 text-xs text-gray-600">
@@ -2963,6 +3013,292 @@ const LandingEditor: React.FC = () => {
                         )}
 
                         {/* --- LOCATION TAB (NEW) --- */}
+                        {/* --- STEP BUILDER TAB (NEW) --- */}
+                        {activeTab === 'steps' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4">
+                                    <h3 className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
+                                        <ListOrdered className="w-4 h-4" /> 스텝 빌더 (순서 편집)
+                                    </h3>
+                                    <p className="text-xs text-blue-700">
+                                        인트로, 콘텐츠, 입력폼, 그리고 마지막 아웃트로까지 원하는 순서대로 배치하세요.<br />
+                                        각 단계별로 버튼 디자인과 스타일을 변경할 수 있습니다.
+                                    </p>
+                                </div>
+
+                                {/* ADD STEPS */}
+                                <div className="grid grid-cols-4 gap-2">
+                                    <button onClick={() => addStep('intro')} className="py-3 border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 rounded-lg text-xs font-bold text-gray-500 hover:text-blue-600 flex flex-col items-center gap-1 transition-all">
+                                        <Smartphone className="w-4 h-4" />
+                                        인트로(표지)
+                                    </button>
+                                    <button onClick={() => addStep('content')} className="py-3 border-2 border-dashed border-gray-300 hover:border-purple-500 hover:bg-purple-50 rounded-lg text-xs font-bold text-gray-500 hover:text-purple-600 flex flex-col items-center gap-1 transition-all">
+                                        <ImageIcon className="w-4 h-4" />
+                                        콘텐츠(설명)
+                                    </button>
+                                    <button onClick={() => addStep('form')} className="py-3 border-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-green-50 rounded-lg text-xs font-bold text-gray-500 hover:text-green-600 flex flex-col items-center gap-1 transition-all">
+                                        <CheckSquare className="w-4 h-4" />
+                                        입력폼(질문)
+                                    </button>
+                                    <button onClick={() => addStep('outro')} className="py-3 border-2 border-dashed border-gray-300 hover:border-red-500 hover:bg-red-50 rounded-lg text-xs font-bold text-gray-500 hover:text-red-600 flex flex-col items-center gap-1 transition-all">
+                                        <Flag className="w-4 h-4" />
+                                        아웃트로(완료)
+                                    </button>
+                                </div>
+
+                                {/* STEP LIST */}
+                                <div className="space-y-3">
+                                    {(!config.steps || config.steps.length === 0) && (
+                                        <div className="text-center py-8 text-gray-400 text-xs border border-dashed rounded bg-gray-50">
+                                            추가된 스텝이 없습니다. 위 버튼을 눌러 스텝을 추가해주세요.
+                                        </div>
+                                    )}
+
+                                    {(config.steps || []).map((step, idx) => (
+                                        <div key={step.id} className="bg-white border rounded-lg shadow-sm overflow-hidden group">
+                                            {/* Step Header */}
+                                            <div className="bg-gray-50 p-3 border-b flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="bg-gray-200 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded">STEP {idx + 1}</span>
+                                                    <span className={`text-xs font-bold ${step.type === 'intro' ? 'text-blue-600' : step.type === 'content' ? 'text-purple-600' : step.type === 'form' ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {step.type === 'intro' ? '인트로 (표지)' : step.type === 'content' ? '콘텐츠 (상세내용)' : step.type === 'form' ? '입력폼 (질문)' : '아웃트로 (완료)'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <button onClick={() => moveStep(idx, 'up')} disabled={idx === 0} className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30">
+                                                        <ArrowUp className="w-3 h-3" />
+                                                    </button>
+                                                    <button onClick={() => moveStep(idx, 'down')} disabled={idx === (config.steps?.length || 0) - 1} className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30">
+                                                        <ArrowDown className="w-3 h-3" />
+                                                    </button>
+                                                    <button onClick={() => removeStep(idx)} className="p-1 text-gray-400 hover:text-red-600 ml-2">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Step Body */}
+                                            <div className="p-4 space-y-4">
+
+                                                {/* --- Navigation Settings --- */}
+                                                <div className="border-b pb-4 mb-4">
+                                                    <h4 className="text-xs font-bold text-gray-700 mb-2">버튼 및 네비게이션 설정</h4>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">다음(완료) 버튼 문구</label>
+                                                            <input
+                                                                type="text"
+                                                                value={step.buttonText || ''}
+                                                                onChange={(e) => updateStep(idx, { buttonText: e.target.value })}
+                                                                className="w-full border rounded p-2 text-xs"
+                                                                placeholder={step.type === 'outro' ? '제출하기' : '다음으로'}
+                                                            />
+                                                        </div>
+                                                        {step.type !== 'intro' && (
+                                                            <div>
+                                                                <label className="text-[10px] text-gray-500 block mb-1">이전 버튼</label>
+                                                                <div className="flex gap-2">
+                                                                    <label className="flex items-center gap-1 cursor-pointer">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={step.showPrevButton !== false}
+                                                                            onChange={(e) => updateStep(idx, { showPrevButton: e.target.checked })}
+                                                                            className="rounded text-blue-600"
+                                                                        />
+                                                                        <span className="text-xs text-gray-600">표시</span>
+                                                                    </label>
+                                                                    {step.showPrevButton !== false && (
+                                                                        <input
+                                                                            type="text"
+                                                                            value={step.prevButtonText || '이전'}
+                                                                            onChange={(e) => updateStep(idx, { prevButtonText: e.target.value })}
+                                                                            className="flex-1 border rounded p-2 text-xs"
+                                                                            placeholder="이전"
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Button Styling (Simple) */}
+                                                    <div className="mt-2 bg-gray-50 p-2 rounded">
+                                                        <details>
+                                                            <summary className="text-[10px] font-bold text-gray-500 cursor-pointer">버튼 디자인 상세 설정 (펼치기)</summary>
+                                                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                                                <div>
+                                                                    <label className="text-[10px] text-gray-500 block">버튼 배경색</label>
+                                                                    <div className="flex gap-2">
+                                                                        <input type="color" value={step.buttonStyle?.backgroundColor || config.theme.primaryColor} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, backgroundColor: e.target.value } })} className="h-8 w-8 cursor-pointer rounded border" />
+                                                                        <input type="text" value={step.buttonStyle?.backgroundColor || ''} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, backgroundColor: e.target.value } })} className="flex-1 border rounded text-xs px-2" placeholder="#..." />
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-[10px] text-gray-500 block">버튼 글자색</label>
+                                                                    <div className="flex gap-2">
+                                                                        <input type="color" value={step.buttonStyle?.textColor || '#ffffff'} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, textColor: e.target.value } })} className="h-8 w-8 cursor-pointer rounded border" />
+                                                                        <input type="text" value={step.buttonStyle?.textColor || ''} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, textColor: e.target.value } })} className="flex-1 border rounded text-xs px-2" placeholder="#..." />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </details>
+                                                    </div>
+                                                </div>
+
+                                                {/* TYPE: INTRO */}
+                                                {step.type === 'intro' && (
+                                                    <div>
+                                                        <label className="text-[10px] text-gray-500 block mb-1">헤드라인 (타이틀)</label>
+                                                        <input
+                                                            type="text"
+                                                            value={step.title || ''}
+                                                            onChange={(e) => updateStep(idx, { title: e.target.value })}
+                                                            className="w-full border rounded p-2 text-xs"
+                                                            placeholder="메인 타이틀 입력"
+                                                        />
+                                                    </div>
+                                                )}
+
+                                                {/* TYPE: CONTENT */}
+                                                {step.type === 'content' && (
+                                                    <div>
+                                                        <label className="text-[10px] text-gray-500 block mb-1">연결할 상세 콘텐츠 선택</label>
+                                                        <select
+                                                            value={step.contentId || ''}
+                                                            onChange={(e) => updateStep(idx, { contentId: e.target.value })}
+                                                            className="w-full border rounded p-2 text-xs bg-purple-50"
+                                                        >
+                                                            <option value="">콘텐츠를 선택하세요</option>
+                                                            {(config.detailContent || []).map((c, cIdx) => (
+                                                                <option key={c.id || cIdx} value={c.id || ''}>
+                                                                    {c.type.toUpperCase()} - {c.content?.substring(0, 20) || '(내용 없음)'}...
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
+
+                                                {/* TYPE: FORM */}
+                                                {step.type === 'form' && (
+                                                    <div className="space-y-3">
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">상단 타이틀 (선택)</label>
+                                                            <input
+                                                                type="text"
+                                                                value={step.title || ''}
+                                                                onChange={(e) => updateStep(idx, { title: e.target.value })}
+                                                                className="w-full border rounded p-2 text-xs"
+                                                                placeholder="질문 그룹 제목"
+                                                            />
+                                                        </div>
+
+                                                        <div className="bg-gray-50 p-2 rounded">
+                                                            <label className="text-[10px] text-gray-500 block mb-1">표시할 입력 항목 선택</label>
+                                                            <div className="bg-white border rounded p-2 space-y-1 max-h-40 overflow-y-auto">
+                                                                {(config.formConfig.fields || []).map((field) => (
+                                                                    <label key={field.id} className="flex items-center gap-2 p-1 hover:bg-gray-50 rounded cursor-pointer">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={(step.fieldIds || []).includes(field.id)}
+                                                                            onChange={(e) => {
+                                                                                const currentIds = step.fieldIds || [];
+                                                                                let newIds = e.target.checked
+                                                                                    ? [...currentIds, field.id]
+                                                                                    : currentIds.filter(id => id !== field.id);
+                                                                                updateStep(idx, { fieldIds: newIds });
+                                                                            }}
+                                                                            className="rounded text-green-600 focus:ring-green-500"
+                                                                        />
+                                                                        <span className="text-xs text-gray-700">{field.label} ({field.type})</span>
+                                                                    </label>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Form Styling */}
+                                                        <div className="bg-green-50 p-2 rounded">
+                                                            <details>
+                                                                <summary className="text-[10px] font-bold text-green-700 cursor-pointer">질문/답변 디자인 설정 (펼치기)</summary>
+                                                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                                                    <div>
+                                                                        <label className="text-[10px] text-gray-500 block">질문 글자 크기</label>
+                                                                        <select
+                                                                            value={step.formStyle?.questionSize || 'lg'} // default 
+                                                                            onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, questionSize: e.target.value } })}
+                                                                            className="w-full border rounded text-xs p-1"
+                                                                        >
+                                                                            <option value="sm">작게</option>
+                                                                            <option value="base">보통</option>
+                                                                            <option value="lg">크게 (기본)</option>
+                                                                            <option value="xl">매우 크게</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-[10px] text-gray-500 block">질문 글자색</label>
+                                                                        <input type="color" value={step.formStyle?.questionColor || '#374151'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, questionColor: e.target.value } })} className="w-full h-8 cursor-pointer rounded border" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-[10px] text-gray-500 block">답변(버튼) 배경</label>
+                                                                        <div className="flex gap-2">
+                                                                            <input type="color" value={step.formStyle?.answerBgColor || '#ffffff'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerBgColor: e.target.value } })} className="h-8 w-8 cursor-pointer rounded border" />
+                                                                            <input type="color" value={step.formStyle?.answerColor || '#000000'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerColor: e.target.value } })} className="h-8 w-8 cursor-pointer rounded border" title="글자색" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </details>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* TYPE: OUTRO */}
+                                                {step.type === 'outro' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">상단 타이틀 (선택)</label>
+                                                            <input
+                                                                type="text"
+                                                                value={step.title || ''}
+                                                                onChange={(e) => updateStep(idx, { title: e.target.value })}
+                                                                className="w-full border rounded p-2 text-xs"
+                                                                placeholder="마무리 메시지 제목"
+                                                            />
+                                                        </div>
+
+                                                        <div className="bg-red-50 p-3 rounded">
+                                                            <label className="text-xs font-bold text-red-700 block mb-2">약관 동의 설정</label>
+                                                            <div className="space-y-2">
+                                                                {[
+                                                                    { key: 'showPrivacy', label: '개인정보 수집 및 이용 동의' },
+                                                                    { key: 'showTerms', label: '이용약관 동의' },
+                                                                    { key: 'showMarketing', label: '마케팅 정보 수신 동의' },
+                                                                    { key: 'showThirdParty', label: '제3자 정보 제공 동의' }
+                                                                ].map((policy) => (
+                                                                    <label key={policy.key} className="flex items-center gap-2 cursor-pointer">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={!!(step.policyConfig as any)?.[policy.key]}
+                                                                            onChange={(e) => updateStep(idx, {
+                                                                                policyConfig: { ...step.policyConfig, [policy.key]: e.target.checked }
+                                                                            })}
+                                                                            className="rounded text-red-600 focus:ring-red-500"
+                                                                        />
+                                                                        <span className="text-xs text-gray-700">{policy.label}</span>
+                                                                    </label>
+                                                                ))}
+                                                            </div>
+                                                            <p className="text-[10px] text-gray-500 mt-2">
+                                                                * 체크된 항목은 제출 전 필수(또는 선택) 동의를 받습니다.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {activeTab === 'location' && (
                             <div className="space-y-4 animate-fade-in">
                                 <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
