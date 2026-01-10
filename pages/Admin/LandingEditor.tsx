@@ -1322,6 +1322,23 @@ const LandingEditor: React.FC = () => {
                                     <label className="text-xs font-bold text-gray-500 mb-1 block">페이지 ID</label>
                                     <input type="text" value={config.id} onChange={(e) => updateNested(['id'], e.target.value)} className="w-full border rounded p-2 text-sm bg-gray-50" />
                                 </div>
+                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                    <label className="text-xs font-bold text-blue-700 mb-2 block flex items-center gap-1">
+                                        <Layout className="w-4 h-4" /> 템플릿 선택 (Design Template)
+                                    </label>
+                                    <select
+                                        value={config.template || 'standard'}
+                                        onChange={(e) => updateNested(['template'], e.target.value)}
+                                        className="w-full border-blue-300 rounded p-2 text-sm font-bold text-gray-800 focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="standard">기본형 (Standard One-Page)</option>
+                                        <option value="dynamic_step">다이내믹 스텝 폼 (Dynamic Step Form)</option>
+                                    </select>
+                                    <p className="text-[10px] text-blue-600 mt-1">
+                                        * <b>기본형</b>: 모든 섹션이 한 페이지에 나열됩니다.<br />
+                                        * <b>다이내믹 스텝</b>: 풀스크린 히어로와 단계별(Step-by-step) 입력 폼이 적용됩니다.
+                                    </p>
+                                </div>
                                 <div>
                                     <label className="text-xs font-bold text-gray-500 mb-1 block">페이지 제목 (Title)</label>
                                     <input type="text" value={config.title} onChange={(e) => updateNested(['title'], e.target.value)} className="w-full border rounded p-2 text-sm" />
