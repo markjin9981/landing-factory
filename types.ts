@@ -528,8 +528,11 @@ export interface DynamicStepItem {
   id: string;
   type: 'intro' | 'content' | 'form' | 'outro';
 
-  // For 'content': Reference to a DetailContent item
+  // For 'content': Reference to a DetailContent item (or Background for Intro/Outro)
   contentId?: string;
+
+  // For 'intro'/'outro': Reference to a DetailContent item to insert INLINE (not background)
+  insertedContentId?: string;
 
   // For 'form': List of field IDs to show on this step
   fieldIds?: string[];

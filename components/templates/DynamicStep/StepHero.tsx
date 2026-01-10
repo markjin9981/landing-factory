@@ -14,9 +14,10 @@ interface StepHeroProps {
         borderRadius?: string;
     };
     backgroundContent?: DetailContent;
+    insertedContent?: DetailContent;
 }
 
-const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, buttonStyle, backgroundContent }) => {
+const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, buttonStyle, backgroundContent, insertedContent }) => {
     // ... animation ...
     const floatingAnimation = {
         y: [0, -20, 0],
@@ -69,7 +70,7 @@ const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, 
                 </>
             )}
 
-            <div className="relative z-10 max-w-lg w-full">
+            <div className="relative z-10 max-w-lg w-full flex flex-col items-center">
                 {/* ... SubHeadline ... */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -95,6 +96,34 @@ const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, 
                 >
                     {heroConfig.headline}
                 </motion.h1>
+
+                {/* --- INSERTED INLINE CONTENT --- */}
+                {insertedContent && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4, duration: 0.6 }}
+                        className="w-full max-w-md mb-8 rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50"
+                    >
+                        {insertedContent.type === 'youtube' ? (
+                            <div className="relative w-full pt-[56.25%]">
+                                <iframe
+                                    className="absolute inset-0 w-full h-full"
+                                    src={`https://www.youtube.com/embed/${insertedContent.content}?autoplay=0&controls=1&rel=0`}
+                                    title="YouTube video"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                />
+                            </div>
+                        ) : (
+                            <img
+                                src={insertedContent.content}
+                                alt="Inserted Content"
+                                className="w-full h-auto object-cover"
+                            />
+                        )}
+                    </motion.div>
+                )}
 
                 {/* CTA Button */}
                 <motion.button

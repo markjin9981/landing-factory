@@ -3147,15 +3147,51 @@ const LandingEditor: React.FC = () => {
 
                                                 {/* TYPE: INTRO */}
                                                 {step.type === 'intro' && (
-                                                    <div>
-                                                        <label className="text-[10px] text-gray-500 block mb-1">헤드라인 (타이틀)</label>
-                                                        <input
-                                                            type="text"
-                                                            value={step.title || ''}
-                                                            onChange={(e) => updateStep(idx, { title: e.target.value })}
-                                                            className="w-full border rounded p-2 text-xs"
-                                                            placeholder="메인 타이틀 입력"
-                                                        />
+                                                    <div className="space-y-3">
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">헤드라인 (타이틀)</label>
+                                                            <input
+                                                                type="text"
+                                                                value={step.title || ''}
+                                                                onChange={(e) => updateStep(idx, { title: e.target.value })}
+                                                                className="w-full border rounded p-2 text-xs"
+                                                                placeholder="메인 타이틀 입력"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">삽입할 인라인 콘텐츠 (Video/Image)</label>
+                                                            <select
+                                                                value={step.insertedContentId || ''}
+                                                                onChange={(e) => updateStep(idx, { insertedContentId: e.target.value })}
+                                                                className="w-full border rounded p-2 text-xs bg-gray-50 text-gray-900"
+                                                            >
+                                                                <option value="">(선택 안함)</option>
+                                                                {(config.detailContent || []).map((c, cIdx) => (
+                                                                    <option key={`ins-${c.id || cIdx}`} value={c.id || ''}>
+                                                                        {c.type.toUpperCase()} - {c.content?.substring(0, 20) || '(내용 없음)'}...
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* TYPE: OUTRO */}
+                                                {step.type === 'outro' && (
+                                                    <div className="mt-4 border-t pt-4">
+                                                        <label className="text-[10px] text-gray-500 block mb-1">삽입할 인라인 콘텐츠 (Video/Image)</label>
+                                                        <select
+                                                            value={step.insertedContentId || ''}
+                                                            onChange={(e) => updateStep(idx, { insertedContentId: e.target.value })}
+                                                            className="w-full border rounded p-2 text-xs bg-gray-50 text-gray-900"
+                                                        >
+                                                            <option value="">(선택 안함)</option>
+                                                            {(config.detailContent || []).map((c, cIdx) => (
+                                                                <option key={`ins-outro-${c.id || cIdx}`} value={c.id || ''}>
+                                                                    {c.type.toUpperCase()} - {c.content?.substring(0, 20) || '(내용 없음)'}...
+                                                                </option>
+                                                            ))}
+                                                        </select>
                                                     </div>
                                                 )}
 

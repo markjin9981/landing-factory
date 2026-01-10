@@ -127,9 +127,14 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
         const step = config.steps[currentStepIdx];
         const isIntro = step.type === 'intro';
 
-        // Resolve Background Content for Intro/Outro if contentId is present
+        // Resolve Background Content
         const backgroundContent = (step.type === 'intro' || step.type === 'outro') && step.contentId
             ? config.detailContent?.find(c => c.id === step.contentId)
+            : undefined;
+
+        // Resolve Inserted Content
+        const insertedContent = (step.type === 'intro' || step.type === 'outro') && step.insertedContentId
+            ? config.detailContent?.find(c => c.id === step.insertedContentId)
             : undefined;
 
         return (
@@ -157,6 +162,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 primaryColor={config.theme.primaryColor}
                                 buttonStyle={step.buttonStyle}
                                 backgroundContent={backgroundContent}
+                                insertedContent={insertedContent}
                             />
                         )}
 
@@ -199,6 +205,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 onSubmit={handleBuilderNext}
                                 primaryColor={config.theme.primaryColor}
                                 backgroundContent={backgroundContent}
+                                insertedContent={insertedContent}
                             />
                         )}
                     </motion.div>

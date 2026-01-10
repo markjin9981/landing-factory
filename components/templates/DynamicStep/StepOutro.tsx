@@ -8,9 +8,10 @@ interface StepOutroProps {
     onSubmit: () => void;
     primaryColor?: string;
     backgroundContent?: DetailContent;
+    insertedContent?: DetailContent;
 }
 
-const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryColor = '#3b82f6', backgroundContent }) => {
+const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryColor = '#3b82f6', backgroundContent, insertedContent }) => {
     const [agreements, setAgreements] = useState({
         privacy: false,
         terms: false,
@@ -93,6 +94,29 @@ const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryCo
                 <h2 className="text-2xl font-bold mb-8 text-gray-900 text-center">
                     {step.title || '마지막 단계입니다'}
                 </h2>
+
+                {/* --- INSERTED INLINE CONTENT --- */}
+                {insertedContent && (
+                    <div className="w-full mb-8 rounded-xl overflow-hidden shadow-lg border border-gray-100 bg-black/5">
+                        {insertedContent.type === 'youtube' ? (
+                            <div className="relative w-full pt-[56.25%]">
+                                <iframe
+                                    className="absolute inset-0 w-full h-full"
+                                    src={`https://www.youtube.com/embed/${insertedContent.content}?autoplay=0&controls=1&rel=0`}
+                                    title="YouTube video"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                />
+                            </div>
+                        ) : (
+                            <img
+                                src={insertedContent.content}
+                                alt="Inserted Content"
+                                className="w-full h-auto object-cover"
+                            />
+                        )}
+                    </div>
+                )}
 
                 {/* Policies */}
                 {hasPolicies && (
