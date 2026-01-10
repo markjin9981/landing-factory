@@ -5,6 +5,7 @@ import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
 import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
+import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
 import FontPicker from '../../components/admin/FontPicker';
@@ -168,6 +169,8 @@ const LandingEditor: React.FC = () => {
     const [deployStatus, setDeployStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
     const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({ customFonts: [], favoriteFonts: [] });
     const [fontUploadTab, setFontUploadTab] = useState<'google' | 'file'>('google');
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [inputGithubToken, setInputGithubToken] = useState('');
 
     // File input refs
     const heroBgInputRef = useRef<HTMLInputElement>(null);
@@ -325,7 +328,7 @@ const LandingEditor: React.FC = () => {
         alert('브라우저 임시 저장소에 저장되었습니다.');
     };
 
-    const handleDeploy = async () => {
+    const handleSaveToSheet = async () => {
         // [Size Check] Google Sheets Cell Limit is ~50,000 chars.
         // We conservatively check for 45,000 to be safe.
         const configStr = JSON.stringify(config);
@@ -388,40 +391,52 @@ const LandingEditor: React.FC = () => {
         });
     };
 
-    // Image Helper: Upload to Drive and get URL
+    // Image Helper: Upload to Github (Primary) or Drive (Fallback)
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Check file size (Google Drive API limit in GAS is ~50MB, but let's be reasonable)
+            // Check file size (GitHub API limit is 100MB, but let's keep it reasonable)
             if (file.size > 10 * 1024 * 1024) {
                 alert("파일 용량이 너무 큽니다. (10MB 제한)");
                 return;
             }
 
-            const confirmUpload = confirm(`"${file.name}" 파일을 서버(구글 드라이브)에 업로드하시겠습니까?\n\n(참고: 업로드 후 '공유 가능한 링크'가 자동으로 입력됩니다.)`);
+            // Determine Start 
+            const ghToken = getGithubToken();
+            const uploadTarget = ghToken ? 'GitHub' : 'Google Drive';
+
+            const confirmUpload = confirm(`"${file.name}" 파일을 ${uploadTarget}에 업로드하시겠습니까?\n\n(${uploadTarget === 'GitHub' ? '권장: 고속 로딩, 트래픽 무제한' : '주의: 접속 많을 시 차단 위험'})`);
             if (!confirmUpload) return;
 
-            // Show loading cursor or rudimentary feedback
+            // Show loading cursor
             const prevCursor = document.body.style.cursor;
             document.body.style.cursor = 'wait';
 
-            // Temporary alert or toast could be better, but sticking to simple feedback for now
-            // We can add a 'isUploading' state if we want to block UI, but keep it simple.
-
             try {
-                const url = await uploadImageToDrive(file);
-                if (url) {
-                    callback(url);
-                    alert("이미지 업로드가 완료되었습니다!");
+                if (uploadTarget === 'GitHub') {
+                    const res = await uploadImageToGithub(file);
+                    if (res.success && res.url) {
+                        callback(res.url);
+                        // alert("GitHub 업로드 완료! (배포 후 적용됩니다)");
+                    } else {
+                        alert(`GitHub 업로드 실패: ${res.message}`);
+                    }
                 } else {
-                    alert("업로드에 실패했습니다. 다시 시도해주세요.");
+                    // Fallback to Drive
+                    const url = await uploadImageToDrive(file);
+                    if (url) {
+                        callback(url);
+                        alert("이미지 업로드가 완료되었습니다!");
+                    } else {
+                        alert("업로드에 실패했습니다. 다시 시도해주세요.");
+                    }
                 }
             } catch (err) {
                 console.error(err);
                 alert("오류가 발생했습니다.");
             } finally {
                 document.body.style.cursor = prevCursor;
-                // Clear input so same file can be selected again
+                // Clear input
                 e.target.value = '';
             }
         }
@@ -880,14 +895,54 @@ const LandingEditor: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex gap-1 md:gap-2">
+                    {/* Settings Button */}
+                    <button
+                        onClick={() => {
+                            setInputGithubToken(getGithubToken() || '');
+                            setShowSettingsModal(true);
+                        }}
+                        className="bg-gray-700 text-gray-300 p-2 rounded hover:bg-gray-600 transition-colors"
+                        title="설정 (Settings)"
+                    >
+                        <Menu className="w-5 h-5" />
+                    </button>
+
                     <button onClick={saveToLocal} className="flex items-center px-2 md:px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded border border-gray-600">
                         <Save className="w-4 h-4 md:mr-1.5" />
                         <span className="hidden md:inline">임시 저장</span>
                     </button>
-                    <button onClick={handleDeploy} disabled={deployStatus === 'saving'} className="flex items-center px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded font-bold shadow-sm md:w-32 justify-center disabled:opacity-50">
-                        {deployStatus === 'saving' ? <><Loader2 className="w-3 h-3 md:mr-1.5 animate-spin" /> <span className="hidden md:inline">저장중...</span></> :
-                            deployStatus === 'success' ? <><CheckCircle className="w-3 h-3 md:mr-1.5" /> <span className="hidden md:inline">저장완료!</span></> :
-                                deployStatus === 'error' ? <><AlertCircle className="w-3 h-3 md:mr-1.5" /> <span className="hidden md:inline">저장실패</span></> :
+                    <button
+                        onClick={async () => {
+                            if (!confirm('현재 설정을 저장하고 배포하시겠습니까?\n(GitHub에 반영되며 약 1~2분 소요됩니다)')) return;
+                            setDeployStatus('saving');
+                            try {
+                                // 1. Save to Sheet (Backup)
+                                await handleSaveToSheet();
+
+                                // 2. Deploy to GitHub
+                                const res = await deployConfigsToGithub({ [config.id]: config });
+
+                                if (res.success) {
+                                    setDeployStatus('success');
+                                    alert('배포가 성공적으로 시작되었습니다!\n잠시 후 사이트가 업데이트됩니다.');
+                                } else {
+                                    setDeployStatus('error');
+                                    alert('배포 실패: ' + res.message);
+                                }
+                            } catch (e) {
+                                console.error(e);
+                                setDeployStatus('error');
+                                alert('배포 중 오류가 발생했습니다.');
+                            } finally {
+                                setTimeout(() => setDeployStatus('idle'), 3000);
+                            }
+                        }}
+                        disabled={deployStatus === 'saving'}
+                        className="flex items-center px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded font-bold shadow-sm md:w-32 justify-center disabled:opacity-50"
+                    >
+                        {deployStatus === 'saving' ? <><Loader2 className="w-3 h-3 md:mr-1.5 animate-spin" /> <span className="hidden md:inline">배포중...</span></> :
+                            deployStatus === 'success' ? <><CheckCircle className="w-3 h-3 md:mr-1.5" /> <span className="hidden md:inline">배포완료!</span></> :
+                                deployStatus === 'error' ? <><AlertCircle className="w-3 h-3 md:mr-1.5" /> <span className="hidden md:inline">실패</span></> :
                                     <><Send className="w-3 h-3 md:mr-1.5" /> <span className="hidden md:inline">저장 및 배포</span><span className="md:hidden">배포</span></>}
                     </button>
                 </div>
@@ -4389,6 +4444,53 @@ const LandingEditor: React.FC = () => {
                 </div>
 
             </div>
+
+            {/* Settings Modal */}
+            {showSettingsModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
+                    <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in-up">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold text-gray-900">설정 (Settings)</h3>
+                            <button onClick={() => setShowSettingsModal(false)}><X className="w-5 h-5 text-gray-500" /></button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">GitHub Personal Access Token</label>
+                                <input
+                                    type="password"
+                                    placeholder="ghp_..."
+                                    className="w-full border rounded p-2 text-sm font-mono bg-gray-50"
+                                    value={inputGithubToken}
+                                    onChange={(e) => setInputGithubToken(e.target.value)}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    * 'repo' 권한이 있는 토큰이 필요합니다.
+                                    <br />
+                                    * 이 토큰은 브라우저에만 저장되며 서버로 전송되지 않습니다.
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setGithubToken(inputGithubToken);
+                                    alert('토큰이 저장되었습니다.');
+                                    setShowSettingsModal(false);
+                                }}
+                                className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800"
+                            >
+                                저장하기
+                            </button>
+
+                            <hr className="my-4" />
+
+                            <div className="text-center">
+                                <p className="text-xs text-gray-400">Ver: 1.2.0 (High Performance Architecture)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
