@@ -4,6 +4,7 @@ import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, Cus
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
 import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag } from 'lucide-react';
+import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
 import FontPicker from '../../components/admin/FontPicker';
@@ -1820,13 +1821,22 @@ const LandingEditor: React.FC = () => {
 
                                                     <div className="flex-1 min-w-0 space-y-2">
                                                         {/* Content Input */}
-                                                        <input
-                                                            type="text"
-                                                            value={item.content}
-                                                            onChange={(e) => updateDetailContent(idx, { content: e.target.value })}
-                                                            placeholder={item.type === 'youtube' ? '유튜브 링크 (예: https://youtu.be/...)' : item.type === 'map' ? '주소 입력 (예: 서울 강남구...)' : '이미지 주소'}
-                                                            className="w-full border rounded p-1.5 text-xs"
-                                                        />
+                                                        <div className="flex gap-1 items-center">
+                                                            <input
+                                                                type="text"
+                                                                value={item.content}
+                                                                onChange={(e) => updateDetailContent(idx, { content: e.target.value })}
+                                                                placeholder={item.type === 'youtube' ? '유튜브 링크 (예: https://youtu.be/...)' : item.type === 'map' ? '주소 입력 (예: 서울 강남구...)' : '이미지 주소'}
+                                                                className="flex-1 border rounded p-1.5 text-xs"
+                                                            />
+                                                            {item.type === 'image' && (
+                                                                <GoogleDrivePicker
+                                                                    onSelect={(url) => updateDetailContent(idx, { content: url })}
+                                                                    className="px-2 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded text-xs hover:bg-green-100 flex items-center gap-1 shrink-0 font-bold"
+                                                                    buttonText="드라이브"
+                                                                />
+                                                            )}
+                                                        </div>
 
                                                         {/* Options Row */}
                                                         <div className="flex gap-2">
@@ -1908,6 +1918,11 @@ const LandingEditor: React.FC = () => {
                                                                         value={item.bannerStyle.backgroundImage || ''}
                                                                         onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundImage: e.target.value } })}
                                                                         className="flex-1 border p-1 rounded"
+                                                                    />
+                                                                    <GoogleDrivePicker
+                                                                        onSelect={(url) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundImage: url } })}
+                                                                        className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs hover:bg-blue-100 flex items-center justify-center"
+                                                                        buttonText=""
                                                                     />
                                                                     <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-700 rounded px-2 flex items-center justify-center text-xs whitespace-nowrap">
                                                                         <Upload className="w-3 h-3" />
