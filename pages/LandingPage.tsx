@@ -103,6 +103,17 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         document.head.appendChild(ogDesc);
       }
       ogDesc.setAttribute('content', effectiveOgDesc);
+
+      // --- Favicon Update ---
+      if (config.favicon) {
+        let link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+          link = document.createElement('link');
+          link.setAttribute('rel', 'icon');
+          document.head.appendChild(link);
+        }
+        link.setAttribute('href', config.favicon);
+      }
     }
 
     if (!previewConfig) window.scrollTo(0, 0);

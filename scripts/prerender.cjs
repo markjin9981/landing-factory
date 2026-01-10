@@ -87,6 +87,7 @@ async function prerender() {
             const ogTitle = config.ogTitle || pageTitle;
             const desc = config.ogDescription || config.hero?.subHeadline || "";
             const image = config.ogImage || "";
+            const favicon = config.favicon || "";
 
             // Inject Metadata
             let html = template;
@@ -114,6 +115,9 @@ async function prerender() {
     <!-- Search Engine Verification -->
     ${config.naverVerification || ''}
     ${config.googleVerification || ''}
+
+    <!-- Dynamic Favicon -->
+    ${favicon ? `<link rel="icon" href="${favicon}" />` : ''}
             `;
 
             html = html.replace('</head>', `${metaTags}</head>`);

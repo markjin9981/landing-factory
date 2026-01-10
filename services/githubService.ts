@@ -74,18 +74,12 @@ export const uploadImageToGithub = async (file: File): Promise<{ success: boolea
             throw new Error(err.message || 'Github Upload Failed');
         }
 
-        // 4. Construct GitHub Pages URL
-        // Format: https://{owner}.github.io/{repo}/uploads/{filename}
-        // Note: This URL will be valid after the next deployment build (usually 1-2 mins).
-        // BUT for immediate preview in editor, we might want to use raw.githubusercontent?
-        // Raw URL: https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}
-        // Actually, 'public' folder in create-react-app/vite maps to root in build.
-        // So 'public/uploads/foo.png' -> 'dist/uploads/foo.png'
-        // URL: https://markjin9981.github.io/landing-factory/uploads/${timestamp}_${safeName}
+        // 4. Construct URL
+        // Use 'raw.githubusercontent.com' for immediate availability (Editor Preview).
+        // GitHub Pages (github.io) takes 1-2 mins to deploy, causing broken images in the editor.
+        const fileUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${BRANCH}/${path}`;
 
-        const pageUrl = `https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/uploads/${timestamp}_${safeName}`;
-
-        return { success: true, url: pageUrl };
+        return { success: true, url: fileUrl };
 
     } catch (error: any) {
         console.error('GitHub Upload Error:', error);
