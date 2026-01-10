@@ -16,7 +16,7 @@ const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor }
         transition: {
             duration: 3,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut" as const
         }
     };
 
