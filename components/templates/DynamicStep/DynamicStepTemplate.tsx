@@ -128,9 +128,24 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
         const isIntro = step.type === 'intro';
 
         // Resolve Background Content
-        const backgroundContent = (step.type === 'intro' || step.type === 'outro') && step.contentId
+        // 1. Check current step's specific background
+        const currentBackground = step.contentId
             ? config.detailContent?.find(c => c.id === step.contentId)
             : undefined;
+
+        // 2. Fallback: Find INTRO step's background (for Tone & Manner consistency)
+        const introStep = config.steps.find(s => s.type === 'intro');
+        const introBackground = introStep?.contentId
+            ? config.detailContent?.find(c => c.id === introStep.contentId)
+            : undefined;
+
+        // Final Background Logic:
+        // - Intro/Outro: Use their own background (or none).
+        // - step.type === 'content': If it has no specific background (which StepContent uses 'contentId' for MAIN content),
+        //   we might want to use Intro's background. 
+        //   However, 'content' type uses 'contentId' for the CARD content (Map, Image).
+        //   So 'currentBackground' is actually the CARD content.
+        //   We need to pass 'introBackground' as the BACKGROUND of the page.
 
         // Resolve Inserted Content
         const insertedContent = (step.type === 'intro' || step.type === 'outro') && step.insertedContentId
@@ -161,8 +176,9 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 onStart={() => handleBuilderNext()}
                                 primaryColor={config.theme.primaryColor}
                                 buttonStyle={step.buttonStyle}
-                                backgroundContent={backgroundContent}
+                                backgroundContent={currentBackground} // Intro uses its own contentId as background
                                 insertedContent={insertedContent}
+                                hideTitle={step.hideTitle}
                             />
                         )}
 
@@ -176,6 +192,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 prevButtonText={step.prevButtonText}
                                 buttonStyle={step.buttonStyle}
                                 primaryColor={config.theme.primaryColor}
+                                backgroundContent={introBackground} // Inherit Intro background
                             />
                         )}
 
@@ -204,7 +221,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 onPrev={handleBuilderPrev}
                                 onSubmit={handleBuilderNext}
                                 primaryColor={config.theme.primaryColor}
-                                backgroundContent={backgroundContent}
+                                backgroundContent={currentBackground || introBackground} // Use own background or persist Intro's
                                 insertedContent={insertedContent}
                             />
                         )}

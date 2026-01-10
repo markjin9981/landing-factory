@@ -15,9 +15,10 @@ interface StepHeroProps {
     };
     backgroundContent?: DetailContent;
     insertedContent?: DetailContent;
+    hideTitle?: boolean;
 }
 
-const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, buttonStyle, backgroundContent, insertedContent }) => {
+const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, buttonStyle, backgroundContent, insertedContent, hideTitle }) => {
     // ... animation ...
     const floatingAnimation = {
         y: [0, -20, 0],
@@ -72,30 +73,34 @@ const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, 
 
             <div className="relative z-10 max-w-lg w-full flex flex-col items-center">
                 {/* ... SubHeadline ... */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="inline-block mb-4 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
-                >
-                    <span className="text-sm font-semibold tracking-wide text-blue-300">
-                        {heroConfig.subHeadline || "무료 자가진단"}
-                    </span>
-                </motion.div>
+                {!hideTitle && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="inline-block mb-4 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
+                    >
+                        <span className="text-sm font-semibold tracking-wide text-blue-300">
+                            {heroConfig.subHeadline || "무료 자가진단"}
+                        </span>
+                    </motion.div>
+                )}
 
                 {/* Headline */}
-                <motion.h1
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, delay: 0.2, type: "spring" }}
-                    className="text-4xl md:text-5xl font-bold leading-tight mb-8"
-                    style={{
-                        textShadow: '0 0 40px rgba(59, 130, 246, 0.5)',
-                        whiteSpace: 'pre-line'
-                    }}
-                >
-                    {heroConfig.headline}
-                </motion.h1>
+                {!hideTitle && (
+                    <motion.h1
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.8, delay: 0.2, type: "spring" }}
+                        className="text-4xl md:text-5xl font-bold leading-tight mb-8"
+                        style={{
+                            textShadow: '0 0 40px rgba(59, 130, 246, 0.5)',
+                            whiteSpace: 'pre-line'
+                        }}
+                    >
+                        {heroConfig.headline}
+                    </motion.h1>
+                )}
 
                 {/* --- INSERTED INLINE CONTENT --- */}
                 {insertedContent && (

@@ -539,7 +539,12 @@ export interface DynamicStepItem {
 
   // Step specific overrides
   title?: string;
+  hideTitle?: boolean; // New: Toggle title visibility
   buttonText?: string;
+  // showPrevButton is defined in Navigation section below, or we can keep it here if it overrides.
+  // Actually it was already there? Let's check original context.
+  // The original context had "Navigation" comment below.
+  // I will just remove my added lines and rely on the existing one if it exists, or consolidate.
 
   // Navigation
   showPrevButton?: boolean;

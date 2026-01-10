@@ -18,6 +18,7 @@ interface StepContentProps {
         borderRadius?: string;
     };
     primaryColor?: string;
+    backgroundContent?: DetailContent;
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -28,27 +29,19 @@ const StepContent: React.FC<StepContentProps> = ({
     showPrevButton,
     prevButtonText,
     buttonStyle,
-    primaryColor = '#3b82f6'
+    primaryColor = '#3b82f6',
+    backgroundContent
 }) => {
 
     const renderInner = () => {
-        // ... (Keep existing simple switch case if possible, but I'm rewriting the file mostly to wrap it)
+        // ... (Keep existing inner rendering logic)
         switch (content.type) {
             case 'image':
-                return (
-                    <img
-                        src={content.content}
-                        className="w-full h-auto rounded-lg shadow-sm"
-                        alt="Content"
-                    />
-                );
-
+                return <img src={content.content} className="w-full h-auto rounded-lg shadow-sm" alt="Content" />;
             case 'youtube':
-                // Simple ID extraction if full URL is pasted
                 let videoId = content.content;
                 if (videoId.includes('v=')) videoId = videoId.split('v=')[1].split('&')[0];
                 else if (videoId.includes('youtu.be/')) videoId = videoId.split('youtu.be/')[1];
-
                 return (
                     <div className="relative w-full pt-[56.25%] rounded-lg overflow-hidden bg-black shadow-lg">
                         <iframe
@@ -61,7 +54,6 @@ const StepContent: React.FC<StepContentProps> = ({
                         />
                     </div>
                 );
-
             case 'map':
                 return (
                     <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-lg border border-gray-100">
@@ -71,7 +63,6 @@ const StepContent: React.FC<StepContentProps> = ({
                         </div>
                     </div>
                 );
-
             case 'banner':
                 return (
                     <div
@@ -82,26 +73,12 @@ const StepContent: React.FC<StepContentProps> = ({
                         }}
                         className="w-full flex items-center justify-center relative bg-cover bg-center rounded-lg overflow-hidden shadow-sm"
                     >
-                        {/* Overlay */}
-                        <div
-                            className="absolute inset-0 bg-black"
-                            style={{ opacity: content.bannerStyle?.overlayOpacity || 0 }}
-                        />
-                        {/* Content */}
-                        <div
-                            className="relative z-10 p-6 whitespace-pre-wrap"
-                            style={{
-                                color: content.bannerStyle?.textColor || '#000',
-                                textAlign: (content.bannerStyle?.textAlign as any) || 'center',
-                                fontSize: content.bannerStyle?.fontSize || '1.5rem',
-                                fontWeight: 'bold'
-                            }}
-                        >
+                        <div className="absolute inset-0 bg-black" style={{ opacity: content.bannerStyle?.overlayOpacity || 0 }} />
+                        <div className="relative z-10 p-6 whitespace-pre-wrap" style={{ color: content.bannerStyle?.textColor || '#000', textAlign: (content.bannerStyle?.textAlign as any) || 'center', fontSize: content.bannerStyle?.fontSize || '1.5rem', fontWeight: 'bold' }}>
                             {content.content}
                         </div>
                     </div>
                 );
-
             default:
                 return null;
         }
@@ -115,6 +92,60 @@ const StepContent: React.FC<StepContentProps> = ({
         borderRadius: buttonStyle?.borderRadius || '0.75rem', // rounded-xl
     };
 
+    // --- FULL SCREEN LAYOUT (If Background Exists) ---
+    if (backgroundContent) {
+        return (
+            <div className="relative w-full min-h-screen flex flex-col overflow-hidden bg-gray-900">
+                {/* Background Layer */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
+                            ? backgroundContent.content
+                            : (backgroundContent.type === 'youtube'
+                                ? `https://img.youtube.com/vi/${backgroundContent.content}/maxresdefault.jpg`
+                                : '')
+                        }
+                        alt="Background"
+                        className="w-full h-full object-cover opacity-60"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+                </div>
+
+                {/* Main Scrollable Area */}
+                <div className="flex-1 flex flex-col items-center justify-center p-4 pb-28 relative z-10">
+                    <div className="w-full max-w-screen-md bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl">
+                        {renderInner()}
+                    </div>
+                </div>
+
+                {/* Fixed Bottom Button Area (Transparent / Glass) */}
+                <div className="fixed bottom-0 left-0 right-0 p-4 z-50 safe-area-bottom bg-gradient-to-t from-black/80 to-transparent">
+                    <div className="max-w-md mx-auto flex gap-3">
+                        {/* Prev Button */}
+                        {(showPrevButton && onPrev) && (
+                            <button
+                                onClick={onPrev}
+                                className="px-6 py-4 bg-white/20 text-white rounded-xl font-bold hover:bg-white/30 transition-colors backdrop-blur-sm"
+                            >
+                                {prevButtonText || '이전'}
+                            </button>
+                        )}
+                        {/* Next Button */}
+                        <button
+                            onClick={onNext}
+                            style={customButtonStyle}
+                            className="flex-1 py-4 font-bold shadow-lg transform active:scale-95 transition-all"
+                        >
+                            {nextButtonText || '다음으로'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // --- DEFAULT LAYOUT (White Background) ---
     return (
         <div className="flex flex-col min-h-screen bg-gray-50">
             {/* Main Scrollable Area */}

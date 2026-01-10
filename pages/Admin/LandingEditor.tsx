@@ -3150,13 +3150,25 @@ const LandingEditor: React.FC = () => {
                                                     <div className="space-y-3">
                                                         <div>
                                                             <label className="text-[10px] text-gray-500 block mb-1">헤드라인 (타이틀)</label>
-                                                            <input
-                                                                type="text"
-                                                                value={step.title || ''}
-                                                                onChange={(e) => updateStep(idx, { title: e.target.value })}
-                                                                className="w-full border rounded p-2 text-xs"
-                                                                placeholder="메인 타이틀 입력"
-                                                            />
+                                                            <div className="flex flex-col gap-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={step.title || ''}
+                                                                    onChange={(e) => updateStep(idx, { title: e.target.value })}
+                                                                    className="w-full border rounded p-2 text-xs"
+                                                                    placeholder="메인 타이틀 입력"
+                                                                    disabled={step.hideTitle}
+                                                                />
+                                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={step.hideTitle || false}
+                                                                        onChange={(e) => updateStep(idx, { hideTitle: e.target.checked })}
+                                                                        className="rounded text-blue-600"
+                                                                    />
+                                                                    <span className="text-xs text-gray-600">타이틀 숨기기 (배경/콘텐츠만 강조)</span>
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                         <div>
                                                             <label className="text-[10px] text-gray-500 block mb-1">삽입할 인라인 콘텐츠 (Video/Image)</label>
