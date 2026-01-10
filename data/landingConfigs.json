@@ -39,27 +39,18 @@
     },
     "detailContent": [
       {
-        "id": "62add188-9112-4831-9772-d485a395b348",
+        "id": "7225cc4a-11fa-43c6-80b3-c82a438b986b",
         "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057865922_img4_250527.gif",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768060894273_img4_250527.gif",
         "width": "100%",
         "videoSize": "md",
         "autoPlay": false,
         "mapSize": "md"
       },
       {
-        "id": "89ec9d03-7bac-4668-8253-9fd9ca31aae0",
+        "id": "cc3dc975-b74a-4e48-9557-c3eba144fa2d",
         "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057872866_img2_250317.gif",
-        "width": "100%",
-        "videoSize": "md",
-        "autoPlay": false,
-        "mapSize": "md"
-      },
-      {
-        "id": "24a13f9f-cd8e-4298-8f08-396fceedaddf",
-        "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057879606_landing_top_38800_1737599063_1_30808502.gif",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768060905624_img2_250317.gif",
         "width": "100%",
         "videoSize": "md",
         "autoPlay": false,
