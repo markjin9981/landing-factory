@@ -11,6 +11,12 @@ export const compressImage = async (file: File): Promise<File> => {
     // Return original if not an image
     if (!file.type.startsWith('image/')) return file;
 
+    // Skip compression for GIFs to preserve animation
+    if (file.type === 'image/gif') {
+        console.log("ℹ️ GIF detected, skipping compression to preserve animation.");
+        return file;
+    }
+
     // Options
     const options = {
         maxSizeMB: 1,          // Try to compress to 1MB
