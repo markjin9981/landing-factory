@@ -16,8 +16,9 @@ export const getGithubToken = () => {
     if (local) return local;
 
     // 2. Try Env (for local dev)
-    if (import.meta.env.VITE_GITHUB_TOKEN) {
-        return import.meta.env.VITE_GITHUB_TOKEN;
+    // 2. Try Env (for local dev)
+    if ((import.meta as any).env.VITE_GITHUB_TOKEN) {
+        return (import.meta as any).env.VITE_GITHUB_TOKEN;
     }
     return '';
 };
