@@ -403,33 +403,27 @@ const LandingEditor: React.FC = () => {
 
             // Determine Start 
             const ghToken = getGithubToken();
-            const uploadTarget = ghToken ? 'GitHub' : 'Google Drive';
 
-            const confirmUpload = confirm(`"${file.name}" 파일을 ${uploadTarget}에 업로드하시겠습니까?\n\n(${uploadTarget === 'GitHub' ? '권장: 고속 로딩, 트래픽 무제한' : '주의: 접속 많을 시 차단 위험'})`);
-            if (!confirmUpload) return;
+            if (!ghToken) {
+                alert("이미지 업로드를 위해 GitHub 토큰 설정이 필요합니다.\n설정 창으로 이동합니다.");
+                setShowSettingsModal(true);
+                // Clear input so user can try again after setting token
+                e.target.value = '';
+                return;
+            }
 
             // Show loading cursor
             const prevCursor = document.body.style.cursor;
             document.body.style.cursor = 'wait';
 
             try {
-                if (uploadTarget === 'GitHub') {
-                    const res = await uploadImageToGithub(file);
-                    if (res.success && res.url) {
-                        callback(res.url);
-                        // alert("GitHub 업로드 완료! (배포 후 적용됩니다)");
-                    } else {
-                        alert(`GitHub 업로드 실패: ${res.message}`);
-                    }
+                // Direct Upload to GitHub
+                const res = await uploadImageToGithub(file);
+                if (res.success && res.url) {
+                    callback(res.url);
+                    // alert("GitHub 업로드 완료! (배포 후 적용됩니다)");
                 } else {
-                    // Fallback to Drive
-                    const url = await uploadImageToDrive(file);
-                    if (url) {
-                        callback(url);
-                        alert("이미지 업로드가 완료되었습니다!");
-                    } else {
-                        alert("업로드에 실패했습니다. 다시 시도해주세요.");
-                    }
+                    alert(`GitHub 업로드 실패: ${res.message}`);
                 }
             } catch (err) {
                 console.error(err);
