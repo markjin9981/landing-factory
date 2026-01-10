@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import LANDING_CONFIGS_JSON from '../../data/landingConfigs.json';
 import { LandingConfig } from '../../types';
-import { fetchLandingConfigs } from '../../services/googleSheetService';
+import { fetchLandingConfigs, fetchLeads } from '../../services/googleSheetService';
 import { deleteConfigFromGithub } from '../../services/githubService';
 import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2 } from 'lucide-react';
 
@@ -14,6 +14,17 @@ const AdminDashboard: React.FC = () => {
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
+
+    // Reset page on sort change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [sortOrder]);
+
+    const currentConfigs = configs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     useEffect(() => {
         const loadAllConfigs = async () => {
@@ -219,7 +230,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid gap-6">
-                        {configs.map((config) => (
+                        {currentConfigs.map((config) => (
                             <div key={config.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-blue-300 transition-colors">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
@@ -305,6 +316,38 @@ const AdminDashboard: React.FC = () => {
                                 <p className="text-gray-500">생성된 랜딩페이지가 없습니다.</p>
                             </div>
                         )}
+                    </div>
+                {/* Pagination Controls */}
+                {!loading && configs.length > 0 && (
+                    <div className="mt-8 flex justify-center items-center gap-2">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                        >
+                            이전
+                        </button>
+
+                        {Array.from({ length: Math.ceil(configs.length / ITEMS_PER_PAGE) }, (_, i) => i + 1).map(p => (
+                            <button
+                                key={p}
+                                onClick={() => setCurrentPage(p)}
+                                className={`px-3 py-1 rounded border ${currentPage === p
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-white border-gray-300 hover:bg-gray-50'
+                                    }`}
+                            >
+                                {p}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(Math.ceil(configs.length / ITEMS_PER_PAGE), p + 1))}
+                            disabled={currentPage === Math.ceil(configs.length / ITEMS_PER_PAGE)}
+                            className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                        >
+                            다음
+                        </button>
                     </div>
                 )}
             </main>

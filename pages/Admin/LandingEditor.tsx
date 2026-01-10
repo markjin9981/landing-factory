@@ -913,6 +913,10 @@ const LandingEditor: React.FC = () => {
                     <button
                         onClick={async () => {
                             if (!confirm('현재 설정을 저장하고 배포하시겠습니까?\n(GitHub에 반영되며 약 1~2분 소요됩니다)')) return;
+
+                            // Fix: Ensure local draft is saved first so it appears in the Dashboard list immediately
+                            saveToLocal();
+
                             setDeployStatus('saving');
                             try {
                                 // 1. Save to Sheet (Backup)
