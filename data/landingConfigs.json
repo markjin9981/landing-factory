@@ -1,11 +1,11 @@
 {
-  "727161": {
-    "id": "727161",
+  "470153": {
+    "id": "470153",
     "title": "",
-    "favicon": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768052827500______2026-01-06_105937_ALTools_AIUpscaler.png",
-    "ogImage": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768052833614_22.jpg",
-    "ogTitle": "개인회생 최고",
-    "ogDescription": "무조건 개인회생 하세요!!!!!!!!!!",
+    "favicon": "",
+    "ogImage": "",
+    "ogTitle": "",
+    "ogDescription": "",
     "keywords": "",
     "theme": {
       "primaryColor": "#0ea5e9",
@@ -39,27 +39,18 @@
     },
     "detailContent": [
       {
-        "id": "7249bda3-82f0-479d-bc39-a184529c7023",
+        "id": "d2dbc23a-9e23-4316-b764-2131c1b518d8",
         "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768052940488_img3.jpg",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768053483580_img2_250317.gif",
         "width": "100%",
         "videoSize": "md",
         "autoPlay": false,
         "mapSize": "md"
       },
       {
-        "id": "528a31cc-f2a1-4f90-b6df-bba9d25abe4c",
+        "id": "3b273035-d13d-4c4a-8101-02bdb2a9fda5",
         "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768052946890_img4.jpg",
-        "width": "100%",
-        "videoSize": "md",
-        "autoPlay": false,
-        "mapSize": "md"
-      },
-      {
-        "id": "bc479cc4-c8af-4e0a-bb20-975c3b442cab",
-        "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768052954047_img2_250317.gif",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768053490059_img3.jpg",
         "width": "100%",
         "videoSize": "md",
         "autoPlay": false,
@@ -158,7 +149,6 @@
       "title": "주요 특징",
       "description": "우리 서비스의 특별한 점을 소개합니다.",
       "items": []
-    },
-    "layoutMode": "full"
+    }
   }
 }
