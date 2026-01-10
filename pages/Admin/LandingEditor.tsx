@@ -6,6 +6,7 @@ import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlo
 import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
+import { compressImage } from '../../utils/imageCompression';
 
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
 import FontPicker from '../../components/admin/FontPicker';
@@ -393,10 +394,10 @@ const LandingEditor: React.FC = () => {
 
     // Image Helper: Upload to Github (Primary) or Drive (Fallback)
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
-        const file = e.target.files?.[0];
-        if (file) {
+        const originalFile = e.target.files?.[0];
+        if (originalFile) {
             // Check file size (GitHub API limit is 100MB, but let's keep it reasonable)
-            if (file.size > 10 * 1024 * 1024) {
+            if (originalFile.size > 10 * 1024 * 1024) {
                 alert("파일 용량이 너무 큽니다. (10MB 제한)");
                 return;
             }
@@ -417,8 +418,12 @@ const LandingEditor: React.FC = () => {
             document.body.style.cursor = 'wait';
 
             try {
+                // Phase 10: Auto-Compression
+                // alert("이미지를 최적화(압축) 중입니다..."); // Optional feedback
+                const compressedFile = await compressImage(originalFile);
+
                 // Direct Upload to GitHub
-                const res = await uploadImageToGithub(file);
+                const res = await uploadImageToGithub(compressedFile);
                 if (res.success && res.url) {
                     callback(res.url);
                     // alert("GitHub 업로드 완료! (배포 후 적용됩니다)");
