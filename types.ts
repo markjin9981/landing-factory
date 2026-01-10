@@ -512,6 +512,7 @@ export interface LandingConfig {
   footer?: FooterSection; // New Footer Section
 
   // --- NEW FEATURES (Website Mode) ---
+  template?: 'standard' | 'dynamic_step'; // New: Template Selection
   layoutMode?: 'mobile' | 'full'; // Default 'mobile'
 
   snsConfig?: SNSConfig;

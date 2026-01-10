@@ -163,9 +163,42 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!config) return <div className="min-h-screen flex items-center justify-center">404 Not Found</div>;
 
+  // New: Dynamic Step Template Route
+  if (config.template === 'dynamic_step') {
+    const handleDynamicSubmit = async (data: any) => {
+      // Re-use logic or call service
+      if (!isPreview && id) {
+        await import('../services/googleSheetService').then(({ submitLead }) => {
+          return submitLead(data);
+        });
+
+        // Conversion tracking logic from LeadForm if needed
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'generate_lead', {
+            'event_category': 'engagement',
+            'event_label': id
+          });
+        }
+      } else {
+        console.log("Submit mocked (preview): ", data);
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    };
+
+    // Dynamic Import to bundle split
+    const DynamicStepTemplate = React.lazy(() => import('../components/templates/DynamicStep/DynamicStepTemplate'));
+
+    return (
+      <React.Suspense fallback={<div className="h-screen flex items-center justify-center">Loading Template...</div>}>
+        <DynamicStepTemplate config={config} onSubmit={handleDynamicSubmit} />
+      </React.Suspense>
+    );
+  }
+
   const { hero, formConfig, theme, detailContent, banners, footer,
     layoutMode = 'mobile', navigation, gallery, board, snsConfig, location, features
   } = config;
+
 
   const formPosition = formConfig.position || 'bottom';
   const topBanners = banners.filter(b => b.isShow && b.position === 'top');

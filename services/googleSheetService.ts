@@ -27,6 +27,13 @@ const MOCK_LEAD_DATA = [
 /**
  * 고객 DB를 구글 시트에 전송합니다.
  */
+/**
+ * 고객 DB를 구글 시트에 전송합니다.
+ */
+export const submitLead = async (data: LeadData): Promise<boolean> => {
+    return submitLeadToSheet(data);
+};
+
 export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
     if (!isUrlConfigured()) {
         console.log(" Mock Submit (URL not configured):", data);
