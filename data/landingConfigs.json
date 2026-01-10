@@ -1,11 +1,11 @@
 {
-  "470153": {
-    "id": "470153",
-    "title": "",
-    "favicon": "",
-    "ogImage": "",
-    "ogTitle": "",
-    "ogDescription": "",
+  "meta2": {
+    "id": "meta2",
+    "title": "메타 무료 상담 신청",
+    "favicon": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057617911______2026-01-06_105937_ALTools_AIUpscaler.png",
+    "ogImage": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057633515_22.jpg",
+    "ogTitle": "개인회생 졸아",
+    "ogDescription": "개인회생 정말 좋아요~~최고 따봉",
     "keywords": "",
     "theme": {
       "primaryColor": "#0ea5e9",
@@ -19,14 +19,14 @@
     "banners": [],
     "hero": {
       "isShow": true,
-      "headline": "메인 카피를 입력하세요",
+      "headline": "힘드시죠?",
       "headlineStyle": {
         "fontSize": "3rem",
         "fontWeight": "800",
         "color": "#ffffff",
         "textAlign": "center"
       },
-      "subHeadline": "서브 카피를 입력하세요",
+      "subHeadline": "명률에서 해결하세요!!!",
       "subHeadlineStyle": {
         "fontSize": "1.25rem",
         "fontWeight": "400",
@@ -39,18 +39,27 @@
     },
     "detailContent": [
       {
-        "id": "d2dbc23a-9e23-4316-b764-2131c1b518d8",
+        "id": "62add188-9112-4831-9772-d485a395b348",
         "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768053483580_img2_250317.gif",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057865922_img4_250527.gif",
         "width": "100%",
         "videoSize": "md",
         "autoPlay": false,
         "mapSize": "md"
       },
       {
-        "id": "3b273035-d13d-4c4a-8101-02bdb2a9fda5",
+        "id": "89ec9d03-7bac-4668-8253-9fd9ca31aae0",
         "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768053490059_img3.jpg",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057872866_img2_250317.gif",
+        "width": "100%",
+        "videoSize": "md",
+        "autoPlay": false,
+        "mapSize": "md"
+      },
+      {
+        "id": "24a13f9f-cd8e-4298-8f08-396fceedaddf",
+        "type": "image",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057879606_landing_top_38800_1737599063_1_30808502.gif",
         "width": "100%",
         "videoSize": "md",
         "autoPlay": false,
@@ -149,6 +158,7 @@
       "title": "주요 특징",
       "description": "우리 서비스의 특별한 점을 소개합니다.",
       "items": []
-    }
+    },
+    "layoutMode": "full"
   }
 }
