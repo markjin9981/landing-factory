@@ -1885,11 +1885,22 @@ const LandingEditor: React.FC = () => {
                                                                 className="flex-1 border rounded p-1.5 text-xs"
                                                             />
                                                             {item.type === 'image' && (
-                                                                <GoogleDrivePicker
-                                                                    onSelect={(url) => updateDetailContent(idx, { content: url })}
-                                                                    className="px-2 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded text-xs hover:bg-green-100 flex items-center gap-1 shrink-0 font-bold"
-                                                                    buttonText="드라이브"
-                                                                />
+                                                                <div className="flex gap-1">
+                                                                    <GoogleDrivePicker
+                                                                        onSelect={(url) => updateDetailContent(idx, { content: url })}
+                                                                        className="px-2 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded text-xs hover:bg-green-100 flex items-center gap-1 shrink-0 font-bold"
+                                                                        buttonText="드라이브"
+                                                                    />
+                                                                    <label className="px-2 py-1.5 bg-gray-100 text-gray-700 border border-gray-200 rounded text-xs hover:bg-gray-200 flex items-center gap-1 shrink-0 font-bold cursor-pointer">
+                                                                        <Upload className="w-3 h-3" /> 업로드
+                                                                        <input
+                                                                            type="file"
+                                                                            className="hidden"
+                                                                            accept="image/*"
+                                                                            onChange={(e) => handleImageUpload(e, (url) => updateDetailContent(idx, { content: url }))}
+                                                                        />
+                                                                    </label>
+                                                                </div>
                                                             )}
                                                         </div>
 
