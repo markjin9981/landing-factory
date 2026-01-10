@@ -12,8 +12,9 @@ import OgStatusBadge from '../../components/OgStatusBadge';
 
 const AdminDashboard: React.FC = () => {
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
+    const [leads, setLeads] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+    const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'lead_count_desc' | 'last_lead_desc'>('newest');
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -24,78 +25,109 @@ const AdminDashboard: React.FC = () => {
         setCurrentPage(1);
     }, [sortOrder]);
 
-    const currentConfigs = configs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    // 2. Computed Stats (Map for fast lookup)
+    const statsMap = React.useMemo(() => {
+        const map = new Map<string, { count: number, lastInfoTime: number }>();
 
-    useEffect(() => {
-        const loadAllConfigs = async () => {
-            const configMap = new Map<string, LandingConfig>();
+        leads.forEach(lead => {
+            const id = String(lead['Landing ID'] || 'unknown');
+            const data = map.get(id) || { count: 0, lastInfoTime: 0 };
 
-            // 1. Hardcoded (Base)
-            Object.values(LANDING_CONFIGS).forEach(c => configMap.set(c.id, c));
+            data.count++;
+            // Try Timestamp field or implicit
+            const ts = parseDate(lead['Timestamp']);
+            if (ts > data.lastInfoTime) data.lastInfoTime = ts;
 
-            // 2. Remote (Google Sheets) - Overwrites Hardcoded
-            const remotePromise = fetchLandingConfigs()
-                .then(remoteConfigs => {
-                    remoteConfigs.forEach(c => configMap.set(c.id, c));
-                })
-                .catch(e => {
-                    console.error("Failed to load remote configs", e);
-                });
+            map.set(id, data);
+        });
+        return map;
+    }, [leads]);
 
-            // 3. Local Drafts - Overwrites everything (Highest priority for editor)
-            try {
-                const stored = localStorage.getItem('landing_drafts');
-                if (stored) {
-                    const drafts = JSON.parse(stored);
-                    Object.values(drafts).forEach((d: any) => {
-                        configMap.set(d.id, d);
-                    });
-                }
-            } catch (e) {
-                console.error("Failed to load drafts", e);
+    // 3. Sorting & Filtering
+    const sortedConfigs = React.useMemo(() => {
+        let sorted = [...configs];
+
+        sorted.sort((a, b) => {
+            const idA = Number(a.id) || 0;
+            const idB = Number(b.id) || 0;
+            const statsA = statsMap.get(a.id) || { count: 0, lastInfoTime: 0 };
+            const statsB = statsMap.get(b.id) || { count: 0, lastInfoTime: 0 };
+
+            switch (sortOrder) {
+                case 'oldest':
+                    return idA - idB; // ID Asc
+                case 'lead_count_desc':
+                    if (statsB.count !== statsA.count) return statsB.count - statsA.count;
+                    return idB - idA; // Tie-break with ID
+                case 'last_lead_desc':
+                    if (statsB.lastInfoTime !== statsA.lastInfoTime) return statsB.lastInfoTime - statsA.lastInfoTime;
+                    return idB - idA;
+                case 'newest':
+                default:
+                    // ID Desc (Newest) logic
+                    if (idA !== 0 && idB !== 0) return idB - idA;
+                    return String(b.id).localeCompare(String(a.id));
             }
+        });
+        return sorted;
+    }, [configs, sortOrder, statsMap]);
 
-            // Wait for remote fetch or timeout
-            console.log("AdminDashboard: Waiting for configs...");
-            await Promise.race([
-                remotePromise,
-                new Promise(resolve => setTimeout(resolve, 12000)) // Safety timeout slightly longer than fetch timeout
-            ]);
-            console.log("AdminDashboard: Fetch/Timeout finished.");
+    // 4. Pagination
+    useEffect(() => { setCurrentPage(1); }, [sortOrder, configs.length]);
 
+    const currentConfigs = sortedConfigs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+    // Helper: Parse Date
+    const parseDate = (dateStr: string) => {
+        if (!dateStr) return 0;
+        try {
+            return new Date(dateStr).getTime();
+        } catch (e) { return 0; }
+    };
+
+    // 1. Initial Data Fetch
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
             try {
-                // Convert to array and sort by ID
-                const sorted = Array.from(configMap.values()).sort((a, b) => {
-                    // Safety check for ID
-                    if (!a?.id || !b?.id) return 0;
+                // Fetch Configs & Leads in parallel
+                const [remoteConfigs, leadsData] = await Promise.all([
+                    fetchLandingConfigs(),
+                    fetchLeads()
+                ]);
 
-                    // Try numeric sort
-                    const idA = Number(a.id);
-                    const idB = Number(b.id);
+                // Merge Configs (Local Drafts > Remote)
+                const configMap = new Map<string, LandingConfig>();
 
-                    // Compare based on sortOrder
-                    if (!isNaN(idA) && !isNaN(idB)) {
-                        return sortOrder === 'newest' ? idB - idA : idA - idB;
+                // Base
+                Object.values(LANDING_CONFIGS).forEach(c => configMap.set(c.id, c));
+
+                // Remote
+                if (Array.isArray(remoteConfigs)) {
+                    remoteConfigs.forEach(c => configMap.set(c.id, c));
+                }
+
+                // Local Drafts
+                try {
+                    const stored = localStorage.getItem('landing_drafts');
+                    if (stored) {
+                        const drafts = JSON.parse(stored);
+                        Object.values(drafts).forEach((d: any) => configMap.set(d.id, d));
                     }
-                    return sortOrder === 'newest'
-                        ? String(b.id).localeCompare(String(a.id))
-                        : String(a.id).localeCompare(String(b.id));
-                });
+                } catch (e) { console.error(e); }
 
-                console.log("AdminDashboard: Setting configs.", sorted);
-                setConfigs(sorted);
-            } catch (sortError) {
-                console.error("AdminDashboard: Error sorting/setting configs", sortError);
-                // If sort fails, just show unsorted values safely
                 setConfigs(Array.from(configMap.values()));
+                setLeads(Array.isArray(leadsData) ? leadsData : []);
+
+            } catch (err) {
+                console.error("Dashboard Load Error:", err);
             } finally {
-                console.log("AdminDashboard: Disabling loading.");
                 setLoading(false);
             }
         };
 
-        loadAllConfigs();
-    }, [sortOrder]);
+        loadData();
+    }, []);
 
     const getStatusBadge = (id: string) => {
         const isDraft = localStorage.getItem('landing_drafts') && JSON.parse(localStorage.getItem('landing_drafts') || '{}')[id];
@@ -205,11 +237,13 @@ const AdminDashboard: React.FC = () => {
                                 <span className="font-bold">정렬:</span>
                                 <select
                                     value={sortOrder}
-                                    onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+                                    onChange={(e) => setSortOrder(e.target.value as any)}
                                     className="bg-transparent border-none outline-none text-gray-800 font-medium cursor-pointer"
                                 >
                                     <option value="newest">최신순 (Newest)</option>
                                     <option value="oldest">오래된순 (Oldest)</option>
+                                    <option value="lead_count_desc">DB입력 많은 순</option>
+                                    <option value="last_lead_desc">최근 DB입력 순</option>
                                 </select>
                             </div>
                         </div>
@@ -230,87 +264,94 @@ const AdminDashboard: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid gap-6">
-                        {currentConfigs.map((config) => (
-                            <div key={config.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-blue-300 transition-colors">
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono font-bold">
-                                            /{config.id}
-                                        </span>
-                                        {getStatusBadge(config.id)}
-                                        <OgStatusBadge id={config.id} expectedTitle={config.title || config.hero?.headline || ''} />
+                        {currentConfigs.map((config) => {
+                            const pageStats = statsMap.get(config.id);
+                            return (
+                                <div key={config.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-blue-300 transition-colors">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono font-bold">
+                                                /{config.id}
+                                            </span>
+                                            {getStatusBadge(config.id)}
+                                            <OgStatusBadge id={config.id} expectedTitle={config.title || config.hero?.headline || ''} />
+                                            {pageStats && pageStats.count > 0 && (
+                                                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold">
+                                                    DB {pageStats.count}건
+                                                </span>
+                                            )}
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-1">{config.title || '(제목 없음)'}</h3>
+                                        <p className="text-sm text-gray-500 line-clamp-1">{config.hero?.headline || '(헤드라인 없음)'}</p>
                                     </div>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-1">{config.title || '(제목 없음)'}</h3>
-                                    <p className="text-sm text-gray-500 line-clamp-1">{config.hero?.headline || '(헤드라인 없음)'}</p>
-                                </div>
 
-                                <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0">
-                                    <button
-                                        onClick={async () => {
-                                            if (confirm(`정말 '${config.title}' 페이지를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.\n(GitHub 배포 파일도 함께 삭제됩니다)`)) {
-                                                // 1. Delete from Sheet
-                                                const sheetSuccess = await import('../../services/googleSheetService').then(m => m.deleteLandingConfig(config.id));
+                                    <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0">
+                                        <button
+                                            onClick={async () => {
+                                                if (confirm(`정말 '${config.title}' 페이지를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.\n(GitHub 배포 파일도 함께 삭제됩니다)`)) {
+                                                    // 1. Delete from Sheet
+                                                    const sheetSuccess = await import('../../services/googleSheetService').then(m => m.deleteLandingConfig(config.id));
 
-                                                // 2. Delete from GitHub (Fire and forget, or wait?)
-                                                // Let's wait to inform user.
-                                                let message = '';
-                                                if (sheetSuccess) {
-                                                    message += 'DB(구글 시트)에서 삭제되었습니다.\n';
+                                                    // 2. Delete from GitHub (Fire and forget, or wait?)
+                                                    // Let's wait to inform user.
+                                                    let message = '';
+                                                    if (sheetSuccess) {
+                                                        message += 'DB(구글 시트)에서 삭제되었습니다.\n';
 
-                                                    try {
-                                                        const ghRes = await deleteConfigFromGithub(config.id);
-                                                        if (ghRes.success) {
-                                                            message += 'GitHub 배포 파일도 삭제되었습니다.';
-                                                        } else {
-                                                            message += 'GitHub 삭제 실패: ' + ghRes.message;
+                                                        try {
+                                                            const ghRes = await deleteConfigFromGithub(config.id);
+                                                            if (ghRes.success) {
+                                                                message += 'GitHub 배포 파일도 삭제되었습니다.';
+                                                            } else {
+                                                                message += 'GitHub 삭제 실패: ' + ghRes.message;
+                                                            }
+                                                        } catch (e) {
+                                                            message += 'GitHub 연결 오류 (삭제되지 않았을 수 있습니다)';
                                                         }
-                                                    } catch (e) {
-                                                        message += 'GitHub 연결 오류 (삭제되지 않았을 수 있습니다)';
+
+                                                        alert(message);
+                                                        window.location.reload();
+                                                    } else {
+                                                        alert('삭제에 실패했습니다.');
                                                     }
-
-                                                    alert(message);
-                                                    window.location.reload();
-                                                } else {
-                                                    alert('삭제에 실패했습니다.');
                                                 }
-                                            }
-                                        }}
-                                        className="flex items-center justify-center w-10 h-10 border border-red-200 bg-red-50 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
-                                        title="페이지 삭제"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            const url = `${window.location.origin}/${config.id}`;
-                                            navigator.clipboard.writeText(url);
-                                            alert('배포 주소가 복사되었습니다.\n' + url);
-                                        }}
-                                        className="flex items-center justify-center px-4 py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                                        title="배포 링크 복사"
-                                    >
-                                        <Link2 className="w-4 h-4 mr-2" />
-                                        링크 복사
-                                    </button>
-                                    <Link
-                                        to={`/${config.id}`}
-                                        target="_blank"
-                                        className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                                    >
-                                        <ExternalLink className="w-4 h-4 mr-2" />
-                                        미리보기
-                                    </Link>
-                                    <Link
-                                        to={`/admin/editor/${config.id}`}
-                                        className="flex items-center justify-center px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
-                                    >
-                                        <Edit className="w-4 h-4 mr-2" />
-                                        수정하기
-                                    </Link>
+                                            }}
+                                            className="flex items-center justify-center w-10 h-10 border border-red-200 bg-red-50 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
+                                            title="페이지 삭제"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const url = `${window.location.origin}/${config.id}`;
+                                                navigator.clipboard.writeText(url);
+                                                alert('배포 주소가 복사되었습니다.\n' + url);
+                                            }}
+                                            className="flex items-center justify-center px-4 py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                            title="배포 링크 복사"
+                                        >
+                                            <Link2 className="w-4 h-4 mr-2" />
+                                            링크 복사
+                                        </button>
+                                        <Link
+                                            to={`/${config.id}`}
+                                            target="_blank"
+                                            className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                        >
+                                            <ExternalLink className="w-4 h-4 mr-2" />
+                                            미리보기
+                                        </Link>
+                                        <Link
+                                            to={`/admin/editor/${config.id}`}
+                                            className="flex items-center justify-center px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                                        >
+                                            <Edit className="w-4 h-4 mr-2" />
+                                            수정하기
+                                        </Link>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-
+                            );
+                        })}
                         {configs.length === 0 && (
                             <div className="text-center py-20 bg-gray-100 rounded-xl border-dashed border-2 border-gray-300">
                                 <p className="text-gray-500">생성된 랜딩페이지가 없습니다.</p>
