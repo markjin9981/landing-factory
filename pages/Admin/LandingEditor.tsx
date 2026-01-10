@@ -1886,13 +1886,8 @@ const LandingEditor: React.FC = () => {
                                                             />
                                                             {item.type === 'image' && (
                                                                 <div className="flex gap-1">
-                                                                    <GoogleDrivePicker
-                                                                        onSelect={(url) => updateDetailContent(idx, { content: url })}
-                                                                        className="px-2 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded text-xs hover:bg-green-100 flex items-center gap-1 shrink-0 font-bold"
-                                                                        buttonText="드라이브"
-                                                                    />
                                                                     <label className="px-2 py-1.5 bg-gray-100 text-gray-700 border border-gray-200 rounded text-xs hover:bg-gray-200 flex items-center gap-1 shrink-0 font-bold cursor-pointer">
-                                                                        <Upload className="w-3 h-3" /> 업로드
+                                                                        <Upload className="w-3 h-3" /> 이미지 업로드
                                                                         <input
                                                                             type="file"
                                                                             className="hidden"
@@ -1985,13 +1980,8 @@ const LandingEditor: React.FC = () => {
                                                                         onChange={(e) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundImage: e.target.value } })}
                                                                         className="flex-1 border p-1 rounded"
                                                                     />
-                                                                    <GoogleDrivePicker
-                                                                        onSelect={(url) => updateDetailContent(idx, { bannerStyle: { ...item.bannerStyle!, backgroundImage: url } })}
-                                                                        className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs hover:bg-blue-100 flex items-center justify-center"
-                                                                        buttonText=""
-                                                                    />
-                                                                    <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-700 rounded px-2 flex items-center justify-center text-xs whitespace-nowrap">
-                                                                        <Upload className="w-3 h-3" />
+                                                                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 rounded px-3 flex items-center justify-center text-xs whitespace-nowrap font-bold">
+                                                                        <Upload className="w-3 h-3 mr-1" /> 업로드
                                                                         <input
                                                                             type="file"
                                                                             className="hidden"
@@ -4454,55 +4444,57 @@ const LandingEditor: React.FC = () => {
                     </div>
                 </div>
 
-            </div>
+            </div >
 
             {/* Settings Modal */}
-            {showSettingsModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
-                    <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in-up">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold text-gray-900">설정 (Settings)</h3>
-                            <button onClick={() => setShowSettingsModal(false)}><X className="w-5 h-5 text-gray-500" /></button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">GitHub Personal Access Token</label>
-                                <input
-                                    type="password"
-                                    placeholder="ghp_..."
-                                    className="w-full border rounded p-2 text-sm font-mono bg-gray-50"
-                                    value={inputGithubToken}
-                                    onChange={(e) => setInputGithubToken(e.target.value)}
-                                />
-                                <p className="text-xs text-gray-500 mt-1">
-                                    * 'repo' 권한이 있는 토큰이 필요합니다.
-                                    <br />
-                                    * 이 토큰은 브라우저에만 저장되며 서버로 전송되지 않습니다.
-                                </p>
+            {
+                showSettingsModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
+                        <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in-up">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-bold text-gray-900">설정 (Settings)</h3>
+                                <button onClick={() => setShowSettingsModal(false)}><X className="w-5 h-5 text-gray-500" /></button>
                             </div>
 
-                            <button
-                                onClick={() => {
-                                    setGithubToken(inputGithubToken);
-                                    alert('토큰이 저장되었습니다.');
-                                    setShowSettingsModal(false);
-                                }}
-                                className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800"
-                            >
-                                저장하기
-                            </button>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">GitHub Personal Access Token</label>
+                                    <input
+                                        type="password"
+                                        placeholder="ghp_..."
+                                        className="w-full border rounded p-2 text-sm font-mono bg-gray-50"
+                                        value={inputGithubToken}
+                                        onChange={(e) => setInputGithubToken(e.target.value)}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        * 'repo' 권한이 있는 토큰이 필요합니다.
+                                        <br />
+                                        * 이 토큰은 브라우저에만 저장되며 서버로 전송되지 않습니다.
+                                    </p>
+                                </div>
 
-                            <hr className="my-4" />
+                                <button
+                                    onClick={() => {
+                                        setGithubToken(inputGithubToken);
+                                        alert('토큰이 저장되었습니다.');
+                                        setShowSettingsModal(false);
+                                    }}
+                                    className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800"
+                                >
+                                    저장하기
+                                </button>
 
-                            <div className="text-center">
-                                <p className="text-xs text-gray-400">Ver: 1.2.0 (High Performance Architecture)</p>
+                                <hr className="my-4" />
+
+                                <div className="text-center">
+                                    <p className="text-xs text-gray-400">Ver: 1.2.0 (High Performance Architecture)</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 
