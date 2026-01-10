@@ -317,6 +317,7 @@ const AdminDashboard: React.FC = () => {
                             </div>
                         )}
                     </div>
+                )}
                 {/* Pagination Controls */}
                 {!loading && configs.length > 0 && (
                     <div className="mt-8 flex justify-center items-center gap-2">
