@@ -6,9 +6,9 @@ import { fetchLandingConfigs, fetchLeads } from '../../services/googleSheetServi
 import { deleteConfigFromGithub } from '../../services/githubService';
 import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2 } from 'lucide-react';
 
-const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
-
 import OgStatusBadge from '../../components/OgStatusBadge';
+
+const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 
 const AdminDashboard: React.FC = () => {
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
