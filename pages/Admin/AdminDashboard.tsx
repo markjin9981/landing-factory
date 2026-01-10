@@ -16,6 +16,14 @@ const AdminDashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'lead_count_desc' | 'last_lead_desc'>('newest');
 
+    // Helper: Parse Date
+    const parseDate = (dateStr: string) => {
+        if (!dateStr) return 0;
+        try {
+            return new Date(dateStr).getTime();
+        } catch (e) { return 0; }
+    };
+
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 10;
@@ -76,14 +84,6 @@ const AdminDashboard: React.FC = () => {
     useEffect(() => { setCurrentPage(1); }, [sortOrder, configs.length]);
 
     const currentConfigs = sortedConfigs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
-    // Helper: Parse Date
-    const parseDate = (dateStr: string) => {
-        if (!dateStr) return 0;
-        try {
-            return new Date(dateStr).getTime();
-        } catch (e) { return 0; }
-    };
 
     // 1. Initial Data Fetch
     useEffect(() => {
