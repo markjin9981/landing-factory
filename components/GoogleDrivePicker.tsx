@@ -1,7 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const GOOGLE_API_KEY = (import.meta as any).env.VITE_GOOGLE_API_KEY;
+
+// Define types for global Google API objects
+declare global {
+    interface Window {
+        google?: any;
+        gapi?: any;
+    }
+}
+
+// Declare google variable to avoid 'Cannot find name' error
+declare const google: any;
 
 interface GoogleDrivePickerProps {
     onSelect: (url: string) => void;
