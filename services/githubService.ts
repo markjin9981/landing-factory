@@ -148,6 +148,67 @@ export const deployConfigsToGithub = async (configs: any): Promise<{ success: bo
     }
 };
 
+/**
+ * Deletes a landing config from `data/landingConfigs.json` on GitHub.
+ */
+export const deleteConfigFromGithub = async (id: string): Promise<{ success: boolean, message?: string }> => {
+    const token = getGithubToken();
+    if (!token) return { success: false, message: 'GitHub Token이 설정되지 않았습니다.' };
+
+    const FILE_PATH = 'data/landingConfigs.json';
+    const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+
+    try {
+        // 1. Get current file
+        const getRes = await fetch(apiUrl, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!getRes.ok) throw new Error('Failed to fetch existing configs');
+
+        const data = await getRes.json();
+        const sha = data.sha;
+        const decodedContent = decodeURIComponent(escape(window.atob(data.content.replace(/\n/g, ''))));
+        const existingData = JSON.parse(decodedContent);
+
+        // 2. Check if exists and Delete
+        if (!existingData[id]) {
+            return { success: true, message: 'Already deleted or not found.' };
+        }
+
+        delete existingData[id];
+
+        // 3. Update (PUT)
+        const jsonContent = JSON.stringify(existingData, null, 2);
+        const content = btoa(unescape(encodeURIComponent(jsonContent)));
+
+        const putRes = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: `delete: Remove landing config ${id}`,
+                content: content,
+                sha: sha,
+                branch: BRANCH
+            })
+        });
+
+        if (!putRes.ok) {
+            const err = await putRes.json();
+            throw new Error(err.message);
+        }
+
+        return { success: true, message: 'GitHub에서도 삭제되었습니다.' };
+
+    } catch (error: any) {
+        console.error('GitHub Delete Error:', error);
+        return { success: false, message: error.message };
+    }
+};
+
 // Helper
 const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();

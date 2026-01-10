@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import LANDING_CONFIGS_JSON from '../../data/landingConfigs.json';
 import { LandingConfig } from '../../types';
 import { fetchLandingConfigs } from '../../services/googleSheetService';
+import { deleteConfigFromGithub } from '../../services/githubService';
 import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2 } from 'lucide-react';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
@@ -235,10 +236,28 @@ const AdminDashboard: React.FC = () => {
                                 <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0">
                                     <button
                                         onClick={async () => {
-                                            if (confirm(`정말 '${config.title}' 페이지를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.`)) {
-                                                const success = await import('../../services/googleSheetService').then(m => m.deleteLandingConfig(config.id));
-                                                if (success) {
-                                                    alert('삭제되었습니다.');
+                                            if (confirm(`정말 '${config.title}' 페이지를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.\n(GitHub 배포 파일도 함께 삭제됩니다)`)) {
+                                                // 1. Delete from Sheet
+                                                const sheetSuccess = await import('../../services/googleSheetService').then(m => m.deleteLandingConfig(config.id));
+
+                                                // 2. Delete from GitHub (Fire and forget, or wait?)
+                                                // Let's wait to inform user.
+                                                let message = '';
+                                                if (sheetSuccess) {
+                                                    message += 'DB(구글 시트)에서 삭제되었습니다.\n';
+
+                                                    try {
+                                                        const ghRes = await deleteConfigFromGithub(config.id);
+                                                        if (ghRes.success) {
+                                                            message += 'GitHub 배포 파일도 삭제되었습니다.';
+                                                        } else {
+                                                            message += 'GitHub 삭제 실패: ' + ghRes.message;
+                                                        }
+                                                    } catch (e) {
+                                                        message += 'GitHub 연결 오류 (삭제되지 않았을 수 있습니다)';
+                                                    }
+
+                                                    alert(message);
                                                     window.location.reload();
                                                 } else {
                                                     alert('삭제에 실패했습니다.');
