@@ -1683,8 +1683,8 @@ const LandingEditor: React.FC = () => {
                                                         : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
-                                                    <div className="text-sm font-bold">표준형 (Standard)</div>
-                                                    <div className="text-[10px] text-gray-500 mt-1">
+                                                    <div className="text-sm font-bold text-gray-900">표준형 (Standard)</div>
+                                                    <div className="text-xs text-gray-600 mt-1">
                                                         일반 랜딩페이지 (스크롤형)
                                                     </div>
                                                 </button>
@@ -1701,8 +1701,8 @@ const LandingEditor: React.FC = () => {
                                                         : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
-                                                    <div className="text-sm font-bold">스텝형 (Dynamic Step)</div>
-                                                    <div className="text-[10px] text-gray-500 mt-1">
+                                                    <div className="text-sm font-bold text-gray-900">스텝형 (Dynamic Step)</div>
+                                                    <div className="text-xs text-gray-600 mt-1">
                                                         단계별 입력 폼 (페이지 전환)
                                                     </div>
                                                 </button>
