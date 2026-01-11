@@ -1412,12 +1412,65 @@ const LandingEditor: React.FC = () => {
                                                             className="w-full border rounded p-2 text-xs mb-2"
                                                             placeholder="예: 24시간 상담 가능"
                                                         />
-                                                        <label className="flex items-center gap-1 text-[10px] text-gray-600">
+                                                        <label className="flex items-center gap-1 text-[10px] text-gray-600 mb-2">
                                                             <input type="checkbox"
                                                                 checked={config.chatConfig?.showLabel || false}
                                                                 onChange={(e) => updateNested(['chatConfig', 'showLabel'], e.target.checked)}
                                                             /> 라벨 표시
                                                         </label>
+
+                                                        {/* Label Style Config */}
+                                                        {config.chatConfig?.showLabel && (
+                                                            <div className="bg-gray-50 p-2 rounded border border-gray-200 space-y-2">
+                                                                <h5 className="text-[10px] font-bold text-gray-700">라벨 스타일</h5>
+                                                                <div className="flex gap-2">
+                                                                    <div className="flex-1">
+                                                                        <label className="block text-[10px] text-gray-500 mb-0.5">배경색</label>
+                                                                        <div className="flex items-center gap-1">
+                                                                            <input
+                                                                                type="color"
+                                                                                value={config.chatConfig?.labelStyle?.backgroundColor || '#ffffff'}
+                                                                                onChange={(e) => updateNested(['chatConfig', 'labelStyle', 'backgroundColor'], e.target.value)}
+                                                                                className="w-6 h-6 p-0 border-0 rounded overflow-hidden cursor-pointer"
+                                                                            />
+                                                                            <span className="text-[10px] text-gray-400">{config.chatConfig?.labelStyle?.backgroundColor || '#ffffff'}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex-1">
+                                                                        <label className="block text-[10px] text-gray-500 mb-0.5">글자색</label>
+                                                                        <div className="flex items-center gap-1">
+                                                                            <input
+                                                                                type="color"
+                                                                                value={config.chatConfig?.labelStyle?.textColor || '#1f2937'}
+                                                                                onChange={(e) => updateNested(['chatConfig', 'labelStyle', 'textColor'], e.target.value)}
+                                                                                className="w-6 h-6 p-0 border-0 rounded overflow-hidden cursor-pointer"
+                                                                            />
+                                                                            <span className="text-[10px] text-gray-400">{config.chatConfig?.labelStyle?.textColor || '#1f2937'}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <div className="w-16 shrink-0">
+                                                                        <label className="block text-[10px] text-gray-500 mb-0.5">크기(px)</label>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={config.chatConfig?.labelStyle?.fontSize || 14}
+                                                                            onChange={(e) => updateNested(['chatConfig', 'labelStyle', 'fontSize'], e.target.value)}
+                                                                            className="w-full border rounded p-1 text-xs"
+                                                                        />
+                                                                    </div>
+                                                                    <div className="flex-1">
+                                                                        <label className="block text-[10px] text-gray-500 mb-0.5">폰트</label>
+                                                                        <FontPicker
+                                                                            value={config.chatConfig?.labelStyle?.fontFamily || ''}
+                                                                            onChange={(val) => updateNested(['chatConfig', 'labelStyle', 'fontFamily'], val)}
+                                                                            globalSettings={globalSettings}
+                                                                            onSettingsChange={setGlobalSettings}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

@@ -677,6 +677,12 @@ export interface ChatButtonConfig {
   showLabel: boolean;
   isCustomShape?: boolean; // New: Custom Shape Mode
   animation?: ButtonAnimationType; // New: Animation Effect
+  labelStyle?: {
+    backgroundColor?: string;
+    textColor?: string;
+    fontSize?: string;
+    fontFamily?: string;
+  };
 }
 
 export interface VisitData {

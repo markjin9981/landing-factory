@@ -109,14 +109,23 @@ const ChatButton: React.FC<ChatButtonProps> = ({ config, isPreview = false }) =>
         <div style={containerStyle} className={`animate-fade-in-up ${animClass}`}>
             {/* Label Bubble */}
             {config.label && config.showLabel && (
-                <div className="bg-white px-3 py-1.5 rounded-lg shadow-md text-sm font-bold text-gray-800 relative animate-bounce-subtle mb-1">
+                <div
+                    className="px-3 py-1.5 rounded-lg shadow-md font-bold relative animate-bounce-subtle mb-1"
+                    style={{
+                        backgroundColor: config.labelStyle?.backgroundColor || '#ffffff',
+                        color: config.labelStyle?.textColor || '#1f2937',
+                        fontSize: config.labelStyle?.fontSize ? `${config.labelStyle.fontSize}px` : '14px', // Default 14px (text-sm)
+                        fontFamily: config.labelStyle?.fontFamily || 'inherit',
+                    }}
+                >
                     {config.label}
                     {/* Arrow tail */}
                     <div
-                        className="absolute w-2 h-2 bg-white transform rotate-45"
+                        className="absolute w-2 h-2 transform rotate-45"
                         style={{
                             bottom: '-4px',
-                            [config.position === 'left' ? 'left' : 'right']: '15px'
+                            [config.position === 'left' ? 'left' : 'right']: '15px',
+                            backgroundColor: config.labelStyle?.backgroundColor || '#ffffff',
                         }}
                     ></div>
                 </div>
