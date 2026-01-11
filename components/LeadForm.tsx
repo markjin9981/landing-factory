@@ -669,7 +669,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                         <button
                             type="submit"
                             disabled={status === 'submitting'}
-                            className="py-4 font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+                            className={`py-4 font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed ${formStyle.buttonAnimation ? `animate-btn-${formStyle.buttonAnimation}` : ''}`}
                             style={{
                                 backgroundColor: btnBg,
                                 color: btnText,
@@ -678,7 +678,11 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                 width: formStyle.buttonWidth === 'full' ? '100%' : (formStyle.buttonWidth === 'auto' ? 'auto' : (formStyle.buttonWidth || '100%')),
                                 minWidth: formStyle.buttonWidth === 'auto' ? '200px' : undefined, // Optional: ensure not too small if auto
                                 paddingLeft: '2rem', paddingRight: '2rem',
-                                fontFamily: formStyle.buttonFontFamily
+                                fontFamily: formStyle.buttonFontFamily,
+                                ...(formStyle.buttonAnimation === 'shimmer' ? {
+                                    '--btn-bg': btnBg,
+                                    '--btn-shine': 'rgba(255,255,255,0.4)'
+                                } : {})
                             }}
                         >
                             {status === 'submitting' ? (

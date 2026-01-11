@@ -129,6 +129,7 @@ export interface FormStyle {
   buttonWidth?: 'auto' | 'full';
   buttonAlign?: 'left' | 'center' | 'right';
   buttonFontFamily?: string;
+  buttonAnimation?: ButtonAnimationType;
 }
 
 // 2. UrgencyConfig
