@@ -163,8 +163,14 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     const presetFontsToLoad = Array.from(usedFonts).filter(f => !['sans-serif', 'serif'].includes(f));
     if (presetFontsToLoad.length > 0) {
       const url = `https://fonts.googleapis.com/css2?family=${presetFontsToLoad.map(f => f.replace(/\s+/g, '+')).join('&family=')}&display=swap`;
-      if (!document.getElementById('dynamic-google-fonts')) {
-        const link = document.createElement('link'); link.id = 'dynamic-google-fonts'; link.rel = 'stylesheet'; link.href = url;
+      const existingLink = document.getElementById('dynamic-google-fonts') as HTMLLinkElement;
+      if (existingLink) {
+        if (existingLink.href !== url) existingLink.href = url;
+      } else {
+        const link = document.createElement('link');
+        link.id = 'dynamic-google-fonts';
+        link.rel = 'stylesheet';
+        link.href = url;
         document.head.appendChild(link);
       }
     }
