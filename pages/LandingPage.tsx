@@ -16,9 +16,9 @@ import LocationBlock from '../components/sections/LocationBlock'; // New
 import SNSFloatingBar from '../components/floating/SNSFloatingBar';
 import SNSBlock from '../components/sections/SNSBlock'; // New
 import SmartFeatureBlock from '../components/sections/SmartFeatureBlock';
-
-const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
 import { generateGoogleFontUrl, GOOGLE_FONTS_LIST } from '../utils/fontUtils';
+
+const LANDING_CONFIGS = LANDING_CONFIGS_JSON as unknown as Record<string, LandingConfig>;
 
 interface Props {
   previewConfig?: LandingConfig;

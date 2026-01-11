@@ -617,50 +617,34 @@ export interface PopupItem {
   imageUrl: string;
   linkUrl?: string;
   openInNewWindow: boolean;
-  startDate?: string; // YYYY-MM-DD
-  endDate?: string;   // YYYY-MM-DD
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
 }
 
 export interface PopupStyleConfig {
-  width: number; // px for PC, % for Mobile often used, but let's stick to number (px) or string
-  top: number; // px from top
-  left: number; // px from left (or center calculation)
-  // For mobile, maybe we just want "center" or specific offsets?
-  // Let's use simple px/percentage numbers stored as strings or numbers. 
-  // To be precise:
-  widthUnit: 'px' | '%';
-  topUnit: 'px' | '%';
-  leftUnit: 'px' | '%';
-  isCentered?: boolean; // New: Auto-center horizontally
+  width: number;
+  top: number;
+  left: number;
+  isCentered: boolean;
 }
 
 export interface PopupConfig {
   usePopup: boolean;
   items: PopupItem[];
 
-  // Slider/Playback
-  slideEffect: boolean;
-  autoPlay: boolean;
-  autoPlayInterval: number; // seconds
+  // Slider/Playback (Optional for compatibility)
+  slideEffect?: boolean;
+  autoPlay?: boolean;
+  autoPlayInterval?: number; // seconds
 
   // Styles (Container Level)
-  pcStyle: {
-    width: number;
-    top: number;
-    left: number;
-    isCentered?: boolean; // New
-  };
-  mobileStyle: {
-    width: number; // usually percentage for mobile
-    top: number;
-    left: number;
-    isCentered?: boolean; // New
-  };
+  pcStyle: PopupStyleConfig;
+  mobileStyle: PopupStyleConfig;
 
   // Options
   showDoNotOpenToday: boolean;
   closeButtonColor?: string;
-  disableOverlay?: boolean; // If true, no dimming background (usually modal vs modeless)
+  disableOverlay: boolean;
 }
 
 export interface ChatButtonConfig {

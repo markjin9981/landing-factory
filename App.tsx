@@ -18,7 +18,7 @@ const TrafficStats = lazy(() => import('./pages/Admin/TrafficStats'));
 const Settings = lazy(() => import('./pages/Admin/Settings'));
 const Login = lazy(() => import('./pages/Admin/Login'));
 
-const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
+const LANDING_CONFIGS = LANDING_CONFIGS_JSON as unknown as Record<string, LandingConfig>;
 
 const LoadingFallback = () => (
   <div className="flex justify-center items-center h-screen bg-gray-50">

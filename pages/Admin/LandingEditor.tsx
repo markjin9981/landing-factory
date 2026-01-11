@@ -1051,8 +1051,8 @@ const LandingEditor: React.FC = () => {
                                                         const newConfig = { ...config.popupConfig, usePopup: e.target.checked };
                                                         // Initialize if missing
                                                         if (!newConfig.items) newConfig.items = [];
-                                                        if (!newConfig.pcStyle) newConfig.pcStyle = { width: 400, top: 100, left: 100 };
-                                                        if (!newConfig.mobileStyle) newConfig.mobileStyle = { width: 300, top: 50, left: 20 };
+                                                        if (!newConfig.pcStyle) newConfig.pcStyle = { width: 400, top: 100, left: 100, isCentered: true };
+                                                        if (!newConfig.mobileStyle) newConfig.mobileStyle = { width: 300, top: 50, left: 20, isCentered: true };
 
                                                         updateNested(['popupConfig'], newConfig);
                                                     }}
@@ -1074,7 +1074,9 @@ const LandingEditor: React.FC = () => {
                                                             newItems.push({
                                                                 id: crypto.randomUUID(),
                                                                 imageUrl: '',
-                                                                openInNewWindow: false
+                                                                openInNewWindow: false,
+                                                                startDate: new Date().toISOString().split('T')[0],
+                                                                endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
                                                             });
                                                             updateNested(['popupConfig', 'items'], newItems);
                                                         }}
@@ -1677,8 +1679,8 @@ const LandingEditor: React.FC = () => {
                                                 <button
                                                     onClick={() => updateNested(['template'], 'standard')}
                                                     className={`p-3 border-2 rounded-lg text-left transition-all ${(config.template || 'standard') === 'standard'
-                                                            ? 'border-blue-500 bg-blue-50'
-                                                            : 'border-gray-200 hover:border-gray-300'
+                                                        ? 'border-blue-500 bg-blue-50'
+                                                        : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
                                                     <div className="text-sm font-bold">표준형 (Standard)</div>
@@ -1695,8 +1697,8 @@ const LandingEditor: React.FC = () => {
                                                         }
                                                     }}
                                                     className={`p-3 border-2 rounded-lg text-left transition-all ${config.template === 'dynamic_step'
-                                                            ? 'border-blue-500 bg-blue-50'
-                                                            : 'border-gray-200 hover:border-gray-300'
+                                                        ? 'border-blue-500 bg-blue-50'
+                                                        : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
                                                     <div className="text-sm font-bold">스텝형 (Dynamic Step)</div>

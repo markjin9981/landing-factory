@@ -9,7 +9,7 @@ import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity,
 import OgStatusBadge from '../../components/OgStatusBadge';
 
 const AdminDashboard: React.FC = () => {
-    const LANDING_CONFIGS = LANDING_CONFIGS_JSON as Record<string, LandingConfig>;
+    const LANDING_CONFIGS = LANDING_CONFIGS_JSON as unknown as Record<string, LandingConfig>;
 
     const [configs, setConfigs] = useState<LandingConfig[]>([]);
     const [leads, setLeads] = useState<any[]>([]);
