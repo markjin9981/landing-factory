@@ -4496,7 +4496,7 @@ const LandingEditor: React.FC = () => {
                             </button>
                         </div>
                         <div
-                            className={`bg-white shadow-2xl transition-all duration-300 overflow-hidden no-scrollbar border-[8px] border-gray-800 rounded-[2rem] relative transform
+                            className={`bg-white shadow-2xl transition-all duration-300 overflow-auto no-scrollbar border-[8px] border-gray-800 rounded-[2rem] relative transform
                     ${previewMode === 'mobile' ? 'w-[375px] h-[812px]' : 'w-full h-full rounded-none border-none'}
                 `}
                         >
