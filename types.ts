@@ -445,6 +445,13 @@ export interface GallerySection {
   images: string[];
 }
 
+export interface GlobalSettings {
+  adminPassword?: string;
+  githubToken?: string;
+  imgbbApiKey?: string;
+  adminUsers?: Array<{ email: string, name: string, memo: string }>;
+}
+
 export interface BoardItem {
   id: string;
   title: string;

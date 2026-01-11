@@ -210,3 +210,84 @@ const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) 
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = error => reject(error);
 });
+
+export interface GithubImage {
+    name: string;
+    path: string;
+    sha: string;
+    size: number;
+    url: string; // html_url
+    download_url: string; // raw url
+    type: 'file' | 'dir';
+}
+
+/**
+ * Fetches list of images from public/uploads folder
+ */
+export const fetchGithubImages = async (): Promise<GithubImage[]> => {
+    const token = getGithubToken();
+    if (!token) return [];
+
+    const path = `public/uploads`;
+    const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+
+    try {
+        const res = await fetch(apiUrl, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            if (res.status === 404) return []; // Folder might not exist yet
+            throw new Error('Failed to fetch images');
+        }
+
+        const data = await res.json();
+        if (Array.isArray(data)) {
+            return data
+                .filter((item: any) => item.type === 'file' && item.name.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i))
+                .map((item: any) => ({
+                    name: item.name,
+                    path: item.path,
+                    sha: item.sha,
+                    size: item.size,
+                    url: item.html_url,
+                    download_url: item.download_url, // Use this for preview
+                    type: item.type
+                }));
+        }
+        return [];
+    } catch (error) {
+        console.error('Fetch Images Error:', error);
+        return [];
+    }
+};
+
+/**
+ * Deletes a specific image from GitHub
+ */
+export const deleteGithubImage = async (path: string, sha: string): Promise<boolean> => {
+    const token = getGithubToken();
+    if (!token) return false;
+
+    const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+
+    try {
+        const res = await fetch(apiUrl, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: `delete: Remove image ${path}`,
+                sha: sha,
+                branch: BRANCH
+            })
+        });
+
+        return res.ok;
+    } catch (error) {
+        console.error('Delete Image Error:', error);
+        return false;
+    }
+};
