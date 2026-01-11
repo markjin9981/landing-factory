@@ -33,6 +33,7 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
 
     const toggleFavorite = (e: React.MouseEvent, fontFamily: string) => {
         e.stopPropagation();
+        if (!globalSettings) return;
         const currentFavorites = globalSettings.favoriteFonts || [];
         const newFavorites = currentFavorites.includes(fontFamily)
             ? currentFavorites.filter(f => f !== fontFamily)
@@ -44,6 +45,7 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
     };
 
     const handleSync = async () => {
+        if (!globalSettings) return;
         setSyncing(true);
         const driveFonts = await syncFontsFromDrive();
 
@@ -76,7 +78,7 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) return;
+        if (!file || !globalSettings) return;
 
         const fontName = prompt("폰트의 표시 이름을 입력해주세요 (예: 우리 회사 폰트)");
         if (!fontName) return;
@@ -117,11 +119,11 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
 
     const deleteCustomFont = (e: React.MouseEvent, fontId: string) => {
         e.stopPropagation();
-        if (!confirm("정말 이 폰트를 삭제하시겠습니까? (이 폰트를 사용하는 페이지가 있다면 깨질 수 있습니다.)")) return;
+        if (!globalSettings || !confirm("정말 이 폰트를 삭제하시겠습니까? (이 폰트를 사용하는 페이지가 있다면 깨질 수 있습니다.)")) return;
 
         const newSettings = {
             ...globalSettings,
-            customFonts: globalSettings.customFonts.filter(f => f.id !== fontId)
+            customFonts: (globalSettings.customFonts || []).filter(f => f.id !== fontId)
         };
         onSettingsChange(newSettings);
         saveGlobalSettings(newSettings);
@@ -132,11 +134,11 @@ const FontPicker: React.FC<FontPickerProps> = ({ value, onChange, globalSettings
 
     // Create logic to sort favorites to top
     const allFonts = [
-        ...(globalSettings.customFonts || []).map(f => ({ ...f, type: 'custom' })),
+        ...((globalSettings?.customFonts || []).map(f => ({ ...f, type: 'custom' }))),
         ...GOOGLE_FONTS_LIST.map(f => ({ ...f, type: 'google' }))
     ];
 
-    const isFav = (fam: string) => (globalSettings.favoriteFonts || []).includes(fam);
+    const isFav = (fam: string) => (globalSettings?.favoriteFonts || []).includes(fam);
 
     // Filter by search
     const searchedFonts = allFonts.filter(f =>

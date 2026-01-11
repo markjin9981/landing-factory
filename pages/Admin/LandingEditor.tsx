@@ -186,7 +186,7 @@ const LandingEditor: React.FC = () => {
     const [inputGithubToken, setInputGithubToken] = useState('');
 
     // Global Settings
-    const [globalSettings, setGlobalSettings] = useState<GlobalSettings | null>(null);
+    const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({ customFonts: [], favoriteFonts: [] });
 
     // Image Manager State
     const [isImageManagerOpen, setIsImageManagerOpen] = useState(false);
