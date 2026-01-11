@@ -329,7 +329,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         onChange={(e) => handlePhonePartChange(field.id, 'p2', e.target.value)}
                                                         maxLength={4}
                                                         placeholder="0000"
-                                                        className="flex-1 min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-center bg-white text-gray-900"
+                                                        className="flex-1 min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-left bg-white text-gray-900"
                                                         style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     />
                                                     <span className="text-gray-400 shrink-0">-</span>
@@ -340,7 +340,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                                         onChange={(e) => handlePhonePartChange(field.id, 'p3', e.target.value)}
                                                         maxLength={4}
                                                         placeholder="0000"
-                                                        className="flex-1 min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-center bg-white text-gray-900"
+                                                        className="flex-1 min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-left bg-white text-gray-900"
                                                         style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
                                                     />
                                                 </div>
