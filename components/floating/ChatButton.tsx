@@ -80,8 +80,33 @@ const ChatButton: React.FC<ChatButtonProps> = ({ config, isPreview = false }) =>
         }
     };
 
+    const animClass = config.animation && config.animation !== 'none' ? `animate-btn-${config.animation}` : '';
+
+    // Custom Shape Mode
+    if (config.isCustomShape && (config.iconUrl || config.type === 'custom')) {
+        return (
+            <div style={{ ...containerStyle, alignItems: 'center' }} className={`z-[60] ${animClass}`}>
+                <div
+                    onClick={handleClick}
+                    className="cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                    style={{
+                        width: `${sizePx}px`,
+                        // height: 'auto', // Keep aspect ratio if needed, or fixed
+                        height: `${sizePx}px`,
+                    }}
+                >
+                    <img
+                        src={config.iconUrl || ''}
+                        alt={config.label || "Chat"}
+                        className="w-full h-full object-contain" // Contain to show shape
+                    />
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div style={containerStyle} className="animate-fade-in-up">
+        <div style={containerStyle} className={`animate-fade-in-up ${animClass}`}>
             {/* Label Bubble */}
             {config.label && config.showLabel && (
                 <div className="bg-white px-3 py-1.5 rounded-lg shadow-md text-sm font-bold text-gray-800 relative animate-bounce-subtle mb-1">

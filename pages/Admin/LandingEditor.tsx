@@ -1324,6 +1324,40 @@ const LandingEditor: React.FC = () => {
                                             </div>
                                         </div>
 
+                                        {/* Animation & Custom Shape */}
+                                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="flex items-center gap-2 text-xs font-bold text-blue-800 cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={config.chatConfig?.isCustomShape || false}
+                                                        onChange={(e) => updateNested(['chatConfig', 'isCustomShape'], e.target.checked)}
+                                                    /> 커스텀 모양(PNG) 모드
+                                                </label>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-bold text-blue-800">애니메이션:</span>
+                                                    <select
+                                                        value={config.chatConfig?.animation || 'none'}
+                                                        onChange={(e) => updateNested(['chatConfig', 'animation'], e.target.value)}
+                                                        className="text-xs border rounded p-1 bg-white text-blue-900"
+                                                    >
+                                                        <option value="none">없음</option>
+                                                        <option value="pulse">Pulse (맥박)</option>
+                                                        <option value="shimmer">Shimmer (빛 반사)</option>
+                                                        <option value="bounce">Bounce (바운스)</option>
+                                                        <option value="heartbeat">Heartbeat (빠른 심박)</option>
+                                                        <option value="wiggle">Electric Wiggle (진동)</option>
+                                                        <option value="hyper-shimmer">Hyper Shimmer (강렬한 빛)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            {config.chatConfig?.isCustomShape && (
+                                                <p className="text-[10px] text-blue-600">
+                                                    * '커스텀' 유형과 함께 사용하세요. 배경/테두리 없이 이미지만 표시됩니다. (투명 PNG 권장)
+                                                </p>
+                                            )}
+                                        </div>
+
                                         {/* 2. Configuration */}
                                         <div className="space-y-4">
                                             {/* Link & Icon */}
