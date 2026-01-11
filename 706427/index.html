@@ -80,8 +80,152 @@
       animation: marquee 15s linear infinite;
       white-space: nowrap;
     }
+
+    /* --- Button Animations --- */
+
+    /* 1. Pulse (Subtle) */
+    @keyframes btn-pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7);
+        transform: scale(1);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(14, 165, 233, 0);
+        transform: scale(1.02);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+        transform: scale(1);
+      }
+    }
+
+    .animate-btn-pulse {
+      animation: btn-pulse 2s infinite;
+    }
+
+    /* 2. Shimmer */
+    @keyframes btn-shimmer {
+      0% {
+        background-position: 200% center;
+      }
+
+      100% {
+        background-position: -200% center;
+      }
+    }
+
+    .animate-btn-shimmer {
+      background: linear-gradient(110deg, var(--btn-bg, #3b82f6) 8%, var(--btn-shine, #60a5fa) 18%, var(--btn-bg, #3b82f6) 33%);
+      background-size: 200% 100%;
+      animation: btn-shimmer 3s linear infinite;
+    }
+
+    /* 3. Bounce */
+    @keyframes btn-bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .animate-btn-bounce {
+      animation: btn-bounce 1s infinite;
+    }
+
+    /* 4. Heartbeat (Fast) */
+    @keyframes btn-heartbeat {
+      0% {
+        transform: scale(1);
+      }
+
+      14% {
+        transform: scale(1.1);
+      }
+
+      28% {
+        transform: scale(1);
+      }
+
+      42% {
+        transform: scale(1.1);
+      }
+
+      70% {
+        transform: scale(1);
+      }
+    }
+
+    .animate-btn-heartbeat {
+      animation: btn-heartbeat 1.5s infinite;
+    }
+
+    /* 5. Electric Wiggle */
+    @keyframes btn-wiggle {
+
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+
+      25% {
+        transform: rotate(-3deg);
+      }
+
+      75% {
+        transform: rotate(3deg);
+      }
+    }
+
+    .animate-btn-wiggle {
+      animation: btn-wiggle 0.3s linear infinite;
+    }
+
+    /* 6. Hyper Shimmer (Flashy) */
+    @keyframes btn-hyper-shimmer {
+      0% {
+        left: -100%;
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        left: 100%;
+        opacity: 0;
+      }
+    }
+
+    .animate-btn-hyper-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .animate-btn-hyper-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+      transform: skewX(-20deg);
+      animation: btn-hyper-shimmer 1.5s infinite;
+    }
   </style>
-  <script type="module" crossorigin src="/assets/index-Dw0QDndZ.js"></script>
+  <script type="module" crossorigin src="/assets/index-iu1A6gnc.js"></script>
 
     <!-- Pre-rendered SEO Tags -->
     <meta name="description" content="나에게 힘을 주소서">
