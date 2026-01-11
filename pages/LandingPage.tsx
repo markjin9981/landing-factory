@@ -311,8 +311,30 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
       width: '100%',
     } : {};
 
+    // Animation Class
+    const animClass = banner.animation ? `animate-btn-${banner.animation}` : '';
+
+    // Custom Shape Mode (PNG Image Only)
+    if (banner.isCustomShape && banner.imageUrl) {
+      return (
+        <a href={banner.linkUrl || "#lead-form"} className={`block relative transition-transform hover:scale-105 ${animClass}`}>
+          <img
+            src={banner.imageUrl}
+            alt={banner.text}
+            className="w-full h-auto object-contain mx-auto"
+            style={{
+              maxWidth: banner.size === 'xs' ? '100px' :
+                banner.size === 'sm' ? '150px' :
+                  banner.size === 'lg' ? '300px' :
+                    banner.size === 'xl' ? '400px' : '220px' // md default
+            }}
+          />
+        </a>
+      );
+    }
+
     return (
-      <a href={banner.linkUrl || "#lead-form"} className="block shadow-lg relative bg-gray-900 text-white overflow-hidden" style={{ backgroundColor: banner.backgroundColor, color: banner.textColor }}>
+      <a href={banner.linkUrl || "#lead-form"} className={`block shadow-lg relative bg-gray-900 text-white overflow-hidden ${animClass}`} style={{ backgroundColor: banner.backgroundColor, color: banner.textColor }}>
         <div
           className={`p-3 text-center ${styles.text} ${isSliding ? 'animate-marquee' : ''}`}
           style={animationStyle}

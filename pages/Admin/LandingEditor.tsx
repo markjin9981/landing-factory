@@ -1845,6 +1845,42 @@ const LandingEditor: React.FC = () => {
                                                                 onSettingsChange={setGlobalSettings}
                                                             />
                                                         </div>
+
+                                                        {/* Animation & Custom Shape */}
+                                                        <div className="bg-blue-50 p-2 rounded border border-blue-100 mt-2">
+                                                            <div className="flex gap-2 items-center mb-1">
+                                                                <label className="flex items-center gap-1 text-[10px] cursor-pointer mr-4 font-bold text-blue-800">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={banner.isCustomShape || false}
+                                                                        onChange={(e) => updateBanner(idx, 'isCustomShape', e.target.checked)}
+                                                                    /> 커스텀 모양(PNG) 모드
+                                                                </label>
+
+                                                                <div className="flex items-center gap-1 flex-1">
+                                                                    <span className="text-[10px] text-blue-800 font-bold shrink-0">애니메이션:</span>
+                                                                    <select
+                                                                        value={banner.animation || 'none'}
+                                                                        onChange={(e) => updateBanner(idx, 'animation', e.target.value)}
+                                                                        className="text-[10px] border rounded p-1 w-full bg-white text-blue-900"
+                                                                    >
+                                                                        <option value="none">없음</option>
+                                                                        <option value="pulse">Pulse (맥박)</option>
+                                                                        <option value="shimmer">Shimmer (빛 반사)</option>
+                                                                        <option value="bounce">Bounce (바운스)</option>
+                                                                        <option value="heartbeat">Heartbeat (빠른 심박)</option>
+                                                                        <option value="wiggle">Electric Wiggle (진동)</option>
+                                                                        <option value="hyper-shimmer">Hyper Shimmer (강렬한 빛)</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            {banner.isCustomShape && (
+                                                                <p className="text-[9px] text-blue-600 pl-1 leading-tight">
+                                                                    * 커스텀 모양 모드에서는 <b>배경색과 텍스트가 숨겨지며</b>, 업로드한 이미지만 표시됩니다.<br />
+                                                                    * 배경이 투명한 PNG 이미지를 사용하면 더욱 자연스럽습니다.
+                                                                </p>
+                                                            )}
+                                                        </div>
                                                         <div>
                                                             <label className="text-[10px] text-gray-500 block flex justify-between">
                                                                 이미지 URL (문구 대신 노출)

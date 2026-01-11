@@ -87,6 +87,8 @@ export interface FloatingBanner {
   fontFamily?: string; // New: Custom Font
   isSliding?: boolean; // New: Marquee effect
   slideSpeed?: number; // New: Duration in seconds (e.g. 10, 20)
+  isCustomShape?: boolean; // New: Render as raw image without box style
+  animation?: ButtonAnimationType; // New: Attention grabbing animation
 }
 
 export interface HeroSection {
