@@ -558,22 +558,21 @@ export interface DynamicStepItem {
   // Styling
   buttonStyle?: ButtonStyle;
   formStyle?: {
-    formStyle?: {
-      questionColor?: string;
-      questionSize?: string;
-      answerColor?: string;
-      answerBgColor?: string;
-      answerBorderColor?: string;
-    };
+    questionColor?: string;
+    questionSize?: string;
+    answerColor?: string;
+    answerBgColor?: string;
+    answerBorderColor?: string;
+  };
 
-    // Outro Specific
-    policyConfig?: {
-      showPrivacy?: boolean;
-      showTerms?: boolean;
-      showMarketing?: boolean;
-      showThirdParty?: boolean;
-    };
-  }
+  // Outro Specific
+  policyConfig?: {
+    showPrivacy?: boolean;
+    showTerms?: boolean;
+    showMarketing?: boolean;
+    showThirdParty?: boolean;
+  };
+}
 
 export interface LeadData {
   timestamp: string;
