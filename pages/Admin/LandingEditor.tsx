@@ -1677,18 +1677,20 @@ const LandingEditor: React.FC = () => {
                                             <label className="text-xs text-gray-500 block">페이지 템플릿</label>
                                             <div className="grid grid-cols-2 gap-2">
                                                 <button
+                                                    type="button"
                                                     onClick={() => updateNested(['template'], 'standard')}
-                                                    className={`p-3 border-2 rounded-lg text-left transition-all ${(config.template || 'standard') === 'standard'
-                                                        ? 'border-blue-500 bg-blue-50'
-                                                        : 'border-gray-200 hover:border-gray-300'
+                                                    className={`p-4 border-2 rounded-lg text-left transition-all min-h-[80px] flex flex-col justify-center ${(config.template || 'standard') === 'standard'
+                                                            ? 'border-blue-500 bg-blue-50'
+                                                            : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
-                                                    <div className="text-sm font-bold text-gray-900">표준형 (Standard)</div>
-                                                    <div className="text-xs text-gray-600 mt-1">
+                                                    <div className="text-base font-bold text-gray-900">표준형 (Standard)</div>
+                                                    <div className="text-sm text-gray-600 mt-1">
                                                         일반 랜딩페이지 (스크롤형)
                                                     </div>
                                                 </button>
                                                 <button
+                                                    type="button"
                                                     onClick={() => {
                                                         updateNested(['template'], 'dynamic_step');
                                                         // Initialize steps if empty
@@ -1696,13 +1698,13 @@ const LandingEditor: React.FC = () => {
                                                             updateNested(['steps'], []);
                                                         }
                                                     }}
-                                                    className={`p-3 border-2 rounded-lg text-left transition-all ${config.template === 'dynamic_step'
-                                                        ? 'border-blue-500 bg-blue-50'
-                                                        : 'border-gray-200 hover:border-gray-300'
+                                                    className={`p-4 border-2 rounded-lg text-left transition-all min-h-[80px] flex flex-col justify-center ${config.template === 'dynamic_step'
+                                                            ? 'border-blue-500 bg-blue-50'
+                                                            : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
-                                                    <div className="text-sm font-bold text-gray-900">스텝형 (Dynamic Step)</div>
-                                                    <div className="text-xs text-gray-600 mt-1">
+                                                    <div className="text-base font-bold text-gray-900">스텝형 (Dynamic Step)</div>
+                                                    <div className="text-sm text-gray-600 mt-1">
                                                         단계별 입력 폼 (페이지 전환)
                                                     </div>
                                                 </button>
