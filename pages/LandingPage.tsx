@@ -458,12 +458,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
         {(formPosition === 'bottom' || !formPosition) && isMainView && <FormComponent />}
 
-        {/* SNS Block Mode (New) */}
-        {snsConfig && snsConfig.displayMode === 'block' && isMainView && (
-          <div className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
-            <SNSBlock config={snsConfig} />
-          </div>
-        )}
+
 
         {safeFooter.isShow && (
           <footer className="bg-white border-t border-gray-200 max-w-4xl mx-auto pb-12 pt-8">

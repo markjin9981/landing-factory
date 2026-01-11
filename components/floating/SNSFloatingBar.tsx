@@ -10,18 +10,7 @@ interface Props {
 const SNSFloatingBar: React.FC<Props> = ({ config, isMobileView }) => {
     if (!config || !config.isShow || !config.items || config.items.length === 0) return null;
 
-    const { position = 'bottom-right' } = config;
-
-    const getPositionClasses = () => {
-        if (isMobileView) return "bottom-4 right-4"; // Mobile always bottom-right
-        switch (position) {
-            case 'bottom-left': return "bottom-8 left-8";
-            case 'side-right': return "top-1/2 right-4 -translate-y-1/2";
-            case 'side-left': return "top-1/2 left-4 -translate-y-1/2";
-            case 'bottom-right': default: return "bottom-8 right-8";
-        }
-    };
-    const posClass = getPositionClasses();
+    const { position = 'bottom-right', displayMode = 'floating' } = config;
 
     // Helper to get icon
     const getIcon = (type: string, customUrl?: string) => {
@@ -52,8 +41,53 @@ const SNSFloatingBar: React.FC<Props> = ({ config, isMobileView }) => {
         return type === 'kakao' ? '#000000' : '#ffffff';
     };
 
+    // --- BANNER MODE (Bottom Fixed) ---
+    if (displayMode === 'block') {
+        return (
+            <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-3 px-4 z-[55] flex justify-center gap-4 animate-slide-up">
+                {config.items?.map((item) => (
+                    <a
+                        key={item.id}
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex flex-col items-center gap-1 group"
+                    >
+                        <div
+                            className="shadow-sm transition-transform group-hover:scale-110 flex items-center justify-center"
+                            style={{
+                                width: 40,
+                                height: 40,
+                                backgroundColor: item.customIconUrl ? 'transparent' : getColor(item.type),
+                                color: getTextColor(item.type),
+                                borderRadius: '50%',
+                            }}
+                        >
+                            {getIcon(item.type, item.customIconUrl)}
+                        </div>
+                        {item.label && <span className="text-[10px] text-gray-500 font-bold">{item.label}</span>}
+                    </a>
+                ))}
+            </div>
+        );
+    }
+
+    // --- FLOATING MODE ---
+    const getPositionClasses = () => {
+        // Mobile Optimization: Force Bottom-Left to avoid Chat Button (usually Bottom-Right)
+        if (isMobileView) return "bottom-4 left-4 flex-col-reverse";
+
+        switch (position) {
+            case 'bottom-left': return "bottom-8 left-8 flex-col-reverse";
+            case 'side-right': return "top-1/2 right-4 -translate-y-1/2 flex-col";
+            case 'side-left': return "top-1/2 left-4 -translate-y-1/2 flex-col";
+            case 'bottom-right': default: return "bottom-8 right-8 flex-col-reverse";
+        }
+    };
+    const posClass = getPositionClasses();
+
     return (
-        <div className={`fixed z-50 flex ${config.position?.includes('side') ? 'flex-col' : 'flex-row'} gap-3 ${posClass}`} style={{ gap: config.style?.gap }}>
+        <div className={`fixed z-50 flex gap-3 ${posClass}`} style={{ gap: config.style?.gap }}>
             {config.items?.map((item) => (
                 <a
                     key={item.id}
