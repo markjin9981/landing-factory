@@ -3214,6 +3214,22 @@ const LandingEditor: React.FC = () => {
                                                                         <input type="text" value={step.buttonStyle?.textColor || ''} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, textColor: e.target.value } })} className="flex-1 border rounded text-xs px-2" placeholder="#..." />
                                                                     </div>
                                                                 </div>
+                                                                <div className="col-span-2">
+                                                                    <label className="text-[10px] text-gray-500 block">버튼 애니메이션 효과</label>
+                                                                    <select
+                                                                        value={step.buttonStyle?.animation || 'none'}
+                                                                        onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, animation: e.target.value as any } })}
+                                                                        className="w-full border rounded p-1 text-xs"
+                                                                    >
+                                                                        <option value="none">없음 (기본)</option>
+                                                                        <option value="pulse">Pulse (맥박)</option>
+                                                                        <option value="shimmer">Shimmer (빛 반사)</option>
+                                                                        <option value="bounce">Bounce (바운스)</option>
+                                                                        <option value="heartbeat">Heartbeat (빠른 심박)</option>
+                                                                        <option value="wiggle">Electric Wiggle (진동)</option>
+                                                                        <option value="hyper-shimmer">Hyper Shimmer (강렬한 빛 - 추천)</option>
+                                                                    </select>
+                                                                </div>
                                                             </div>
                                                         </details>
                                                     </div>

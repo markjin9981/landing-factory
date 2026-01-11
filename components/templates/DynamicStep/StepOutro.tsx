@@ -192,8 +192,15 @@ const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryCo
                     <button
                         onClick={handleSubmit}
                         disabled={isSubmitting}
-                        style={finalBtnStyle}
-                        className="flex-1 py-4 font-bold shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2"
+                        style={{
+                            ...finalBtnStyle,
+                            '--btn-bg': finalBtnStyle.backgroundColor,
+                            '--btn-shine': '#ffffff40', // Semi-transparent white for shine
+                        } as React.CSSProperties}
+                        className={`flex-1 py-4 font-bold shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 ${step.buttonStyle?.animation && step.buttonStyle.animation !== 'none'
+                                ? `animate-btn-${step.buttonStyle.animation}`
+                                : ''
+                            }`}
                     >
                         {isSubmitting ? '처리중...' : (step.buttonText || '신청완료')}
                     </button>

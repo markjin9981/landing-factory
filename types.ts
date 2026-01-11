@@ -55,6 +55,9 @@ export interface TextStyle {
   fontFamily?: string; // New: Granular control
 }
 
+// Button Animation Types
+export type ButtonAnimationType = 'none' | 'pulse' | 'shimmer' | 'bounce' | 'heartbeat' | 'wiggle' | 'hyper-shimmer';
+
 // Button Style Interface
 export interface ButtonStyle {
   backgroundColor?: string;
@@ -64,6 +67,7 @@ export interface ButtonStyle {
   width?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'auto'; // Expanded width options
   alignment?: 'left' | 'center' | 'right';
   fontWeight?: string;
+  animation?: ButtonAnimationType; // New: Animation Type
 }
 
 // Form Design Interface
@@ -551,28 +555,25 @@ export interface DynamicStepItem {
   prevButtonText?: string;
 
   // Styling
-  buttonStyle?: {
-    backgroundColor?: string;
-    textColor?: string;
-    fontSize?: string;
-    borderRadius?: string;
-  };
+  // Styling
+  buttonStyle?: ButtonStyle;
   formStyle?: {
-    questionColor?: string;
-    questionSize?: string;
-    answerColor?: string;
-    answerBgColor?: string;
-    answerBorderColor?: string;
-  };
+    formStyle?: {
+      questionColor?: string;
+      questionSize?: string;
+      answerColor?: string;
+      answerBgColor?: string;
+      answerBorderColor?: string;
+    };
 
-  // Outro Specific
-  policyConfig?: {
-    showPrivacy?: boolean;
-    showTerms?: boolean;
-    showMarketing?: boolean;
-    showThirdParty?: boolean;
-  };
-}
+    // Outro Specific
+    policyConfig?: {
+      showPrivacy?: boolean;
+      showTerms?: boolean;
+      showMarketing?: boolean;
+      showThirdParty?: boolean;
+    };
+  }
 
 export interface LeadData {
   timestamp: string;
