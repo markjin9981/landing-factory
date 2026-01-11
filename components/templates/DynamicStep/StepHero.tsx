@@ -61,6 +61,14 @@ const StepHero: React.FC<StepHeroProps> = ({
     mediaStyles
 }) => {
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isMobile, setIsMobile] = useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const validateFields = () => {
         const newErrors: Record<string, string> = {};
@@ -171,9 +179,11 @@ const StepHero: React.FC<StepHeroProps> = ({
                             <div
                                 className="mx-auto overflow-y-auto"
                                 style={{
-                                    width: mediaStyles?.pcWidth || '100%',
-                                    height: mediaStyles?.pcHeight || 'auto',
-                                    maxHeight: mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? mediaStyles.pcHeight : '60vh',
+                                    width: isMobile ? (mediaStyles?.mobileWidth || '100%') : (mediaStyles?.pcWidth || '100%'),
+                                    height: isMobile ? (mediaStyles?.mobileHeight || 'auto') : (mediaStyles?.pcHeight || 'auto'),
+                                    maxHeight: isMobile
+                                        ? (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '70vh')
+                                        : (mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? 'none' : '60vh'),
                                 }}
                             >
                                 {insertedContent.type === 'video' ? (

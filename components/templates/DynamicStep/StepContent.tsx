@@ -64,6 +64,14 @@ const StepContent: React.FC<StepContentProps> = ({
     mediaStyles
 }) => {
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isMobile, setIsMobile] = useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const validateFields = () => {
         const newErrors: Record<string, string> = {};
@@ -84,9 +92,11 @@ const StepContent: React.FC<StepContentProps> = ({
 
     const renderInner = () => {
         const mediaContainerStyle = {
-            width: mediaStyles?.pcWidth || '100%',
-            height: mediaStyles?.pcHeight || 'auto',
-            maxHeight: mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? mediaStyles.pcHeight : '70vh',
+            width: isMobile ? (mediaStyles?.mobileWidth || '100%') : (mediaStyles?.pcWidth || '100%'),
+            height: isMobile ? (mediaStyles?.mobileHeight || 'auto') : (mediaStyles?.pcHeight || 'auto'),
+            maxHeight: isMobile
+                ? (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '70vh')
+                : (mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? 'none' : '70vh'),
             overflowY: 'auto' as const
         };
 
