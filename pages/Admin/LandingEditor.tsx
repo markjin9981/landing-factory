@@ -1542,20 +1542,6 @@ const LandingEditor: React.FC = () => {
 
                                     <div className="bg-white border rounded-lg p-4 shadow-sm">
                                         <h3 className="text-sm font-bold text-gray-900 mb-4">기본 설정</h3>
-                                        <div className="mb-4">
-                                            <h4 className="text-xs font-bold text-gray-700 mb-2">템플릿 선택</h4>
-                                            <select
-                                                value={config.template || 'basic'}
-                                                onChange={(e) => updateNested(['template'], e.target.value)}
-                                                className="w-full border border-gray-300 rounded p-2 text-sm"
-                                            >
-                                                <option value="basic">기본형 (Basic Single Page)</option>
-                                            </select>
-                                            <p className="text-[10px] text-blue-600 mt-1">
-                                                * <b>기본형</b>: 모든 섹션이 한 페이지에 나열됩니다.<br />
-                                                * <b>다이내믹 스텝</b>: 풀스크린 히어로와 단계별(Step-by-step) 입력 폼이 적용됩니다.
-                                            </p>
-                                        </div>
                                         <div>
                                             <label className="text-xs font-bold text-gray-500 mb-1 block">페이지 제목 (Title)</label>
                                             <input type="text" value={config.title} onChange={(e) => updateNested(['title'], e.target.value)} className="w-full border rounded p-2 text-sm" />
@@ -1680,8 +1666,8 @@ const LandingEditor: React.FC = () => {
                                                     type="button"
                                                     onClick={() => updateNested(['template'], 'standard')}
                                                     className={`p-4 border-2 rounded-lg text-left transition-all min-h-[80px] flex flex-col justify-center ${(config.template || 'standard') === 'standard'
-                                                            ? 'border-blue-500 bg-blue-50'
-                                                            : 'border-gray-200 hover:border-gray-300'
+                                                        ? 'border-blue-500 bg-blue-50'
+                                                        : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
                                                     <div className="text-base font-bold text-gray-900">표준형 (Standard)</div>
@@ -1699,8 +1685,8 @@ const LandingEditor: React.FC = () => {
                                                         }
                                                     }}
                                                     className={`p-4 border-2 rounded-lg text-left transition-all min-h-[80px] flex flex-col justify-center ${config.template === 'dynamic_step'
-                                                            ? 'border-blue-500 bg-blue-50'
-                                                            : 'border-gray-200 hover:border-gray-300'
+                                                        ? 'border-blue-500 bg-blue-50'
+                                                        : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
                                                     <div className="text-base font-bold text-gray-900">스텝형 (Dynamic Step)</div>
