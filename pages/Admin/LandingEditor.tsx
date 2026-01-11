@@ -4577,47 +4577,120 @@ const LandingEditor: React.FC = () => {
                                                 </div>
                                             )}
 
-                                            <div className="border-t border-gray-200 pt-4 space-y-3">
-                                                <h4 className="text-xs font-bold text-gray-700">계정 설정</h4>
-
-                                                {/* Kakao */}
-                                                <div>
-                                                    <label className="block text-xs text-gray-600 mb-1">카카오톡 채널 링크</label>
-                                                    <input type="text" className="w-full border rounded p-2 text-xs"
-                                                        value={config.snsConfig.kakao || ''}
-                                                        onChange={(e) => updateNested(['snsConfig', 'kakao'], e.target.value)}
-                                                        placeholder="http://pf.kakao.com/..."
-                                                    />
+                                            <div className="border-t border-gray-200 pt-4">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <h4 className="text-xs font-bold text-gray-700">SNS 링크 목록 ({config.snsConfig?.items?.length || 0}/5)</h4>
+                                                    <button
+                                                        onClick={() => {
+                                                            const currentItems = config.snsConfig?.items || [];
+                                                            if (currentItems.length >= 5) {
+                                                                alert('최대 5개까지만 추가 가능합니다.');
+                                                                return;
+                                                            }
+                                                            updateNested(['snsConfig', 'items'], [
+                                                                ...currentItems,
+                                                                { id: crypto.randomUUID(), type: 'custom', url: '', label: '' }
+                                                            ]);
+                                                        }}
+                                                        className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-1 rounded text-xs hover:bg-blue-100 font-bold"
+                                                    >
+                                                        <Plus className="w-3 h-3" /> 추가
+                                                    </button>
                                                 </div>
 
-                                                {/* Naver Blog */}
-                                                <div>
-                                                    <label className="block text-xs text-gray-600 mb-1">네이버 블로그 링크</label>
-                                                    <input type="text" className="w-full border rounded p-2 text-xs"
-                                                        value={config.snsConfig.naverBlog || ''}
-                                                        onChange={(e) => updateNested(['snsConfig', 'naverBlog'], e.target.value)}
-                                                        placeholder="https://blog.naver.com/..."
-                                                    />
-                                                </div>
+                                                <div className="space-y-3">
+                                                    {config.snsConfig?.items?.map((item, idx) => (
+                                                        <div key={item.id} className="bg-white border rounded p-3 relative group space-y-3">
+                                                            <button
+                                                                onClick={() => {
+                                                                    const newItems = config.snsConfig!.items!.filter((_, i) => i !== idx);
+                                                                    updateNested(['snsConfig', 'items'], newItems);
+                                                                }}
+                                                                className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
 
-                                                {/* Instagram */}
-                                                <div>
-                                                    <label className="block text-xs text-gray-600 mb-1">인스타그램 링크</label>
-                                                    <input type="text" className="w-full border rounded p-2 text-xs"
-                                                        value={config.snsConfig.instagram || ''}
-                                                        onChange={(e) => updateNested(['snsConfig', 'instagram'], e.target.value)}
-                                                        placeholder="https://instagram.com/..."
-                                                    />
-                                                </div>
+                                                            <div className="flex gap-3">
+                                                                {/* Icon Preview / Upload */}
+                                                                <div className="w-16 h-16 shrink-0 bg-gray-100 rounded-full border flex items-center justify-center overflow-hidden cursor-pointer hover:bg-gray-200 relative"
+                                                                    onClick={() => document.getElementById(`sns-icon-${item.id}`)?.click()}
+                                                                >
+                                                                    {item.customIconUrl ? (
+                                                                        <img src={item.customIconUrl} alt="Icon" className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="text-center text-gray-400">
+                                                                            {item.type === 'custom' ? <Upload className="w-4 h-4 mx-auto" /> :
+                                                                                item.type === 'kakao' ? <MessageCircle className="w-6 h-6 text-yellow-400 fill-current" /> :
+                                                                                    item.type === 'instagram' ? <Instagram className="w-6 h-6 text-pink-500" /> :
+                                                                                        item.type === 'youtube' ? <Youtube className="w-6 h-6 text-red-500" /> :
+                                                                                            <Globe className="w-6 h-6 text-green-500" />
+                                                                            }
+                                                                        </div>
+                                                                    )}
+                                                                    <input
+                                                                        type="file"
+                                                                        id={`sns-icon-${item.id}`}
+                                                                        className="hidden"
+                                                                        accept="image/*"
+                                                                        onChange={(e) => handleImageUpload(e, (url) => {
+                                                                            const newItems = [...config.snsConfig!.items!];
+                                                                            newItems[idx] = { ...newItems[idx], customIconUrl: url };
+                                                                            updateNested(['snsConfig', 'items'], newItems);
+                                                                        })}
+                                                                    />
+                                                                </div>
 
-                                                {/* YouTube */}
-                                                <div>
-                                                    <label className="block text-xs text-gray-600 mb-1">유튜브 링크</label>
-                                                    <input type="text" className="w-full border rounded p-2 text-xs"
-                                                        value={config.snsConfig.youtube || ''}
-                                                        onChange={(e) => updateNested(['snsConfig', 'youtube'], e.target.value)}
-                                                        placeholder="https://youtube.com/..."
-                                                    />
+                                                                <div className="flex-1 space-y-2">
+                                                                    {/* Type Select */}
+                                                                    <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
+                                                                        {['kakao', 'blog', 'instagram', 'youtube', 'custom'].map(t => (
+                                                                            <button
+                                                                                key={t}
+                                                                                onClick={() => {
+                                                                                    const newItems = [...config.snsConfig!.items!];
+                                                                                    newItems[idx] = { ...newItems[idx], type: t as any };
+                                                                                    updateNested(['snsConfig', 'items'], newItems);
+                                                                                }}
+                                                                                className={`px-2 py-1 rounded text-[10px] font-bold border whitespace-nowrap ${item.type === t ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+                                                                            >
+                                                                                {t === 'kakao' ? '카카오' : t === 'blog' ? '블로그' : t === 'instagram' ? '인스타' : t === 'youtube' ? '유튜브' : '커스텀'}
+                                                                            </button>
+                                                                        ))}
+                                                                    </div>
+
+                                                                    <input
+                                                                        type="text"
+                                                                        className="w-full border rounded p-1.5 text-xs"
+                                                                        placeholder="링크 URL (https://...)"
+                                                                        value={item.url || ''}
+                                                                        onChange={(e) => {
+                                                                            const newItems = [...config.snsConfig!.items!];
+                                                                            newItems[idx] = { ...newItems[idx], url: e.target.value };
+                                                                            updateNested(['snsConfig', 'items'], newItems);
+                                                                        }}
+                                                                    />
+
+                                                                    <input
+                                                                        type="text"
+                                                                        className="w-full border rounded p-1.5 text-xs"
+                                                                        placeholder="라벨 (툴팁 텍스트)"
+                                                                        value={item.label || ''}
+                                                                        onChange={(e) => {
+                                                                            const newItems = [...config.snsConfig!.items!];
+                                                                            newItems[idx] = { ...newItems[idx], label: e.target.value };
+                                                                            updateNested(['snsConfig', 'items'], newItems);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    {(!config.snsConfig?.items || config.snsConfig.items.length === 0) && (
+                                                        <div className="text-center py-6 text-gray-400 text-xs bg-gray-50 rounded border border-dashed">
+                                                            등록된 링크가 없습니다. '추가' 버튼을 눌러보세요.
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
