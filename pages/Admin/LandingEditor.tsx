@@ -1665,6 +1665,53 @@ const LandingEditor: React.FC = () => {
                                             </p>
                                         </div>
                                     </div>
+
+                                    {/* Template Selection */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4">
+                                            <Layout className="w-4 h-4" /> 템플릿 선택
+                                        </h3>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-gray-500 block">페이지 템플릿</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button
+                                                    onClick={() => updateNested(['template'], 'standard')}
+                                                    className={`p-3 border-2 rounded-lg text-left transition-all ${(config.template || 'standard') === 'standard'
+                                                            ? 'border-blue-500 bg-blue-50'
+                                                            : 'border-gray-200 hover:border-gray-300'
+                                                        }`}
+                                                >
+                                                    <div className="text-sm font-bold">표준형 (Standard)</div>
+                                                    <div className="text-[10px] text-gray-500 mt-1">
+                                                        일반 랜딩페이지 (스크롤형)
+                                                    </div>
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        updateNested(['template'], 'dynamic_step');
+                                                        // Initialize steps if empty
+                                                        if (!config.steps || config.steps.length === 0) {
+                                                            updateNested(['steps'], []);
+                                                        }
+                                                    }}
+                                                    className={`p-3 border-2 rounded-lg text-left transition-all ${config.template === 'dynamic_step'
+                                                            ? 'border-blue-500 bg-blue-50'
+                                                            : 'border-gray-200 hover:border-gray-300'
+                                                        }`}
+                                                >
+                                                    <div className="text-sm font-bold">스텝형 (Dynamic Step)</div>
+                                                    <div className="text-[10px] text-gray-500 mt-1">
+                                                        단계별 입력 폼 (페이지 전환)
+                                                    </div>
+                                                </button>
+                                            </div>
+                                            {config.template === 'dynamic_step' && (
+                                                <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+                                                    💡 스텝 빌더 탭에서 단계를 구성할 수 있습니다.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
@@ -1909,6 +1956,44 @@ const LandingEditor: React.FC = () => {
                                                                     </select>
                                                                 )}
                                                             </div>
+
+                                                            {/* Font Size Override (Optional) */}
+                                                            {!banner.isCustomShape && (
+                                                                <div className="mt-2">
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">
+                                                                        커스텀 폰트 크기 (선택사항)
+                                                                    </label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={banner.fontSize || ''}
+                                                                        onChange={(e) => {
+                                                                            const newBanners = [...config.banners];
+                                                                            newBanners[index].fontSize = e.target.value;
+                                                                            updateNested(['banners'], newBanners);
+                                                                        }}
+                                                                        className="w-full border rounded p-1.5 text-xs"
+                                                                        placeholder="예: 16px, 1.2rem (비워두면 크기 프리셋 사용)"
+                                                                    />
+                                                                </div>
+                                                            )}
+
+                                                            {/* Font Family Selector */}
+                                                            {!banner.isCustomShape && (
+                                                                <div className="mt-2">
+                                                                    <FontPicker
+                                                                        label="배너 폰트"
+                                                                        value={banner.fontFamily || config.theme.fontConfig?.primaryFont || 'Noto Sans KR'}
+                                                                        globalSettings={globalSettings}
+                                                                        onSettingsChange={setGlobalSettings}
+                                                                        onChange={(fontFamily) => {
+                                                                            const newBanners = [...config.banners];
+                                                                            newBanners[index].fontFamily = fontFamily;
+                                                                            updateNested(['banners'], newBanners);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            )}
+
                                                             <div className="flex justify-end mb-1">
                                                                 <label className="text-[10px] flex items-center gap-1 text-gray-500 cursor-pointer">
                                                                     <input
