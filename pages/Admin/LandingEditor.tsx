@@ -1629,6 +1629,23 @@ const LandingEditor: React.FC = () => {
                                                 <img src={config.hero.backgroundImage} alt="Preview" className="w-full h-24 object-cover rounded border" />
                                             )}
                                         </div>
+                                        <div className="mb-4 pt-2 border-t mt-2">
+                                            <label className="text-xs font-bold text-gray-500 mb-1 flex justify-between">
+                                                배경 밝기 조절 (오버레이 투명도)
+                                                <span className="text-blue-600">{config.hero.overlayOpacity ?? 20}%</span>
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="0" max="90" step="10"
+                                                value={config.hero.overlayOpacity ?? 20}
+                                                onChange={(e) => updateNested(['hero', 'overlayOpacity'], Number(e.target.value))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                            />
+                                            <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                                                <span>지우기 (0%)</span>
+                                                <span>어둡게 (90%)</span>
+                                            </div>
+                                        </div>
                                         <div>
                                             <label className="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
                                                 <Maximize className="w-3 h-3" /> 섹션 크기 (높이)

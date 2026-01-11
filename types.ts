@@ -218,6 +218,7 @@ export interface HeroSection {
   ctaText: string;
   ctaStyle?: ButtonStyle;
   backgroundImage?: string;
+  overlayOpacity?: number; // New: 0-100% opacity for the black overlay
   size?: '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'; // Expanded range
 }
 

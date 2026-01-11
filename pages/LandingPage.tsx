@@ -342,9 +342,9 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         <div id="section-hero">
           {(hero.isShow ?? true) && isMainView && (
             <section className={`relative bg-gray-900 text-white overflow-hidden mx-auto ${heroContainerClass} px-4 ${getHeroPadding(hero.size)}`}>
-              <div className="absolute inset-0 z-0 opacity-20">
+              <div className="absolute inset-0 z-0">
                 {hero.backgroundImage && <img src={hero.backgroundImage} alt="Background" className="w-full h-full object-cover" />}
-                <div className="absolute inset-0 bg-black/50"></div>
+                <div className="absolute inset-0 bg-black" style={{ opacity: (hero.overlayOpacity ?? 20) / 100 }}></div>
               </div>
               <div className="relative z-10 w-full text-center">
                 <h1 className="mb-6 leading-tight break-keep" style={getTextStyle(hero.headlineStyle, { fontSize: '3.75rem', fontWeight: '800', color: 'white' })}>
