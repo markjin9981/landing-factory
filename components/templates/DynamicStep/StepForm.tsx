@@ -20,6 +20,7 @@ interface StepFormProps {
         textColor?: string;
         fontSize?: string;
         borderRadius?: string;
+        animation?: string;
     };
     formStyle?: {
         questionColor?: string;
@@ -138,6 +139,10 @@ const StepForm: React.FC<StepFormProps> = ({
         color: buttonStyle?.textColor || '#ffffff',
         fontSize: buttonStyle?.fontSize || '1.125rem',
         borderRadius: buttonStyle?.borderRadius || '0.75rem',
+        ...(buttonStyle?.animation === 'shimmer' ? {
+            '--btn-bg': buttonStyle?.backgroundColor || primaryColor,
+            '--btn-shine': 'rgba(255,255,255,0.4)'
+        } : {})
     };
 
     return (
@@ -297,7 +302,7 @@ const StepForm: React.FC<StepFormProps> = ({
                     onClick={handleNext}
                     disabled={isSubmitting}
                     style={nextBtnStyle}
-                    className="flex-1 py-4 shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 font-bold"
+                    className={`flex-1 py-4 shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 font-bold ${buttonStyle?.animation ? `animate-btn-${buttonStyle.animation}` : ''}`}
                 >
                     {isSubmitting ? (
                         "제출 중..."
