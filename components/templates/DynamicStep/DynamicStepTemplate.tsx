@@ -26,6 +26,9 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
     const [accumulatedData, setAccumulatedData] = useState<any>({});
     const [builderFinished, setBuilderFinished] = useState(false);
 
+    // Preview Mode Detection (to prevent auto-submit in editor)
+    const isPreview = !config.id || config.id.startsWith('preview_');
+
     // --- HANDLERS (LEGACY) ---
     const handleLegacyStart = () => {
         setViewState('form');
@@ -64,6 +67,12 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
             // If it's NOT outro, we might want to submit here.
             // But if users put Content as last step, it just finishes?
             // Usually flows end with Form or Outro.
+
+            // Preview Mode: Don't submit, just show alert
+            if (isPreview) {
+                alert('✅ 미리보기 모드\n\n실제 배포 시 여기서 폼이 제출됩니다.\n에디터로 돌아가서 계속 편집하세요.');
+                return;
+            }
 
             const leadData: LeadData = {
                 timestamp: new Date().toISOString(),
@@ -179,6 +188,9 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 backgroundContent={currentBackground} // Intro uses its own contentId as background
                                 insertedContent={insertedContent}
                                 hideTitle={step.hideTitle}
+                                backgroundColor={step.backgroundColor}
+                                backgroundImage={step.backgroundImage}
+                                backgroundOverlay={step.backgroundOverlay}
                             />
                         )}
 

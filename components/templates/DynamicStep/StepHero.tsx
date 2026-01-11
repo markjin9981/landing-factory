@@ -16,9 +16,13 @@ interface StepHeroProps {
     backgroundContent?: DetailContent;
     insertedContent?: DetailContent;
     hideTitle?: boolean;
+    // New: Custom background styling
+    backgroundColor?: string;
+    backgroundImage?: string;
+    backgroundOverlay?: number;
 }
 
-const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, buttonStyle, backgroundContent, insertedContent, hideTitle }) => {
+const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, buttonStyle, backgroundContent, insertedContent, hideTitle, backgroundColor, backgroundImage, backgroundOverlay }) => {
     // ... animation ...
     const floatingAnimation = {
         y: [0, -20, 0],
@@ -38,11 +42,30 @@ const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, 
         borderRadius: buttonStyle?.borderRadius
     };
 
-    return (
-        <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col justify-center items-center px-6 text-center">
+    // Determine background styling
+    const hasCustomBackground = backgroundColor || backgroundImage;
+    const overlayOpacity = (backgroundOverlay ?? 60) / 100;
 
-            {/* --- BACKGROUND CONTENT LAYER --- */}
-            {backgroundContent ? (
+    return (
+        <div
+            className="relative w-full h-screen overflow-hidden text-white flex flex-col justify-center items-center px-6 text-center"
+            style={{
+                backgroundColor: backgroundColor || undefined,
+                backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            }}
+        >
+            {/* --- OVERLAY LAYER --- */}
+            {hasCustomBackground && (
+                <div
+                    className="absolute inset-0 bg-black z-0"
+                    style={{ opacity: overlayOpacity }}
+                />
+            )}
+
+            {/* --- BACKGROUND CONTENT LAYER (Legacy) --- */}
+            {!hasCustomBackground && backgroundContent && (
                 <div className="absolute inset-0 z-0">
                     <img
                         src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
@@ -57,8 +80,10 @@ const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, 
                     />
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
                 </div>
-            ) : (
-                /* --- DEFAULT ABSTRACT BACKGROUND --- */
+            )}
+
+            {/* --- DEFAULT ABSTRACT BACKGROUND --- */}
+            {!hasCustomBackground && !backgroundContent && (
                 <>
                     <motion.div
                         className="absolute top-1/4 left-10 w-32 h-32 bg-blue-500 rounded-full mix-blend-screen filter blur-3xl opacity-20"

@@ -3264,6 +3264,87 @@ const LandingEditor: React.FC = () => {
                                                                         ))}
                                                                     </select>
                                                                 </div>
+
+                                                                {/* NEW: Background Styling */}
+                                                                <div className="mt-4 pt-4 border-t">
+                                                                    <h5 className="text-xs font-bold text-gray-700 mb-3 flex items-center gap-1">
+                                                                        <Palette className="w-3 h-3" />
+                                                                        인트로 배경 설정 (톤앤매너)
+                                                                    </h5>
+                                                                    <div className="space-y-3">
+                                                                        {/* Background Color */}
+                                                                        <div>
+                                                                            <label className="text-[10px] text-gray-500 block mb-1">배경 색상</label>
+                                                                            <div className="flex gap-2">
+                                                                                <input
+                                                                                    type="color"
+                                                                                    value={step.backgroundColor || '#1f2937'}
+                                                                                    onChange={(e) => updateStep(idx, { backgroundColor: e.target.value })}
+                                                                                    className="h-8 w-8 cursor-pointer rounded border"
+                                                                                />
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={step.backgroundColor || ''}
+                                                                                    onChange={(e) => updateStep(idx, { backgroundColor: e.target.value })}
+                                                                                    className="flex-1 border rounded text-xs px-2"
+                                                                                    placeholder="#1f2937 (기본 다크 그레이)"
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Background Image */}
+                                                                        <div>
+                                                                            <label className="text-[10px] text-gray-500 block mb-1">배경 이미지</label>
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    setIsImageManagerOpen(true);
+                                                                                    setImagePickerCallback(() => (url: string) => {
+                                                                                        updateStep(idx, { backgroundImage: url });
+                                                                                        setIsImageManagerOpen(false);
+                                                                                    });
+                                                                                }}
+                                                                                className="w-full border rounded p-2 text-xs hover:bg-gray-50 flex items-center justify-center gap-2"
+                                                                            >
+                                                                                <ImageIcon className="w-3 h-3" />
+                                                                                {step.backgroundImage ? '이미지 변경' : '이미지 선택'}
+                                                                            </button>
+                                                                            {step.backgroundImage && (
+                                                                                <div className="mt-2 relative">
+                                                                                    <img src={step.backgroundImage} className="w-full h-20 object-cover rounded border" alt="Background" />
+                                                                                    <button
+                                                                                        onClick={() => updateStep(idx, { backgroundImage: undefined })}
+                                                                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                                                                                    >
+                                                                                        <X className="w-3 h-3" />
+                                                                                    </button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {/* Overlay Opacity */}
+                                                                        <div>
+                                                                            <label className="text-[10px] text-gray-500 block mb-1">
+                                                                                오버레이 투명도: {step.backgroundOverlay ?? 60}%
+                                                                            </label>
+                                                                            <input
+                                                                                type="range"
+                                                                                min="0"
+                                                                                max="100"
+                                                                                value={step.backgroundOverlay ?? 60}
+                                                                                onChange={(e) => updateStep(idx, { backgroundOverlay: parseInt(e.target.value) })}
+                                                                                className="w-full"
+                                                                            />
+                                                                            <div className="flex justify-between text-[9px] text-gray-400 mt-1">
+                                                                                <span>밝음 (0%)</span>
+                                                                                <span>어두움 (100%)</span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <p className="text-[10px] text-blue-600 bg-blue-50 p-2 rounded">
+                                                                            💡 인트로 배경은 콘텐츠/아웃트로 페이지에도 자동 적용됩니다 (톤앤매너 통일)
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         )}
 

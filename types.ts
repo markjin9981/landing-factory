@@ -579,6 +579,11 @@ export interface DynamicStepItem {
     answerBorderColor?: string;
   };
 
+  // Background Styling (for intro/outro pages)
+  backgroundColor?: string;      // Solid color background
+  backgroundImage?: string;       // Image URL for background
+  backgroundOverlay?: number;     // 0-100 opacity for dark overlay
+
   // Outro Specific
   policyConfig?: {
     showPrivacy?: boolean;
