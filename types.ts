@@ -569,13 +569,25 @@ export interface DynamicStepItem {
   titleStyle?: TextStyle;
   subtitleStyle?: TextStyle;
   formStyle?: {
+    // Container
+    containerBgColor?: string;
+    containerBorderColor?: string;
+    containerBorderRadius?: string;
+    containerPadding?: string;
+    // Question Label
     questionColor?: string;
     questionSize?: string;
+    questionFont?: string;
+    // Answer Input
     answerColor?: string;
     answerBgColor?: string;
     answerBorderColor?: string;
+    answerFont?: string;
+    answerFontSize?: string;
+    // Layout
     fieldsPerPage?: number; // New: Fields per page control
   };
+
 
   // Background Styling (for intro/outro pages)
   backgroundColor?: string;      // Solid color background

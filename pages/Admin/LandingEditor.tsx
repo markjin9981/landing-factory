@@ -3408,23 +3408,123 @@ const LandingEditor: React.FC = () => {
                                                                         ))}
                                                                     </div>
                                                                     {(step.fieldIds?.length || 0) > 0 && (
-                                                                        <div className="mt-3 grid grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                                                            <div>
-                                                                                <label className="text-[10px] font-bold text-gray-600 block mb-1">한 화면 노출 개수</label>
-                                                                                <select
-                                                                                    value={step.formStyle?.fieldsPerPage || 0}
-                                                                                    onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, fieldsPerPage: parseInt(e.target.value) } })}
-                                                                                    className="w-full border rounded py-1.5 px-2 text-[10px] outline-none hover:border-blue-400 transition-colors"
-                                                                                >
-                                                                                    <option value={0}>전체 표시</option>
-                                                                                    <option value={1}>1개씩</option>
-                                                                                    <option value={2}>2개씩</option>
-                                                                                </select>
+                                                                        <>
+                                                                            <div className="mt-3 grid grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                                                                                <div>
+                                                                                    <label className="text-[10px] font-bold text-gray-600 block mb-1">한 화면 노출 개수</label>
+                                                                                    <select
+                                                                                        value={step.formStyle?.fieldsPerPage || 0}
+                                                                                        onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, fieldsPerPage: parseInt(e.target.value) } })}
+                                                                                        className="w-full border rounded py-1.5 px-2 text-[10px] outline-none hover:border-blue-400 transition-colors"
+                                                                                    >
+                                                                                        <option value={0}>전체 표시</option>
+                                                                                        <option value={1}>1개씩</option>
+                                                                                        <option value={2}>2개씩</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                                <div className="flex items-end">
+                                                                                    <p className="text-[9px] text-gray-400 leading-tight">질문이 많을 경우 '1개씩' 설정을 권장합니다.</p>
+                                                                                </div>
                                                                             </div>
-                                                                            <div className="flex items-end">
-                                                                                <p className="text-[9px] text-gray-400 leading-tight">질문이 많을 경우 '1개씩' 설정을 권장합니다.</p>
-                                                                            </div>
-                                                                        </div>
+
+                                                                            {/* 질문 스타일링 옵션 */}
+                                                                            <details className="mt-3 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-100 overflow-hidden">
+                                                                                <summary className="text-[11px] font-bold text-purple-700 cursor-pointer p-3 flex items-center gap-2 hover:bg-purple-100/50 transition-colors">
+                                                                                    <Palette className="w-3.5 h-3.5" /> 삽입 질문 스타일링 (고급)
+                                                                                </summary>
+                                                                                <div className="p-3 space-y-4 bg-white/80">
+                                                                                    {/* 컨테이너 스타일 */}
+                                                                                    <div className="space-y-2">
+                                                                                        <label className="text-[10px] font-bold text-gray-600 flex items-center gap-1">📦 질문 영역 컨테이너</label>
+                                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">배경색</label>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <input type="color" value={step.formStyle?.containerBgColor || '#ffffff10'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBgColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                                    <input type="text" value={step.formStyle?.containerBgColor || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBgColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-2" placeholder="rgba(0,0,0,0.2)" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">테두리색</label>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <input type="color" value={step.formStyle?.containerBorderColor || '#ffffff20'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBorderColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                                    <input type="text" value={step.formStyle?.containerBorderColor || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBorderColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-2" placeholder="rgba(255,255,255,0.1)" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">모서리 둥글기</label>
+                                                                                                <input type="text" value={step.formStyle?.containerBorderRadius || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBorderRadius: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="16px" />
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">내부 여백</label>
+                                                                                                <input type="text" value={step.formStyle?.containerPadding || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerPadding: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="24px" />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    {/* 질문 라벨 스타일 */}
+                                                                                    <div className="space-y-2 pt-3 border-t border-gray-100">
+                                                                                        <label className="text-[10px] font-bold text-gray-600 flex items-center gap-1">🏷️ 질문 라벨</label>
+                                                                                        <div className="grid grid-cols-3 gap-2">
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">글자색</label>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <input type="color" value={step.formStyle?.questionColor || '#374151'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, questionColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                                    <input type="text" value={step.formStyle?.questionColor || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, questionColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-1" placeholder="#374151" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">글자 크기</label>
+                                                                                                <select value={step.formStyle?.questionSize || 'md'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, questionSize: e.target.value } })} className="w-full border rounded text-[10px] px-1 py-1.5">
+                                                                                                    <option value="sm">작게</option>
+                                                                                                    <option value="md">보통</option>
+                                                                                                    <option value="xl">크게</option>
+                                                                                                </select>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">폰트</label>
+                                                                                                <input type="text" value={step.formStyle?.questionFont || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, questionFont: e.target.value } })} className="w-full border rounded text-[10px] px-1 py-1" placeholder="Pretendard" />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    {/* 입력창 스타일 */}
+                                                                                    <div className="space-y-2 pt-3 border-t border-gray-100">
+                                                                                        <label className="text-[10px] font-bold text-gray-600 flex items-center gap-1">📝 입력창</label>
+                                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">배경색</label>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <input type="color" value={step.formStyle?.answerBgColor || '#ffffff'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerBgColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                                    <input type="text" value={step.formStyle?.answerBgColor || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerBgColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-1" placeholder="#ffffff" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">글자색</label>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <input type="color" value={step.formStyle?.answerColor || '#000000'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                                    <input type="text" value={step.formStyle?.answerColor || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-1" placeholder="#000000" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">테두리색</label>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <input type="color" value={step.formStyle?.answerBorderColor || '#e5e7eb'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerBorderColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                                    <input type="text" value={step.formStyle?.answerBorderColor || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerBorderColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-1" placeholder="#e5e7eb" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="text-[9px] text-gray-500 block mb-1">폰트 / 크기</label>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <input type="text" value={step.formStyle?.answerFont || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerFont: e.target.value } })} className="flex-1 border rounded text-[10px] px-1 py-1" placeholder="폰트명" />
+                                                                                                    <input type="text" value={step.formStyle?.answerFontSize || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, answerFontSize: e.target.value } })} className="w-16 border rounded text-[10px] px-1 py-1" placeholder="1rem" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </details>
+                                                                        </>
                                                                     )}
                                                                 </div>
 
