@@ -44,7 +44,8 @@ const FORM_PRESETS: Record<string, { label: string, style: FormStyle }> = {
             buttonTextColor: '#ffffff',
             buttonRadius: '12px',
             buttonWidth: 'full',
-            buttonAlign: 'center'
+            buttonAlign: 'center',
+            buttonAnimation: 'none'
         }
     },
     dark: {
@@ -62,7 +63,8 @@ const FORM_PRESETS: Record<string, { label: string, style: FormStyle }> = {
             buttonTextColor: '#1f2937',
             buttonRadius: '8px',
             buttonWidth: 'full',
-            buttonAlign: 'center'
+            buttonAlign: 'center',
+            buttonAnimation: 'none'
         }
     },
     soft: {
@@ -80,7 +82,8 @@ const FORM_PRESETS: Record<string, { label: string, style: FormStyle }> = {
             buttonTextColor: '#ffffff',
             buttonRadius: '9999px', // Pill
             buttonWidth: 'auto',
-            buttonAlign: 'center'
+            buttonAlign: 'center',
+            buttonAnimation: 'none'
         }
     },
     clean: {
@@ -464,7 +467,7 @@ const LandingEditor: React.FC = () => {
                 newLayout = 'vertical';
                 break;
             case 'grid':
-                newStyle = { backgroundColor: '#ffffff', borderColor: '#e5e7eb', borderWidth: '1px', borderRadius: '16px', textColor: '#1f2937', buttonBackgroundColor: config.theme.primaryColor, buttonTextColor: '#ffffff', buttonRadius: '12px' };
+                newStyle = { backgroundColor: '#ffffff', borderColor: '#e5e7eb', borderWidth: '1px', borderRadius: '16px', textColor: '#1f2937', buttonBackgroundColor: config.theme.primaryColor, buttonTextColor: '#ffffff', buttonRadius: '12px', buttonAnimation: 'none' };
                 newLayout = 'grid';
                 break;
         }
@@ -658,6 +661,15 @@ const LandingEditor: React.FC = () => {
                             placeholder="0"
                         />
                     </div>
+                    <div className="col-span-2">
+                        <FontPicker
+                            label="폰트 (글꼴)"
+                            value={getValue('fontFamily') || ''}
+                            onChange={(val) => updateStyle('fontFamily', val)}
+                            globalSettings={globalSettings}
+                            onSettingsChange={setGlobalSettings}
+                        />
+                    </div>
                     <div>
                         <label className="text-[10px] text-gray-500 block">너비</label>
                         <select value={getValue('width') || 'auto'} onChange={e => updateStyle('width', e.target.value)} className="w-full border rounded p-1 text-xs">
@@ -670,15 +682,6 @@ const LandingEditor: React.FC = () => {
                             <option value="full">가로 꽉 채움 (Full)</option>
                         </select>
                     </div>
-                    <div className="col-span-2">
-                        <FontPicker
-                            label="폰트 (글꼴)"
-                            value={getValue('fontFamily') || ''}
-                            onChange={(val) => updateStyle('fontFamily', val)}
-                            globalSettings={globalSettings}
-                            onSettingsChange={setGlobalSettings}
-                        />
-                    </div>
                     <div>
                         <label className="text-[10px] text-gray-500 block">정렬 (위치)</label>
                         <select value={getValue('alignment') || 'center'} onChange={e => updateStyle('alignment', e.target.value)} className="w-full border rounded p-1 text-xs">
@@ -686,6 +689,23 @@ const LandingEditor: React.FC = () => {
                             <option value="center">가운데</option>
                             <option value="right">오른쪽</option>
                         </select>
+                    </div>
+                    <div className="col-span-2 border-t pt-2 mt-1">
+                        <label className="text-xs font-bold text-blue-600 block mb-1">✨ 버튼 애니메이션 효과</label>
+                        <select
+                            value={getValue('animation') || 'none'}
+                            onChange={e => updateStyle('animation', e.target.value)}
+                            className="w-full border rounded p-2 text-xs bg-blue-50 text-blue-900 font-bold"
+                        >
+                            <option value="none">없음 (기본)</option>
+                            <option value="pulse">Pulse (맥박)</option>
+                            <option value="shimmer">Shimmer (빛 반사)</option>
+                            <option value="bounce">Bounce (바운스)</option>
+                            <option value="heartbeat">Heartbeat (빠른 심박)</option>
+                            <option value="wiggle">Electric Wiggle (진동)</option>
+                            <option value="hyper-shimmer">Hyper Shimmer (강렬한 빛 - 추천)</option>
+                        </select>
+                        <p className="text-[10px] text-gray-400 mt-1">* 돋보이는 애니메이션으로 전환율을 높여보세요.</p>
                     </div>
                 </div>
             </div>
