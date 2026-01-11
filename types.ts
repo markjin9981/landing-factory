@@ -67,6 +67,7 @@ export interface ButtonStyle {
   width?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'auto'; // Expanded width options
   alignment?: 'left' | 'center' | 'right';
   fontWeight?: string;
+  fontFamily?: string; // New: Custom Font
   animation?: ButtonAnimationType; // New: Animation Type
 }
 
@@ -126,7 +127,7 @@ export interface FormStyle {
   buttonTextColor?: string;
   buttonRadius?: string;
   buttonFontSize?: string;
-  buttonWidth?: 'auto' | 'full';
+  buttonWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'auto';
   buttonAlign?: 'left' | 'center' | 'right';
   buttonFontFamily?: string;
   buttonAnimation?: ButtonAnimationType;

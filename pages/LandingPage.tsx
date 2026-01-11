@@ -347,9 +347,33 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
                 <p className="mb-10 max-w-2xl mx-auto break-keep opacity-90" style={getTextStyle(hero.subHeadlineStyle, { fontSize: '1.25rem' })}>
                   {hero.subHeadline}
                 </p>
-                <button onClick={scrollToForm} className="px-8 py-4 font-bold rounded-full bg-blue-500 text-white hover:scale-105 transition-transform" style={{ backgroundColor: hero.ctaStyle?.backgroundColor || theme.primaryColor, color: hero.ctaStyle?.textColor || 'white' }}>
-                  {hero.ctaText}
-                </button>
+                {/* CTA Button */}
+                <div style={{ display: 'flex', justifyContent: hero.ctaStyle?.alignment === 'left' ? 'flex-start' : (hero.ctaStyle?.alignment === 'right' ? 'flex-end' : 'center') }}>
+                  <button
+                    onClick={scrollToForm}
+                    className={`font-bold transition-transform hover:scale-105 ${hero.ctaStyle?.animation ? `animate-btn-${hero.ctaStyle.animation}` : ''}`}
+                    style={{
+                      backgroundColor: hero.ctaStyle?.backgroundColor || theme.primaryColor,
+                      color: hero.ctaStyle?.textColor || 'white',
+                      fontSize: hero.ctaStyle?.fontSize || '1.125rem',
+                      borderRadius: hero.ctaStyle?.borderRadius || '9999px',
+                      fontFamily: hero.ctaStyle?.fontFamily,
+                      width: hero.ctaStyle?.width === 'full' ? '100%' :
+                        (hero.ctaStyle?.width === 'xs' ? '128px' :
+                          (hero.ctaStyle?.width === 'sm' ? '192px' :
+                            (hero.ctaStyle?.width === 'md' ? '256px' :
+                              (hero.ctaStyle?.width === 'lg' ? '320px' :
+                                (hero.ctaStyle?.width === 'xl' ? '384px' : 'auto'))))),
+                      padding: '1rem 2rem',
+                      ...(hero.ctaStyle?.animation === 'shimmer' ? {
+                        '--btn-bg': hero.ctaStyle?.backgroundColor || theme.primaryColor,
+                        '--btn-shine': 'rgba(255,255,255,0.4)'
+                      } : {})
+                    } as React.CSSProperties}
+                  >
+                    {hero.ctaText}
+                  </button>
+                </div>
               </div>
             </section>
           )}

@@ -177,12 +177,14 @@ const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryCo
 
             {/* Bottom Buttons */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur border-t z-50 safe-area-bottom">
-                <div className="max-w-md mx-auto flex gap-3">
+                <div className={`max-w-md mx-auto flex gap-3 ${step.buttonStyle?.alignment === 'left' ? 'justify-start' :
+                        (step.buttonStyle?.alignment === 'right' ? 'justify-end' : 'justify-center')
+                    }`}>
                     {/* PREV BUTTON */}
                     {(step.showPrevButton !== false && onPrev) && (
                         <button
                             onClick={onPrev}
-                            className="px-6 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                            className="px-6 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors shrink-0"
                         >
                             {step.prevButtonText || '이전'}
                         </button>
@@ -194,12 +196,21 @@ const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryCo
                         disabled={isSubmitting}
                         style={{
                             ...finalBtnStyle,
+                            fontFamily: btnStyle.fontFamily,
+                            width: btnStyle.width === 'full' ? '100%' :
+                                (btnStyle.width === 'xs' ? '128px' :
+                                    (btnStyle.width === 'sm' ? '192px' :
+                                        (btnStyle.width === 'md' ? '256px' :
+                                            (btnStyle.width === 'lg' ? '320px' :
+                                                (btnStyle.width === 'xl' ? '384px' :
+                                                    (btnStyle.width === 'auto' ? 'auto' : undefined)))))),
+                            flex: btnStyle.width === 'full' || !btnStyle.width ? '1' : 'none',
                             '--btn-bg': finalBtnStyle.backgroundColor,
                             '--btn-shine': '#ffffff40', // Semi-transparent white for shine
                         } as React.CSSProperties}
-                        className={`flex-1 py-4 font-bold shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 ${step.buttonStyle?.animation && step.buttonStyle.animation !== 'none'
-                                ? `animate-btn-${step.buttonStyle.animation}`
-                                : ''
+                        className={`py-4 font-bold shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 ${step.buttonStyle?.animation && step.buttonStyle.animation !== 'none'
+                            ? `animate-btn-${step.buttonStyle.animation}`
+                            : ''
                             }`}
                     >
                         {isSubmitting ? '처리중...' : (step.buttonText || '신청완료')}
