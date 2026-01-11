@@ -3203,6 +3203,14 @@ const LandingEditor: React.FC = () => {
                                                                                 <input type="text" value={step.buttonStyle?.textColor || ''} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, textColor: e.target.value } })} className="flex-1 border rounded text-xs px-2" placeholder="#..." />
                                                                             </div>
                                                                         </div>
+                                                                        <div>
+                                                                            <label className="text-[10px] text-gray-500 block">폰트 크기</label>
+                                                                            <input type="text" value={step.buttonStyle?.fontSize || ''} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, fontSize: e.target.value } })} className="w-full border rounded p-1 text-xs" placeholder="예: 18px, 1.2rem" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="text-[10px] text-gray-500 block">둥글기 (px)</label>
+                                                                            <input type="text" value={step.buttonStyle?.borderRadius || ''} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, borderRadius: e.target.value } })} className="w-full border rounded p-1 text-xs" placeholder="예: 8px, 16px" />
+                                                                        </div>
                                                                         <div className="col-span-2">
                                                                             <label className="text-[10px] text-gray-500 block">버튼 애니메이션 효과</label>
                                                                             <select
@@ -3222,11 +3230,75 @@ const LandingEditor: React.FC = () => {
                                                                     </div>
                                                                 </details>
                                                             </div>
+
+                                                            {/* Text Styling (NEW) */}
+                                                            <div className="mt-2 bg-blue-50/30 p-2 rounded border border-blue-100">
+                                                                <details>
+                                                                    <summary className="text-[10px] font-bold text-blue-600 cursor-pointer">텍스트 스타일 상세 설정 (펼치기)</summary>
+                                                                    <div className="space-y-3 mt-2">
+                                                                        {/* Headline Style */}
+                                                                        <div className="p-2 bg-white rounded border border-blue-50">
+                                                                            <label className="text-[10px] font-bold text-gray-600 block mb-1">헤드라인 (메인 타이틀)</label>
+                                                                            <div className="grid grid-cols-2 gap-2">
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400">글자색</label>
+                                                                                    <input type="color" value={step.titleStyle?.color || '#ffffff'} onChange={(e) => updateStep(idx, { titleStyle: { ...step.titleStyle, color: e.target.value } })} className="w-full h-6 rounded cursor-pointer border" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400">크기 (Rem/Px)</label>
+                                                                                    <input type="text" value={step.titleStyle?.fontSize || ''} onChange={(e) => updateStep(idx, { titleStyle: { ...step.titleStyle, fontSize: e.target.value } })} className="w-full border rounded px-1 text-[10px]" placeholder="3rem" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400">가중치 (Weight)</label>
+                                                                                    <select value={step.titleStyle?.fontWeight || 'bold'} onChange={(e) => updateStep(idx, { titleStyle: { ...step.titleStyle, fontWeight: e.target.value } })} className="w-full border rounded text-[10px]">
+                                                                                        <option value="normal">Normal</option>
+                                                                                        <option value="medium">Medium</option>
+                                                                                        <option value="semibold">SemiBold</option>
+                                                                                        <option value="bold">Bold</option>
+                                                                                        <option value="black">ExtraBold</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* SubHeadline Style */}
+                                                                        <div className="p-2 bg-white rounded border border-blue-50">
+                                                                            <label className="text-[10px] font-bold text-gray-600 block mb-1">서브헤드라인 (배지/소제목)</label>
+                                                                            <div className="grid grid-cols-2 gap-2">
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400">글자색</label>
+                                                                                    <input type="color" value={step.subtitleStyle?.color || '#93c5fd'} onChange={(e) => updateStep(idx, { subtitleStyle: { ...step.subtitleStyle, color: e.target.value } })} className="w-full h-6 rounded cursor-pointer border" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400">크기 (Rem/Px)</label>
+                                                                                    <input type="text" value={step.subtitleStyle?.fontSize || ''} onChange={(e) => updateStep(idx, { subtitleStyle: { ...step.subtitleStyle, fontSize: e.target.value } })} className="w-full border rounded px-1 text-[10px]" placeholder="0.875rem" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </details>
+                                                            </div>
                                                         </div>
 
                                                         {/* TYPE: INTRO */}
                                                         {step.type === 'intro' && (
                                                             <div className="space-y-3">
+                                                                <div>
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">페이지 가로 전체 너비 (모든 페이지 공통)</label>
+                                                                    <select
+                                                                        value={step.maxWidth || 'lg'}
+                                                                        onChange={(e) => updateStep(idx, { maxWidth: e.target.value as any })}
+                                                                        className="w-full border rounded p-2 text-xs bg-white"
+                                                                    >
+                                                                        <option value="sm">작게 (sm - 384px)</option>
+                                                                        <option value="md">보통 (md - 448px)</option>
+                                                                        <option value="lg">넓게 (lg - 512px - 추천)</option>
+                                                                        <option value="xl">엑스트라 (xl - 576px)</option>
+                                                                        <option value="2xl">가로 넓게 (2xl - 672px)</option>
+                                                                        <option value="full">꽉 차게 (Full)</option>
+                                                                    </select>
+                                                                    <p className="text-[9px] text-gray-400 mt-1">※ 인트로에서 설정한 너비가 전체 스텝에 동일하게 적용됩니다.</p>
+                                                                </div>
                                                                 <div>
                                                                     <label className="text-[10px] text-gray-500 block mb-1">헤드라인 (타이틀)</label>
                                                                     <div className="flex flex-col gap-2">
@@ -3389,6 +3461,19 @@ const LandingEditor: React.FC = () => {
                                                         {/* TYPE: FORM */}
                                                         {step.type === 'form' && (
                                                             <div className="space-y-3">
+                                                                <div>
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">페이지당 질문 개수</label>
+                                                                    <select
+                                                                        value={step.formStyle?.fieldsPerPage ?? 2}
+                                                                        onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, fieldsPerPage: parseInt(e.target.value) } })}
+                                                                        className="w-full border rounded p-2 text-xs"
+                                                                    >
+                                                                        <option value={1}>1개씩 (페이지당 한 질문)</option>
+                                                                        <option value={2}>2개씩 (기본)</option>
+                                                                        <option value={3}>3개씩</option>
+                                                                        <option value={0}>한 페이지에 모두 표시</option>
+                                                                    </select>
+                                                                </div>
                                                                 <div>
                                                                     <label className="text-[10px] text-gray-500 block mb-1">상단 타이틀 (선택)</label>
                                                                     <input

@@ -12,6 +12,8 @@ interface StepHeroProps {
         textColor?: string;
         fontSize?: string;
         borderRadius?: string;
+        fontFamily?: string;
+        fontWeight?: string;
     };
     backgroundContent?: DetailContent;
     insertedContent?: DetailContent;
@@ -20,10 +22,27 @@ interface StepHeroProps {
     backgroundColor?: string;
     backgroundImage?: string;
     backgroundOverlay?: number;
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+    titleStyle?: any;
+    subtitleStyle?: any;
 }
 
-const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, buttonStyle, backgroundContent, insertedContent, hideTitle, backgroundColor, backgroundImage, backgroundOverlay }) => {
-    // ... animation ...
+const StepHero: React.FC<StepHeroProps> = ({
+    heroConfig,
+    onStart,
+    primaryColor,
+    buttonStyle,
+    backgroundContent,
+    insertedContent,
+    hideTitle,
+    backgroundColor,
+    backgroundImage,
+    backgroundOverlay,
+    maxWidth,
+    titleStyle,
+    subtitleStyle
+}) => {
+    // Floating animation for abstract elements
     const floatingAnimation = {
         y: [0, -20, 0],
         transition: {
@@ -34,12 +53,12 @@ const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, 
     };
 
     const customBtnStyle = {
-        // If bg color is set, remove gradient classes?
-        // Actually, if bg color is set, we might want to override the gradient.
         background: buttonStyle?.backgroundColor,
         color: buttonStyle?.textColor,
         fontSize: buttonStyle?.fontSize,
-        borderRadius: buttonStyle?.borderRadius
+        borderRadius: buttonStyle?.borderRadius,
+        fontFamily: buttonStyle?.fontFamily,
+        fontWeight: buttonStyle?.fontWeight
     };
 
     // Determine background styling
@@ -96,92 +115,88 @@ const StepHero: React.FC<StepHeroProps> = ({ heroConfig, onStart, primaryColor, 
                 </>
             )}
 
-            <div className="relative z-10 max-w-lg w-full flex flex-col items-center">
-                {/* ... SubHeadline ... */}
-                {!hideTitle && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="inline-block mb-4 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
-                    >
-                        <span className="text-sm font-semibold tracking-wide text-blue-300">
-                            {heroConfig.subHeadline || "무료 자가진단"}
-                        </span>
-                    </motion.div>
-                )}
+            {/* --- CONTENT LAYER --- */}
+            <div className={`relative z-10 w-full px-6 flex flex-col items-center justify-center min-h-screen`}>
+                <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-lg'} flex flex-col items-center`}>
+                    {/* SubHeadline / Badge */}
+                    {!hideTitle && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="inline-block mb-4 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
+                            style={{
+                                ...subtitleStyle,
+                                color: subtitleStyle?.color || 'rgb(147, 197, 253)' // text-blue-300
+                            }}
+                        >
+                            <span className="text-sm font-semibold tracking-wide" style={{ fontFamily: subtitleStyle?.fontFamily, fontWeight: subtitleStyle?.fontWeight }}>
+                                {heroConfig.subHeadline || "무료 자가진단"}
+                            </span>
+                        </motion.div>
+                    )}
 
-                {/* Headline */}
-                {!hideTitle && (
-                    <motion.h1
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.2, type: "spring" }}
-                        className="text-4xl md:text-5xl font-bold leading-tight mb-8"
-                        style={{
-                            textShadow: '0 0 40px rgba(59, 130, 246, 0.5)',
-                            whiteSpace: 'pre-line'
-                        }}
-                    >
-                        {heroConfig.headline}
-                    </motion.h1>
-                )}
+                    {/* Headline */}
+                    {!hideTitle && (
+                        <motion.h1
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.8, delay: 0.2, type: "spring" }}
+                            className="text-4xl md:text-5xl font-bold leading-tight mb-8"
+                            style={{
+                                ...titleStyle,
+                                textShadow: '0 0 40px rgba(59, 130, 246, 0.5)',
+                                whiteSpace: 'pre-line'
+                            }}
+                        >
+                            {heroConfig.headline}
+                        </motion.h1>
+                    )}
 
-                {/* --- INSERTED INLINE CONTENT --- */}
-                {insertedContent && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4, duration: 0.6 }}
-                        className="w-full max-w-md mb-8 rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50"
-                    >
-                        {insertedContent.type === 'youtube' ? (
-                            <div className="relative w-full pt-[56.25%]">
-                                <iframe
-                                    className="absolute inset-0 w-full h-full"
-                                    src={`https://www.youtube.com/embed/${insertedContent.content}?autoplay=0&controls=1&rel=0`}
-                                    title="YouTube video"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                />
-                            </div>
-                        ) : (
+                    {/* Inserted Media Content */}
+                    {insertedContent && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.4 }}
+                            className="w-full mb-10 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+                        >
                             <img
                                 src={insertedContent.content}
-                                alt="Inserted Content"
-                                className="w-full h-auto object-cover"
+                                alt="Intro Media"
+                                className="w-full h-auto max-h-[400px] object-cover"
                             />
-                        )}
-                    </motion.div>
-                )}
+                        </motion.div>
+                    )}
 
-                {/* CTA Button */}
-                <motion.button
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.5 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={onStart}
-                    style={customBtnStyle}
-                    className={`group relative w-full max-w-xs mx-auto py-4 px-8 rounded-xl shadow-xl shadow-blue-500/30 overflow-hidden ${!buttonStyle?.backgroundColor ? 'bg-gradient-to-r from-blue-600 to-blue-500' : ''}`}
-                >
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                    <div className="relative flex items-center justify-center space-x-2">
-                        <span className="text-xl font-bold">{heroConfig.ctaText || "진단 시작하기"}</span>
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                </motion.button>
+                    {/* CTA Button */}
+                    <motion.button
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.6 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={onStart}
+                        style={hasCustomBackground ? customBtnStyle : {}}
+                        className={`group relative w-full max-w-xs mx-auto py-4 px-8 rounded-xl shadow-xl shadow-blue-500/30 overflow-hidden ${!buttonStyle?.backgroundColor ? 'bg-gradient-to-r from-blue-600 to-blue-500' : ''}`}
+                    >
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                        <div className="relative flex items-center justify-center space-x-2">
+                            <span className="text-xl font-bold">{heroConfig.ctaText || "진단 시작하기"}</span>
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </motion.button>
 
-                {/* ... Footer Text ... */}
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1, duration: 1 }}
-                    className="mt-6 text-gray-400 text-sm"
-                >
-                    3분이면 충분합니다 • 100% 무료
-                </motion.p>
+                    {/* Footer Text */}
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1, duration: 1 }}
+                        className="mt-6 text-gray-400 text-sm"
+                    >
+                        3분이면 충분합니다 • 100% 무료
+                    </motion.p>
+                </div>
             </div>
         </div>
     );

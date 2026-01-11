@@ -142,19 +142,24 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
             ? config.detailContent?.find(c => c.id === step.contentId)
             : undefined;
 
-        // 2. Fallback: Find INTRO step's background (for Tone & Manner consistency)
+        // Resolve Background Styling (Inheritance from Intro)
         const introStep = config.steps.find(s => s.type === 'intro');
+        const introBackgroundStyle = introStep ? {
+            backgroundColor: introStep.backgroundColor,
+            backgroundImage: introStep.backgroundImage,
+            backgroundOverlay: introStep.backgroundOverlay
+        } : undefined;
+
+        const introTitleStyle = introStep?.titleStyle;
+        const introSubtitleStyle = introStep?.subtitleStyle;
+        const introButtonStyle = introStep?.buttonStyle;
+
         const introBackground = introStep?.contentId
             ? config.detailContent?.find(c => c.id === introStep.contentId)
             : undefined;
 
-        // Final Background Logic:
-        // - Intro/Outro: Use their own background (or none).
-        // - step.type === 'content': If it has no specific background (which StepContent uses 'contentId' for MAIN content),
-        //   we might want to use Intro's background. 
-        //   However, 'content' type uses 'contentId' for the CARD content (Map, Image).
-        //   So 'currentBackground' is actually the CARD content.
-        //   We need to pass 'introBackground' as the BACKGROUND of the page.
+        // Resolve Layout Styling (Inheritance from Intro)
+        const maxWidth = introStep?.maxWidth;
 
         // Resolve Inserted Content
         const insertedContent = (step.type === 'intro' || step.type === 'outro') && step.insertedContentId
@@ -191,6 +196,9 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 backgroundColor={step.backgroundColor}
                                 backgroundImage={step.backgroundImage}
                                 backgroundOverlay={step.backgroundOverlay}
+                                maxWidth={step.maxWidth}
+                                titleStyle={step.titleStyle}
+                                subtitleStyle={step.subtitleStyle}
                             />
                         )}
 
@@ -202,9 +210,15 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 onPrev={handleBuilderPrev}
                                 showPrevButton={step.showPrevButton}
                                 prevButtonText={step.prevButtonText}
-                                buttonStyle={step.buttonStyle}
+                                buttonStyle={step.buttonStyle || introButtonStyle}
                                 primaryColor={config.theme.primaryColor}
                                 backgroundContent={introBackground} // Inherit Intro background
+                                backgroundColor={introBackgroundStyle?.backgroundColor}
+                                backgroundImage={introBackgroundStyle?.backgroundImage}
+                                backgroundOverlay={introBackgroundStyle?.backgroundOverlay}
+                                maxWidth={maxWidth}
+                                titleStyle={step.titleStyle || introTitleStyle}
+                                subtitleStyle={step.subtitleStyle || introSubtitleStyle}
                             />
                         )}
 
@@ -221,9 +235,10 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 onPrev={handleBuilderPrev}
                                 showPrevButton={step.showPrevButton}
                                 prevButtonText={step.prevButtonText}
-                                buttonStyle={step.buttonStyle}
+                                buttonStyle={step.buttonStyle || introButtonStyle}
                                 formStyle={step.formStyle}
                                 primaryColor={config.theme.primaryColor}
+                                maxWidth={maxWidth}
                             />
                         )}
 
@@ -235,8 +250,15 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 primaryColor={config.theme.primaryColor}
                                 backgroundContent={currentBackground || introBackground} // Use own background or persist Intro's
                                 insertedContent={insertedContent}
+                                backgroundColor={step.backgroundColor || introBackgroundStyle?.backgroundColor}
+                                backgroundImage={step.backgroundImage || introBackgroundStyle?.backgroundImage}
+                                backgroundOverlay={step.backgroundOverlay ?? introBackgroundStyle?.backgroundOverlay}
+                                maxWidth={maxWidth}
+                                titleStyle={step.titleStyle || introTitleStyle}
+                                subtitleStyle={step.subtitleStyle || introSubtitleStyle}
                             />
                         )}
+
                     </motion.div>
                 </AnimatePresence>
             </div>

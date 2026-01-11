@@ -28,8 +28,10 @@ interface StepFormProps {
         answerColor?: string;
         answerBgColor?: string;
         answerBorderColor?: string;
+        fieldsPerPage?: number;
     };
     primaryColor?: string;
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 }
 
 const StepForm: React.FC<StepFormProps> = ({
@@ -42,7 +44,8 @@ const StepForm: React.FC<StepFormProps> = ({
     prevButtonText,
     buttonStyle,
     formStyle,
-    primaryColor = '#3b82f6'
+    primaryColor = '#3b82f6',
+    maxWidth
 }) => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -54,15 +57,29 @@ const StepForm: React.FC<StepFormProps> = ({
         const pages: FormField[][] = [];
         let currentPage: FormField[] = [];
         const fields = formConfig.fields || []; // Safety check
+        const fieldsPerPage = formStyle?.fieldsPerPage;
+
+        if (fieldsPerPage === 0) {
+            // All on one page
+            return fields.length > 0 ? [fields] : [];
+        }
+
+        const limit = fieldsPerPage || 2; // Default to 2 if not specified
 
         fields.forEach((field) => {
             const isBig = field.type === 'textarea' || field.type === 'address';
-            if (currentPage.length >= 2 || (isBig && currentPage.length > 0)) {
-                pages.push(currentPage);
+            // If fieldsPerPage is set (e.g. 1), we respect that strictly.
+            // If it's the default (2), we keep the 'big field' logic.
+            const currentLimit = fieldsPerPage ? fieldsPerPage : (isBig ? 1 : limit);
+
+            if (currentPage.length >= currentLimit || (isBig && !fieldsPerPage && currentPage.length > 0)) {
+                if (currentPage.length > 0) pages.push(currentPage);
                 currentPage = [];
             }
+
             currentPage.push(field);
-            if (isBig) {
+
+            if (isBig && !fieldsPerPage) {
                 pages.push(currentPage);
                 currentPage = [];
             }
@@ -72,7 +89,7 @@ const StepForm: React.FC<StepFormProps> = ({
             pages.push(currentPage);
         }
         return pages;
-    }, [formConfig.fields]);
+    }, [formConfig.fields, formStyle?.fieldsPerPage]);
 
     useEffect(() => {
         onProgressUpdate(currentStepIndex, steps.length);
@@ -147,7 +164,7 @@ const StepForm: React.FC<StepFormProps> = ({
 
     return (
         <div className="flex flex-col flex-1 min-h-screen">
-            <div className="flex-1 w-full max-w-md mx-auto px-6 py-8 flex flex-col justify-center">
+            <div className={`flex-1 w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-md'} mx-auto px-6 py-8 flex flex-col justify-center`}>
                 {/* Title */}
                 {formConfig.title && (
                     <motion.h2

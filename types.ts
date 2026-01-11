@@ -559,30 +559,29 @@ export interface DynamicStepItem {
   title?: string;
   hideTitle?: boolean; // New: Toggle title visibility
   buttonText?: string;
-  // showPrevButton is defined in Navigation section below, or we can keep it here if it overrides.
-  // Actually it was already there? Let's check original context.
-  // The original context had "Navigation" comment below.
-  // I will just remove my added lines and rely on the existing one if it exists, or consolidate.
 
   // Navigation
   showPrevButton?: boolean;
   prevButtonText?: string;
 
   // Styling
-  // Styling
   buttonStyle?: ButtonStyle;
+  titleStyle?: TextStyle;
+  subtitleStyle?: TextStyle;
   formStyle?: {
     questionColor?: string;
     questionSize?: string;
     answerColor?: string;
     answerBgColor?: string;
     answerBorderColor?: string;
+    fieldsPerPage?: number; // New: Fields per page control
   };
 
   // Background Styling (for intro/outro pages)
   backgroundColor?: string;      // Solid color background
   backgroundImage?: string;       // Image URL for background
   backgroundOverlay?: number;     // 0-100 opacity for dark overlay
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 
   // Outro Specific
   policyConfig?: {

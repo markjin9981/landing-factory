@@ -9,9 +9,28 @@ interface StepOutroProps {
     primaryColor?: string;
     backgroundContent?: DetailContent;
     insertedContent?: DetailContent;
+    backgroundColor?: string;
+    backgroundImage?: string;
+    backgroundOverlay?: number;
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+    titleStyle?: any;
+    subtitleStyle?: any;
 }
 
-const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryColor = '#3b82f6', backgroundContent, insertedContent }) => {
+const StepOutro: React.FC<StepOutroProps> = ({
+    step,
+    onPrev,
+    onSubmit,
+    primaryColor = '#3b82f6',
+    backgroundContent,
+    insertedContent,
+    backgroundColor,
+    backgroundImage,
+    backgroundOverlay,
+    maxWidth,
+    titleStyle,
+    subtitleStyle
+}) => {
     const [agreements, setAgreements] = useState({
         privacy: false,
         terms: false,
@@ -69,29 +88,44 @@ const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryCo
     const hasPolicies = step.policyConfig && Object.values(step.policyConfig).some(v => v);
 
     return (
-        <div className="flex flex-col flex-1 min-h-screen relative bg-white overflow-hidden">
+        <div
+            className="flex flex-col flex-1 min-h-screen relative bg-white overflow-hidden"
+            style={{
+                backgroundColor: backgroundColor || undefined,
+                backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            }}
+        >
             {/* --- BACKGROUND CONTENT LAYER --- */}
-            {backgroundContent && (
-                <div className="absolute inset-0 z-0">
-                    <img
-                        src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
-                            ? backgroundContent.content
-                            : (backgroundContent.type === 'youtube'
-                                ? `https://img.youtube.com/vi/${backgroundContent.content}/maxresdefault.jpg`
-                                : '')
-                        }
-                        alt="Background"
-                        className="w-full h-full object-cover opacity-60"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    />
-                    <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]" />
-                </div>
+            {(backgroundColor || backgroundImage) ? (
+                <div
+                    className="absolute inset-0 z-0 bg-black"
+                    style={{ opacity: (backgroundOverlay ?? 60) / 100 }}
+                />
+            ) : (
+                backgroundContent && (
+                    <div className="absolute inset-0 z-0">
+                        <img
+                            src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
+                                ? backgroundContent.content
+                                : (backgroundContent.type === 'youtube'
+                                    ? `https://img.youtube.com/vi/${backgroundContent.content}/maxresdefault.jpg`
+                                    : '')
+                            }
+                            alt="Background"
+                            className="w-full h-full object-cover opacity-60"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]" />
+                    </div>
+                )
             )}
 
-            <div className="flex-1 w-full max-w-md mx-auto px-6 py-12 flex flex-col justify-center relative z-10">
+            <div className={`flex-1 w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-md'} mx-auto px-6 py-12 flex flex-col justify-center relative z-10`}>
 
                 {/* Title */}
-                <h2 className="text-2xl font-bold mb-8 text-gray-900 text-center">
+                <h2 className="text-2xl font-bold mb-8 text-center" style={titleStyle}>
                     {step.title || '마지막 단계입니다'}
                 </h2>
 
@@ -178,7 +212,7 @@ const StepOutro: React.FC<StepOutroProps> = ({ step, onPrev, onSubmit, primaryCo
             {/* Bottom Buttons */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur border-t z-50 safe-area-bottom">
                 <div className={`max-w-md mx-auto flex gap-3 ${step.buttonStyle?.alignment === 'left' ? 'justify-start' :
-                        (step.buttonStyle?.alignment === 'right' ? 'justify-end' : 'justify-center')
+                    (step.buttonStyle?.alignment === 'right' ? 'justify-end' : 'justify-center')
                     }`}>
                     {/* PREV BUTTON */}
                     {(step.showPrevButton !== false && onPrev) && (

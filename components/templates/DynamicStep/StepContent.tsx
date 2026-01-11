@@ -16,9 +16,17 @@ interface StepContentProps {
         textColor?: string;
         fontSize?: string;
         borderRadius?: string;
+        fontFamily?: string;
+        fontWeight?: string;
     };
     primaryColor?: string;
     backgroundContent?: DetailContent;
+    backgroundColor?: string;
+    backgroundImage?: string;
+    backgroundOverlay?: number;
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+    titleStyle?: any;
+    subtitleStyle?: any;
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -30,7 +38,13 @@ const StepContent: React.FC<StepContentProps> = ({
     prevButtonText,
     buttonStyle,
     primaryColor = '#3b82f6',
-    backgroundContent
+    backgroundContent,
+    backgroundColor,
+    backgroundImage,
+    backgroundOverlay,
+    maxWidth,
+    titleStyle,
+    subtitleStyle
 }) => {
 
     const renderInner = () => {
@@ -93,28 +107,49 @@ const StepContent: React.FC<StepContentProps> = ({
     };
 
     // --- FULL SCREEN LAYOUT (If Background Exists) ---
-    if (backgroundContent) {
+    const hasCustomBackground = backgroundColor || backgroundImage;
+    const overlayOpacity = (backgroundOverlay ?? 60) / 100;
+
+    if (hasCustomBackground || backgroundContent) {
         return (
-            <div className="relative w-full min-h-screen flex flex-col overflow-hidden bg-gray-900">
-                {/* Background Layer */}
-                <div className="absolute inset-0 z-0">
-                    <img
-                        src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
-                            ? backgroundContent.content
-                            : (backgroundContent.type === 'youtube'
-                                ? `https://img.youtube.com/vi/${backgroundContent.content}/maxresdefault.jpg`
-                                : '')
-                        }
-                        alt="Background"
-                        className="w-full h-full object-cover opacity-60"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            <div
+                className="relative w-full min-h-screen flex flex-col overflow-x-hidden bg-gray-900"
+                style={{
+                    backgroundColor: backgroundColor || undefined,
+                    backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
+            >
+                {/* Overlay Layer */}
+                {hasCustomBackground && (
+                    <div
+                        className="absolute inset-0 z-0 bg-black"
+                        style={{ opacity: overlayOpacity }}
                     />
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
-                </div>
+                )}
+
+                {/* Legacy Background Content Layer (if no custom background) */}
+                {!hasCustomBackground && backgroundContent && (
+                    <div className="absolute inset-0 z-0">
+                        <img
+                            src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
+                                ? backgroundContent.content
+                                : (backgroundContent.type === 'youtube'
+                                    ? `https://img.youtube.com/vi/${backgroundContent.content}/maxresdefault.jpg`
+                                    : '')
+                            }
+                            alt="Background"
+                            className="w-full h-full object-cover opacity-60"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+                    </div>
+                )}
 
                 {/* Main Scrollable Area */}
                 <div className="flex-1 flex flex-col items-center justify-center p-4 pb-28 relative z-10">
-                    <div className="w-full max-w-screen-md bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl">
+                    <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-screen-md'} bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl`}>
                         {renderInner()}
                     </div>
                 </div>
@@ -150,7 +185,7 @@ const StepContent: React.FC<StepContentProps> = ({
         <div className="flex flex-col min-h-screen bg-gray-50">
             {/* Main Scrollable Area */}
             <div className="flex-1 flex flex-col items-center justify-center p-4 pb-28">
-                <div className="w-full max-w-screen-md">
+                <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-screen-md'}`}>
                     {renderInner()}
                 </div>
             </div>
