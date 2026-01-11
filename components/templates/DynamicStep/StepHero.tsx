@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { HeroSection, DetailContent } from '../../../types';
+import { HeroSection, DetailContent, FormField, FormSection } from '../../../types';
 import { ArrowRight } from 'lucide-react';
+import EmbeddedForm from './EmbeddedForm';
 
 interface StepHeroProps {
     heroConfig: HeroSection;
-    onStart: () => void;
+    onStart: (stepData?: any) => void;
     primaryColor: string;
     buttonStyle?: {
         backgroundColor?: string;
@@ -14,17 +15,29 @@ interface StepHeroProps {
         borderRadius?: string;
         fontFamily?: string;
         fontWeight?: string;
+        animation?: string;
     };
     backgroundContent?: DetailContent;
     insertedContent?: DetailContent;
     hideTitle?: boolean;
-    // New: Custom background styling
     backgroundColor?: string;
     backgroundImage?: string;
     backgroundOverlay?: number;
     maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
     titleStyle?: any;
     subtitleStyle?: any;
+    // New props for embedded form and media styling
+    formData?: any;
+    onDataChange?: (id: string, value: any) => void;
+    embeddedFields?: FormField[];
+    formConfig?: FormSection;
+    formStyle?: any;
+    mediaStyles?: {
+        pcWidth?: string;
+        pcHeight?: string;
+        mobileWidth?: string;
+        mobileHeight?: string;
+    };
 }
 
 const StepHero: React.FC<StepHeroProps> = ({
@@ -40,34 +53,48 @@ const StepHero: React.FC<StepHeroProps> = ({
     backgroundOverlay,
     maxWidth,
     titleStyle,
-    subtitleStyle
+    subtitleStyle,
+    formData = {},
+    onDataChange = () => { },
+    embeddedFields = [],
+    formStyle,
+    mediaStyles
 }) => {
-    // Floating animation for abstract elements
-    const floatingAnimation = {
-        y: [0, -20, 0],
-        transition: {
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut" as const
-        }
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const validateFields = () => {
+        const newErrors: Record<string, string> = {};
+        embeddedFields.forEach(field => {
+            if (field.required && !formData[field.id]) {
+                newErrors[field.id] = `필수 항목을 입력해주세요.`;
+            }
+        });
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
-    const customBtnStyle = {
-        background: buttonStyle?.backgroundColor,
-        color: buttonStyle?.textColor,
-        fontSize: buttonStyle?.fontSize,
-        borderRadius: buttonStyle?.borderRadius,
-        fontFamily: buttonStyle?.fontFamily,
-        fontWeight: buttonStyle?.fontWeight
+    const handleStart = () => {
+        if (validateFields()) {
+            onStart(formData);
+        }
     };
 
     // Determine background styling
     const hasCustomBackground = backgroundColor || backgroundImage;
     const overlayOpacity = (backgroundOverlay ?? 60) / 100;
 
+    const customBtnStyle = {
+        background: buttonStyle?.backgroundColor || primaryColor,
+        color: buttonStyle?.textColor || '#ffffff',
+        fontSize: buttonStyle?.fontSize,
+        borderRadius: buttonStyle?.borderRadius,
+        fontFamily: buttonStyle?.fontFamily,
+        fontWeight: buttonStyle?.fontWeight,
+    };
+
     return (
         <div
-            className="relative w-full h-screen overflow-hidden text-white flex flex-col justify-center items-center px-6 text-center"
+            className="relative w-full min-h-screen overflow-hidden text-white flex flex-col justify-center items-center px-6 text-center"
             style={{
                 backgroundColor: backgroundColor || undefined,
                 backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
@@ -75,7 +102,7 @@ const StepHero: React.FC<StepHeroProps> = ({
                 backgroundPosition: 'center',
             }}
         >
-            {/* --- OVERLAY LAYER --- */}
+            {/* Background Layer */}
             {hasCustomBackground && (
                 <div
                     className="absolute inset-0 bg-black z-0"
@@ -83,13 +110,12 @@ const StepHero: React.FC<StepHeroProps> = ({
                 />
             )}
 
-            {/* --- BACKGROUND CONTENT LAYER (Legacy) --- */}
             {!hasCustomBackground && backgroundContent && (
                 <div className="absolute inset-0 z-0">
                     <img
-                        src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
+                        src={((backgroundContent.type as any) === 'image' || (backgroundContent.type as any) === 'banner')
                             ? backgroundContent.content
-                            : (backgroundContent.type === 'youtube'
+                            : ((backgroundContent.type as any) === 'youtube'
                                 ? `https://img.youtube.com/vi/${backgroundContent.content}/maxresdefault.jpg`
                                 : '')
                         }
@@ -101,47 +127,28 @@ const StepHero: React.FC<StepHeroProps> = ({
                 </div>
             )}
 
-            {/* --- DEFAULT ABSTRACT BACKGROUND --- */}
             {!hasCustomBackground && !backgroundContent && (
-                <>
-                    <motion.div
-                        className="absolute top-1/4 left-10 w-32 h-32 bg-blue-500 rounded-full mix-blend-screen filter blur-3xl opacity-20"
-                        animate={floatingAnimation}
-                    />
-                    <motion.div
-                        className="absolute bottom-1/4 right-10 w-40 h-40 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-20"
-                        animate={{ ...floatingAnimation, transition: { ...floatingAnimation.transition, delay: 1 } }}
-                    />
-                </>
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black z-0" />
             )}
 
-            {/* --- CONTENT LAYER --- */}
-            <div className={`relative z-10 w-full px-6 flex flex-col items-center justify-center min-h-screen`}>
+            {/* Content Layer */}
+            <div className={`relative z-10 w-full px-6 py-20 flex flex-col items-center justify-center min-h-screen`}>
                 <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-lg'} flex flex-col items-center`}>
-                    {/* SubHeadline / Badge */}
                     {!hideTitle && (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
                             className="inline-block mb-4 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
-                            style={{
-                                ...subtitleStyle,
-                                color: subtitleStyle?.color || 'rgb(147, 197, 253)' // text-blue-300
-                            }}
+                            style={subtitleStyle}
                         >
-                            <span className="text-sm font-semibold tracking-wide" style={{ fontFamily: subtitleStyle?.fontFamily, fontWeight: subtitleStyle?.fontWeight }}>
+                            <span className="text-sm font-semibold tracking-wide">
                                 {heroConfig.subHeadline || "무료 자가진단"}
                             </span>
                         </motion.div>
                     )}
 
-                    {/* Headline */}
                     {!hideTitle && (
-                        <motion.h1
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.8, delay: 0.2, type: "spring" }}
+                        <h1
                             className="text-4xl md:text-5xl font-bold leading-tight mb-8"
                             style={{
                                 ...titleStyle,
@@ -150,21 +157,60 @@ const StepHero: React.FC<StepHeroProps> = ({
                             }}
                         >
                             {heroConfig.headline}
-                        </motion.h1>
+                        </h1>
                     )}
 
                     {/* Inserted Media Content */}
                     {insertedContent && (
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.6, delay: 0.4 }}
-                            className="w-full mb-10 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+                            className="w-full mb-10 rounded-2xl overflow-hidden shadow-2xl relative bg-black/20 border border-white/10"
                         >
-                            <img
-                                src={insertedContent.content}
-                                alt="Intro Media"
-                                className="w-full h-auto max-h-[400px] object-cover"
+                            <div
+                                className="mx-auto overflow-y-auto"
+                                style={{
+                                    width: mediaStyles?.pcWidth || '100%',
+                                    height: mediaStyles?.pcHeight || 'auto',
+                                    maxHeight: mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? mediaStyles.pcHeight : '60vh',
+                                }}
+                            >
+                                {insertedContent.type === 'video' ? (
+                                    <video
+                                        src={insertedContent.content}
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                        className="w-full h-full object-contain"
+                                    />
+                                ) : (
+                                    <img
+                                        src={insertedContent.content}
+                                        className="w-full h-full object-contain"
+                                        alt="Hero Content"
+                                    />
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* Embedded Form Fields */}
+                    {embeddedFields.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="w-full text-left bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 mb-8"
+                        >
+                            <EmbeddedForm
+                                fields={embeddedFields}
+                                formData={formData}
+                                onChange={onDataChange}
+                                errors={errors}
+                                formStyle={formStyle}
+                                primaryColor={primaryColor}
                             />
                         </motion.div>
                     )}
@@ -174,28 +220,19 @@ const StepHero: React.FC<StepHeroProps> = ({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.6 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={onStart}
-                        style={hasCustomBackground ? customBtnStyle : {}}
-                        className={`group relative w-full max-w-xs mx-auto py-4 px-8 rounded-xl shadow-xl shadow-blue-500/30 overflow-hidden ${!buttonStyle?.backgroundColor ? 'bg-gradient-to-r from-blue-600 to-blue-500' : ''}`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleStart}
+                        style={customBtnStyle}
+                        className={`group relative w-full max-w-xs mx-auto py-4 px-8 rounded-xl shadow-xl flex items-center justify-center gap-2 font-bold ${!buttonStyle?.backgroundColor ? 'bg-gradient-to-r from-blue-600 to-blue-500 shadow-blue-500/30' : ''} ${buttonStyle?.animation ? `animate-btn-${buttonStyle.animation}` : ''}`}
                     >
-                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                        <div className="relative flex items-center justify-center space-x-2">
-                            <span className="text-xl font-bold">{heroConfig.ctaText || "진단 시작하기"}</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </div>
+                        <span>{heroConfig.ctaText || "진단 시작하기"}</span>
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </motion.button>
 
-                    {/* Footer Text */}
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1, duration: 1 }}
-                        className="mt-6 text-gray-400 text-sm"
-                    >
+                    <p className="mt-6 text-gray-400 text-sm">
                         3분이면 충분합니다 • 100% 무료
-                    </motion.p>
+                    </p>
                 </div>
             </div>
         </div>

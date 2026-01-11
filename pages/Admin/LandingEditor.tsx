@@ -3335,6 +3335,70 @@ const LandingEditor: React.FC = () => {
                                                                             </option>
                                                                         ))}
                                                                     </select>
+
+                                                                    {step.insertedContentId && (
+                                                                        <div className="mt-2 bg-gray-50 p-2 rounded border border-gray-100">
+                                                                            <details>
+                                                                                <summary className="text-[10px] font-bold text-gray-500 cursor-pointer">미디어 크기 설정 (PC/모바일)</summary>
+                                                                                <div className="grid grid-cols-2 gap-3 mt-2">
+                                                                                    <div>
+                                                                                        <label className="text-[9px] text-gray-400 block mb-1">PC 너비</label>
+                                                                                        <input type="text" value={step.mediaStyles?.pcWidth || '100%'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, pcWidth: e.target.value } })} className="w-full border rounded text-[10px] px-1" placeholder="100% or 500px" />
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <label className="text-[9px] text-gray-400 block mb-1">PC 높이</label>
+                                                                                        <input type="text" value={step.mediaStyles?.pcHeight || 'auto'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, pcHeight: e.target.value } })} className="w-full border rounded text-[10px] px-1" placeholder="auto" />
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <label className="text-[9px] text-gray-400 block mb-1">모바일 너비</label>
+                                                                                        <input type="text" value={step.mediaStyles?.mobileWidth || '100%'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, mobileWidth: e.target.value as any } })} className="w-full border rounded text-[10px] px-1" placeholder="100%" />
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <label className="text-[9px] text-gray-400 block mb-1">모바일 높이</label>
+                                                                                        <input type="text" value={step.mediaStyles?.mobileHeight || 'auto'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, mobileHeight: e.target.value as any } })} className="w-full border rounded text-[10px] px-1" placeholder="auto" />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <p className="text-[8px] text-gray-400 mt-2">※ 크기 초과 시 세로 스크롤바가 자동으로 생성됩니다.</p>
+                                                                            </details>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="mt-2 bg-blue-50/50 p-2 rounded border border-blue-100">
+                                                                    <label className="text-[10px] font-bold text-blue-600 block mb-1">표시할 입력 항목 (페이지 삽입)</label>
+                                                                    <div className="bg-white border rounded p-2 space-y-1 max-h-40 overflow-y-auto">
+                                                                        {(config.formConfig.fields || []).map((field) => (
+                                                                            <label key={field.id} className="flex items-center gap-2 p-1 hover:bg-gray-50 rounded cursor-pointer">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={(step.fieldIds || []).includes(field.id)}
+                                                                                    onChange={(e) => {
+                                                                                        const currentIds = step.fieldIds || [];
+                                                                                        let newIds = e.target.checked
+                                                                                            ? [...currentIds, field.id]
+                                                                                            : currentIds.filter(id => id !== field.id);
+                                                                                        updateStep(idx, { fieldIds: newIds });
+                                                                                    }}
+                                                                                    className="rounded text-blue-600 focus:ring-blue-500"
+                                                                                />
+                                                                                <span className="text-xs text-gray-700">{field.label} ({field.type})</span>
+                                                                            </label>
+                                                                        ))}
+                                                                    </div>
+                                                                    {(step.fieldIds?.length || 0) > 0 && (
+                                                                        <div className="mt-2">
+                                                                            <label className="text-[9px] text-gray-500">질문 배치 설정</label>
+                                                                            <select
+                                                                                value={step.formStyle?.fieldsPerPage || 0}
+                                                                                onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, fieldsPerPage: parseInt(e.target.value) } })}
+                                                                                className="w-full border rounded p-1 text-[10px]"
+                                                                            >
+                                                                                <option value={0}>한 페이지에 모두 표시</option>
+                                                                                <option value={1}>1개씩 (페이지 분할)</option>
+                                                                                <option value={2}>2개씩</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
 
                                                                 {/* NEW: Background Styling */}
@@ -3436,6 +3500,70 @@ const LandingEditor: React.FC = () => {
                                                                         </option>
                                                                     ))}
                                                                 </select>
+
+                                                                {step.insertedContentId && (
+                                                                    <div className="mt-2 bg-gray-50 p-2 rounded border border-gray-100">
+                                                                        <details>
+                                                                            <summary className="text-[10px] font-bold text-gray-500 cursor-pointer">미디어 크기 설정 (PC/모바일)</summary>
+                                                                            <div className="grid grid-cols-2 gap-3 mt-2">
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block mb-1">PC 너비</label>
+                                                                                    <input type="text" value={step.mediaStyles?.pcWidth || '100%'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, pcWidth: e.target.value } })} className="w-full border rounded text-[10px] px-1" placeholder="100% or 500px" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block mb-1">PC 높이</label>
+                                                                                    <input type="text" value={step.mediaStyles?.pcHeight || 'auto'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, pcHeight: e.target.value } })} className="w-full border rounded text-[10px] px-1" placeholder="auto" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block mb-1">모바일 너비</label>
+                                                                                    <input type="text" value={step.mediaStyles?.mobileWidth || '100%'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, mobileWidth: e.target.value as any } })} className="w-full border rounded text-[10px] px-1" placeholder="100%" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block mb-1">모바일 높이</label>
+                                                                                    <input type="text" value={step.mediaStyles?.mobileHeight || 'auto'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, mobileHeight: e.target.value as any } })} className="w-full border rounded text-[10px] px-1" placeholder="auto" />
+                                                                                </div>
+                                                                            </div>
+                                                                            <p className="text-[8px] text-gray-400 mt-2">※ 크기 초과 시 세로 스크롤바가 자동으로 생성됩니다.</p>
+                                                                        </details>
+                                                                    </div>
+                                                                )}
+
+                                                                <div className="mt-2 bg-blue-50/50 p-2 rounded border border-blue-100">
+                                                                    <label className="text-[10px] font-bold text-blue-600 block mb-1">표시할 입력 항목 (페이지 삽입)</label>
+                                                                    <div className="bg-white border rounded p-2 space-y-1 max-h-40 overflow-y-auto">
+                                                                        {(config.formConfig.fields || []).map((field) => (
+                                                                            <label key={field.id} className="flex items-center gap-2 p-1 hover:bg-gray-50 rounded cursor-pointer">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={(step.fieldIds || []).includes(field.id)}
+                                                                                    onChange={(e) => {
+                                                                                        const currentIds = step.fieldIds || [];
+                                                                                        let newIds = e.target.checked
+                                                                                            ? [...currentIds, field.id]
+                                                                                            : currentIds.filter(id => id !== field.id);
+                                                                                        updateStep(idx, { fieldIds: newIds });
+                                                                                    }}
+                                                                                    className="rounded text-blue-600 focus:ring-blue-500"
+                                                                                />
+                                                                                <span className="text-xs text-gray-700">{field.label} ({field.type})</span>
+                                                                            </label>
+                                                                        ))}
+                                                                    </div>
+                                                                    {(step.fieldIds?.length || 0) > 0 && (
+                                                                        <div className="mt-2">
+                                                                            <label className="text-[9px] text-gray-500">질문 배치 설정</label>
+                                                                            <select
+                                                                                value={step.formStyle?.fieldsPerPage || 0}
+                                                                                onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, fieldsPerPage: parseInt(e.target.value) } })}
+                                                                                className="w-full border rounded p-1 text-[10px]"
+                                                                            >
+                                                                                <option value={0}>한 페이지에 모두 표시</option>
+                                                                                <option value={1}>1개씩 (페이지 분할)</option>
+                                                                                <option value={2}>2개씩</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
 
@@ -3455,6 +3583,70 @@ const LandingEditor: React.FC = () => {
                                                                         </option>
                                                                     ))}
                                                                 </select>
+
+                                                                {step.contentId && (
+                                                                    <div className="mt-2 bg-gray-50 p-2 rounded border border-gray-100">
+                                                                        <details>
+                                                                            <summary className="text-[10px] font-bold text-gray-500 cursor-pointer">미디어 크기 설정 (PC/모바일)</summary>
+                                                                            <div className="grid grid-cols-2 gap-3 mt-2">
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block mb-1">PC 너비</label>
+                                                                                    <input type="text" value={step.mediaStyles?.pcWidth || '100%'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, pcWidth: e.target.value } })} className="w-full border rounded text-[10px] px-1" placeholder="100% or 500px" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block mb-1">PC 높이</label>
+                                                                                    <input type="text" value={step.mediaStyles?.pcHeight || 'auto'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, pcHeight: e.target.value } })} className="w-full border rounded text-[10px] px-1" placeholder="auto" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block mb-1">모바일 너비</label>
+                                                                                    <input type="text" value={step.mediaStyles?.mobileWidth || '100%'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, mobileWidth: e.target.value as any } })} className="w-full border rounded text-[10px] px-1" placeholder="100%" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block mb-1">모바일 높이</label>
+                                                                                    <input type="text" value={step.mediaStyles?.mobileHeight || 'auto'} onChange={(e) => updateStep(idx, { mediaStyles: { ...step.mediaStyles, mobileHeight: e.target.value as any } })} className="w-full border rounded text-[10px] px-1" placeholder="auto" />
+                                                                                </div>
+                                                                            </div>
+                                                                            <p className="text-[8px] text-gray-400 mt-2">※ 크기 초과 시 세로 스크롤바가 자동으로 생성됩니다.</p>
+                                                                        </details>
+                                                                    </div>
+                                                                )}
+
+                                                                <div className="mt-2 bg-blue-50/50 p-2 rounded border border-blue-100">
+                                                                    <label className="text-[10px] font-bold text-blue-600 block mb-1">표시할 입력 항목 (페이지 삽입)</label>
+                                                                    <div className="bg-white border rounded p-2 space-y-1 max-h-40 overflow-y-auto">
+                                                                        {(config.formConfig.fields || []).map((field) => (
+                                                                            <label key={field.id} className="flex items-center gap-2 p-1 hover:bg-gray-50 rounded cursor-pointer">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={(step.fieldIds || []).includes(field.id)}
+                                                                                    onChange={(e) => {
+                                                                                        const currentIds = step.fieldIds || [];
+                                                                                        let newIds = e.target.checked
+                                                                                            ? [...currentIds, field.id]
+                                                                                            : currentIds.filter(id => id !== field.id);
+                                                                                        updateStep(idx, { fieldIds: newIds });
+                                                                                    }}
+                                                                                    className="rounded text-blue-600 focus:ring-blue-500"
+                                                                                />
+                                                                                <span className="text-xs text-gray-700">{field.label} ({field.type})</span>
+                                                                            </label>
+                                                                        ))}
+                                                                    </div>
+                                                                    {(step.fieldIds?.length || 0) > 0 && (
+                                                                        <div className="mt-2">
+                                                                            <label className="text-[9px] text-gray-500">질문 배치 설정</label>
+                                                                            <select
+                                                                                value={step.formStyle?.fieldsPerPage || 0}
+                                                                                onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, fieldsPerPage: parseInt(e.target.value) } })}
+                                                                                className="w-full border rounded p-1 text-[10px]"
+                                                                            >
+                                                                                <option value={0}>한 페이지에 모두 표시</option>
+                                                                                <option value={1}>1개씩 (페이지 분할)</option>
+                                                                                <option value={2}>2개씩</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
 

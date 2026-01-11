@@ -6,7 +6,7 @@ export interface FieldOption {
 export interface FormField {
   id: string; // Internal ID for the field (e.g., 'name', 'phone', 'location')
   label: string;
-  type: 'text' | 'tel' | 'email' | 'select' | 'textarea' | 'radio' | 'checkbox' | 'time' | 'date' | 'address';
+  type: 'text' | 'tel' | 'email' | 'select' | 'textarea' | 'radio' | 'checkbox' | 'time' | 'date' | 'address' | 'number';
   placeholder?: string;
   required: boolean;
   options?: FieldOption[]; // For select or radio types
@@ -357,7 +357,7 @@ export interface UrgencyConfig {
 
 export interface DetailContent {
   id: string;
-  type: 'image' | 'youtube' | 'map' | 'banner';
+  type: 'image' | 'youtube' | 'map' | 'banner' | 'video';
   content: string; // Image URL, YouTube URL, Address, or Banner Text
 
   // YouTube specific
@@ -589,6 +589,14 @@ export interface DynamicStepItem {
     showTerms?: boolean;
     showMarketing?: boolean;
     showThirdParty?: boolean;
+  };
+
+  // Media Styling for insertedContent
+  mediaStyles?: {
+    pcWidth?: string;
+    pcHeight?: string;
+    mobileWidth?: string;
+    mobileHeight?: string;
   };
 }
 

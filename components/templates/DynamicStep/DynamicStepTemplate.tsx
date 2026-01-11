@@ -161,10 +161,26 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
         // Resolve Layout Styling (Inheritance from Intro)
         const maxWidth = introStep?.maxWidth;
 
+        // Resolve Embedded Fields
+        const embeddedFields = (config.formConfig.fields || []).filter(f => (step.fieldIds || []).includes(f.id));
+
         // Resolve Inserted Content
         const insertedContent = (step.type === 'intro' || step.type === 'outro') && step.insertedContentId
             ? config.detailContent?.find(c => c.id === step.insertedContentId)
             : undefined;
+
+        const commonProps = {
+            formData: accumulatedData,
+            onDataChange: (id: string, value: any) => setAccumulatedData((prev: any) => ({ ...prev, [id]: value })),
+            formConfig: config.formConfig,
+            primaryColor: config.theme.primaryColor,
+            maxWidth: step.maxWidth || maxWidth, // Use specific or inherited
+            buttonStyle: step.buttonStyle || introButtonStyle,
+            titleStyle: step.titleStyle || introTitleStyle,
+            subtitleStyle: step.subtitleStyle || introSubtitleStyle,
+            formStyle: step.formStyle, // This includes questionColor, etc.
+            mediaStyles: step.mediaStyles
+        };
 
         return (
             <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden">
@@ -182,52 +198,47 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                     >
                         {step.type === 'intro' && (
                             <StepHero
+                                {...commonProps}
                                 heroConfig={{
                                     ...config.hero,
                                     headline: step.title || config.hero.headline,
                                     ctaText: step.buttonText || config.hero.ctaText
                                 }}
                                 onStart={() => handleBuilderNext()}
-                                primaryColor={config.theme.primaryColor}
-                                buttonStyle={step.buttonStyle}
-                                backgroundContent={currentBackground} // Intro uses its own contentId as background
+                                backgroundContent={currentBackground}
                                 insertedContent={insertedContent}
                                 hideTitle={step.hideTitle}
                                 backgroundColor={step.backgroundColor}
                                 backgroundImage={step.backgroundImage}
                                 backgroundOverlay={step.backgroundOverlay}
-                                maxWidth={step.maxWidth}
-                                titleStyle={step.titleStyle}
-                                subtitleStyle={step.subtitleStyle}
+                                embeddedFields={embeddedFields}
                             />
                         )}
 
                         {step.type === 'content' && (
                             <StepContent
+                                {...commonProps}
                                 content={config.detailContent?.find(c => c.id === step.contentId) || { id: 'fallback', type: 'image', content: '' }}
                                 onNext={() => handleBuilderNext()}
                                 nextButtonText={step.buttonText}
                                 onPrev={handleBuilderPrev}
                                 showPrevButton={step.showPrevButton}
                                 prevButtonText={step.prevButtonText}
-                                buttonStyle={step.buttonStyle || introButtonStyle}
-                                primaryColor={config.theme.primaryColor}
-                                backgroundContent={introBackground} // Inherit Intro background
+                                backgroundContent={introBackground}
                                 backgroundColor={introBackgroundStyle?.backgroundColor}
                                 backgroundImage={introBackgroundStyle?.backgroundImage}
                                 backgroundOverlay={introBackgroundStyle?.backgroundOverlay}
-                                maxWidth={maxWidth}
-                                titleStyle={step.titleStyle || introTitleStyle}
-                                subtitleStyle={step.subtitleStyle || introSubtitleStyle}
+                                embeddedFields={embeddedFields}
                             />
                         )}
 
                         {step.type === 'form' && (
                             <StepForm
+                                {...commonProps}
                                 formConfig={{
                                     ...config.formConfig,
                                     title: step.title || config.formConfig.title,
-                                    fields: (config.formConfig.fields || []).filter(f => (step.fieldIds || []).includes(f.id))
+                                    fields: embeddedFields
                                 }}
                                 onSubmit={(data) => handleBuilderNext(data)}
                                 onProgressUpdate={() => { }}
@@ -235,27 +246,21 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 onPrev={handleBuilderPrev}
                                 showPrevButton={step.showPrevButton}
                                 prevButtonText={step.prevButtonText}
-                                buttonStyle={step.buttonStyle || introButtonStyle}
-                                formStyle={step.formStyle}
-                                primaryColor={config.theme.primaryColor}
-                                maxWidth={maxWidth}
                             />
                         )}
 
                         {step.type === 'outro' && (
                             <StepOutro
+                                {...commonProps}
                                 step={step}
                                 onPrev={handleBuilderPrev}
                                 onSubmit={handleBuilderNext}
-                                primaryColor={config.theme.primaryColor}
-                                backgroundContent={currentBackground || introBackground} // Use own background or persist Intro's
+                                backgroundContent={currentBackground || introBackground}
                                 insertedContent={insertedContent}
                                 backgroundColor={step.backgroundColor || introBackgroundStyle?.backgroundColor}
                                 backgroundImage={step.backgroundImage || introBackgroundStyle?.backgroundImage}
                                 backgroundOverlay={step.backgroundOverlay ?? introBackgroundStyle?.backgroundOverlay}
-                                maxWidth={maxWidth}
-                                titleStyle={step.titleStyle || introTitleStyle}
-                                subtitleStyle={step.subtitleStyle || introSubtitleStyle}
+                                embeddedFields={embeddedFields}
                             />
                         )}
 
