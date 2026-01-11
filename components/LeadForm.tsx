@@ -241,7 +241,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                                     key={field.id}
                                     className={`${isGridLayout && isFullWidth ? 'md:col-span-2' : ''}`}
                                 >
-                                    <label className="block text-sm font-semibold mb-1" style={{ color: textColor }}>
+                                    <label className="block text-sm font-semibold mb-1" style={{ color: textColor, fontFamily: formStyle.inputFontFamily }}>
                                         {field.label} {field.required && <span className="text-red-500 text-xs align-top">필수</span>}
                                     </label>
 
