@@ -245,18 +245,22 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     }
   };
 
-  const getHeroPadding = (size: HeroSection['size'] = 'md') => {
-    switch (size) {
-      case '3xs': return 'py-8';
-      case '2xs': return 'py-12';
-      case 'xs': return 'py-16';
-      case 'sm': return 'py-20';
-      case 'lg': return 'py-32';
-      case 'xl': return 'py-40';
-      case '2xl': return 'py-48';
-      case '3xl': return 'py-64';
-      case 'md': default: return 'py-24';
-    }
+  const getHeroVerticalPadding = (size: HeroSection['size'] = 'md', align: number = 0) => {
+    const basePaddingMap: Record<string, number> = {
+      '3xs': 2, '2xs': 3, 'xs': 4, 'sm': 5,
+      'md': 6, 'lg': 8, 'xl': 10, '2xl': 12, '3xl': 16
+    };
+    const baseRem = basePaddingMap[size] || 6;
+
+    // Shift logic: -2 (Top) means less top padding, more bottom padding.
+    // Factor: 0.25 per step -> Max 50% shift for +/- 2
+    const topFactor = 1 + (align * 0.25); // -2 => 0.5, +2 => 1.5
+    const bottomFactor = 1 - (align * 0.25); // -2 => 1.5, +2 => 0.5
+
+    return {
+      paddingTop: `${baseRem * topFactor}rem`,
+      paddingBottom: `${baseRem * bottomFactor}rem`
+    };
   };
 
   const getCTAWidth = (width?: string) => width === 'full' ? '100%' : '16rem';
@@ -341,7 +345,10 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         {/* 1. Hero Section */}
         <div id="section-hero">
           {(hero.isShow ?? true) && isMainView && (
-            <section className={`relative bg-gray-900 text-white overflow-hidden mx-auto ${heroContainerClass} px-4 ${getHeroPadding(hero.size)}`}>
+            <section
+              className={`relative bg-gray-900 text-white overflow-hidden mx-auto ${heroContainerClass} px-4`}
+              style={getHeroVerticalPadding(hero.size, hero.verticalAlign ?? 0)}
+            >
               <div className="absolute inset-0 z-0">
                 {hero.backgroundImage && <img src={hero.backgroundImage} alt="Background" className="w-full h-full object-cover" />}
                 <div className="absolute inset-0 bg-black" style={{ opacity: (hero.overlayOpacity ?? 20) / 100 }}></div>

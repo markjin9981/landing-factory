@@ -1646,6 +1646,24 @@ const LandingEditor: React.FC = () => {
                                                 <span>어둡게 (90%)</span>
                                             </div>
                                         </div>
+                                        <div className="mb-4 pt-2 border-t mt-2">
+                                            <label className="text-xs font-bold text-gray-500 mb-1 flex justify-between">
+                                                텍스트 상하 위치 조절 (Vertical Align)
+                                                <span className="text-blue-600">{config.hero.verticalAlign ?? 0}</span>
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="-2" max="2" step="1"
+                                                value={config.hero.verticalAlign ?? 0}
+                                                onChange={(e) => updateNested(['hero', 'verticalAlign'], Number(e.target.value))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                            />
+                                            <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                                                <span>위로 (-2)</span>
+                                                <span>중앙 (0)</span>
+                                                <span>아래로 (+2)</span>
+                                            </div>
+                                        </div>
                                         <div>
                                             <label className="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
                                                 <Maximize className="w-3 h-3" /> 섹션 크기 (높이)
