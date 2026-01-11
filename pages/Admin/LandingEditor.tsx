@@ -9,6 +9,7 @@ import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubTo
 import { compressImage } from '../../utils/imageCompression';
 
 import { GOOGLE_FONTS_LIST } from '../../utils/fontUtils';
+import { SECURITY_PRESETS } from '../../components/SecurityFooter';
 import FontPicker from '../../components/admin/FontPicker';
 
 // GitHub Sync Check: Force Update
@@ -2915,6 +2916,26 @@ const LandingEditor: React.FC = () => {
                                                 />
                                             </div>
                                             <ButtonStyleEditor label="버튼" mode="flat_form_button" />
+                                        </div>
+                                    </div>
+                                    {/* Security Badge Style */}
+                                    <div className="pt-4 border-t mb-4">
+                                        <h4 className="text-xs font-bold text-gray-700 mb-2">보안 배지 스타일 (Security Footer)</h4>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {SECURITY_PRESETS.map((preset) => (
+                                                <button
+                                                    key={preset.id}
+                                                    onClick={() => updateNested(['formConfig', 'style', 'securityBadgeId'], preset.id)}
+                                                    className={`p-2 border rounded flex items-center gap-2 text-xs transition-colors
+                                                        ${config.formConfig.style?.securityBadgeId === preset.id
+                                                            ? 'bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500'
+                                                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                                                        }`}
+                                                >
+                                                    <preset.icon className="w-3 h-3 shrink-0" />
+                                                    <span className="truncate">{preset.name}</span>
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>

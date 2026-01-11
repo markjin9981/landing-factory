@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FormSection, LeadData } from '../types';
 import { submitLeadToSheet } from '../services/googleSheetService';
 import { CheckCircle, AlertCircle, Loader2, Lock, FileText, X, ChevronDown } from 'lucide-react';
+import SecurityFooter from './SecurityFooter';
 
 interface Props {
     config: FormSection;
@@ -702,10 +703,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
                         </button>
                     </div>
 
-                    <div className="flex justify-center items-center gap-4 text-xs mt-3 opacity-60" style={{ color: textColor }}>
-                        <div className="flex items-center gap-1"><Lock className="w-3 h-3" /> SSL 보안 적용</div>
-                        <div className="flex items-center gap-1">개인정보 암호화</div>
-                    </div>
+                    <SecurityFooter presetId={config.style?.securityBadgeId} />
                 </form>
             </div >
 

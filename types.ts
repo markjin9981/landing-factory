@@ -131,6 +131,7 @@ export interface FormStyle {
   buttonAlign?: 'left' | 'center' | 'right';
   buttonFontFamily?: string;
   buttonAnimation?: ButtonAnimationType;
+  securityBadgeId?: string; // New: Security Footer Preset ID (0-10)
 }
 
 // 2. UrgencyConfig
