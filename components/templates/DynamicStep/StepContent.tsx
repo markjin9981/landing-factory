@@ -48,6 +48,7 @@ interface StepContentProps {
             options?: any[];
         };
     };
+    hideMobileBackground?: boolean; // NEW
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -70,7 +71,8 @@ const StepContent: React.FC<StepContentProps> = ({
     onDataChange = () => { },
     embeddedFields = [],
     formStyle,
-    mediaStyles
+    mediaStyles,
+    hideMobileBackground = false // NEW
 }) => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isMobile, setIsMobile] = useState(false);
@@ -101,10 +103,14 @@ const StepContent: React.FC<StepContentProps> = ({
 
     const renderInner = () => {
         const mediaContainerStyle = {
-            width: isMobile ? (mediaStyles?.mobileWidth || '100%') : (mediaStyles?.pcWidth || '100%'),
-            height: isMobile ? (mediaStyles?.mobileHeight || 'auto') : (mediaStyles?.pcHeight || 'auto'),
+            width: isMobile
+                ? (hideMobileBackground ? '100vw' : (mediaStyles?.mobileWidth || '100%'))
+                : (mediaStyles?.pcWidth || '100%'),
+            height: isMobile
+                ? (hideMobileBackground ? 'auto' : (mediaStyles?.mobileHeight || 'auto'))
+                : (mediaStyles?.pcHeight || 'auto'),
             maxHeight: isMobile
-                ? (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '70vh')
+                ? (hideMobileBackground ? '80vh' : (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '70vh'))
                 : (mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? 'none' : '70vh'),
             overflowY: 'auto' as const
         };
@@ -201,15 +207,15 @@ const StepContent: React.FC<StepContentProps> = ({
                 backgroundPosition: 'center',
             }}
         >
-            {/* Background Layer */}
-            {hasCustomBackground && (
+            {/* Background Layer -- Mobile conditional */}
+            {hasCustomBackground && (!isMobile || !hideMobileBackground) && (
                 <div
                     className="absolute inset-0 z-0 bg-black"
                     style={{ opacity: overlayOpacity }}
                 />
             )}
 
-            {!hasCustomBackground && backgroundContent && (
+            {!hasCustomBackground && backgroundContent && (!isMobile || !hideMobileBackground) && (
                 <div className="absolute inset-0 z-0">
                     <img
                         src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
@@ -227,12 +233,12 @@ const StepContent: React.FC<StepContentProps> = ({
             )}
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col items-center justify-center p-4 pb-28 relative z-10">
-                <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-screen-md'} space-y-8`}>
+            <div className={`flex-1 flex flex-col items-center justify-center p-4 pb-28 relative z-10 ${(isMobile && hideMobileBackground) ? '!p-0' : ''}`}>
+                <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-screen-md'} space-y-8 ${(isMobile && hideMobileBackground) ? '!w-full' : ''}`}>
                     {renderInner()}
 
                     {embeddedFields.length > 0 && (
-                        <div className={`p-6 rounded-2xl border ${(hasCustomBackground || backgroundContent) ? 'bg-white/5 border-white/10 backdrop-blur-md' : 'bg-gray-50 border-gray-100'}`}>
+                        <div className={`p-6 rounded-2xl border mb-8 ${(isMobile && hideMobileBackground) ? 'mx-4' : ''} ${(hasCustomBackground || backgroundContent) ? 'bg-white/5 border-white/10 backdrop-blur-md' : 'bg-gray-50 border-gray-100'}`}>
                             <EmbeddedForm
                                 fields={embeddedFields}
                                 formData={formData}

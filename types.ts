@@ -628,6 +628,12 @@ export interface DynamicStepItem {
 
     // Advanced Options
     hideBackground?: boolean;        // hide semi-transparent background
+
+    // Standard CSS Aliases (for easier usage/consistency)
+    backgroundColor?: string;
+    borderColor?: string;
+    borderRadius?: string;
+    padding?: string;
   };
 
   // NEW: Mobile Background Toggle (Fix #3)

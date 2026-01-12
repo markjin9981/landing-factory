@@ -69,7 +69,8 @@ const StepHero: React.FC<StepHeroProps> = ({
     embeddedFields = [],
     formStyle,
     mediaStyles,
-    hideMobileBackground = false // NEW: default to showing background
+    hideMobileBackground = false, // NEW: default to showing background
+    fieldOverrides // NEW
 }) => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isMobile, setIsMobile] = useState(false);
@@ -239,6 +240,7 @@ const StepHero: React.FC<StepHeroProps> = ({
                                 errors={errors}
                                 formStyle={formStyle}
                                 primaryColor={primaryColor}
+                                fieldOverrides={fieldOverrides} // NEW: Pass overrides
                             />
                         </motion.div>
                     )}

@@ -37,6 +37,7 @@ interface StepOutroProps {
         mobileWidth?: string;
         mobileHeight?: string;
     };
+    hideMobileBackground?: boolean; // NEW
 }
 
 const StepOutro: React.FC<StepOutroProps> = ({
@@ -56,7 +57,8 @@ const StepOutro: React.FC<StepOutroProps> = ({
     onDataChange = () => { },
     embeddedFields = [],
     formStyle,
-    mediaStyles
+    mediaStyles,
+    hideMobileBackground = false // NEW
 }) => {
     const [agreements, setAgreements] = useState({
         privacy: false,
@@ -140,6 +142,16 @@ const StepOutro: React.FC<StepOutroProps> = ({
     const hasCustomBackground = backgroundColor || backgroundImage;
     const overlayOpacity = (backgroundOverlay ?? 60) / 100;
 
+    // Policy Style Helper
+    const policyStyle = {
+        backgroundColor: step.policyStyle?.backgroundColor || (hasCustomBackground || backgroundContent ? 'rgba(255, 255, 255, 0.05)' : '#f9fafb'),
+        borderColor: step.policyStyle?.borderColor || (hasCustomBackground || backgroundContent ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6'),
+        borderRadius: step.policyStyle?.borderRadius || '1rem',
+        padding: step.policyStyle?.padding || '1.5rem',
+        maxHeight: step.policyStyle?.containerMaxHeight || 'none',
+        overflowY: step.policyStyle?.containerMaxHeight ? 'auto' as const : 'visible' as const,
+    };
+
     return (
         <div
             className={`flex flex-col flex-1 min-h-screen relative overflow-hidden ${hasCustomBackground || backgroundContent ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}
@@ -178,13 +190,15 @@ const StepOutro: React.FC<StepOutroProps> = ({
             <div className={`flex-1 w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-md'} mx-auto px-6 py-20 flex flex-col justify-center relative z-10`}>
 
                 {/* Title */}
-                <h2 className="text-2xl font-bold mb-8 text-center" style={titleStyle}>
-                    {step.title || '마지막 단계입니다'}
-                </h2>
+                {step.title && (
+                    <h2 className="text-2xl font-bold mb-8 text-center" style={titleStyle}>
+                        {step.title}
+                    </h2>
+                )}
 
                 {/* Inline Media Content */}
                 {insertedContent && (
-                    <div className={`w-full mb-8 rounded-xl overflow-hidden shadow-lg relative ${isMobile && step.hideMobileBackground
+                    <div className={`w-full mb-8 rounded-xl overflow-hidden shadow-lg relative ${isMobile && hideMobileBackground
                         ? '' // No frame on mobile when background is hidden
                         : 'bg-black/20 border border-white/10'
                         }`}>
@@ -192,13 +206,13 @@ const StepOutro: React.FC<StepOutroProps> = ({
                             className="mx-auto overflow-y-auto"
                             style={{
                                 width: isMobile
-                                    ? (step.hideMobileBackground ? '100vw' : (mediaStyles?.mobileWidth || '100%'))
+                                    ? (hideMobileBackground ? '100vw' : (mediaStyles?.mobileWidth || '100%'))
                                     : (mediaStyles?.pcWidth || '100%'),
                                 height: isMobile
-                                    ? (step.hideMobileBackground ? 'auto' : (mediaStyles?.mobileHeight || 'auto'))
+                                    ? (hideMobileBackground ? 'auto' : (mediaStyles?.mobileHeight || 'auto'))
                                     : (mediaStyles?.pcHeight || 'auto'),
                                 maxHeight: isMobile
-                                    ? (step.hideMobileBackground ? '80vh' : (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '400px'))
+                                    ? (hideMobileBackground ? '80vh' : (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '400px'))
                                     : (mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? 'none' : '400px'),
                             }}
                         >
@@ -249,11 +263,8 @@ const StepOutro: React.FC<StepOutroProps> = ({
                 {/* Policies */}
                 {hasPolicies && (
                     <div
-                        className={`rounded-2xl p-6 mb-8 border shadow-sm ${hasCustomBackground || backgroundContent ? 'bg-white/5 border-white/10 backdrop-blur-md' : 'bg-gray-50 border-gray-100'}`}
-                        style={{
-                            maxHeight: step.policyStyle?.containerMaxHeight || 'none',
-                            overflowY: step.policyStyle?.containerMaxHeight ? 'auto' as const : 'visible' as const,
-                        }}
+                        className={`mb-8 border shadow-sm ${hasCustomBackground || backgroundContent ? 'backdrop-blur-md' : ''}`}
+                        style={policyStyle}
                     >
                         <div
                             className={`flex items-center justify-between mb-4 pb-4 border-b ${hasCustomBackground || backgroundContent ? 'border-white/10' : 'border-gray-200'}`}

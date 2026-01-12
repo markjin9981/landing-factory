@@ -32,7 +32,7 @@ interface StepFormProps {
     };
     primaryColor?: string;
     maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
-    fieldOverrides?: {    // NEW
+    fieldOverrides?: {
         [fieldId: string]: {
             label?: string;
             type?: any;
@@ -41,6 +41,13 @@ interface StepFormProps {
             options?: any[];
         };
     };
+
+    // Background Props (Passed from Template)
+    backgroundContent?: any; // DetailContent
+    backgroundColor?: string;
+    backgroundImage?: string;
+    backgroundOverlay?: number;
+    hideMobileBackground?: boolean;
 }
 
 const StepForm: React.FC<StepFormProps> = ({
@@ -54,12 +61,25 @@ const StepForm: React.FC<StepFormProps> = ({
     buttonStyle,
     formStyle,
     primaryColor = '#3b82f6',
-    maxWidth
+    maxWidth,
+    backgroundContent,
+    backgroundColor,
+    backgroundImage,
+    backgroundOverlay,
+    hideMobileBackground = false
 }) => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [formData, setFormData] = useState<Record<string, any>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Group fields into steps
     const steps = React.useMemo(() => {
@@ -171,9 +191,44 @@ const StepForm: React.FC<StepFormProps> = ({
         } : {})
     };
 
+    const hasCustomBackground = backgroundColor || backgroundImage;
+    const overlayOpacity = (backgroundOverlay ?? 60) / 100;
+
     return (
-        <div className="flex flex-col flex-1 min-h-screen">
-            <div className={`flex-1 w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-md'} mx-auto px-6 py-8 flex flex-col justify-center`}>
+        <div className={`flex flex-col flex-1 min-h-screen relative overflow-hidden ${hasCustomBackground || backgroundContent ? 'text-white' : 'text-gray-900 bg-white'}`}
+            style={{
+                backgroundColor: backgroundColor || (hasCustomBackground ? 'transparent' : '#ffffff'),
+                backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            }}
+        >
+            {/* Background Layer */}
+            {hasCustomBackground && (!isMobile || !hideMobileBackground) && (
+                <div
+                    className="absolute inset-0 z-0 bg-black"
+                    style={{ opacity: overlayOpacity }}
+                />
+            )}
+
+            {!hasCustomBackground && backgroundContent && (!isMobile || !hideMobileBackground) && (
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src={(backgroundContent.type === 'image' || backgroundContent.type === 'banner')
+                            ? backgroundContent.content
+                            : (backgroundContent.type === 'youtube'
+                                ? `https://img.youtube.com/vi/${backgroundContent.content}/maxresdefault.jpg`
+                                : '')
+                        }
+                        alt="Background"
+                        className="w-full h-full object-cover opacity-60"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+                </div>
+            )}
+
+            <div className={`flex-1 w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-md'} mx-auto px-6 py-8 flex flex-col justify-center relative z-10`}>
                 {/* Title */}
                 {formConfig.title && (
                     <motion.h2
