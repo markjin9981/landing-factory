@@ -203,6 +203,8 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 backgroundImage={step.backgroundImage}
                                 backgroundOverlay={step.backgroundOverlay}
                                 embeddedFields={embeddedFields}
+                                hideMobileBackground={step.hideMobileBackground} // NEW
+                                fieldOverrides={step.fieldOverrides} // NEW
                             />
                         )}
 
@@ -220,6 +222,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 backgroundImage={introBackgroundStyle?.backgroundImage}
                                 backgroundOverlay={introBackgroundStyle?.backgroundOverlay}
                                 embeddedFields={embeddedFields}
+                                fieldOverrides={step.fieldOverrides} // NEW
                             />
                         )}
 
@@ -237,6 +240,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 onPrev={handleBuilderPrev}
                                 showPrevButton={step.showPrevButton}
                                 prevButtonText={step.prevButtonText}
+                                fieldOverrides={step.fieldOverrides} // NEW
                             />
                         )}
 
@@ -252,6 +256,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 backgroundImage={step.backgroundImage || introBackgroundStyle?.backgroundImage}
                                 backgroundOverlay={step.backgroundOverlay ?? introBackgroundStyle?.backgroundOverlay}
                                 embeddedFields={embeddedFields}
+                                fieldOverrides={step.fieldOverrides} // NEW
                             />
                         )}
 

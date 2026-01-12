@@ -14,6 +14,15 @@ interface StepOutroProps {
     backgroundImage?: string;
     backgroundOverlay?: number;
     maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+    fieldOverrides?: {    // NEW
+        [fieldId: string]: {
+            label?: string;
+            type?: any;
+            required?: boolean;
+            placeholder?: string;
+            options?: any[];
+        };
+    };
     titleStyle?: any;
     subtitleStyle?: any;
     // New props for embedded form and media styling
@@ -232,8 +241,17 @@ const StepOutro: React.FC<StepOutroProps> = ({
 
                 {/* Policies */}
                 {hasPolicies && (
-                    <div className={`rounded-2xl p-6 mb-8 border shadow-sm ${hasCustomBackground || backgroundContent ? 'bg-white/5 border-white/10 backdrop-blur-md' : 'bg-gray-50 border-gray-100'}`}>
-                        <div className={`flex items-center justify-between mb-4 pb-4 border-b ${hasCustomBackground || backgroundContent ? 'border-white/10' : 'border-gray-200'}`}>
+                    <div
+                        className={`rounded-2xl p-6 mb-8 border shadow-sm ${hasCustomBackground || backgroundContent ? 'bg-white/5 border-white/10 backdrop-blur-md' : 'bg-gray-50 border-gray-100'}`}
+                        style={{
+                            maxHeight: step.policyStyle?.containerMaxHeight || 'none',
+                            overflowY: step.policyStyle?.containerMaxHeight ? 'auto' as const : 'visible' as const,
+                        }}
+                    >
+                        <div
+                            className={`flex items-center justify-between mb-4 pb-4 border-b ${hasCustomBackground || backgroundContent ? 'border-white/10' : 'border-gray-200'}`}
+                            style={{ fontSize: step.policyStyle?.labelFontSize || '1rem' }}
+                        >
                             <span className="font-bold">약관 전체 동의</span>
                             <button
                                 onClick={handleAllAgree}
@@ -245,13 +263,17 @@ const StepOutro: React.FC<StepOutroProps> = ({
                                 {Object.values(agreements).every(v => v) && <Check className="w-4 h-4" />}
                             </button>
                         </div>
-                        <div className="space-y-4">
+                        <div
+                            className="space-y-4"
+                            style={{ gap: step.policyStyle?.itemGap || '1rem' }}
+                        >
                             {step.policyConfig?.showPrivacy && (
                                 <PolicyItem
                                     label="[필수] 개인정보 수집 및 이용 동의"
                                     checked={agreements.privacy}
                                     onChange={() => toggleAgreement('privacy')}
                                     hideBg={hasCustomBackground || backgroundContent}
+                                    fontSize={step.policyStyle?.itemFontSize}
                                 />
                             )}
                             {step.policyConfig?.showTerms && (
@@ -260,6 +282,7 @@ const StepOutro: React.FC<StepOutroProps> = ({
                                     checked={agreements.terms}
                                     onChange={() => toggleAgreement('terms')}
                                     hideBg={hasCustomBackground || backgroundContent}
+                                    fontSize={step.policyStyle?.itemFontSize}
                                 />
                             )}
                             {step.policyConfig?.showMarketing && (
@@ -268,6 +291,7 @@ const StepOutro: React.FC<StepOutroProps> = ({
                                     checked={agreements.marketing}
                                     onChange={() => toggleAgreement('marketing')}
                                     hideBg={hasCustomBackground || backgroundContent}
+                                    fontSize={step.policyStyle?.itemFontSize}
                                 />
                             )}
                             {step.policyConfig?.showThirdParty && (
@@ -276,6 +300,7 @@ const StepOutro: React.FC<StepOutroProps> = ({
                                     checked={agreements.thirdParty}
                                     onChange={() => toggleAgreement('thirdParty')}
                                     hideBg={hasCustomBackground || backgroundContent}
+                                    fontSize={step.policyStyle?.itemFontSize}
                                 />
                             )}
                         </div>
@@ -338,9 +363,14 @@ const StepOutro: React.FC<StepOutroProps> = ({
     );
 };
 
-const PolicyItem = ({ label, checked, onChange, hideBg }: { label: string, checked: boolean, onChange: () => void, hideBg?: any }) => (
+const PolicyItem = ({ label, checked, onChange, hideBg, fontSize }: { label: string, checked: boolean, onChange: () => void, hideBg?: any, fontSize?: string }) => (
     <div className="flex items-center justify-between cursor-pointer" onClick={onChange}>
-        <span className={`text-sm ${hideBg ? 'text-gray-300' : 'text-gray-600'}`}>{label}</span>
+        <span
+            className={`text-sm ${hideBg ? 'text-gray-300' : 'text-gray-600'}`}
+            style={{ fontSize: fontSize || '0.875rem' }}
+        >
+            {label}
+        </span>
         <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${checked ? 'bg-blue-500 border-blue-500 text-white' : (hideBg ? 'border-white/30' : 'border-gray-300')
             }`}>
             {checked && <Check className="w-3 h-3" />}

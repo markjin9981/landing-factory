@@ -571,6 +571,8 @@ export interface DynamicStepItem {
   formStyle?: {
     // Container
     containerBgColor?: string;
+    containerBgOpacity?: number;     // NEW: 0-100, transparency control
+    containerMaxHeight?: string;     // NEW: e.g., "400px" - triggers scroll
     containerBorderColor?: string;
     containerBorderRadius?: string;
     containerPadding?: string;
@@ -601,6 +603,28 @@ export interface DynamicStepItem {
     showTerms?: boolean;
     showMarketing?: boolean;
     showThirdParty?: boolean;
+  };
+
+  // NEW: Policy Styling (Fix #1)
+  policyStyle?: {
+    containerMaxHeight?: string; // e.g., "300px" - triggers scroll
+    itemFontSize?: string;       // e.g., "14px", "0.875rem"
+    itemGap?: string;            // space between items, e.g., "8px"
+    labelFontSize?: string;      // "약관 전체 동의" font size
+  };
+
+  // NEW: Mobile Background Toggle (Fix #3)
+  hideMobileBackground?: boolean; // true = hide background on mobile
+
+  // NEW: Field Overrides (Fix #4)
+  fieldOverrides?: {
+    [fieldId: string]: {
+      label?: string;              // Override display label
+      type?: FormField['type'];    // Override input type
+      required?: boolean;          // Override required status
+      placeholder?: string;        // Override placeholder
+      options?: FieldOption[];     // Override select/radio options
+    };
   };
 
   // Media Styling for insertedContent

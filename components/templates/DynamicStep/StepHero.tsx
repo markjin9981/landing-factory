@@ -38,6 +38,16 @@ interface StepHeroProps {
         mobileWidth?: string;
         mobileHeight?: string;
     };
+    hideMobileBackground?: boolean; // NEW: hide background on mobile
+    fieldOverrides?: {    // NEW
+        [fieldId: string]: {
+            label?: string;
+            type?: any;
+            required?: boolean;
+            placeholder?: string;
+            options?: any[];
+        };
+    };
 }
 
 const StepHero: React.FC<StepHeroProps> = ({
@@ -58,7 +68,8 @@ const StepHero: React.FC<StepHeroProps> = ({
     onDataChange = () => { },
     embeddedFields = [],
     formStyle,
-    mediaStyles
+    mediaStyles,
+    hideMobileBackground = false // NEW: default to showing background
 }) => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isMobile, setIsMobile] = useState(false);
@@ -110,15 +121,15 @@ const StepHero: React.FC<StepHeroProps> = ({
                 backgroundPosition: 'center',
             }}
         >
-            {/* Background Layer */}
-            {hasCustomBackground && (
+            {/* Background Layer - PC always, Mobile conditional */}
+            {hasCustomBackground && (!isMobile || !hideMobileBackground) && (
                 <div
                     className="absolute inset-0 bg-black z-0"
                     style={{ opacity: overlayOpacity }}
                 />
             )}
 
-            {!hasCustomBackground && backgroundContent && (
+            {!hasCustomBackground && backgroundContent && (!isMobile || !hideMobileBackground) && (
                 <div className="absolute inset-0 z-0">
                     <img
                         src={((backgroundContent.type as any) === 'image' || (backgroundContent.type as any) === 'banner')
@@ -135,7 +146,7 @@ const StepHero: React.FC<StepHeroProps> = ({
                 </div>
             )}
 
-            {!hasCustomBackground && !backgroundContent && (
+            {!hasCustomBackground && !backgroundContent && (!isMobile || !hideMobileBackground) && (
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black z-0" />
             )}
 
@@ -174,16 +185,23 @@ const StepHero: React.FC<StepHeroProps> = ({
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.6, delay: 0.4 }}
-                            className="w-full mb-10 rounded-2xl overflow-hidden shadow-2xl relative bg-black/20 border border-white/10"
+                            className={`w-full mb-10 rounded-2xl overflow-hidden shadow-2xl relative ${isMobile && hideMobileBackground
+                                ? '' // No frame on mobile when background is hidden
+                                : 'bg-black/20 border border-white/10'
+                                }`}
                         >
                             <div
                                 className="mx-auto overflow-y-auto"
                                 style={{
-                                    width: isMobile ? (mediaStyles?.mobileWidth || '100%') : (mediaStyles?.pcWidth || '100%'),
-                                    height: isMobile ? (mediaStyles?.mobileHeight || 'auto') : (mediaStyles?.pcHeight || 'auto'),
-                                    maxHeight: isMobile
-                                        ? (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '70vh')
-                                        : (mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? 'none' : '60vh'),
+                                    width: isMobile
+                                        ? (hideMobileBackground ? '100vw' : (mediaStyles?.mobileWidth || '100%'))
+                                        : (mediaStyles?.pcWidth || '100%'),
+                                    height: isMobile
+                                        ? (hideMobileBackground ? 'auto' : (mediaStyles?.mobileHeight || 'auto'))
+                                        : (mediaStyles?.pcHeight || 'auto'),
+                                    maxHeight: isMobile && hideMobileBackground
+                                        ? '80vh' // Allow scroll on mobile fullscreen
+                                        : (isMobile ? '70vh' : '60vh'),
                                 }}
                             >
                                 {insertedContent.type === 'video' ? (

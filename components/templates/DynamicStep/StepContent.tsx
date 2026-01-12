@@ -39,6 +39,15 @@ interface StepContentProps {
         mobileWidth?: string;
         mobileHeight?: string;
     };
+    fieldOverrides?: {    // NEW
+        [fieldId: string]: {
+            label?: string;
+            type?: any;
+            required?: boolean;
+            placeholder?: string;
+            options?: any[];
+        };
+    };
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -219,11 +228,11 @@ const StepContent: React.FC<StepContentProps> = ({
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col items-center justify-center p-4 pb-28 relative z-10">
-                <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-screen-md'} ${(hasCustomBackground || backgroundContent) ? 'bg-white/10 backdrop-blur-md border border-white/20' : 'bg-white border border-gray-100'} rounded-2xl p-6 shadow-2xl space-y-8`}>
+                <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-screen-md'} space-y-8`}>
                     {renderInner()}
 
                     {embeddedFields.length > 0 && (
-                        <div className={`p-6 rounded-xl ${(hasCustomBackground || backgroundContent) ? 'bg-black/20' : 'bg-gray-50'}`}>
+                        <div className={`p-6 rounded-2xl border ${(hasCustomBackground || backgroundContent) ? 'bg-white/5 border-white/10 backdrop-blur-md' : 'bg-gray-50 border-gray-100'}`}>
                             <EmbeddedForm
                                 fields={embeddedFields}
                                 formData={formData}

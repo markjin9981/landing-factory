@@ -32,6 +32,15 @@ interface StepFormProps {
     };
     primaryColor?: string;
     maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+    fieldOverrides?: {    // NEW
+        [fieldId: string]: {
+            label?: string;
+            type?: any;
+            required?: boolean;
+            placeholder?: string;
+            options?: any[];
+        };
+    };
 }
 
 const StepForm: React.FC<StepFormProps> = ({
