@@ -29,6 +29,14 @@ const displaySizeValue = (val: string | undefined) => {
 };
 
 // --- Constants ---
+const CONTAINER_PRESETS = [
+    { name: '기본 (Balanced)', value: 'balanced', style: { padding: '1.5rem', borderRadius: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', maxWidth: '100%', hideBackground: false, borderColor: 'rgba(255, 255, 255, 0.1)' } },
+    { name: '카드형 (Compact)', value: 'compact', style: { padding: '1rem', borderRadius: '0.75rem', backgroundColor: '#ffffff', maxWidth: '100%', hideBackground: false, borderColor: 'transparent' } },
+    { name: '투명 (Minimal)', value: 'minimal', style: { padding: '0', borderRadius: '0', backgroundColor: 'transparent', maxWidth: '100%', hideBackground: true, borderColor: 'transparent' } },
+    { name: '슬림 (Glass)', value: 'glass', style: { padding: '0.75rem', borderRadius: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.1)', maxWidth: '100%', hideBackground: false, borderColor: 'rgba(255, 255, 255, 0.2)' } },
+    { name: '와이드 (Wide)', value: 'wide', style: { padding: '1.5rem 0', borderRadius: '0', backgroundColor: 'rgba(0,0,0,0.5)', maxWidth: '100%', hideBackground: false, borderColor: 'transparent' } }
+];
+
 const FORM_PRESETS: Record<string, { label: string, style: FormStyle }> = {
     standard: {
         label: '기본형 (Standard)',
@@ -3581,31 +3589,49 @@ const LandingEditor: React.FC = () => {
                                                                                     <Palette className="w-3.5 h-3.5" /> 삽입 질문 스타일링 (고급)
                                                                                 </summary>
                                                                                 <div className="p-3 space-y-4 bg-white/80">
-                                                                                    {/* 컨테이너 스타일 */}
+                                                                                    {/* NEW: Mobile Layout Preset Selector */}
+                                                                                    <div className="mb-4 bg-blue-50/50 p-3 rounded-lg border border-blue-100">
+                                                                                        <label className="text-[11px] font-bold text-blue-700 flex items-center gap-2 mb-2">
+                                                                                            <Smartphone className="w-3.5 h-3.5" /> 모바일 레이아웃 템플릿
+                                                                                        </label>
+                                                                                        <div className="flex flex-wrap gap-2">
+                                                                                            {CONTAINER_PRESETS.map(preset => (
+                                                                                                <button
+                                                                                                    key={preset.value}
+                                                                                                    onClick={() => updateStep(idx, { questionContainerStyle: preset.style })}
+                                                                                                    className="px-2.5 py-1.5 bg-white border border-blue-200 text-blue-600 rounded-md text-[10px] hover:bg-blue-50 hover:border-blue-400 transition-all shadow-sm"
+                                                                                                >
+                                                                                                    {preset.name}
+                                                                                                </button>
+                                                                                            ))}
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    {/* 컨테이너 스타일 (Manual Controls - Updated to use questionContainerStyle) */}
                                                                                     <div className="space-y-2">
-                                                                                        <label className="text-[10px] font-bold text-gray-600 flex items-center gap-1">📦 질문 영역 컨테이너</label>
+                                                                                        <label className="text-[10px] font-bold text-gray-600 flex items-center gap-1">📦 질문 영역 컨테이너 (상세)</label>
                                                                                         <div className="grid grid-cols-2 gap-2">
                                                                                             <div>
                                                                                                 <label className="text-[9px] text-gray-500 block mb-1">배경색</label>
                                                                                                 <div className="flex gap-1">
-                                                                                                    <input type="color" value={step.formStyle?.containerBgColor || '#ffffff10'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBgColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
-                                                                                                    <input type="text" value={step.formStyle?.containerBgColor || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBgColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-2" placeholder="rgba(0,0,0,0.2)" />
+                                                                                                    <input type="color" value={step.questionContainerStyle?.backgroundColor || '#ffffff10'} onChange={(e) => updateStep(idx, { questionContainerStyle: { ...step.questionContainerStyle, backgroundColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                                    <input type="text" value={step.questionContainerStyle?.backgroundColor || ''} onChange={(e) => updateStep(idx, { questionContainerStyle: { ...step.questionContainerStyle, backgroundColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-2" placeholder="rgba(0,0,0,0.2)" />
                                                                                                 </div>
                                                                                             </div>
                                                                                             <div>
                                                                                                 <label className="text-[9px] text-gray-500 block mb-1">테두리색</label>
                                                                                                 <div className="flex gap-1">
-                                                                                                    <input type="color" value={step.formStyle?.containerBorderColor || '#ffffff20'} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBorderColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
-                                                                                                    <input type="text" value={step.formStyle?.containerBorderColor || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBorderColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-2" placeholder="rgba(255,255,255,0.1)" />
+                                                                                                    <input type="color" value={step.questionContainerStyle?.borderColor || '#ffffff20'} onChange={(e) => updateStep(idx, { questionContainerStyle: { ...step.questionContainerStyle, borderColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                                    <input type="text" value={step.questionContainerStyle?.borderColor || ''} onChange={(e) => updateStep(idx, { questionContainerStyle: { ...step.questionContainerStyle, borderColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-2" placeholder="rgba(255,255,255,0.1)" />
                                                                                                 </div>
                                                                                             </div>
                                                                                             <div>
                                                                                                 <label className="text-[9px] text-gray-500 block mb-1">모서리 둥글기</label>
-                                                                                                <input type="text" value={step.formStyle?.containerBorderRadius || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerBorderRadius: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="16px" />
+                                                                                                <input type="text" value={step.questionContainerStyle?.borderRadius || ''} onChange={(e) => updateStep(idx, { questionContainerStyle: { ...step.questionContainerStyle, borderRadius: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="16px" />
                                                                                             </div>
                                                                                             <div>
                                                                                                 <label className="text-[9px] text-gray-500 block mb-1">내부 여백</label>
-                                                                                                <input type="text" value={step.formStyle?.containerPadding || ''} onChange={(e) => updateStep(idx, { formStyle: { ...step.formStyle, containerPadding: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="24px" />
+                                                                                                <input type="text" value={step.questionContainerStyle?.padding || ''} onChange={(e) => updateStep(idx, { questionContainerStyle: { ...step.questionContainerStyle, padding: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="24px" />
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
