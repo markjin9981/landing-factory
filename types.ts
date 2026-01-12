@@ -84,7 +84,8 @@ export interface FloatingBanner {
   position: 'top' | 'bottom';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // New: 5-level size adjustment
   fontSize?: string; // px or rem (overrides size preset)
-  fontFamily?: string; // New: Custom Font
+  fontFamily?: string; // Custom Font - NOW PROPERLY APPLIED
+  fontWeight?: string; // ENHANCEMENT #1: Font weight support
   isSliding?: boolean; // New: Marquee effect
   slideSpeed?: number; // New: Duration in seconds (e.g. 10, 20)
   isCustomShape?: boolean; // New: Render as raw image without box style
@@ -605,34 +606,70 @@ export interface DynamicStepItem {
     showThirdParty?: boolean;
   };
 
-  // NEW: Policy Styling (Fix #1)
+  // ENHANCEMENT #3: Policy Styling - Full Customization
   policyStyle?: {
-    containerMaxHeight?: string; // e.g., "300px" - triggers scroll
-    itemFontSize?: string;       // e.g., "14px", "0.875rem"
-    itemGap?: string;            // space between items, e.g., "8px"
-    labelFontSize?: string;      // "약관 전체 동의" font size
+    // Container Dimensions & Layout
+    containerMaxHeight?: string;     // e.g., "300px" - triggers scroll
+    containerMaxWidth?: string;      // e.g., "600px" - area width
+    containerPadding?: string;       // e.g., "16px" - internal padding
+    containerMargin?: string;        // e.g., "0 auto 20px" - external margin
+
+    // Container Styling
+    containerBgColor?: string;       // background color
+    containerBgOpacity?: number;     // 0-100, transparency control
+    containerBorderRadius?: string;  // e.g., "12px" - rounded corners
+
+    // Typography
+    itemFontSize?: string;           // e.g., "14px", "0.875rem"
+    itemGap?: string;                // space between items, e.g., "8px"
+    labelFontSize?: string;          // "약관 전체 동의" font size
+    labelFontFamily?: string;        // custom font for labels
+    checkboxSize?: string;           // e.g., "18px" - checkbox size
+
+    // Advanced Options
+    hideBackground?: boolean;        // hide semi-transparent background
   };
 
   // NEW: Mobile Background Toggle (Fix #3)
   hideMobileBackground?: boolean; // true = hide background on mobile
 
-  // NEW: Field Overrides (Fix #4)
+  // ENHANCEMENT #4: Field Overrides - Full Form Field Customization
   fieldOverrides?: {
     [fieldId: string]: {
-      label?: string;              // Override display label
-      type?: FormField['type'];    // Override input type
-      required?: boolean;          // Override required status
-      placeholder?: string;        // Override placeholder
-      options?: FieldOption[];     // Override select/radio options
+      label?: string;                  // Override display label
+      type?: FormField['type'];        // Override input type (text, tel, email, select, textarea, radio, time, date, address, number)
+      required?: boolean;              // Override required status
+      placeholder?: string;            // Override placeholder
+      options?: FieldOption[];         // Override select/radio options
+      timeConfig?: {                   // Time field configuration
+        startTime?: string;            // "09:00"
+        endTime?: string;              // "18:00"
+        interval?: number;             // 30 (minutes)
+      };
     };
   };
 
-  // Media Styling for insertedContent
+  // ENHANCEMENT #5: Media Styling - Responsive Size Control
   mediaStyles?: {
-    pcWidth?: string;
-    pcHeight?: string;
+    // PC Settings
+    pcWidth?: string;          // '100%', '800px', '90vw' etc
+    pcHeight?: string;         // 'auto', '600px', '80vh' etc
+    pcMaxWidth?: string;       // maximum width constraint
+    pcMaxHeight?: string;      // maximum height constraint
+
+    // Mobile Settings
     mobileWidth?: string;
     mobileHeight?: string;
+    mobileMaxWidth?: string;
+    mobileMaxHeight?: string;
+
+    // Layout & Alignment
+    alignment?: 'left' | 'center' | 'right';  // horizontal alignment
+    marginTop?: string;        // top margin
+    marginBottom?: string;     // bottom margin
+
+    // ENHANCEMENT #5: Inherit from Intro
+    inheritFromIntro?: boolean;  // if true, use intro page's media settings
   };
 }
 

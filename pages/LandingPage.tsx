@@ -337,7 +337,12 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
       <a href={banner.linkUrl || "#lead-form"} className={`block shadow-lg relative bg-gray-900 text-white overflow-hidden ${animClass}`} style={{ backgroundColor: banner.backgroundColor, color: banner.textColor }}>
         <div
           className={`p-3 text-center ${styles.text} ${isSliding ? 'animate-marquee' : ''}`}
-          style={animationStyle}
+          style={{
+            ...animationStyle,
+            fontSize: banner.fontSize || undefined,
+            fontFamily: banner.fontFamily,
+            fontWeight: banner.fontWeight || '600',
+          }}
         >
           {banner.text}
         </div>
