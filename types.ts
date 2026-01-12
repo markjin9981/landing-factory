@@ -53,6 +53,11 @@ export interface TextStyle {
   textAlign?: 'left' | 'center' | 'right';
   letterSpacing?: string;
   fontFamily?: string; // New: Granular control
+  // New: Gradient Text Support
+  gradientFrom?: string;
+  gradientTo?: string;
+  gradientVia?: string;
+  gradientDirection?: string; // e.g. 'to-r', 'to-br'
 }
 
 // Button Animation Types
@@ -69,6 +74,11 @@ export interface ButtonStyle {
   fontWeight?: string;
   fontFamily?: string; // New: Custom Font
   animation?: ButtonAnimationType; // New: Animation Type
+  // New: Gradient Button Support
+  gradientFrom?: string;
+  gradientTo?: string;
+  gradientVia?: string;
+  gradientDirection?: string;
 }
 
 // Form Design Interface
@@ -579,6 +589,8 @@ export interface DynamicStepItem {
   // Navigation
   showPrevButton?: boolean;
   prevButtonText?: string;
+  // New: Button Layout Configuration
+  buttonLayout?: 'full' | 'auto' | 'asymmetric' | 'fixed_bottom';
 
   // Styling
   buttonStyle?: ButtonStyle;

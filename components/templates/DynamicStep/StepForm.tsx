@@ -13,6 +13,7 @@ interface StepFormProps {
     onPrev?: () => void;
     showPrevButton?: boolean;
     prevButtonText?: string;
+    buttonLayout?: 'full' | 'auto' | 'asymmetric' | 'fixed_bottom'; // NEW
 
     // Styling
     buttonStyle?: {
@@ -21,6 +22,21 @@ interface StepFormProps {
         fontSize?: string;
         borderRadius?: string;
         animation?: string;
+        // Gradient Support
+        gradientFrom?: string;
+        gradientTo?: string;
+        gradientVia?: string;
+        gradientDirection?: string;
+    };
+    titleStyle?: { // NEW
+        fontSize?: string;
+        fontWeight?: string;
+        color?: string;
+        textAlign?: 'left' | 'center' | 'right';
+        fontFamily?: string;
+        gradientFrom?: string;
+        gradientTo?: string;
+        gradientDirection?: string;
     };
     formStyle?: {
         questionColor?: string;
@@ -59,7 +75,9 @@ const StepForm: React.FC<StepFormProps> = ({
     onPrev,
     showPrevButton,
     prevButtonText,
+    buttonLayout = 'auto', // NEW
     buttonStyle,
+    titleStyle, // NEW
     formStyle,
     primaryColor = '#3b82f6',
     maxWidth,
@@ -68,7 +86,7 @@ const StepForm: React.FC<StepFormProps> = ({
     backgroundImage,
     backgroundOverlay,
     hideMobileBackground = false,
-    topContent // NEW
+    topContent
 }) => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -181,15 +199,47 @@ const StepForm: React.FC<StepFormProps> = ({
 
     const currentFields = steps[currentStepIndex] || []; // Safety check
 
+    // Gradient Helper
+    const getGradientStyle = (from?: string, to?: string, direction = 'to right') => {
+        if (!from || !to) return {};
+        // Clean up direction string to CSS syntax if needed, but assuming standard CSS linear-gradient syntax order?
+        // Actually CSS is "to right", "to bottom right".
+        // Tailwind maps 'to-r' -> 'to right'.
+        // Let's assume input is standard CSS direction or map it?
+        // Simplest: just use the string if provided or default 'to right'
+        const dir = direction.replace('to-', 'to ').replace('-', ' ');
+        // e.g. "to-r" -> "to r" (bad), "to-right" -> "to right".
+        // Let's assume standard CSS syntax "to right" is passed or we construct default.
+        return {
+            backgroundImage: `linear-gradient(${dir.includes('to') ? dir : 'to right'}, ${from}, ${to})`
+        };
+    };
+
     // Styles
     const nextBtnStyle = {
         backgroundColor: buttonStyle?.backgroundColor || primaryColor,
         color: buttonStyle?.textColor || '#ffffff',
         fontSize: buttonStyle?.fontSize || '1.125rem',
         borderRadius: buttonStyle?.borderRadius || '0.75rem',
+        ...getGradientStyle(buttonStyle?.gradientFrom, buttonStyle?.gradientTo, buttonStyle?.gradientDirection),
         ...(buttonStyle?.animation === 'shimmer' ? {
             '--btn-bg': buttonStyle?.backgroundColor || primaryColor,
             '--btn-shine': 'rgba(255,255,255,0.4)'
+        } : {})
+    };
+
+    // Title Style
+    const titleTextStyle = {
+        color: titleStyle?.color || formStyle?.questionColor || '#1f2937',
+        fontSize: titleStyle?.fontSize,
+        fontWeight: titleStyle?.fontWeight || 'bold',
+        textAlign: titleStyle?.textAlign || 'center',
+        fontFamily: titleStyle?.fontFamily,
+        ...(titleStyle?.gradientFrom && titleStyle?.gradientTo ? {
+            backgroundImage: `linear-gradient(to right, ${titleStyle.gradientFrom}, ${titleStyle.gradientTo})`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            display: 'inline-block' // Needed for background clip sometimes
         } : {})
     };
 
@@ -251,10 +301,8 @@ const StepForm: React.FC<StepFormProps> = ({
                     <motion.h2
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-2xl font-bold mb-8 text-center"
-                        style={{
-                            color: formStyle?.questionColor || '#1f2937',
-                        }}
+                        className="mb-8"
+                        style={titleTextStyle as any}
                     >
                         {formConfig.title}
                     </motion.h2>
@@ -282,12 +330,6 @@ const StepForm: React.FC<StepFormProps> = ({
                                     {field.required && <span className="text-red-500 ml-1">*</span>}
                                 </label>
 
-                                {/* Render Input Logic moved inline or kept in helper but added checks there? */}
-                                {/* Re-implementing renderInput logic here to ensure safety if helper isn't shown in replacement context, 
-                                    OR assuming helper exists and we rely on existing logic.
-                                    The prompt says "Add safety checks". 
-                                    I will replace the render part to ensure options.map is safe.
-                                */}
                                 {field.type === 'select' || field.type === 'radio' || field.type === 'checkbox' ? (
                                     <div className={field.type === 'radio' || field.type === 'checkbox' ? 'space-y-2' : ''}>
                                         {field.type === 'select' && (
@@ -347,7 +389,6 @@ const StepForm: React.FC<StepFormProps> = ({
                                         )}
                                     </div>
                                 ) : (
-                                    // Text / Number / Textarea / Address (Default Render)
                                     field.type === 'textarea' ? (
                                         <textarea
                                             value={formData[field.id] || ''}
@@ -385,14 +426,20 @@ const StepForm: React.FC<StepFormProps> = ({
                 </AnimatePresence>
             </div>
 
-            <div className="mt-8 flex gap-3 p-6 w-full max-w-md mx-auto">
-                {/* PREV Button Logic: Show if internal step > 0 OR (external prev exists AND enabled) */}
+            <div className={`mt-8 w-full max-w-md mx-auto p-6 flex items-stretch gap-3 ${buttonLayout === 'fixed_bottom' ? 'fixed bottom-0 left-0 right-0 bg-white border-t z-50 p-4 max-w-full' : ''}`}>
+                {/* PREV Button Logic */}
                 {(currentStepIndex > 0 || (showPrevButton !== false && onPrev)) && (
                     <button
                         onClick={handlePrevStep}
-                        className="px-6 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                        className={`bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors ${buttonLayout === 'asymmetric' ? 'w-16 flex items-center justify-center p-0' : 'px-6 py-4'
+                            }`}
+                        title={prevButtonText || '이전'}
                     >
-                        {currentStepIndex > 0 ? '이전' : (prevButtonText || '이전')}
+                        {buttonLayout === 'asymmetric' ? (
+                            <ArrowRight className="w-5 h-5 rotate-180" />
+                        ) : (
+                            currentStepIndex > 0 ? '이전' : (prevButtonText || '이전')
+                        )}
                     </button>
                 )}
 
@@ -413,6 +460,8 @@ const StepForm: React.FC<StepFormProps> = ({
                     )}
                 </button>
             </div>
+            {/* Padding for fixed bottom */}
+            {buttonLayout === 'fixed_bottom' && <div className="h-24"></div>}
         </div>
     );
 };

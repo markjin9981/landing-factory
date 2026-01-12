@@ -16,6 +16,9 @@ interface StepHeroProps {
         fontFamily?: string;
         fontWeight?: string;
         animation?: string;
+        gradientFrom?: string;
+        gradientTo?: string;
+        gradientDirection?: string;
     };
     backgroundContent?: DetailContent;
     insertedContent?: DetailContent;
@@ -112,14 +115,31 @@ const StepHero: React.FC<StepHeroProps> = ({
     const hasCustomBackground = backgroundColor || backgroundImage;
     const overlayOpacity = (backgroundOverlay ?? 60) / 100;
 
+    const getGradientStyle = (from?: string, to?: string, direction = 'to right') => {
+        if (!from || !to) return {};
+        const dir = direction.replace('to-', 'to ').replace('-', ' ');
+        const backgroundImage = `linear-gradient(${dir.includes('to') ? dir : 'to right'}, ${from}, ${to})`;
+        return { backgroundImage };
+    };
+
+    const gradientBtnStyle = getGradientStyle(buttonStyle?.gradientFrom, buttonStyle?.gradientTo, buttonStyle?.gradientDirection);
+
     const customBtnStyle = {
-        background: buttonStyle?.backgroundColor || primaryColor,
+        backgroundColor: buttonStyle?.backgroundColor || primaryColor,
         color: buttonStyle?.textColor || '#ffffff',
         fontSize: buttonStyle?.fontSize,
         borderRadius: buttonStyle?.borderRadius,
         fontFamily: buttonStyle?.fontFamily,
         fontWeight: buttonStyle?.fontWeight,
+        ...gradientBtnStyle,
     };
+
+    const titleGradientStyle = (titleStyle?.gradientFrom && titleStyle?.gradientTo) ? {
+        backgroundImage: `linear-gradient(to right, ${titleStyle.gradientFrom}, ${titleStyle.gradientTo})`,
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        display: 'inline-block'
+    } : {};
 
     return (
         <div
@@ -181,7 +201,8 @@ const StepHero: React.FC<StepHeroProps> = ({
                             className="text-4xl md:text-5xl font-bold leading-tight mb-8"
                             style={{
                                 ...titleStyle,
-                                textShadow: '0 0 40px rgba(59, 130, 246, 0.5)',
+                                ...titleGradientStyle,
+                                textShadow: (titleStyle?.gradientFrom) ? 'none' : '0 0 40px rgba(59, 130, 246, 0.5)',
                                 whiteSpace: 'pre-line'
                             }}
                         >

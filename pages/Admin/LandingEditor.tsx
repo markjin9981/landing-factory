@@ -3179,6 +3179,20 @@ const LandingEditor: React.FC = () => {
                                                                     </div>
                                                                 )}
                                                             </div>
+                                                            {/* Button Layout Settings */}
+                                                            <div className="mt-3 bg-gray-50 p-2 rounded border border-gray-100">
+                                                                <label className="text-[10px] text-gray-500 block mb-1 font-bold">버튼 레이아웃 / 배치 스타일</label>
+                                                                <select
+                                                                    value={step.buttonLayout || 'auto'}
+                                                                    onChange={(e) => updateStep(idx, { buttonLayout: e.target.value as any })}
+                                                                    className="w-full border rounded p-1.5 text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none"
+                                                                >
+                                                                    <option value="auto">기본 (자동)</option>
+                                                                    <option value="full">꽉 차게 (Full Width)</option>
+                                                                    <option value="asymmetric">비대칭 (이전 작게 / 다음 크게)</option>
+                                                                    <option value="fixed_bottom">화면 하단 고정</option>
+                                                                </select>
+                                                            </div>
 
                                                             {/* Button Styling (Simple) */}
                                                             <div className="mt-2 bg-gray-50 p-2 rounded">
@@ -3223,6 +3237,36 @@ const LandingEditor: React.FC = () => {
                                                                                 <option value="hyper-shimmer">Hyper Shimmer (강렬한 빛 - 추천)</option>
                                                                             </select>
                                                                         </div>
+                                                                        {/* Gradient Button Settings */}
+                                                                        <div className="col-span-2 pt-2 border-t border-gray-200 mt-1">
+                                                                            <label className="text-[10px] text-gray-500 block mb-1 font-bold">그라데이션 버튼 (선택 사항)</label>
+                                                                            <div className="grid grid-cols-3 gap-2">
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block">시작 색상</label>
+                                                                                    <div className="flex gap-1">
+                                                                                        <input type="color" value={step.buttonStyle?.gradientFrom || '#ffffff'} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, gradientFrom: e.target.value } })} className="h-6 w-6 rounded cursor-pointer border" />
+                                                                                        <input type="text" value={step.buttonStyle?.gradientFrom || ''} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, gradientFrom: e.target.value } })} className="flex-1 border rounded text-[10px] px-1" placeholder="#..." />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block">종료 색상</label>
+                                                                                    <div className="flex gap-1">
+                                                                                        <input type="color" value={step.buttonStyle?.gradientTo || '#ffffff'} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, gradientTo: e.target.value } })} className="h-6 w-6 rounded cursor-pointer border" />
+                                                                                        <input type="text" value={step.buttonStyle?.gradientTo || ''} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, gradientTo: e.target.value } })} className="flex-1 border rounded text-[10px] px-1" placeholder="#..." />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-400 block">방향</label>
+                                                                                    <select value={step.buttonStyle?.gradientDirection || 'to right'} onChange={(e) => updateStep(idx, { buttonStyle: { ...step.buttonStyle, gradientDirection: e.target.value } })} className="w-full border rounded text-[10px] py-1">
+                                                                                        <option value="to right">→ (우측)</option>
+                                                                                        <option value="to left">← (좌측)</option>
+                                                                                        <option value="to bottom">↓ (하단)</option>
+                                                                                        <option value="to top">↑ (상단)</option>
+                                                                                        <option value="to bottom right">↘ (우하단)</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </details>
                                                             </div>
@@ -3253,6 +3297,36 @@ const LandingEditor: React.FC = () => {
                                                                                         <option value="bold">Bold</option>
                                                                                         <option value="black">ExtraBold</option>
                                                                                     </select>
+                                                                                </div>
+                                                                            </div>
+                                                                            {/* Gradient Text Settings */}
+                                                                            <div className="pt-2 border-t border-gray-100 mt-2">
+                                                                                <label className="text-[10px] font-bold text-gray-500 block mb-1">그라데이션 텍스트 (선택 사항)</label>
+                                                                                <div className="grid grid-cols-3 gap-2">
+                                                                                    <div>
+                                                                                        <label className="text-[9px] text-gray-400 block">시작 색상</label>
+                                                                                        <div className="flex gap-1">
+                                                                                            <input type="color" value={step.titleStyle?.gradientFrom || '#ffffff'} onChange={(e) => updateStep(idx, { titleStyle: { ...step.titleStyle, gradientFrom: e.target.value } })} className="h-6 w-6 rounded cursor-pointer border" />
+                                                                                            <input type="text" value={step.titleStyle?.gradientFrom || ''} onChange={(e) => updateStep(idx, { titleStyle: { ...step.titleStyle, gradientFrom: e.target.value } })} className="flex-1 border rounded text-[10px] px-1" placeholder="#..." />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <label className="text-[9px] text-gray-400 block">종료 색상</label>
+                                                                                        <div className="flex gap-1">
+                                                                                            <input type="color" value={step.titleStyle?.gradientTo || '#ffffff'} onChange={(e) => updateStep(idx, { titleStyle: { ...step.titleStyle, gradientTo: e.target.value } })} className="h-6 w-6 rounded cursor-pointer border" />
+                                                                                            <input type="text" value={step.titleStyle?.gradientTo || ''} onChange={(e) => updateStep(idx, { titleStyle: { ...step.titleStyle, gradientTo: e.target.value } })} className="flex-1 border rounded text-[10px] px-1" placeholder="#..." />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <label className="text-[9px] text-gray-400 block">방향</label>
+                                                                                        <select value={step.titleStyle?.gradientDirection || 'to right'} onChange={(e) => updateStep(idx, { titleStyle: { ...step.titleStyle, gradientDirection: e.target.value } })} className="w-full border rounded text-[10px] py-1">
+                                                                                            <option value="to right">→ (우측)</option>
+                                                                                            <option value="to left">← (좌측)</option>
+                                                                                            <option value="to bottom">↓ (하단)</option>
+                                                                                            <option value="to top">↑ (상단)</option>
+                                                                                            <option value="to bottom right">↘ (우하단)</option>
+                                                                                        </select>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
