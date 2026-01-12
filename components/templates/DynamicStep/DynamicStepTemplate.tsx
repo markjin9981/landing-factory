@@ -215,8 +215,9 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 backgroundImage={step.backgroundImage}
                                 backgroundOverlay={step.backgroundOverlay}
                                 embeddedFields={embeddedFields}
-                                hideMobileBackground={step.hideMobileBackground} // NEW
-                                fieldOverrides={step.fieldOverrides} // NEW
+                                hideMobileBackground={step.hideMobileBackground}
+                                fieldOverrides={step.fieldOverrides}
+                                questionContainerStyle={step.questionContainerStyle} // NEW
                             />
                         )}
 

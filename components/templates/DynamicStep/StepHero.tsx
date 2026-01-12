@@ -48,6 +48,14 @@ interface StepHeroProps {
             options?: any[];
         };
     };
+    questionContainerStyle?: { // NEW: Customize question area
+        backgroundColor?: string;
+        borderColor?: string;
+        borderRadius?: string;
+        padding?: string;
+        maxWidth?: string;
+        hideBackground?: boolean;
+    };
 }
 
 const StepHero: React.FC<StepHeroProps> = ({
@@ -70,7 +78,8 @@ const StepHero: React.FC<StepHeroProps> = ({
     formStyle,
     mediaStyles,
     hideMobileBackground = false, // NEW: default to showing background
-    fieldOverrides // NEW
+    fieldOverrides, // NEW
+    questionContainerStyle // NEW
 }) => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isMobile, setIsMobile] = useState(false);
@@ -231,7 +240,15 @@ const StepHero: React.FC<StepHeroProps> = ({
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="w-full text-left bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 mb-8"
+                            className={`w-full text-left mb-8 ${questionContainerStyle?.hideBackground ? '' : 'backdrop-blur-md'}`}
+                            style={{
+                                backgroundColor: questionContainerStyle?.hideBackground ? 'transparent' : (questionContainerStyle?.backgroundColor || 'rgba(255, 255, 255, 0.05)'),
+                                borderRadius: questionContainerStyle?.borderRadius || '1rem',
+                                padding: questionContainerStyle?.padding || '1.5rem',
+                                border: questionContainerStyle?.hideBackground ? 'none' : `1px solid ${questionContainerStyle?.borderColor || 'rgba(255, 255, 255, 0.1)'}`,
+                                maxWidth: questionContainerStyle?.maxWidth || '100%',
+                                margin: '0 auto',
+                            }}
                         >
                             <EmbeddedForm
                                 fields={embeddedFields}

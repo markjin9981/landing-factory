@@ -677,6 +677,16 @@ export interface DynamicStepItem {
     // ENHANCEMENT #5: Inherit from Intro
     inheritFromIntro?: boolean;  // if true, use intro page's media settings
   };
+
+  // ENHANCEMENT #6: Question Container Style - Intro Question Area Customization
+  questionContainerStyle?: {
+    backgroundColor?: string;
+    borderColor?: string;
+    borderRadius?: string;
+    padding?: string;
+    maxWidth?: string;
+    hideBackground?: boolean;
+  };
 }
 
 export interface LeadData {
