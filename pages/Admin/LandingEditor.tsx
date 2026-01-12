@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 import { compressImage } from '../../utils/imageCompression';
@@ -3378,6 +3378,80 @@ const LandingEditor: React.FC = () => {
                                                                     )}
                                                                 </div>
 
+                                                                {/* NEW: Feature Grid Editor */}
+                                                                <div className="mt-4 bg-white p-4 rounded-xl border border-blue-200 shadow-sm">
+                                                                    <h5 className="text-[11px] font-bold text-blue-800 mb-3 flex items-center gap-2">
+                                                                        <Star className="w-3.5 h-3.5 fill-blue-500 text-blue-500" /> 특징/혜택 그리드 (Feature Grid)
+                                                                    </h5>
+                                                                    <div className="space-y-3">
+                                                                        {(step.features || []).map((feature, fIdx) => (
+                                                                            <div key={fIdx} className="bg-gray-50 p-2 rounded border flex flex-col gap-2">
+                                                                                <div className="flex gap-2">
+                                                                                    <div className="w-12">
+                                                                                        <label className="text-[9px] text-gray-400 block mb-1">아이콘</label>
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            value={feature.icon || ''}
+                                                                                            onChange={(e) => {
+                                                                                                const newFeatures = [...(step.features || [])];
+                                                                                                newFeatures[fIdx] = { ...newFeatures[fIdx], icon: e.target.value };
+                                                                                                updateStep(idx, { features: newFeatures });
+                                                                                            }}
+                                                                                            className="w-full border rounded p-1 text-center text-sm"
+                                                                                            placeholder="✅"
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="flex-1">
+                                                                                        <label className="text-[9px] text-gray-400 block mb-1">매인 텍스트</label>
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            value={feature.text || ''}
+                                                                                            onChange={(e) => {
+                                                                                                const newFeatures = [...(step.features || [])];
+                                                                                                newFeatures[fIdx] = { ...newFeatures[fIdx], text: e.target.value };
+                                                                                                updateStep(idx, { features: newFeatures });
+                                                                                            }}
+                                                                                            className="w-full border rounded p-1 text-xs font-bold"
+                                                                                            placeholder="예: 무료 견적"
+                                                                                        />
+                                                                                    </div>
+                                                                                    <button
+                                                                                        onClick={() => {
+                                                                                            const newFeatures = (step.features || []).filter((_, i) => i !== fIdx);
+                                                                                            updateStep(idx, { features: newFeatures });
+                                                                                        }}
+                                                                                        className="self-end p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded"
+                                                                                    >
+                                                                                        <Trash2 className="w-3 h-3" />
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <input
+                                                                                        type="text"
+                                                                                        value={feature.subText || ''}
+                                                                                        onChange={(e) => {
+                                                                                            const newFeatures = [...(step.features || [])];
+                                                                                            newFeatures[fIdx] = { ...newFeatures[fIdx], subText: e.target.value };
+                                                                                            updateStep(idx, { features: newFeatures });
+                                                                                        }}
+                                                                                        className="w-full border rounded p-1 text-[10px] text-gray-500 bg-white"
+                                                                                        placeholder="부가 설명 (선택 사항)"
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                const newFeatures = [...(step.features || []), { id: `feat_${Date.now()}`, text: '새로운 장점', icon: '✅' }];
+                                                                                updateStep(idx, { features: newFeatures });
+                                                                            }}
+                                                                            className="w-full py-2 border border-dashed border-blue-300 text-blue-500 rounded text-xs hover:bg-blue-50 transition-colors"
+                                                                        >
+                                                                            + 특징 항목 추가
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
                                                                 <div className="mt-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
                                                                     <div className="flex items-center justify-between mb-3">
                                                                         <label className="text-[11px] font-bold text-gray-700 flex items-center gap-2">
@@ -3911,6 +3985,83 @@ const LandingEditor: React.FC = () => {
                                                         {/* TYPE: FORM */}
                                                         {step.type === 'form' && (
                                                             <div className="space-y-3">
+                                                                {/* NEW: Top Content Editor used in Lawjd2 */}
+                                                                <div className="bg-green-50 p-3 rounded-lg border border-green-100 mb-3">
+                                                                    <div className="flex items-center justify-between mb-2">
+                                                                        <label className="text-[11px] font-bold text-green-800 flex items-center gap-2">
+                                                                            <Layout className="w-3.5 h-3.5" /> 폼 상단 콘텐츠 (Top Content)
+                                                                        </label>
+                                                                        {step.topContent && (
+                                                                            <button
+                                                                                onClick={() => updateStep(idx, { topContent: undefined })}
+                                                                                className="text-[9px] text-red-500 hover:text-red-700 underline"
+                                                                            >
+                                                                                삭제
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+
+                                                                    {!step.topContent ? (
+                                                                        <div className="grid grid-cols-4 gap-2">
+                                                                            {['text', 'image', 'youtube', 'video'].map(t => (
+                                                                                <button
+                                                                                    key={t}
+                                                                                    onClick={() => updateStep(idx, {
+                                                                                        topContent: {
+                                                                                            id: `top_${Date.now()}`,
+                                                                                            type: t as any,
+                                                                                            content: ''
+                                                                                        }
+                                                                                    })}
+                                                                                    className="py-2 bg-white border border-green-200 rounded text-[10px] text-green-700 hover:bg-green-100 transition-colors"
+                                                                                >
+                                                                                    {t === 'text' ? '텍스트/HTML' : t === 'image' ? '이미지' : t === 'youtube' ? '유튜브' : '비디오'}
+                                                                                </button>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="space-y-2">
+                                                                            <div className="flex items-center gap-2 text-[10px] text-gray-500 mb-1">
+                                                                                <span className="font-bold uppercase text-green-600">{step.topContent.type}</span> 선택됨
+                                                                            </div>
+
+                                                                            {step.topContent.type === 'text' && (
+                                                                                <textarea
+                                                                                    value={step.topContent.content}
+                                                                                    onChange={(e) => updateStep(idx, { topContent: { ...step.topContent!, content: e.target.value } })}
+                                                                                    className="w-full border rounded p-2 text-xs h-20"
+                                                                                    placeholder="여기에 텍스트나 HTML 태그를 입력하세요"
+                                                                                />
+                                                                            )}
+
+                                                                            {(step.topContent.type === 'image' || step.topContent.type === 'video' || step.topContent.type === 'youtube') && (
+                                                                                <div className="flex gap-2">
+                                                                                    <input
+                                                                                        type="text"
+                                                                                        value={step.topContent.content}
+                                                                                        onChange={(e) => updateStep(idx, { topContent: { ...step.topContent!, content: e.target.value } })}
+                                                                                        className="flex-1 border rounded p-2 text-xs"
+                                                                                        placeholder={step.topContent.type === 'youtube' ? 'YouTube URL 입력' : '미디어 URL 입력'}
+                                                                                    />
+                                                                                    {step.topContent.type === 'image' && (
+                                                                                        <button
+                                                                                            onClick={() => {
+                                                                                                setIsImageManagerOpen(true);
+                                                                                                setImagePickerCallback(() => (url: string) => {
+                                                                                                    updateStep(idx, { topContent: { ...step.topContent!, content: url } });
+                                                                                                    setIsImageManagerOpen(false);
+                                                                                                });
+                                                                                            }}
+                                                                                            className="p-2 bg-white border rounded text-xs hover:bg-gray-50"
+                                                                                        >
+                                                                                            <ImageIcon className="w-4 h-4 text-gray-500" />
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                                 <div>
                                                                     <label className="text-[10px] text-gray-500 block mb-1">페이지당 질문 개수</label>
                                                                     <select

@@ -224,6 +224,15 @@ export interface HeroSection {
   overlayOpacity?: number; // New: 0-100% opacity for the black overlay
   verticalAlign?: number; // New: -2 (Top) to +2 (Bottom)
   size?: '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'; // Expanded range
+  features?: HeroFeature[]; // New: Feature Grid Items
+}
+
+// New: Hero Feature Item Definition
+export interface HeroFeature {
+  id: string;
+  icon?: string; // lucide icon name or emoji
+  text: string;
+  subText?: string;
 }
 
 
@@ -358,7 +367,7 @@ export interface UrgencyConfig {
 
 export interface DetailContent {
   id: string;
-  type: 'image' | 'youtube' | 'map' | 'banner' | 'video';
+  type: 'image' | 'youtube' | 'map' | 'banner' | 'video' | 'text';
   content: string; // Image URL, YouTube URL, Address, or Banner Text
 
   // YouTube specific
@@ -552,6 +561,12 @@ export interface DynamicStepItem {
 
   // For 'intro'/'outro': Reference to a DetailContent item to insert INLINE (not background)
   insertedContentId?: string;
+
+  // New: Top Content Slot (above Form fields) similar to insertedContent but for Forms
+  topContent?: DetailContent;
+
+  // New: Features Override for Intro Step
+  features?: HeroFeature[];
 
   // For 'form': List of field IDs to show on this step
   fieldIds?: string[];

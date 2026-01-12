@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FormSection, FormField } from '../../../types';
+import { FormSection, FormField, DetailContent } from '../../../types';
 import { ArrowRight, Check } from 'lucide-react';
 
 interface StepFormProps {
@@ -48,6 +48,7 @@ interface StepFormProps {
     backgroundImage?: string;
     backgroundOverlay?: number;
     hideMobileBackground?: boolean;
+    topContent?: DetailContent; // NEW
 }
 
 const StepForm: React.FC<StepFormProps> = ({
@@ -66,7 +67,8 @@ const StepForm: React.FC<StepFormProps> = ({
     backgroundColor,
     backgroundImage,
     backgroundOverlay,
-    hideMobileBackground = false
+    hideMobileBackground = false,
+    topContent // NEW
 }) => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -229,6 +231,21 @@ const StepForm: React.FC<StepFormProps> = ({
             )}
 
             <div className={`flex-1 w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-md'} mx-auto px-6 py-8 flex flex-col justify-center relative z-10`}>
+
+                {/* NEW: Top Content Slot */}
+                {topContent && (
+                    <div className="mb-6 w-full">
+                        {topContent.type === 'image' && <img src={topContent.content} className="w-full h-auto rounded-lg" alt="Top Content" />}
+                        {topContent.type === 'video' && <video src={topContent.content} controls className="w-full rounded-lg" />}
+                        {topContent.type === 'youtube' && (
+                            <div className="aspect-video w-full rounded-lg overflow-hidden">
+                                <iframe src={topContent.content} className="w-full h-full" title="Video" frameBorder="0" allowFullScreen />
+                            </div>
+                        )}
+                        {topContent.type === 'text' && <div className="prose max-w-none text-sm" dangerouslySetInnerHTML={{ __html: topContent.content }} />}
+                    </div>
+                )}
+
                 {/* Title */}
                 {formConfig.title && (
                     <motion.h2

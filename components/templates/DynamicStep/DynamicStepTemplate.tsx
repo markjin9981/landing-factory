@@ -205,7 +205,8 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 heroConfig={{
                                     ...config.hero,
                                     headline: step.title || config.hero.headline,
-                                    ctaText: step.buttonText || config.hero.ctaText
+                                    ctaText: step.buttonText || config.hero.ctaText,
+                                    features: step.features || config.hero.features // NEW: Override
                                 }}
                                 onStart={() => handleBuilderNext()}
                                 backgroundContent={currentBackground}
@@ -260,6 +261,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                                 backgroundOverlay={introBackgroundStyle?.backgroundOverlay} // NEW
                                 hideMobileBackground={introBackgroundStyle?.hideMobileBackground} // NEW
                                 fieldOverrides={step.fieldOverrides} // NEW
+                                topContent={step.topContent} // NEW: Pass Top Content
                             />
                         )}
 

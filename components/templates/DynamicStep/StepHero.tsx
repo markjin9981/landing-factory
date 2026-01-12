@@ -189,7 +189,6 @@ const StepHero: React.FC<StepHeroProps> = ({
                         </h1>
                     )}
 
-                    {/* Inserted Media Content */}
                     {insertedContent && (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -230,6 +229,39 @@ const StepHero: React.FC<StepHeroProps> = ({
                                         alt="Hero Content"
                                     />
                                 )}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* NEW: Feature Grid */}
+                    {heroConfig.features && heroConfig.features.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="w-full max-w-4xl mx-auto mb-10"
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {heroConfig.features.map((feature, idx) => (
+                                    <div
+                                        key={feature.id || idx}
+                                        className="bg-white/95 backdrop-blur-sm rounded-xl p-4 flex items-center shadow-lg text-left"
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4 shrink-0 text-blue-600 text-xl">
+                                            {feature.icon || "✅"}
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-gray-900 text-lg leading-tight">
+                                                {feature.text}
+                                            </div>
+                                            {feature.subText && (
+                                                <div className="text-sm text-gray-500 mt-1">
+                                                    {feature.subText}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </motion.div>
                     )}
