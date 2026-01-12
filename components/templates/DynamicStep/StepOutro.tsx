@@ -184,14 +184,21 @@ const StepOutro: React.FC<StepOutroProps> = ({
 
                 {/* Inline Media Content */}
                 {insertedContent && (
-                    <div className="w-full mb-8 rounded-xl overflow-hidden shadow-lg border border-white/10 relative bg-black/20">
+                    <div className={`w-full mb-8 rounded-xl overflow-hidden shadow-lg relative ${isMobile && step.hideMobileBackground
+                        ? '' // No frame on mobile when background is hidden
+                        : 'bg-black/20 border border-white/10'
+                        }`}>
                         <div
                             className="mx-auto overflow-y-auto"
                             style={{
-                                width: isMobile ? (mediaStyles?.mobileWidth || '100%') : (mediaStyles?.pcWidth || '100%'),
-                                height: isMobile ? (mediaStyles?.mobileHeight || 'auto') : (mediaStyles?.pcHeight || 'auto'),
+                                width: isMobile
+                                    ? (step.hideMobileBackground ? '100vw' : (mediaStyles?.mobileWidth || '100%'))
+                                    : (mediaStyles?.pcWidth || '100%'),
+                                height: isMobile
+                                    ? (step.hideMobileBackground ? 'auto' : (mediaStyles?.mobileHeight || 'auto'))
+                                    : (mediaStyles?.pcHeight || 'auto'),
                                 maxHeight: isMobile
-                                    ? (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '400px')
+                                    ? (step.hideMobileBackground ? '80vh' : (mediaStyles?.mobileHeight && mediaStyles.mobileHeight !== 'auto' ? 'none' : '400px'))
                                     : (mediaStyles?.pcHeight && mediaStyles.pcHeight !== 'auto' ? 'none' : '400px'),
                             }}
                         >
