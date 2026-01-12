@@ -108,10 +108,21 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                 </motion.div>
             </div>
             <h2 className="text-3xl font-bold mb-4">제출이 완료되었습니다!</h2>
-            <p className="text-gray-600 max-w-sm">
+            <p className="text-gray-600 max-w-sm mb-8">
                 담당자가 내용을 확인 후 빠르게 연락드리겠습니다.<br />
                 감사합니다.
             </p>
+            <button
+                onClick={() => {
+                    setBuilderFinished(false);
+                    setCurrentStepIdx(0);
+                    setAccumulatedData({});
+                    window.scrollTo(0, 0);
+                }}
+                className="text-sm text-gray-500 underline hover:text-gray-800 transition-colors"
+            >
+                다시 입력 하기
+            </button>
         </motion.div>
     );
 
