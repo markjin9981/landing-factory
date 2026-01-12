@@ -152,8 +152,8 @@ const StepHero: React.FC<StepHeroProps> = ({
             )}
 
             {/* Content Layer */}
-            <div className={`relative z-10 w-full px-6 py-20 flex flex-col items-center justify-center min-h-screen`}>
-                <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-lg'} flex flex-col items-center`}>
+            <div className={`relative z-10 w-full px-6 py-20 flex flex-col items-center justify-center min-h-screen ${isMobile && hideMobileBackground ? '!p-0' : ''}`}>
+                <div className={`w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-lg'} flex flex-col items-center ${isMobile && hideMobileBackground ? '!w-full !max-w-none' : ''}`}>
                     {!hideTitle && (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}

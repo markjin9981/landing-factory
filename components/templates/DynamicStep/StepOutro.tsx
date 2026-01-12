@@ -38,6 +38,7 @@ interface StepOutroProps {
         mobileHeight?: string;
     };
     hideMobileBackground?: boolean; // NEW
+    hideTitle?: boolean; // NEW
 }
 
 const StepOutro: React.FC<StepOutroProps> = ({
@@ -58,7 +59,8 @@ const StepOutro: React.FC<StepOutroProps> = ({
     embeddedFields = [],
     formStyle,
     mediaStyles,
-    hideMobileBackground = false // NEW
+    hideMobileBackground = false, // NEW
+    hideTitle = false // NEW
 }) => {
     const [agreements, setAgreements] = useState({
         privacy: false,
@@ -187,11 +189,11 @@ const StepOutro: React.FC<StepOutroProps> = ({
                 </div>
             )}
 
-            <div className={`flex-1 w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-md'} mx-auto px-6 py-20 flex flex-col justify-center relative z-10`}>
+            <div className={`flex-1 w-full ${maxWidth ? `max-w-${maxWidth}` : 'max-w-md'} mx-auto px-6 py-20 flex flex-col justify-center relative z-10 ${isMobile && hideMobileBackground ? '!p-0 !w-full !max-w-none' : ''}`}>
 
                 {/* Title */}
-                {step.title && (
-                    <h2 className="text-2xl font-bold mb-8 text-center" style={titleStyle}>
+                {!hideTitle && step.title && (
+                    <h2 className={`text-2xl font-bold mb-8 text-center ${isMobile && hideMobileBackground ? 'mt-20 px-6' : ''}`} style={titleStyle}>
                         {step.title}
                     </h2>
                 )}
