@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FormSection, FormField, DetailContent } from '../../../types';
-import { ArrowRight, Check } from 'lucide-react';
+import { FormSection, FormField, DetailContent, FormStyle, ButtonStyle, TextStyle } from '../../../types';
+import { ArrowRight } from 'lucide-react';
+import UnifiedFormField from './UnifiedFormField';
 
 interface StepFormProps {
     formConfig: FormSection;
@@ -38,14 +39,7 @@ interface StepFormProps {
         gradientTo?: string;
         gradientDirection?: string;
     };
-    formStyle?: {
-        questionColor?: string;
-        questionSize?: string;
-        answerColor?: string;
-        answerBgColor?: string;
-        answerBorderColor?: string;
-        fieldsPerPage?: number;
-    };
+    formStyle?: FormStyle;
     primaryColor?: string;
     maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
     fieldOverrides?: {
@@ -86,7 +80,8 @@ const StepForm: React.FC<StepFormProps> = ({
     backgroundImage,
     backgroundOverlay,
     hideMobileBackground = false,
-    topContent
+    topContent,
+    fieldOverrides // Destructured correctly
 }) => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -317,111 +312,43 @@ const StepForm: React.FC<StepFormProps> = ({
                         transition={{ duration: 0.3 }}
                         className="space-y-6"
                     >
-                        {currentFields.map((field) => (
-                            <div key={field.id} className="space-y-2">
-                                <label
-                                    className="block font-bold mb-2"
-                                    style={{
-                                        color: formStyle?.questionColor || '#374151',
-                                        fontSize: formStyle?.questionSize === 'sm' ? '0.875rem' : formStyle?.questionSize === 'xl' ? '1.25rem' : '1rem'
+                        {currentFields.map((field) => {
+                            // Apply Overrides
+                            const override = fieldOverrides?.[field.id];
+                            const displayField: FormField = {
+                                ...field,
+                                label: override?.label ?? field.label,
+                                type: override?.type ?? field.type,
+                                required: override?.required ?? field.required,
+                                placeholder: override?.placeholder ?? field.placeholder,
+                                options: override?.options ?? field.options,
+                            };
+
+                            return (
+                                <UnifiedFormField
+                                    key={displayField.id}
+                                    field={displayField}
+                                    value={formData[displayField.id]}
+                                    onChange={(val) => handleInputChange(displayField.id, val)}
+                                    error={errors[displayField.id]}
+                                    formStyle={{
+                                        ...formStyle,
+                                        questionFont: formStyle?.questionFont, // Ensure this property exists in FormStyle or map it
+                                        // StepForm's formStyle has questionColor, questionSize.
+                                        // UnifiedFormField expects questionFont, answerFont
+                                        // If StepForm doesn't have them, we might need to add them or map.
+                                        // StepForm props: formStyle?: { questionColor, questionSize, answerColor, answerBgColor, answerBorderColor, fieldsPerPage }
+                                        // UnifiedFormField: formStyle?: { questionColor, questionSize, ... questionFont, answerFont, answerFontSize }
+                                        // StepForm currently doesn't seem to pass font props in `formStyle`, 
+                                        // but `titleStyle` has fontFamily using `titleFontFamily`.
+                                        // Let's check `types.ts` for FormStyle.
+                                        // Types.ts `FormStyle` has `inputFontFamily`?
+                                        // Let's assume passed formStyle is compatible or we extend it.
                                     }}
-                                >
-                                    {field.label}
-                                    {field.required && <span className="text-red-500 ml-1">*</span>}
-                                </label>
-
-                                {field.type === 'select' || field.type === 'radio' || field.type === 'checkbox' ? (
-                                    <div className={field.type === 'radio' || field.type === 'checkbox' ? 'space-y-2' : ''}>
-                                        {field.type === 'select' && (
-                                            <select
-                                                value={formData[field.id] || ''}
-                                                onChange={(e) => handleInputChange(field.id, e.target.value)}
-                                                className="w-full p-4 rounded-xl border focus:ring-2 focus:ring-blue-500 transition-all outline-none appearance-none"
-                                                style={{
-                                                    backgroundColor: formStyle?.answerBgColor || '#ffffff',
-                                                    color: formStyle?.answerColor || '#000000',
-                                                    borderColor: errors[field.id] ? '#ef4444' : (formStyle?.answerBorderColor || '#e5e7eb')
-                                                }}
-                                            >
-                                                <option value="">선택해주세요</option>
-                                                {(field.options || []).map((opt: any) => (
-                                                    <option key={opt} value={opt}>{opt}</option>
-                                                ))}
-                                            </select>
-                                        )}
-
-                                        {(field.type === 'radio' || field.type === 'checkbox') && (
-                                            <div className="grid grid-cols-1 gap-2">
-                                                {(field.options || []).map((opt: any) => (
-                                                    <label
-                                                        key={opt}
-                                                        className={`flex items-center p-4 rounded-xl border cursor-pointer transition-all ${formData[field.id] === opt
-                                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                                            : 'hover:bg-gray-50'
-                                                            }`}
-                                                        style={{
-                                                            backgroundColor: formData[field.id] === opt ? (primaryColor + '10') : (formStyle?.answerBgColor || '#ffffff'),
-                                                            borderColor: formData[field.id] === opt ? primaryColor : (errors[field.id] ? '#ef4444' : '#e5e7eb'),
-                                                            color: formData[field.id] === opt ? primaryColor : (formStyle?.answerColor || '#000000')
-                                                        }}
-                                                    >
-                                                        <input
-                                                            type={field.type}
-                                                            name={field.id}
-                                                            value={opt}
-                                                            checked={formData[field.id] === opt}
-                                                            onChange={(e) => handleInputChange(field.id, opt)}
-                                                            className="hidden"
-                                                        />
-                                                        <div className={`w-5 h-5 rounded-full border mr-3 flex items-center justify-center ${formData[field.id] === opt ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
-                                                            }`}
-                                                            style={{
-                                                                borderColor: formData[field.id] === opt ? primaryColor : '#d1d5db',
-                                                                backgroundColor: formData[field.id] === opt ? primaryColor : 'transparent'
-                                                            }}
-                                                        >
-                                                            {formData[field.id] === opt && <Check className="w-3 h-3 text-white" />}
-                                                        </div>
-                                                        <span className="font-medium">{opt}</span>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    field.type === 'textarea' ? (
-                                        <textarea
-                                            value={formData[field.id] || ''}
-                                            onChange={(e) => handleInputChange(field.id, e.target.value)}
-                                            className="w-full p-4 rounded-xl border focus:ring-2 focus:ring-blue-500 transition-all outline-none min-h-[120px]"
-                                            placeholder={field.placeholder}
-                                            style={{
-                                                backgroundColor: formStyle?.answerBgColor || '#ffffff',
-                                                color: formStyle?.answerColor || '#000000',
-                                                borderColor: errors[field.id] ? '#ef4444' : (formStyle?.answerBorderColor || '#e5e7eb')
-                                            }}
-                                        />
-                                    ) : (
-                                        <input
-                                            type={field.type}
-                                            value={formData[field.id] || ''}
-                                            onChange={(e) => handleInputChange(field.id, e.target.value)}
-                                            className="w-full p-4 rounded-xl border focus:ring-2 focus:ring-blue-500 transition-all outline-none"
-                                            placeholder={field.placeholder}
-                                            style={{
-                                                backgroundColor: formStyle?.answerBgColor || '#ffffff',
-                                                color: formStyle?.answerColor || '#000000',
-                                                borderColor: errors[field.id] ? '#ef4444' : (formStyle?.answerBorderColor || '#e5e7eb')
-                                            }}
-                                        />
-                                    )
-                                )}
-
-                                {errors[field.id] && (
-                                    <p className="text-red-500 text-sm pl-1">{errors[field.id]}</p>
-                                )}
-                            </div>
-                        ))}
+                                    primaryColor={primaryColor}
+                                />
+                            );
+                        })}
                     </motion.div>
                 </AnimatePresence>
             </div>

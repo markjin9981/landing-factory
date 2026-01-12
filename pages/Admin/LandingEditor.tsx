@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 import { compressImage } from '../../utils/imageCompression';
@@ -3670,6 +3670,127 @@ const LandingEditor: React.FC = () => {
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
+                                                                                </div>
+                                                                            </details>
+
+                                                                            {/* Field Overrides UI */}
+                                                                            <details className="mt-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 overflow-hidden">
+                                                                                <summary className="text-[11px] font-bold text-blue-700 cursor-pointer p-3 flex items-center gap-2 hover:bg-blue-100/50 transition-colors">
+                                                                                    <Settings className="w-3.5 h-3.5" /> 질문 필드 상세 설정 (라벨/타입 변경)
+                                                                                </summary>
+                                                                                <div className="p-3 space-y-4 bg-white/80">
+                                                                                    {(step.fieldIds || []).map(fId => {
+                                                                                        const originalField = config.formConfig.fields.find(f => f.id === fId);
+                                                                                        if (!originalField) return null;
+                                                                                        const override = step.fieldOverrides?.[fId] || {};
+                                                                                        return (
+                                                                                            <div key={fId} className="bg-white border rounded-lg p-3 shadow-sm">
+                                                                                                <div className="flex items-center justify-between mb-2">
+                                                                                                    <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">
+                                                                                                        원본: {originalField.label} ({originalField.type})
+                                                                                                    </span>
+                                                                                                    <label className="flex items-center gap-1.5 cursor-pointer">
+                                                                                                        <input
+                                                                                                            type="checkbox"
+                                                                                                            checked={override.required ?? originalField.required}
+                                                                                                            onChange={(e) => {
+                                                                                                                const newOverrides = { ...step.fieldOverrides };
+                                                                                                                newOverrides[fId] = { ...newOverrides[fId], required: e.target.checked };
+                                                                                                                updateStep(idx, { fieldOverrides: newOverrides });
+                                                                                                            }}
+                                                                                                            className="w-3.5 h-3.5 rounded text-blue-600 focus:ring-blue-500"
+                                                                                                        />
+                                                                                                        <span className="text-[10px] font-medium text-gray-600">필수 입력</span>
+                                                                                                    </label>
+                                                                                                </div>
+                                                                                                <div className="space-y-2">
+                                                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                                                        <div>
+                                                                                                            <label className="text-[9px] text-gray-500 block mb-1">라벨 변경</label>
+                                                                                                            <input
+                                                                                                                type="text"
+                                                                                                                value={override.label || ''}
+                                                                                                                placeholder={originalField.label}
+                                                                                                                onChange={(e) => {
+                                                                                                                    const newOverrides = { ...step.fieldOverrides };
+                                                                                                                    newOverrides[fId] = { ...newOverrides[fId], label: e.target.value };
+                                                                                                                    updateStep(idx, { fieldOverrides: newOverrides });
+                                                                                                                }}
+                                                                                                                className="w-full border rounded px-2 py-1.5 text-[10px]"
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                        <div>
+                                                                                                            <label className="text-[9px] text-gray-500 block mb-1">변수 ID ({originalField.id})</label>
+                                                                                                            <input
+                                                                                                                type="text"
+                                                                                                                value={override.placeholder || ''}
+                                                                                                                placeholder={originalField.placeholder || '플레이스홀더'}
+                                                                                                                onChange={(e) => {
+                                                                                                                    const newOverrides = { ...step.fieldOverrides };
+                                                                                                                    newOverrides[fId] = { ...newOverrides[fId], placeholder: e.target.value };
+                                                                                                                    updateStep(idx, { fieldOverrides: newOverrides });
+                                                                                                                }}
+                                                                                                                className="w-full border rounded px-2 py-1.5 text-[10px]"
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                                                        <div>
+                                                                                                            <label className="text-[9px] text-gray-500 block mb-1">입력 타입 변경</label>
+                                                                                                            <select
+                                                                                                                value={override.type || ''}
+                                                                                                                onChange={(e) => {
+                                                                                                                    const newOverrides = { ...step.fieldOverrides };
+                                                                                                                    const val = e.target.value;
+                                                                                                                    if (val) {
+                                                                                                                        newOverrides[fId] = { ...newOverrides[fId], type: val as any };
+                                                                                                                    } else {
+                                                                                                                        const { type, ...rest } = newOverrides[fId] || {};
+                                                                                                                        newOverrides[fId] = rest;
+                                                                                                                    }
+                                                                                                                    updateStep(idx, { fieldOverrides: newOverrides });
+                                                                                                                }}
+                                                                                                                className="w-full border rounded px-2 py-1.5 text-[10px] bg-white"
+                                                                                                            >
+                                                                                                                <option value="">(원본 유지 - {originalField.type})</option>
+                                                                                                                <option value="text">단답형 텍스트 (text)</option>
+                                                                                                                <option value="textarea">장문형 텍스트 (textarea)</option>
+                                                                                                                <option value="tel">전화번호 (tel)</option>
+                                                                                                                <option value="email">이메일 (email)</option>
+                                                                                                                <option value="number">숫자 (number)</option>
+                                                                                                                <option value="select">선택형 (select)</option>
+                                                                                                                <option value="radio">라디오 버튼 (radio)</option>
+                                                                                                                <option value="checkbox">체크박스 (checkbox)</option>
+                                                                                                                <option value="date">날짜 (date)</option>
+                                                                                                                <option value="time">시간 (time)</option>
+                                                                                                                <option value="address">주소 검색 (address)</option>
+                                                                                                            </select>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    {['select', 'radio', 'checkbox'].includes(override.type || originalField.type) && (
+                                                                                                        <div>
+                                                                                                            <label className="text-[9px] text-gray-500 block mb-1">옵션 설정 (콤마로 구분)</label>
+                                                                                                            <textarea
+                                                                                                                value={override.options ? override.options.map((o: any) => o.value).join(', ') : ''}
+                                                                                                                placeholder={originalField.options ? originalField.options.map(o => o.value).join(', ') : "예: 옵션1, 옵션2, 옵션3"}
+                                                                                                                onChange={(e) => {
+                                                                                                                    const newOverrides = { ...step.fieldOverrides };
+                                                                                                                    const val = e.target.value;
+                                                                                                                    const opts = val.split(',').map(s => {
+                                                                                                                        const text = s.trim();
+                                                                                                                        return { label: text, value: text };
+                                                                                                                    }).filter(o => o.value);
+                                                                                                                    newOverrides[fId] = { ...newOverrides[fId], options: opts };
+                                                                                                                    updateStep(idx, { fieldOverrides: newOverrides });
+                                                                                                                }}
+                                                                                                                className="w-full border rounded px-2 py-1.5 text-[10px] h-16"
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                    )}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        );
+                                                                                    })}
                                                                                 </div>
                                                                             </details>
                                                                         </>

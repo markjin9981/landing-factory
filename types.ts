@@ -145,6 +145,29 @@ export interface FormStyle {
   buttonFontFamily?: string;
   buttonAnimation?: ButtonAnimationType;
   securityBadgeId?: string; // New: Security Footer Preset ID (0-10)
+
+  // Layout
+  fieldsPerPage?: number; // New: Fields per page control (0 = all, 1 = one by one)
+
+  // Container Styling (Unified)
+  containerBgColor?: string;
+  containerBgOpacity?: number;
+  containerBorderColor?: string;
+  containerBorderRadius?: string;
+  containerPadding?: string;
+  containerMaxHeight?: string;
+
+  // Question Styling
+  questionColor?: string;
+  questionSize?: string;
+  questionFont?: string;
+
+  // Answer Styling
+  answerColor?: string;
+  answerBgColor?: string;
+  answerBorderColor?: string;
+  answerFont?: string;
+  answerFontSize?: string;
 }
 
 // 2. UrgencyConfig
