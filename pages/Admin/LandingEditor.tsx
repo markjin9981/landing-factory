@@ -848,7 +848,7 @@ const LandingEditor: React.FC = () => {
                 {
                     id: `s_${Date.now()}`,
                     type,
-                    title: type === 'intro' ? '시작하기' : type === 'outro' ? '마지막 단계' : undefined,
+                    title: type === 'intro' ? '시작하기' : undefined, // Outro no longer has default title
                     buttonText: type === 'outro' ? '제출하기' : '다음',
                     fieldIds: type === 'form' ? [] : undefined,
                     contentId: type === 'content' ? '' : undefined,
