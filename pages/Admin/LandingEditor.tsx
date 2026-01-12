@@ -3714,6 +3714,91 @@ const LandingEditor: React.FC = () => {
                                                                         </div>
                                                                     )}
                                                                 </div>
+
+                                                                {/* Policy/Terms Agreement Style Settings */}
+                                                                <details className="mt-4 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-100 overflow-hidden">
+                                                                    <summary className="text-[11px] font-bold text-orange-700 cursor-pointer p-3 flex items-center gap-2 hover:bg-orange-100/50 transition-colors">
+                                                                        📜 약관 동의 영역 스타일링 (모바일 최적화)
+                                                                    </summary>
+                                                                    <div className="p-3 space-y-4 bg-white/80">
+                                                                        {/* Container Style */}
+                                                                        <div className="space-y-2">
+                                                                            <label className="text-[10px] font-bold text-gray-600 flex items-center gap-1">📦 약관 동의 컨테이너</label>
+                                                                            <div className="grid grid-cols-2 gap-2">
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-500 block mb-1">배경색</label>
+                                                                                    <div className="flex gap-1">
+                                                                                        <input type="color" value={step.policyStyle?.backgroundColor || '#f9fafb'} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, backgroundColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                        <input type="text" value={step.policyStyle?.backgroundColor || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, backgroundColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-2" placeholder="rgba(255,255,255,0.05)" />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-500 block mb-1">테두리색</label>
+                                                                                    <div className="flex gap-1">
+                                                                                        <input type="color" value={step.policyStyle?.borderColor || '#f3f4f6'} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, borderColor: e.target.value } })} className="h-7 w-7 cursor-pointer rounded border" />
+                                                                                        <input type="text" value={step.policyStyle?.borderColor || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, borderColor: e.target.value } })} className="flex-1 border rounded text-[10px] px-2" placeholder="rgba(255,255,255,0.1)" />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-500 block mb-1">모서리 둥글기</label>
+                                                                                    <input type="text" value={step.policyStyle?.borderRadius || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, borderRadius: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="1rem" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-500 block mb-1">내부 여백</label>
+                                                                                    <input type="text" value={step.policyStyle?.padding || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, padding: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="1.5rem" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Size Control */}
+                                                                        <div className="space-y-2 pt-3 border-t border-gray-100">
+                                                                            <label className="text-[10px] font-bold text-gray-600 flex items-center gap-1">📐 크기 조정 (모바일 대응)</label>
+                                                                            <div className="grid grid-cols-2 gap-2">
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-500 block mb-1">최대 높이</label>
+                                                                                    <input type="text" value={step.policyStyle?.containerMaxHeight || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, containerMaxHeight: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="예: 200px, 50vh" />
+                                                                                    <p className="text-[8px] text-gray-400 mt-0.5">설정 시 스크롤 지원</p>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-orange-600 font-semibold block mb-1">📱 모바일 전용 패딩</label>
+                                                                                    <input type="text" value={step.policyStyle?.mobilePadding || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, mobilePadding: e.target.value } })} className="w-full border-2 border-orange-200 rounded text-[10px] px-2 py-1" placeholder="예: 0.75rem" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Typography */}
+                                                                        <div className="space-y-2 pt-3 border-t border-gray-100">
+                                                                            <label className="text-[10px] font-bold text-gray-600 flex items-center gap-1">🔤 글꼴 및 레이아웃</label>
+                                                                            <div className="grid grid-cols-3 gap-2">
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-500 block mb-1">헤더 글자 크기</label>
+                                                                                    <input type="text" value={step.policyStyle?.labelFontSize || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, labelFontSize: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="1rem" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-500 block mb-1">항목 글자 크기</label>
+                                                                                    <input type="text" value={step.policyStyle?.itemFontSize || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, itemFontSize: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="0.875rem" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label className="text-[9px] text-gray-500 block mb-1">항목 간격</label>
+                                                                                    <input type="text" value={step.policyStyle?.itemGap || ''} onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, itemGap: e.target.value } })} className="w-full border rounded text-[10px] px-2 py-1" placeholder="0.5rem" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Hide Background Toggle */}
+                                                                        <div className="pt-3 border-t border-gray-100">
+                                                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={step.policyStyle?.hideBackground || false}
+                                                                                    onChange={(e) => updateStep(idx, { policyStyle: { ...step.policyStyle, hideBackground: e.target.checked } })}
+                                                                                    className="rounded text-orange-600 focus:ring-orange-500"
+                                                                                />
+                                                                                <span className="text-[10px] font-medium text-gray-700">배경 숨기기 (투명 모드)</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </details>
                                                             </div>
                                                         )}
 

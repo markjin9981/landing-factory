@@ -146,10 +146,10 @@ const StepOutro: React.FC<StepOutroProps> = ({
 
     // Policy Style Helper
     const policyStyle = {
-        backgroundColor: step.policyStyle?.backgroundColor || (hasCustomBackground || backgroundContent ? 'rgba(255, 255, 255, 0.05)' : '#f9fafb'),
-        borderColor: step.policyStyle?.borderColor || (hasCustomBackground || backgroundContent ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6'),
+        backgroundColor: step.policyStyle?.hideBackground ? 'transparent' : (step.policyStyle?.backgroundColor || (hasCustomBackground || backgroundContent ? 'rgba(255, 255, 255, 0.05)' : '#f9fafb')),
+        borderColor: step.policyStyle?.hideBackground ? 'transparent' : (step.policyStyle?.borderColor || (hasCustomBackground || backgroundContent ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6')),
         borderRadius: step.policyStyle?.borderRadius || '1rem',
-        padding: step.policyStyle?.padding || '1.5rem',
+        padding: isMobile && step.policyStyle?.mobilePadding ? step.policyStyle.mobilePadding : (step.policyStyle?.padding || '1.5rem'),
         maxHeight: step.policyStyle?.containerMaxHeight || 'none',
         overflowY: step.policyStyle?.containerMaxHeight ? 'auto' as const : 'visible' as const,
     };

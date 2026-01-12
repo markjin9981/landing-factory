@@ -634,6 +634,7 @@ export interface DynamicStepItem {
     borderColor?: string;
     borderRadius?: string;
     padding?: string;
+    mobilePadding?: string; // NEW: Mobile-specific padding override
   };
 
   // NEW: Mobile Background Toggle (Fix #3)
