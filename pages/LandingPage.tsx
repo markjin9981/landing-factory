@@ -4,7 +4,7 @@ import LANDING_CONFIGS_JSON from '../data/landingConfigs.json';
 import { LandingConfig, FloatingBanner, HeroSection, DetailContent as DetailContentType } from '../types';
 import LeadForm from '../components/LeadForm';
 import { Check, Star, Shield, Clock, ThumbsUp, ArrowRight } from 'lucide-react';
-import { logVisit, fetchLandingConfigById } from '../services/googleSheetService';
+import { logVisit, fetchLandingConfigById, fetchGlobalSettings } from '../services/googleSheetService';
 import KakaoMap from '../components/KakaoMap';
 import BannerBlock from '../components/inline/BannerBlock';
 import PopupContainer from '../components/popup/PopupContainer';
@@ -17,6 +17,7 @@ import SNSFloatingBar from '../components/floating/SNSFloatingBar';
 import SNSBlock from '../components/sections/SNSBlock'; // New
 import SmartFeatureBlock from '../components/sections/SmartFeatureBlock';
 import { generateGoogleFontUrl, GOOGLE_FONTS_LIST } from '../utils/fontUtils';
+import RehabChatButton from '../components/rehab/RehabChatButton';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as unknown as Record<string, LandingConfig>;
 
@@ -523,6 +524,18 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
       {/* SNS Floating Bar (New) */}
       {snsConfig && <SNSFloatingBar config={snsConfig} isMobileView={isMobileView || isPreview} />}
+
+      {/* AI 변제금 진단 챗봇 (항상 활성화) */}
+      <RehabChatButton
+        config={{
+          isEnabled: true,
+          displayMode: 'floating',
+          buttonText: 'AI 변제금 확인',
+          buttonPosition: 'bottom-left',
+          buttonColor: '#8B5CF6',
+          characterName: '로이',
+        }}
+      />
 
     </div >
   );

@@ -500,7 +500,22 @@ export interface GlobalSettings {
   // NEW: Cloudinary settings
   cloudinaryCloudName?: string;
   cloudinaryUploadPreset?: string;
+  // NEW: Gemini API for AI chatbot
+  geminiApiKey?: string;
+  // NEW: Rehab Chatbot Config
+  rehabChatConfig?: RehabChatConfig;
   adminUsers?: Array<{ email: string, name: string, memo: string }>;
+}
+
+// NEW: AI 변제금 진단 챗봇 설정
+export interface RehabChatConfig {
+  isEnabled: boolean;
+  displayMode: 'popup' | 'embedded' | 'floating';
+  buttonText: string;
+  buttonPosition?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  buttonColor?: string;
+  characterName?: string;  // AI 캐릭터 이름 (기본: 로이)
+  characterImage?: string; // AI 캐릭터 이미지 URL
 }
 
 export interface BoardItem {

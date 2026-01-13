@@ -134,6 +134,62 @@ export const deleteLeads = async (leads: LeadData[]): Promise<{ result: string, 
 };
 
 /**
+ * AI 변제금 진단 결과를 구글 시트에 저장합니다.
+ */
+export interface RehabDiagnosisData {
+    name: string;
+    phone: string;
+    address: string;
+    monthlyIncome: number;
+    familySize: number;
+    totalDebt: number;
+    assets: number;
+    spouseAssets?: number;
+    monthlyPayment: number;
+    debtReductionRate: number;
+    courtName: string;
+    status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE';
+    timestamp?: string;
+}
+
+export const submitRehabDiagnosis = async (data: RehabDiagnosisData): Promise<boolean> => {
+    if (!isUrlConfigured()) {
+        console.log("📊 Mock Rehab Diagnosis Submit:", data);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return true;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('type', 'rehab_diagnosis');
+        formData.append('Timestamp', data.timestamp || new Date().toLocaleString('ko-KR'));
+        formData.append('고객명', data.name);
+        formData.append('연락처', data.phone);
+        formData.append('거주지', data.address);
+        formData.append('소득', String(data.monthlyIncome));
+        formData.append('부양가족', String(data.familySize));
+        formData.append('총채무', String(data.totalDebt));
+        formData.append('재산', String(data.assets));
+        formData.append('배우자재산', String(data.spouseAssets || 0));
+        formData.append('예상월변제금', String(data.monthlyPayment));
+        formData.append('탕감률', String(data.debtReductionRate));
+        formData.append('관할법원', data.courtName);
+        formData.append('상태', data.status);
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData,
+            mode: "no-cors",
+        });
+
+        return true;
+    } catch (error) {
+        console.error("Error submitting rehab diagnosis:", error);
+        return false;
+    }
+};
+
+/**
  * 방문자 로그를 기록합니다.
  */
 export const logVisit = async (visit: { landing_id: string, ip: string, device: string, os: string, browser: string, referrer: string }): Promise<void> => {
