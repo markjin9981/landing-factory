@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, AlertCircle, Shield, Smartphone, Monitor, Globe, LogOut, Plus, Trash2, User, UserPlus } from 'lucide-react';
-import { fetchAdminSessions, revokeSession, fetchAdminUsers, addAdminUser, removeAdminUser } from '../../services/googleSheetService';
+import { ArrowLeft, Mail, Lock, AlertCircle, Shield, Smartphone, Monitor, Globe, LogOut, Plus, Trash2, User, UserPlus, Key, Eye, EyeOff, Save, CheckCircle } from 'lucide-react';
+import { fetchAdminSessions, revokeSession, fetchAdminUsers, addAdminUser, removeAdminUser, fetchGlobalSettings, saveGlobalSettings } from '../../services/googleSheetService';
 import { authService } from '../../services/authService';
+import { GlobalSettings } from '../../types';
 
 const Settings: React.FC = () => {
     const navigate = useNavigate();
@@ -19,10 +20,39 @@ const Settings: React.FC = () => {
     const [newAdminEmail, setNewAdminEmail] = useState('');
     const [addingAdmin, setAddingAdmin] = useState(false);
 
+    // NEW: Global Settings State (for ImgBB API Key)
+    const [globalSettings, setGlobalSettings] = useState<GlobalSettings | null>(null);
+    const [imgbbApiKey, setImgbbApiKey] = useState('');
+    const [showApiKey, setShowApiKey] = useState(false);
+    const [savingApiKey, setSavingApiKey] = useState(false);
+    const [apiKeySaved, setApiKeySaved] = useState(false);
+
     useEffect(() => {
         loadSessions();
         loadAdminUsers();
+        loadGlobalSettings();
     }, []);
+
+    // NEW: Load Global Settings
+    const loadGlobalSettings = async () => {
+        const settings = await fetchGlobalSettings();
+        if (settings) {
+            setGlobalSettings(settings);
+            setImgbbApiKey(settings.imgbbApiKey || '');
+        }
+    };
+
+    // NEW: Save ImgBB API Key
+    const handleSaveApiKey = async () => {
+        if (!globalSettings) return;
+        setSavingApiKey(true);
+        const newSettings = { ...globalSettings, imgbbApiKey };
+        await saveGlobalSettings(newSettings);
+        setGlobalSettings(newSettings);
+        setSavingApiKey(false);
+        setApiKeySaved(true);
+        setTimeout(() => setApiKeySaved(false), 2000);
+    };
 
     const loadAdminUsers = async () => {
         setLoadingAdmins(true);
@@ -120,7 +150,50 @@ const Settings: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 2. Admin User Management (Super Admin Only) */}
+                {/* NEW: ImgBB API Key Settings */}
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+                    <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
+                        <Key className="w-5 h-5 text-amber-600" />
+                        이미지 호스팅 설정
+                    </h2>
+
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-800">
+                        <strong className="block mb-1">ImgBB API Key</strong>
+                        대용량 이미지 업로드에 필요합니다. <a href="https://api.imgbb.com/" target="_blank" rel="noopener noreferrer" className="underline font-bold">api.imgbb.com</a>에서 무료로 발급받을 수 있습니다.
+                    </div>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">API Key</label>
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <Key className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                    <input
+                                        type={showApiKey ? 'text' : 'password'}
+                                        value={imgbbApiKey}
+                                        onChange={(e) => setImgbbApiKey(e.target.value)}
+                                        placeholder="ImgBB API Key 입력"
+                                        className="w-full pl-10 pr-12 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowApiKey(!showApiKey)}
+                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showApiKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
+                                <button
+                                    onClick={handleSaveApiKey}
+                                    disabled={savingApiKey || !globalSettings}
+                                    className="px-4 py-3 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 disabled:opacity-50 flex items-center gap-2"
+                                >
+                                    {savingApiKey ? '저장 중...' : apiKeySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> 저장</>}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {currentUserEmail === 'beanhull@gmail.com' ? (
                     <>
                         <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
