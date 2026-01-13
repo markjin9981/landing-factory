@@ -525,17 +525,10 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
       {/* SNS Floating Bar (New) */}
       {snsConfig && <SNSFloatingBar config={snsConfig} isMobileView={isMobileView || isPreview} />}
 
-      {/* AI 변제금 진단 챗봇 (항상 활성화) */}
-      <RehabChatButton
-        config={{
-          isEnabled: true,
-          displayMode: 'floating',
-          buttonText: 'AI 변제금 확인',
-          buttonPosition: 'bottom-left',
-          buttonColor: '#8B5CF6',
-          characterName: '로이',
-        }}
-      />
+      {/* AI 변제금 진단 챗봇 */}
+      {config.rehabChatConfig?.isEnabled && config.rehabChatConfig?.placement?.showAsFloating && (
+        <RehabChatButton config={config.rehabChatConfig} />
+      )}
 
     </div >
   );

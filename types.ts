@@ -516,6 +516,30 @@ export interface RehabChatConfig {
   buttonColor?: string;
   characterName?: string;  // AI 캐릭터 이름 (기본: 로이)
   characterImage?: string; // AI 캐릭터 이미지 URL
+
+  // NEW: 버튼 스타일링
+  buttonStyle?: {
+    backgroundColor?: string;
+    textColor?: string;
+    borderRadius?: string;      // e.g., '8px', '9999px' (pill)
+    fontSize?: string;          // e.g., '14px', '16px'
+    fontWeight?: string;        // e.g., 'normal', 'bold', '600'
+    padding?: string;           // e.g., '12px 24px'
+    boxShadow?: string;         // e.g., '0 4px 12px rgba(0,0,0,0.2)'
+    borderWidth?: string;
+    borderColor?: string;
+    icon?: 'sparkles' | 'calculator' | 'chat' | 'none';
+    iconPosition?: 'left' | 'right';
+  };
+
+  // NEW: 삽입 위치 옵션
+  placement?: {
+    showInHero?: boolean;           // 히어로 섹션에 표시
+    showInPopup?: boolean;          // 팝업에 표시
+    showInTopBanner?: boolean;      // 상단 고정 배너에 표시
+    showInBottomBanner?: boolean;   // 하단 고정 배너에 표시
+    showAsFloating?: boolean;       // 플로팅 버튼으로 표시
+  };
 }
 
 export interface BoardItem {
@@ -606,6 +630,7 @@ export interface LandingConfig {
   board?: BoardSection;
   location?: LocationSection; // New
   features?: FeatureSection; // New Smart Feature Block
+  rehabChatConfig?: RehabChatConfig; // NEW: AI 변제금 진단 챗봇
 }
 
 export interface DynamicStepItem {

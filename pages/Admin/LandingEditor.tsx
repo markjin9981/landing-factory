@@ -170,7 +170,23 @@ const DEFAULT_CONFIG: LandingConfig = {
         addressStyle: { fontSize: '1rem', fontWeight: '400', color: '#4b5563', textAlign: 'center' }
     },
     snsConfig: { isShow: false, position: 'bottom-right', displayMode: 'floating', style: {}, items: [] },
-    features: { isShow: false, title: '주요 특징', description: '우리 서비스의 특별한 점을 소개합니다.', items: [] }
+    features: { isShow: false, title: '주요 특징', description: '우리 서비스의 특별한 점을 소개합니다.', items: [] },
+    // NEW: AI 변제금 진단 챗봇 설정
+    rehabChatConfig: {
+        isEnabled: false,
+        displayMode: 'floating',
+        buttonText: 'AI 변제금 확인',
+        buttonPosition: 'bottom-left',
+        buttonColor: '#8B5CF6',
+        characterName: '로이',
+        placement: {
+            showAsFloating: true,
+            showInHero: false,
+            showInPopup: false,
+            showInTopBanner: false,
+            showInBottomBanner: false
+        }
+    }
 };
 
 // ... imports
