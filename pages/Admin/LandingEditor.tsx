@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 import { compressImage } from '../../utils/imageCompression';
@@ -1040,6 +1040,7 @@ const LandingEditor: React.FC = () => {
                                 { id: 'chat', label: '문의버튼', icon: <MessageCircle className="w-4 h-4" /> },
                                 { id: 'sns', label: 'SNS/외부', icon: <Share2 className="w-4 h-4" /> },
                                 { id: 'footer', label: '하단', icon: <Anchor className="w-4 h-4" /> },
+                                { id: 'ai_chatbot', label: 'AI챗봇', icon: <Sparkles className="w-4 h-4" /> },
                                 { id: 'seo', label: '검색엔진', icon: <Globe className="w-4 h-4" /> },
                             ].map(tab => (
                                 <button
@@ -5457,6 +5458,122 @@ const LandingEditor: React.FC = () => {
                                                                 </div>
                                                             )}
                                                         </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                            }
+
+                            {/* --- AI CHATBOT TAB (NEW) --- */}
+                            {
+                                activeTab === 'ai_chatbot' && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                                    <MessageCircle className="w-4 h-4 text-purple-600" /> AI 변제금 진단 챗봇
+                                                </h3>
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <span className="text-xs font-bold text-gray-700">사용</span>
+                                                    <input type="checkbox" className="toggle-checkbox"
+                                                        checked={config.rehabChatConfig?.isEnabled || false}
+                                                        onChange={(e) => updateNested(['rehabChatConfig', 'isEnabled'], e.target.checked)}
+                                                    />
+                                                </label>
+                                            </div>
+
+                                            {config.rehabChatConfig?.isEnabled && (
+                                                <div className="space-y-4">
+                                                    {/* 버튼 텍스트 */}
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-500 mb-1 block">버튼 텍스트</label>
+                                                        <input type="text" className="w-full border rounded p-2 text-sm"
+                                                            value={config.rehabChatConfig?.buttonText || 'AI 변제금 확인'}
+                                                            onChange={(e) => updateNested(['rehabChatConfig', 'buttonText'], e.target.value)}
+                                                            placeholder="AI 변제금 확인"
+                                                        />
+                                                    </div>
+
+                                                    {/* 버튼 색상 & 크기 */}
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 mb-1 block">버튼 색상</label>
+                                                            <input type="color" className="w-full h-10 border rounded cursor-pointer"
+                                                                value={config.rehabChatConfig?.buttonColor || '#8B5CF6'}
+                                                                onChange={(e) => updateNested(['rehabChatConfig', 'buttonColor'], e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 mb-1 block">버튼 크기</label>
+                                                            <select className="w-full border rounded p-2 text-sm"
+                                                                value={config.rehabChatConfig?.buttonStyle?.buttonSize || 'md'}
+                                                                onChange={(e) => updateNested(['rehabChatConfig', 'buttonStyle', 'buttonSize'], e.target.value)}
+                                                            >
+                                                                <option value="sm">Small (작게)</option>
+                                                                <option value="md">Medium (보통)</option>
+                                                                <option value="lg">Large (크게)</option>
+                                                                <option value="xl">Extra Large (아주 크게)</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 버튼 위치 */}
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-500 mb-1 block">버튼 위치</label>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            {(['bottom-left', 'bottom-right', 'top-left', 'top-right'] as const).map((pos) => (
+                                                                <button
+                                                                    key={pos}
+                                                                    onClick={() => updateNested(['rehabChatConfig', 'buttonPosition'], pos)}
+                                                                    className={`p-2 border rounded text-xs transition-all ${config.rehabChatConfig?.buttonPosition === pos
+                                                                        ? 'border-purple-500 bg-purple-50 text-purple-700 font-bold'
+                                                                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                                                                        }`}
+                                                                >
+                                                                    {pos === 'bottom-left' ? '하단 좌측' : pos === 'bottom-right' ? '하단 우측' : pos === 'top-left' ? '상단 좌측' : '상단 우측'}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 표시 위치 */}
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-500 mb-2 block">표시 위치 (복수 선택 가능)</label>
+                                                        <div className="space-y-2">
+                                                            <label className="flex items-center gap-2 cursor-pointer p-2 bg-gray-50 rounded border">
+                                                                <input type="checkbox"
+                                                                    checked={config.rehabChatConfig?.placement?.showAsFloating || false}
+                                                                    onChange={(e) => updateNested(['rehabChatConfig', 'placement', 'showAsFloating'], e.target.checked)}
+                                                                />
+                                                                <span className="text-sm">플로팅 버튼 (화면 고정)</span>
+                                                            </label>
+                                                            <label className="flex items-center gap-2 cursor-pointer p-2 bg-gray-50 rounded border">
+                                                                <input type="checkbox"
+                                                                    checked={config.rehabChatConfig?.placement?.showInHero || false}
+                                                                    onChange={(e) => updateNested(['rehabChatConfig', 'placement', 'showInHero'], e.target.checked)}
+                                                                />
+                                                                <span className="text-sm">히어로 섹션 삽입</span>
+                                                            </label>
+                                                            <label className="flex items-center gap-2 cursor-pointer p-2 bg-gray-50 rounded border">
+                                                                <input type="checkbox"
+                                                                    checked={config.rehabChatConfig?.placement?.showInPopup || false}
+                                                                    onChange={(e) => updateNested(['rehabChatConfig', 'placement', 'showInPopup'], e.target.checked)}
+                                                                />
+                                                                <span className="text-sm">팝업 내 삽입</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* AI 캐릭터 이름 */}
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-500 mb-1 block">AI 캐릭터 이름</label>
+                                                        <input type="text" className="w-full border rounded p-2 text-sm"
+                                                            value={config.rehabChatConfig?.characterName || '로이'}
+                                                            onChange={(e) => updateNested(['rehabChatConfig', 'characterName'], e.target.value)}
+                                                            placeholder="로이"
+                                                        />
                                                     </div>
                                                 </div>
                                             )}

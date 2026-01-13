@@ -530,6 +530,7 @@ export interface RehabChatConfig {
     borderColor?: string;
     icon?: 'sparkles' | 'calculator' | 'chat' | 'none';
     iconPosition?: 'left' | 'right';
+    buttonSize?: 'sm' | 'md' | 'lg' | 'xl';  // NEW: 버튼 크기
   };
 
   // NEW: 삽입 위치 옵션
