@@ -291,7 +291,7 @@ const Settings: React.FC = () => {
                     {/* 2026년 정책 설정 Section */}
                     <div className="border-t border-gray-200 pt-6 mt-6">
                         <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6 text-sm text-indigo-800">
-                            <strong className="block mb-1">2026년 개인회생 계산 정책</strong>
+                            <strong className="block mb-1">2026년 개인회생 계산 정책 <span className="text-xs font-normal text-indigo-400">(v2026.01.14.R1)</span></strong>
                             AI 변제금 진단에 사용되는 중위소득, 생계비율, 보증금 공제 등을 설정합니다.
                         </div>
 
