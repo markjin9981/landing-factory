@@ -18,6 +18,7 @@ interface UnifiedFormFieldProps {
         answerFontSize?: string;
     };
     primaryColor?: string;
+    layout?: 'standard' | 'inline' | 'compact' | 'minimal' | 'card'; // NEW: Layout template
 }
 
 const PHONE_PREFIXES = [
@@ -34,7 +35,8 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
     onChange,
     error,
     formStyle,
-    primaryColor = '#3b82f6'
+    primaryColor = '#3b82f6',
+    layout = 'standard' // NEW: Default to standard
 }) => {
     // Helper Functions
     const parsePhone = (val: string) => {
@@ -148,8 +150,14 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
 
     const inputBaseClass = "w-full p-4 rounded-xl border focus:ring-2 focus:ring-blue-500 transition-all outline-none";
 
+    // NEW: Determine container classes based on layout
+    const isInline = layout === 'inline';
+    const containerClasses = isInline
+        ? 'flex items-center gap-3 flex-1 min-w-[200px]'
+        : 'space-y-2 text-left';
+
     return (
-        <div className="space-y-2 text-left">
+        <div className={containerClasses}>
             <label className="block font-bold mb-2 break-keep" style={getLabelStyle()}>
                 {field.label}
                 {field.required && <span className="text-red-500 ml-1">*</span>}

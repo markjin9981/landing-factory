@@ -15,6 +15,9 @@ interface EmbeddedFormProps {
         containerBorderColor?: string;
         containerBorderRadius?: string;
         containerPadding?: string;
+        // NEW: Layout template support
+        containerLayout?: 'standard' | 'inline' | 'compact' | 'minimal' | 'card';
+        containerGap?: string;
         // Question Label
         questionColor?: string;
         questionSize?: 'sm' | 'md' | 'xl';
@@ -55,16 +58,26 @@ const EmbeddedForm: React.FC<EmbeddedFormProps> = ({
     primaryColor = '#3b82f6',
     fieldOverrides = {} // NEW: default to empty
 }) => {
+    // Determine layout-based classes and styles
+    const layout = formStyle?.containerLayout || 'standard';
+    const gap = formStyle?.containerGap || (layout === 'inline' ? '0.5rem' : layout === 'compact' ? '0.75rem' : '1.5rem');
+
+    const containerClasses = [
+        'w-full overflow-y-auto',
+        layout === 'inline' ? 'flex flex-wrap items-end' : 'space-y-4',
+    ].filter(Boolean).join(' ');
+
     return (
         <div
-            className="space-y-6 w-full overflow-y-auto"
+            className={containerClasses}
             style={{
                 backgroundColor: formStyle?.containerBgColor,
                 opacity: formStyle?.containerBgOpacity ? formStyle.containerBgOpacity / 100 : 1,
                 maxHeight: formStyle?.containerMaxHeight,
                 borderColor: formStyle?.containerBorderColor,
                 borderRadius: formStyle?.containerBorderRadius,
-                padding: formStyle?.containerPadding
+                padding: formStyle?.containerPadding,
+                gap: gap,
             }}
         >
             {fields.map((field) => {
@@ -88,6 +101,7 @@ const EmbeddedForm: React.FC<EmbeddedFormProps> = ({
                         error={errors[displayField.id]}
                         formStyle={formStyle}
                         primaryColor={primaryColor}
+                        layout={layout}
                     />
                 );
             })}

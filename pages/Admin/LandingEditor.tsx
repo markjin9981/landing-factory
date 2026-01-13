@@ -30,11 +30,11 @@ const displaySizeValue = (val: string | undefined) => {
 
 // --- Constants ---
 const CONTAINER_PRESETS = [
-    { name: '기본 (Balanced)', value: 'balanced', style: { padding: '1.5rem', borderRadius: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', maxWidth: '100%', hideBackground: false, borderColor: 'rgba(255, 255, 255, 0.1)' } },
-    { name: '카드형 (Compact)', value: 'compact', style: { padding: '1rem', borderRadius: '0.75rem', backgroundColor: '#ffffff', maxWidth: '100%', hideBackground: false, borderColor: 'transparent' } },
-    { name: '투명 (Minimal)', value: 'minimal', style: { padding: '0', borderRadius: '0', backgroundColor: 'transparent', maxWidth: '100%', hideBackground: true, borderColor: 'transparent' } },
-    { name: '슬림 (Glass)', value: 'glass', style: { padding: '0.75rem', borderRadius: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.1)', maxWidth: '100%', hideBackground: false, borderColor: 'rgba(255, 255, 255, 0.2)' } },
-    { name: '와이드 (Wide)', value: 'wide', style: { padding: '1.5rem 0', borderRadius: '0', backgroundColor: 'rgba(0,0,0,0.5)', maxWidth: '100%', hideBackground: false, borderColor: 'transparent' } }
+    { name: '표준 (Standard)', value: 'standard', style: { layout: 'standard', padding: '1.5rem', borderRadius: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', maxWidth: '100%', mobileMaxWidth: '100%', mobilePadding: '1rem', gap: '1.5rem', hideBackground: false, borderColor: 'rgba(255, 255, 255, 0.1)' } },
+    { name: '인라인 (Inline)', value: 'inline', style: { layout: 'inline', padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'rgba(0, 0, 0, 0.3)', maxWidth: '90%', mobileMaxWidth: '85%', mobilePadding: '0.5rem', gap: '0.5rem', hideBackground: false, borderColor: 'rgba(255, 255, 255, 0.1)' } },
+    { name: '컴팩트 (Compact)', value: 'compact', style: { layout: 'compact', padding: '0.75rem', borderRadius: '0.75rem', backgroundColor: 'rgba(0, 0, 0, 0.4)', maxWidth: '280px', mobileMaxWidth: '70%', mobilePadding: '0.5rem', gap: '0.75rem', hideBackground: false, borderColor: 'rgba(255, 255, 255, 0.15)' } },
+    { name: '미니멀 (Minimal)', value: 'minimal', style: { layout: 'minimal', padding: '0.25rem', borderRadius: '0.5rem', backgroundColor: 'transparent', maxWidth: '240px', mobileMaxWidth: '60%', mobilePadding: '0.25rem', gap: '0.5rem', hideBackground: true, borderColor: 'transparent' } },
+    { name: '카드 (Card)', value: 'card', style: { layout: 'card', padding: '1rem', borderRadius: '1.5rem', backgroundColor: '#ffffff', maxWidth: '300px', mobileMaxWidth: '75%', mobilePadding: '0.75rem', gap: '1rem', hideBackground: false, borderColor: 'transparent' } }
 ];
 
 const FORM_PRESETS: Record<string, { label: string, style: FormStyle }> = {

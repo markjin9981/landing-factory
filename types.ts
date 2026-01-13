@@ -737,6 +737,11 @@ export interface DynamicStepItem {
     padding?: string;
     maxWidth?: string;
     hideBackground?: boolean;
+    // NEW: Layout template and mobile-specific sizing
+    layout?: 'standard' | 'inline' | 'compact' | 'minimal' | 'card';
+    mobileMaxWidth?: string;  // e.g., '280px', '70%'
+    mobilePadding?: string;   // e.g., '0.5rem'
+    gap?: string;             // gap between form fields
   };
 }
 

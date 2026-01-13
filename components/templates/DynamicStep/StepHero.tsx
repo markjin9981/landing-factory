@@ -58,6 +58,11 @@ interface StepHeroProps {
         padding?: string;
         maxWidth?: string;
         hideBackground?: boolean;
+        // NEW: Layout template and mobile-specific sizing
+        layout?: 'standard' | 'inline' | 'compact' | 'minimal' | 'card';
+        mobileMaxWidth?: string;
+        mobilePadding?: string;
+        gap?: string;
     };
 }
 
@@ -297,9 +302,13 @@ const StepHero: React.FC<StepHeroProps> = ({
                             style={{
                                 backgroundColor: questionContainerStyle?.hideBackground ? 'transparent' : (questionContainerStyle?.backgroundColor || 'rgba(255, 255, 255, 0.05)'),
                                 borderRadius: questionContainerStyle?.borderRadius || '1rem',
-                                padding: questionContainerStyle?.padding || '1.5rem',
+                                padding: isMobile
+                                    ? (questionContainerStyle?.mobilePadding || questionContainerStyle?.padding || '1rem')
+                                    : (questionContainerStyle?.padding || '1.5rem'),
                                 border: questionContainerStyle?.hideBackground ? 'none' : `1px solid ${questionContainerStyle?.borderColor || 'rgba(255, 255, 255, 0.1)'}`,
-                                maxWidth: questionContainerStyle?.maxWidth || '100%',
+                                maxWidth: isMobile
+                                    ? (questionContainerStyle?.mobileMaxWidth || questionContainerStyle?.maxWidth || '100%')
+                                    : (questionContainerStyle?.maxWidth || '100%'),
                                 margin: '0 auto',
                             }}
                         >
@@ -308,7 +317,12 @@ const StepHero: React.FC<StepHeroProps> = ({
                                 formData={formData}
                                 onChange={onDataChange}
                                 errors={errors}
-                                formStyle={formStyle}
+                                formStyle={{
+                                    ...formStyle,
+                                    // Pass layout and gap from questionContainerStyle
+                                    containerLayout: questionContainerStyle?.layout,
+                                    containerGap: questionContainerStyle?.gap,
+                                }}
                                 primaryColor={primaryColor}
                                 fieldOverrides={fieldOverrides} // NEW: Pass overrides
                             />
