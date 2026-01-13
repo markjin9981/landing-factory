@@ -504,6 +504,20 @@ export interface GlobalSettings {
   geminiApiKey?: string;
   // NEW: Rehab Chatbot Config
   rehabChatConfig?: RehabChatConfig;
+  // NEW: Rehab Policy Config (2026년 기준 계산 설정)
+  rehabPolicyConfig?: {
+    baseYear: number;
+    medianIncome: Record<number, number>;
+    medianIncomeIncrement: number;
+    depositExemptions: Record<string, { limit: number; deduct: number }>;
+    livingCostRate: number;
+    courtTraits: Record<string, {
+      name: string;
+      allow24Months: boolean;
+      spousePropertyRate: number;
+      description?: string;
+    }>;
+  };
   adminUsers?: Array<{ email: string, name: string, memo: string }>;
 }
 

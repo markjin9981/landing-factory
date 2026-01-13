@@ -287,6 +287,209 @@ const Settings: React.FC = () => {
                             </button>
                         </div>
                     </div>
+
+                    {/* 2026년 정책 설정 Section */}
+                    <div className="border-t border-gray-200 pt-6 mt-6">
+                        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6 text-sm text-indigo-800">
+                            <strong className="block mb-1">2026년 개인회생 계산 정책</strong>
+                            AI 변제금 진단에 사용되는 중위소득, 생계비율, 보증금 공제 등을 설정합니다.
+                        </div>
+
+                        <div className="space-y-4">
+                            {/* 기준년도 & 생계비율 */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">기준년도</label>
+                                    <input
+                                        type="number"
+                                        value={globalSettings?.rehabPolicyConfig?.baseYear || 2026}
+                                        onChange={(e) => setGlobalSettings(prev => prev ? {
+                                            ...prev,
+                                            rehabPolicyConfig: {
+                                                ...prev.rehabPolicyConfig,
+                                                baseYear: parseInt(e.target.value)
+                                            }
+                                        } as any : null)}
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">생계비 인정률</label>
+                                    <select
+                                        value={(globalSettings?.rehabPolicyConfig?.livingCostRate || 0.6) * 100}
+                                        onChange={(e) => setGlobalSettings(prev => prev ? {
+                                            ...prev,
+                                            rehabPolicyConfig: {
+                                                ...prev.rehabPolicyConfig,
+                                                livingCostRate: parseInt(e.target.value) / 100
+                                            }
+                                        } as any : null)}
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    >
+                                        <option value="50">50%</option>
+                                        <option value="60">60% (기본)</option>
+                                        <option value="70">70%</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* 중위소득 테이블 */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">가구원수별 중위소득 (원)</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[1, 2, 3, 4, 5, 6].map((size) => (
+                                        <div key={size} className="bg-gray-50 rounded-lg p-2">
+                                            <label className="text-xs text-gray-500 block">{size}인 가구</label>
+                                            <input
+                                                type="number"
+                                                value={globalSettings?.rehabPolicyConfig?.medianIncome?.[size] || 0}
+                                                onChange={(e) => {
+                                                    setGlobalSettings(prev => {
+                                                        if (!prev) return null;
+                                                        const newMedian = { ...(prev.rehabPolicyConfig?.medianIncome || {}), [size]: parseInt(e.target.value) };
+                                                        return {
+                                                            ...prev,
+                                                            rehabPolicyConfig: { ...prev.rehabPolicyConfig, medianIncome: newMedian }
+                                                        } as any;
+                                                    });
+                                                }}
+                                                className="w-full px-2 py-1.5 rounded border border-gray-300 text-sm"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 보증금 공제 */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">지역별 보증금 공제 (원)</label>
+                                <div className="space-y-2">
+                                    {[
+                                        { key: 'Seoul', label: '서울' },
+                                        { key: 'Overcrowded', label: '과밀억제권역' },
+                                        { key: 'Metro', label: '광역시' },
+                                        { key: 'Others', label: '기타 지역' }
+                                    ].map((region) => (
+                                        <div key={region.key} className="grid grid-cols-3 gap-2 items-center bg-gray-50 p-2 rounded">
+                                            <span className="text-sm font-medium">{region.label}</span>
+                                            <input
+                                                type="number"
+                                                value={globalSettings?.rehabPolicyConfig?.depositExemptions?.[region.key]?.limit || 0}
+                                                onChange={(e) => {
+                                                    setGlobalSettings(prev => {
+                                                        if (!prev) return null;
+                                                        const newExemptions = {
+                                                            ...(prev.rehabPolicyConfig?.depositExemptions || {}),
+                                                            [region.key]: {
+                                                                ...(prev.rehabPolicyConfig?.depositExemptions?.[region.key] || {}),
+                                                                limit: parseInt(e.target.value)
+                                                            }
+                                                        };
+                                                        return { ...prev, rehabPolicyConfig: { ...prev.rehabPolicyConfig, depositExemptions: newExemptions } } as any;
+                                                    });
+                                                }}
+                                                className="px-2 py-1 rounded border text-sm"
+                                                placeholder="한도"
+                                            />
+                                            <input
+                                                type="number"
+                                                value={globalSettings?.rehabPolicyConfig?.depositExemptions?.[region.key]?.deduct || 0}
+                                                onChange={(e) => {
+                                                    setGlobalSettings(prev => {
+                                                        if (!prev) return null;
+                                                        const newExemptions = {
+                                                            ...(prev.rehabPolicyConfig?.depositExemptions || {}),
+                                                            [region.key]: {
+                                                                ...(prev.rehabPolicyConfig?.depositExemptions?.[region.key] || {}),
+                                                                deduct: parseInt(e.target.value)
+                                                            }
+                                                        };
+                                                        return { ...prev, rehabPolicyConfig: { ...prev.rehabPolicyConfig, depositExemptions: newExemptions } } as any;
+                                                    });
+                                                }}
+                                                className="px-2 py-1 rounded border text-sm"
+                                                placeholder="공제액"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 법원 성향 */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">법원별 성향</label>
+                                <div className="space-y-2 max-h-64 overflow-y-auto">
+                                    {['서울회생법원', '수원회생법원', '인천회생법원', '대전회생법원', '대구회생법원', '부산회생법원', '광주회생법원'].map((court) => (
+                                        <div key={court} className="bg-gray-50 p-3 rounded border">
+                                            <div className="font-medium text-sm mb-2">{court}</div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <label className="flex items-center gap-2 text-xs">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={globalSettings?.rehabPolicyConfig?.courtTraits?.[court]?.allow24Months || false}
+                                                        onChange={(e) => {
+                                                            setGlobalSettings(prev => {
+                                                                if (!prev) return null;
+                                                                const newTraits = {
+                                                                    ...(prev.rehabPolicyConfig?.courtTraits || {}),
+                                                                    [court]: {
+                                                                        ...(prev.rehabPolicyConfig?.courtTraits?.[court] || { name: court }),
+                                                                        allow24Months: e.target.checked
+                                                                    }
+                                                                };
+                                                                return { ...prev, rehabPolicyConfig: { ...prev.rehabPolicyConfig, courtTraits: newTraits } } as any;
+                                                            });
+                                                        }}
+                                                    />
+                                                    24개월 단축 가능
+                                                </label>
+                                                <div className="flex items-center gap-1 text-xs">
+                                                    배우자 재산 반영률:
+                                                    <select
+                                                        value={(globalSettings?.rehabPolicyConfig?.courtTraits?.[court]?.spousePropertyRate || 0) * 100}
+                                                        onChange={(e) => {
+                                                            setGlobalSettings(prev => {
+                                                                if (!prev) return null;
+                                                                const newTraits = {
+                                                                    ...(prev.rehabPolicyConfig?.courtTraits || {}),
+                                                                    [court]: {
+                                                                        ...(prev.rehabPolicyConfig?.courtTraits?.[court] || { name: court }),
+                                                                        spousePropertyRate: parseInt(e.target.value) / 100
+                                                                    }
+                                                                };
+                                                                return { ...prev, rehabPolicyConfig: { ...prev.rehabPolicyConfig, courtTraits: newTraits } } as any;
+                                                            });
+                                                        }}
+                                                        className="border rounded px-1 py-0.5 text-xs"
+                                                    >
+                                                        <option value="0">0%</option>
+                                                        <option value="50">50%</option>
+                                                        <option value="100">100%</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={async () => {
+                                    if (!globalSettings) return;
+                                    setSavingApiKey(true);
+                                    await saveGlobalSettings(globalSettings);
+                                    setSavingApiKey(false);
+                                    setApiKeySaved(true);
+                                    setTimeout(() => setApiKeySaved(false), 2000);
+                                }}
+                                disabled={savingApiKey || !globalSettings}
+                                className="px-4 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {savingApiKey ? '저장 중...' : apiKeySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> 정책 설정 저장</>}
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 {currentUserEmail === 'beanhull@gmail.com' ? (
                     <>
