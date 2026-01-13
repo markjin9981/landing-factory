@@ -497,6 +497,9 @@ export interface GlobalSettings {
   adminPassword?: string;
   githubToken?: string;
   imgbbApiKey?: string;
+  // NEW: Cloudinary settings
+  cloudinaryCloudName?: string;
+  cloudinaryUploadPreset?: string;
   adminUsers?: Array<{ email: string, name: string, memo: string }>;
 }
 

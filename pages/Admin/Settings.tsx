@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, AlertCircle, Shield, Smartphone, Monitor, Globe, LogOut, Plus, Trash2, User, UserPlus, Key, Eye, EyeOff, Save, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, AlertCircle, Shield, Smartphone, Monitor, Globe, LogOut, Plus, Trash2, User, UserPlus, Key, Eye, EyeOff, Save, CheckCircle, Cloud } from 'lucide-react';
 import { fetchAdminSessions, revokeSession, fetchAdminUsers, addAdminUser, removeAdminUser, fetchGlobalSettings, saveGlobalSettings } from '../../services/googleSheetService';
 import { authService } from '../../services/authService';
 import { GlobalSettings } from '../../types';
@@ -27,6 +27,12 @@ const Settings: React.FC = () => {
     const [savingApiKey, setSavingApiKey] = useState(false);
     const [apiKeySaved, setApiKeySaved] = useState(false);
 
+    // NEW: Cloudinary Settings State
+    const [cloudinaryCloudName, setCloudinaryCloudName] = useState('');
+    const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState('');
+    const [savingCloudinary, setSavingCloudinary] = useState(false);
+    const [cloudinarySaved, setCloudinarySaved] = useState(false);
+
     useEffect(() => {
         loadSessions();
         loadAdminUsers();
@@ -39,6 +45,8 @@ const Settings: React.FC = () => {
         if (settings) {
             setGlobalSettings(settings);
             setImgbbApiKey(settings.imgbbApiKey || '');
+            setCloudinaryCloudName(settings.cloudinaryCloudName || '');
+            setCloudinaryUploadPreset(settings.cloudinaryUploadPreset || '');
         }
     };
 
@@ -52,6 +60,18 @@ const Settings: React.FC = () => {
         setSavingApiKey(false);
         setApiKeySaved(true);
         setTimeout(() => setApiKeySaved(false), 2000);
+    };
+
+    // NEW: Save Cloudinary Settings
+    const handleSaveCloudinary = async () => {
+        if (!globalSettings) return;
+        setSavingCloudinary(true);
+        const newSettings = { ...globalSettings, cloudinaryCloudName, cloudinaryUploadPreset };
+        await saveGlobalSettings(newSettings);
+        setGlobalSettings(newSettings);
+        setSavingCloudinary(false);
+        setCloudinarySaved(true);
+        setTimeout(() => setCloudinarySaved(false), 2000);
     };
 
     const loadAdminUsers = async () => {
@@ -191,6 +211,45 @@ const Settings: React.FC = () => {
                                     {savingApiKey ? '저장 중...' : apiKeySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> 저장</>}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Cloudinary Settings Section */}
+                    <div className="border-t border-gray-200 pt-6 mt-6">
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6 text-sm text-orange-800">
+                            <strong className="block mb-1">Cloudinary (빠른 CDN)</strong>
+                            고속 글로벌 CDN과 이미지 갤러리 기능. <a href="https://cloudinary.com/" target="_blank" rel="noopener noreferrer" className="underline font-bold">cloudinary.com</a>에서 무료 가입 후 설정하세요.
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Cloud Name</label>
+                                <input
+                                    type="text"
+                                    value={cloudinaryCloudName}
+                                    onChange={(e) => setCloudinaryCloudName(e.target.value)}
+                                    placeholder="예: my-cloud-name"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Upload Preset (Unsigned)</label>
+                                <input
+                                    type="text"
+                                    value={cloudinaryUploadPreset}
+                                    onChange={(e) => setCloudinaryUploadPreset(e.target.value)}
+                                    placeholder="예: landing_unsigned"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 outline-none"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">Cloudinary 대시보드 → Settings → Upload → Upload Presets에서 생성 (Unsigned 모드)</p>
+                            </div>
+                            <button
+                                onClick={handleSaveCloudinary}
+                                disabled={savingCloudinary || !globalSettings}
+                                className="px-4 py-3 bg-orange-600 text-white rounded-lg font-bold hover:bg-orange-700 disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {savingCloudinary ? '저장 중...' : cloudinarySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> 저장</>}
+                            </button>
                         </div>
                     </div>
                 </div>

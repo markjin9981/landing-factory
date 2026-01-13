@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Upload, Image as ImageIcon, ExternalLink, Trash2, Check, RefreshCw } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, ExternalLink, Trash2, Check, RefreshCw, Cloud } from 'lucide-react';
 import { uploadImageToGithub, fetchGithubImages, deleteGithubImage, GithubImage } from '../../services/githubService';
 import { uploadImageToDrive } from '../../services/googleSheetService';
 import { uploadToImgbb } from '../../services/imgbbService';
+import { uploadToCloudinary, getCloudinaryLibrary, saveCloudinaryImageToLibrary, removeCloudinaryImageFromLibrary, CloudinaryImage } from '../../services/cloudinaryService';
 import GoogleDrivePicker from '../GoogleDrivePicker';
 import { GlobalSettings } from '../../types';
 
@@ -14,7 +15,7 @@ interface ImageManagerProps {
     globalSettings?: GlobalSettings | null;
 }
 
-type Tab = 'upload' | 'github_gallery' | 'drive' | 'imgbb' | 'url';
+type Tab = 'upload' | 'github_gallery' | 'cloudinary' | 'cloudinary_gallery' | 'drive' | 'imgbb' | 'url';
 
 const ImageManager: React.FC<ImageManagerProps> = ({ isOpen, onClose, onSelect, globalSettings }) => {
     const [activeTab, setActiveTab] = useState<Tab>('upload');
@@ -25,12 +26,18 @@ const ImageManager: React.FC<ImageManagerProps> = ({ isOpen, onClose, onSelect, 
     const [galleryImages, setGalleryImages] = useState<GithubImage[]>([]);
     const [galleryLoading, setGalleryLoading] = useState(false);
 
+    // Cloudinary Gallery State
+    const [cloudinaryImages, setCloudinaryImages] = useState<CloudinaryImage[]>([]);
+
     // External URL State
     const [externalUrl, setExternalUrl] = useState('');
 
     useEffect(() => {
         if (isOpen && activeTab === 'github_gallery') {
             loadGithubGallery();
+        }
+        if (isOpen && activeTab === 'cloudinary_gallery') {
+            loadCloudinaryGallery();
         }
     }, [isOpen, activeTab]);
 
@@ -39,6 +46,11 @@ const ImageManager: React.FC<ImageManagerProps> = ({ isOpen, onClose, onSelect, 
         const images = await fetchGithubImages();
         setGalleryImages(images);
         setGalleryLoading(false);
+    };
+
+    const loadCloudinaryGallery = () => {
+        const images = getCloudinaryLibrary();
+        setCloudinaryImages(images);
     };
 
     const handleGithubDelete = async (image: GithubImage) => {
@@ -53,7 +65,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({ isOpen, onClose, onSelect, 
         setGalleryLoading(false);
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'github' | 'imgbb') => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'github' | 'imgbb' | 'cloudinary') => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -82,6 +94,32 @@ const ImageManager: React.FC<ImageManagerProps> = ({ isOpen, onClose, onSelect, 
                     onClose();
                 } else {
                     setError(res.message || 'ImgBB Upload Failed');
+                }
+            } else if (target === 'cloudinary') {
+                const cloudName = globalSettings?.cloudinaryCloudName;
+                const uploadPreset = globalSettings?.cloudinaryUploadPreset;
+                if (!cloudName || !uploadPreset) {
+                    setError('Cloudinary 설정이 필요합니다. 설정 > 이미지 호스팅에서 Cloud Name과 Upload Preset을 입력해주세요.');
+                    setLoading(false);
+                    return;
+                }
+                const res = await uploadToCloudinary(file, { cloudName, uploadPreset });
+                if (res.success && res.url) {
+                    // Save to local library
+                    saveCloudinaryImageToLibrary({
+                        public_id: res.publicId || '',
+                        url: res.url,
+                        secure_url: res.url,
+                        format: file.name.split('.').pop() || 'jpg',
+                        width: 0,
+                        height: 0,
+                        created_at: new Date().toISOString(),
+                        bytes: file.size,
+                    });
+                    onSelect(res.url);
+                    onClose();
+                } else {
+                    setError(res.message || 'Cloudinary Upload Failed');
                 }
             }
         } catch (err: any) {
@@ -113,7 +151,9 @@ const ImageManager: React.FC<ImageManagerProps> = ({ isOpen, onClose, onSelect, 
                     {[
                         { id: 'upload', label: 'GitHub 업로드' },
                         { id: 'github_gallery', label: 'GitHub 갤러리' },
-                        { id: 'imgbb', label: 'ImgBB (대용량)' },
+                        { id: 'cloudinary', label: 'Cloudinary' },
+                        { id: 'cloudinary_gallery', label: 'Cloudinary 갤러리' },
+                        { id: 'imgbb', label: 'ImgBB' },
                         { id: 'drive', label: '구글 드라이브' },
                         { id: 'url', label: '직접 입력' },
                     ].map(tab => (
@@ -186,6 +226,73 @@ const ImageManager: React.FC<ImageManagerProps> = ({ isOpen, onClose, onSelect, 
                                             </div>
                                             <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] p-1 truncate px-2">
                                                 {img.name}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'cloudinary' && (
+                        <div className="flex flex-col items-center justify-center h-full border-2 border-dashed border-gray-300 rounded-xl bg-white p-8">
+                            <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4">
+                                <Cloud className="w-8 h-8 text-orange-500" />
+                            </div>
+                            <p className="text-gray-600 mb-2 font-medium">Cloudinary CDN에 업로드</p>
+                            <p className="text-xs text-gray-400 mb-6">빠른 글로벌 CDN / 자동 이미지 최적화</p>
+
+                            {(!globalSettings?.cloudinaryCloudName || !globalSettings?.cloudinaryUploadPreset) && (
+                                <div className="bg-yellow-50 text-yellow-800 text-xs p-3 rounded mb-4 text-center">
+                                    주의: 설정 메뉴에서 Cloudinary Cloud Name과 Upload Preset을 먼저 등록해야 합니다.
+                                </div>
+                            )}
+
+                            <label className={`px-6 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer flex items-center gap-2 ${loading || !globalSettings?.cloudinaryCloudName || !globalSettings?.cloudinaryUploadPreset ? 'opacity-50 pointer-events-none' : ''}`}>
+                                {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                {loading ? '업로드 중...' : '파일 선택'}
+                                <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'cloudinary')} disabled={loading || !globalSettings?.cloudinaryCloudName || !globalSettings?.cloudinaryUploadPreset} />
+                            </label>
+                            {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+                        </div>
+                    )}
+
+                    {activeTab === 'cloudinary_gallery' && (
+                        <div className="h-full flex flex-col">
+                            <div className="flex justify-between items-center mb-4">
+                                <p className="text-sm text-gray-500">Cloudinary 업로드 이미지 (로컬 라이브러리)</p>
+                                <button onClick={loadCloudinaryGallery} className="text-xs flex items-center gap-1 text-orange-600 hover:underline">
+                                    <RefreshCw className="w-3 h-3" /> 새로고침
+                                </button>
+                            </div>
+
+                            {cloudinaryImages.length === 0 ? (
+                                <div className="flex-1 flex items-center justify-center text-gray-400">
+                                    업로드한 이미지가 없습니다.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                                    {cloudinaryImages.map((img) => (
+                                        <div key={img.public_id} className="group relative aspect-square bg-gray-200 rounded-lg overflow-hidden border hover:border-orange-500 transition-colors">
+                                            <img src={img.secure_url} alt={img.public_id} className="w-full h-full object-cover" />
+
+                                            {/* Actions Overlay */}
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                                <button
+                                                    onClick={() => { onSelect(img.secure_url); onClose(); }}
+                                                    className="px-3 py-1 bg-orange-600 text-white text-xs rounded-full hover:bg-orange-700 w-20"
+                                                >
+                                                    선택
+                                                </button>
+                                                <button
+                                                    onClick={() => { removeCloudinaryImageFromLibrary(img.public_id); loadCloudinaryGallery(); }}
+                                                    className="px-3 py-1 bg-red-600 text-white text-xs rounded-full hover:bg-red-700 w-20 flex items-center justify-center gap-1"
+                                                >
+                                                    <Trash2 className="w-3 h-3" /> 삭제
+                                                </button>
+                                            </div>
+                                            <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] p-1 truncate px-2">
+                                                {img.format.toUpperCase()} · {Math.round(img.bytes / 1024)}KB
                                             </div>
                                         </div>
                                     ))}
