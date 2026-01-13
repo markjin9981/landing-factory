@@ -224,8 +224,105 @@
       transform: skewX(-20deg);
       animation: btn-hyper-shimmer 1.5s infinite;
     }
+
+    /* --- Banner Animations (5 types) --- */
+    /* 1. Banner Pulse - Strong scale effect */
+    @keyframes banner-pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.02);
+      }
+    }
+
+    .animate-banner-pulse {
+      animation: banner-pulse 1.5s ease-in-out infinite;
+    }
+
+    /* 2. Banner Glow - Glowing border effect */
+    @keyframes banner-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.4);
+      }
+    }
+
+    .animate-banner-glow {
+      animation: banner-glow 2s ease-in-out infinite;
+    }
+
+    /* 3. Banner Bounce - Up-down movement */
+    @keyframes banner-bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    .animate-banner-bounce {
+      animation: banner-bounce 1s ease-in-out infinite;
+    }
+
+    /* 4. Banner Shake - Left-right shake */
+    @keyframes banner-shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      10%,
+      30%,
+      50%,
+      70%,
+      90% {
+        transform: translateX(-2px);
+      }
+
+      20%,
+      40%,
+      60%,
+      80% {
+        transform: translateX(2px);
+      }
+    }
+
+    .animate-banner-shake {
+      animation: banner-shake 0.8s ease-in-out infinite;
+    }
+
+    /* 5. Banner Blink - Opacity blinking */
+    @keyframes banner-blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .animate-banner-blink {
+      animation: banner-blink 1s ease-in-out infinite;
+    }
   </style>
-  <script type="module" crossorigin src="/assets/index-BFSMVtmb.js"></script>
+  <script type="module" crossorigin src="/assets/index-ChPP-OLq.js"></script>
 
     <!-- Pre-rendered SEO Tags -->
     <meta name="description" content="개인 회생으로  해결 완료!">
