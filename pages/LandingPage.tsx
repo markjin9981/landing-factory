@@ -311,13 +311,16 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
       width: '100%',
     } : {};
 
-    // Animation Class
+    // Animation Class - Support both button animation and banner-specific animation
     const animClass = banner.animation ? `animate-btn-${banner.animation}` : '';
+    const bannerAnimClass = banner.bannerAnimation && banner.bannerAnimation !== 'none'
+      ? `animate-banner-${banner.bannerAnimation}`
+      : '';
 
     // Custom Shape Mode (PNG Image Only)
     if (banner.isCustomShape && banner.imageUrl) {
       return (
-        <a href={banner.linkUrl || "#lead-form"} className={`block relative transition-transform hover:scale-105 ${animClass}`}>
+        <a href={banner.linkUrl || "#lead-form"} className={`block relative transition-transform hover:scale-105 ${animClass} ${bannerAnimClass}`}>
           <img
             src={banner.imageUrl}
             alt={banner.text}
@@ -333,10 +336,41 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
       );
     }
 
+    // Check if using background image mode
+    const hasBackgroundImage = !!banner.backgroundImageUrl;
+    const bgOpacity = banner.backgroundImageOpacity ?? 100;
+
     return (
-      <a href={banner.linkUrl || "#lead-form"} className={`block shadow-lg relative bg-gray-900 text-white overflow-hidden ${animClass}`} style={{ backgroundColor: banner.backgroundColor, color: banner.textColor }}>
+      <a
+        href={banner.linkUrl || "#lead-form"}
+        className={`block shadow-lg relative overflow-hidden ${animClass} ${bannerAnimClass}`}
+        style={{
+          backgroundColor: hasBackgroundImage ? 'transparent' : banner.backgroundColor,
+          color: banner.textColor
+        }}
+      >
+        {/* Background image layer */}
+        {hasBackgroundImage && (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${banner.backgroundImageUrl})`,
+                opacity: bgOpacity / 100
+              }}
+            />
+            {/* Color overlay for text visibility - use backgroundColor as fallback */}
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundColor: banner.backgroundColor,
+                opacity: 0.3
+              }}
+            />
+          </>
+        )}
         <div
-          className={`p-3 text-center ${styles.text} ${isSliding ? 'animate-marquee' : ''}`}
+          className={`p-3 text-center ${styles.text} ${isSliding ? 'animate-marquee' : ''} relative z-10`}
           style={{
             ...animationStyle,
             fontSize: banner.fontSize || undefined,

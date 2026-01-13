@@ -100,6 +100,11 @@ export interface FloatingBanner {
   slideSpeed?: number; // New: Duration in seconds (e.g. 10, 20)
   isCustomShape?: boolean; // New: Render as raw image without box style
   animation?: ButtonAnimationType; // New: Attention grabbing animation
+  // NEW: Banner-specific animation effects (5 types)
+  bannerAnimation?: 'none' | 'pulse' | 'glow' | 'bounce' | 'shake' | 'blink';
+  // NEW: Image background mode
+  backgroundImageUrl?: string;      // Background image URL
+  backgroundImageOpacity?: number;  // Opacity 0-100 (default 100)
 }
 
 export interface HeroSection {

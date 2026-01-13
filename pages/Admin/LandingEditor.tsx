@@ -2069,6 +2069,76 @@ const LandingEditor: React.FC = () => {
                                                                     </label>
                                                                 )}
                                                             </div>
+
+                                                            {/* NEW: Banner Animation Selector */}
+                                                            <div className="mt-2">
+                                                                <label className="text-[10px] text-gray-500 block mb-1">배너 애니메이션 효과</label>
+                                                                <select
+                                                                    value={banner.bannerAnimation || 'none'}
+                                                                    onChange={(e) => {
+                                                                        const newBanners = [...config.banners];
+                                                                        newBanners[index].bannerAnimation = e.target.value as any;
+                                                                        updateNested(['banners'], newBanners);
+                                                                    }}
+                                                                    className="w-full border rounded p-1.5 text-xs"
+                                                                >
+                                                                    <option value="none">없음</option>
+                                                                    <option value="pulse">펄스 (확대/축소)</option>
+                                                                    <option value="glow">글로우 (빛남)</option>
+                                                                    <option value="bounce">바운스 (위아래)</option>
+                                                                    <option value="shake">흔들림 (좌우)</option>
+                                                                    <option value="blink">깜빡임</option>
+                                                                </select>
+                                                            </div>
+
+                                                            {/* NEW: Background Image Mode */}
+                                                            {!banner.isCustomShape && (
+                                                                <div className="mt-2 border-t pt-2">
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">배경 이미지 모드</label>
+                                                                    <div className="flex gap-1">
+                                                                        <input
+                                                                            type="text"
+                                                                            value={banner.backgroundImageUrl || ''}
+                                                                            onChange={(e) => {
+                                                                                const newBanners = [...config.banners];
+                                                                                newBanners[index].backgroundImageUrl = e.target.value;
+                                                                                updateNested(['banners'], newBanners);
+                                                                            }}
+                                                                            className="flex-1 border rounded p-1.5 text-xs text-gray-500"
+                                                                            placeholder="배경 이미지 URL"
+                                                                        />
+                                                                        <button
+                                                                            onClick={() => openImagePicker((url) => {
+                                                                                const newBanners = [...config.banners];
+                                                                                newBanners[index].backgroundImageUrl = url;
+                                                                                updateNested(['banners'], newBanners);
+                                                                            })}
+                                                                            className="px-2 border rounded hover:bg-gray-50"
+                                                                        >
+                                                                            <Upload className="w-3 h-3 text-gray-500" />
+                                                                        </button>
+                                                                    </div>
+                                                                    {banner.backgroundImageUrl && (
+                                                                        <div className="mt-2">
+                                                                            <label className="text-[10px] text-gray-500 flex items-center gap-2">
+                                                                                투명도: {banner.backgroundImageOpacity ?? 100}%
+                                                                            </label>
+                                                                            <input
+                                                                                type="range"
+                                                                                min="0"
+                                                                                max="100"
+                                                                                value={banner.backgroundImageOpacity ?? 100}
+                                                                                onChange={(e) => {
+                                                                                    const newBanners = [...config.banners];
+                                                                                    newBanners[index].backgroundImageOpacity = parseInt(e.target.value);
+                                                                                    updateNested(['banners'], newBanners);
+                                                                                }}
+                                                                                className="w-full"
+                                                                            />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
