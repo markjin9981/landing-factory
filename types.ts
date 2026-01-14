@@ -342,6 +342,7 @@ export interface StickyBottomFormConfig {
   // Fields to display (simplified for slim design)
   // Defaults to name + phone if not specified
   fieldIds?: string[];
+  hideOriginalForm?: boolean; // New: Hide main form when sticky form is active
 }
 
 // New: Footer Configuration

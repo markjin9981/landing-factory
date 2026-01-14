@@ -3115,6 +3115,18 @@ const LandingEditor: React.FC = () => {
                                                         />
                                                         <span className="text-xs font-bold text-gray-700">PC에서 표시</span>
                                                     </label>
+                                                    <label className="flex items-center gap-2 cursor-pointer mt-2 pt-2 border-t border-blue-100 col-span-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={config.stickyBottomForm?.hideOriginalForm || false}
+                                                            onChange={(e) => updateNested(['stickyBottomForm', 'hideOriginalForm'], e.target.checked)}
+                                                            className="rounded text-blue-600 focus:ring-blue-500"
+                                                        />
+                                                        <div className="flex flex-col">
+                                                            <span className="text-xs font-bold text-gray-700">기존 본문 입력폼 숨기기</span>
+                                                            <span className="text-[10px] text-gray-400">활성화 시 페이지 본문의 입력폼을 숨기고 하단 고정 폼만 사용합니다.</span>
+                                                        </div>
+                                                    </label>
                                                 </div>
 
                                                 {/* Field Selection */}

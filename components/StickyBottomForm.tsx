@@ -77,13 +77,15 @@ const StickyBottomForm: React.FC<Props> = ({
     if (isSubmitted) {
         return (
             <div
-                className="fixed bottom-0 left-0 right-0 z-[100] py-3 px-4 text-center"
+                className="fixed bottom-0 left-0 right-0 z-[100] py-4 px-4 text-center shadow-lg border-t border-white/10"
                 style={{ backgroundColor: bgColor, color: textColor }}
             >
-                <div className="flex items-center justify-center gap-2">
-                    <Check className="w-5 h-5 text-green-400" />
-                    <span className="font-bold">{formConfig.submitSuccessTitle || '신청 완료!'}</span>
-                    <span className="text-sm opacity-80">{formConfig.submitSuccessMessage || '곧 연락드리겠습니다.'}</span>
+                <div className="flex items-center justify-center gap-2 animate-fade-in-up">
+                    <div className="bg-green-500 rounded-full p-1">
+                        <Check className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="font-bold text-lg">{formConfig.submitSuccessTitle || '신청 완료!'}</span>
+                    <span className="text-sm opacity-80">{formConfig.submitSuccessMessage || '담당자가 확인 후 곧 연락드리겠습니다.'}</span>
                 </div>
             </div>
         );
@@ -92,63 +94,101 @@ const StickyBottomForm: React.FC<Props> = ({
     return (
         <form
             onSubmit={handleSubmit}
-            className="fixed bottom-0 left-0 right-0 z-[100] shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 z-[100] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] border-t border-white/10"
             style={{ backgroundColor: bgColor, color: textColor }}
         >
-            <div className={`max-w-5xl mx-auto px-3 py-2 ${isMobileView ? 'space-y-2' : ''}`}>
-                {/* PC: Single row layout, Mobile: Stacked */}
-                <div className={`flex ${isMobileView ? 'flex-col gap-2' : 'items-center gap-3'}`}>
-                    {/* Input Fields */}
-                    <div className={`flex ${isMobileView ? 'flex-wrap gap-2' : 'flex-1 gap-2'}`}>
-                        {fieldsToShow.map(field => (
-                            <input
-                                key={field.id}
-                                type={field.type === 'tel' ? 'tel' : 'text'}
-                                placeholder={field.placeholder || field.label}
-                                value={formData[field.id] || ''}
-                                onChange={(e) => handleChange(field.id, e.target.value)}
-                                required={field.required}
-                                className={`border-0 rounded px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-400 outline-none ${isMobileView ? 'flex-1 min-w-[100px]' : 'w-32 flex-shrink-0'
-                                    }`}
-                                style={{ backgroundColor: 'rgba(255,255,255,0.95)' }}
-                            />
-                        ))}
-                    </div>
+            <div className={`mx-auto transition-all duration-300 ${isMobileView
+                ? 'px-3 py-2' // Mobile: Compact Padding
+                : 'px-6 py-5 max-w-4xl' // PC: Spacious Padding
+                }`}>
 
-                    {/* Agreement + Button Row */}
-                    <div className={`flex items-center ${isMobileView ? 'gap-2' : 'gap-3 flex-shrink-0'}`}>
-                        {/* Privacy Agreement */}
-                        <label className="flex items-center gap-1 cursor-pointer flex-shrink-0">
-                            <input
-                                type="checkbox"
-                                checked={agreed}
-                                onChange={(e) => setAgreed(e.target.checked)}
-                                className="w-4 h-4 rounded border-gray-300"
-                            />
-                            <span className="text-[10px] opacity-80 whitespace-nowrap">
-                                개인정보 수집 동의
-                            </span>
-                        </label>
-
-                        {/* Submit Button */}
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className={`font-bold px-4 py-2 rounded text-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-1 whitespace-nowrap ${isMobileView ? 'flex-1 justify-center' : ''
-                                }`}
-                            style={{
-                                backgroundColor: buttonColor,
-                                color: buttonTextColor
-                            }}
-                        >
-                            {isSubmitting ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                                formConfig.submitButtonText || '신청하기'
-                            )}
-                        </button>
+                {/* --- Mobile View Layout --- */}
+                {isMobileView ? (
+                    <div className="flex flex-col gap-2">
+                        {/* Mobile Inputs: Grid 2 Columns */}
+                        <div className="grid grid-cols-2 gap-2">
+                            {fieldsToShow.map(field => (
+                                <input
+                                    key={field.id}
+                                    type={field.type === 'tel' ? 'tel' : 'text'}
+                                    placeholder={field.placeholder || field.label}
+                                    value={formData[field.id] || ''}
+                                    onChange={(e) => handleChange(field.id, e.target.value)}
+                                    required={field.required}
+                                    className="w-full px-3 py-1.5 text-xs rounded border-0 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none h-9"
+                                    style={{ backgroundColor: 'rgba(255,255,255,0.95)', color: '#111827' }}
+                                />
+                            ))}
+                        </div>
+                        {/* Mobile Bottom Row: Agreement + Button */}
+                        <div className="flex items-center gap-2 justify-between">
+                            <label className="flex items-center gap-1.5 cursor-pointer opacity-90 hover:opacity-100">
+                                <input
+                                    type="checkbox"
+                                    checked={agreed}
+                                    onChange={(e) => setAgreed(e.target.checked)}
+                                    className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-[10px] whitespace-nowrap">개인정보 동의</span>
+                            </label>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="flex-1 h-9 flex items-center justify-center gap-1.5 font-bold rounded text-xs shadow-md active:scale-95 transition-transform"
+                                style={{
+                                    backgroundColor: buttonColor,
+                                    color: buttonTextColor
+                                }}
+                            >
+                                {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (formConfig.submitButtonText || '신청하기')}
+                            </button>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    /* --- PC View Layout --- */
+                    <div className="flex flex-col gap-4 items-center">
+                        {/* PC Row 1: Large Inputs */}
+                        <div className="flex flex-wrap justify-center gap-3 w-full">
+                            {fieldsToShow.map(field => (
+                                <input
+                                    key={field.id}
+                                    type={field.type === 'tel' ? 'tel' : 'text'}
+                                    placeholder={field.placeholder || field.label}
+                                    value={formData[field.id] || ''}
+                                    onChange={(e) => handleChange(field.id, e.target.value)}
+                                    required={field.required}
+                                    className="min-w-[200px] flex-1 max-w-xs px-4 py-3 text-base rounded-lg border-0 shadow-md focus:scale-105 focus:ring-4 focus:ring-blue-500/30 outline-none transition-all placeholder-gray-400"
+                                    style={{ backgroundColor: 'rgba(255,255,255,0.98)', color: '#111827' }}
+                                />
+                            ))}
+                        </div>
+
+                        {/* PC Row 2: Agreement & Large Button */}
+                        <div className="flex items-center gap-6">
+                            <label className="flex items-center gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity p-2 hover:bg-white/10 rounded">
+                                <input
+                                    type="checkbox"
+                                    checked={agreed}
+                                    onChange={(e) => setAgreed(e.target.checked)}
+                                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm font-medium">개인정보 수집 및 이용에 동의합니다</span>
+                            </label>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="px-10 py-3 text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                style={{
+                                    backgroundColor: buttonColor,
+                                    color: buttonTextColor
+                                }}
+                            >
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료 상담 신청하기')}
+                                {!isSubmitting && <Check className="w-5 h-5" />}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </form>
     );

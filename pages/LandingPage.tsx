@@ -540,7 +540,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           )}
         </div>
 
-        {formPosition === 'after_hero' && isMainView && <FormComponent />}
+        {formPosition === 'after_hero' && isMainView && !(config.stickyBottomForm?.isEnabled && config.stickyBottomForm?.hideOriginalForm) && <FormComponent />}
 
         {detailContent && detailContent.length > 0 && isMainView && (
           <section className={`w-full bg-white mx-auto flex flex-col items-center ${isFullLayout ? 'max-w-7xl px-4 py-10' : 'max-w-4xl py-0'}`}>
@@ -582,7 +582,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
 
 
-        {(formPosition === 'bottom' || !formPosition) && isMainView && <FormComponent />}
+        {(formPosition === 'bottom' || !formPosition) && isMainView && !(config.stickyBottomForm?.isEnabled && config.stickyBottomForm?.hideOriginalForm) && <FormComponent />}
 
 
 
