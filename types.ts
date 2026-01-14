@@ -315,6 +315,9 @@ export interface FormSection {
   // Custom Style
   style?: FormStyle;
 
+  // Mobile Layout Template (Only applies on mobile view)
+  mobileTemplate?: 'default' | 'minimal' | 'inline' | 'compact-grid';
+
   // New: Container Layout Style
   containerStyle?: {
     verticalPadding?: 0 | 1 | 2 | 3 | 4 | 5; // 0=0px, 3=80px(default), 5=192px

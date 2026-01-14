@@ -2907,6 +2907,58 @@ const LandingEditor: React.FC = () => {
                                                 </button>
                                             </div>
                                         </div>
+
+                                        {/* Mobile Template Selector (NEW) */}
+                                        <div className="mb-4 pb-4 border-b border-gray-100">
+                                            <label className="text-xs font-bold text-gray-500 mb-2 block">
+                                                📱 모바일 폼 템플릿 (Mobile Only)
+                                            </label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button
+                                                    onClick={() => updateNested(['formConfig', 'mobileTemplate'], 'default')}
+                                                    className={`p-2 border rounded-lg text-xs transition-all ${(!config.formConfig.mobileTemplate || config.formConfig.mobileTemplate === 'default')
+                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                                                        }`}
+                                                >
+                                                    <div className="font-bold">기본</div>
+                                                    <div className="text-[9px] opacity-70 mt-0.5">현재 스타일</div>
+                                                </button>
+                                                <button
+                                                    onClick={() => updateNested(['formConfig', 'mobileTemplate'], 'minimal')}
+                                                    className={`p-2 border rounded-lg text-xs transition-all ${config.formConfig.mobileTemplate === 'minimal'
+                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                                                        }`}
+                                                >
+                                                    <div className="font-bold">미니멀</div>
+                                                    <div className="text-[9px] opacity-70 mt-0.5">최소 공간</div>
+                                                </button>
+                                                <button
+                                                    onClick={() => updateNested(['formConfig', 'mobileTemplate'], 'inline')}
+                                                    className={`p-2 border rounded-lg text-xs transition-all ${config.formConfig.mobileTemplate === 'inline'
+                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                                                        }`}
+                                                >
+                                                    <div className="font-bold">인라인</div>
+                                                    <div className="text-[9px] opacity-70 mt-0.5">가로배치</div>
+                                                </button>
+                                                <button
+                                                    onClick={() => updateNested(['formConfig', 'mobileTemplate'], 'compact-grid')}
+                                                    className={`p-2 border rounded-lg text-xs transition-all ${config.formConfig.mobileTemplate === 'compact-grid'
+                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                                                        }`}
+                                                >
+                                                    <div className="font-bold">그리드</div>
+                                                    <div className="text-[9px] opacity-70 mt-0.5">2열</div>
+                                                </button>
+                                            </div>
+                                            <p className="text-[10px] text-gray-400 mt-2">
+                                                💡 모바일에서만 선택한 템플릿이 적용됩니다.
+                                            </p>
+                                        </div>
                                     </div>
 
                                     {/* Position Setting */}

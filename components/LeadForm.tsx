@@ -38,6 +38,54 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
     // FORCE Vertical layout if mobile view, even if grid is selected
     const isGridLayout = config.layout === 'grid' && !isMobileView;
 
+    // Mobile Template Styles
+    const MOBILE_TEMPLATES = {
+        default: {
+            inputHeight: '44px',
+            labelMargin: '8px',
+            formPadding: '24px',
+            fieldGap: '16px',
+            fontSize: '14px',
+            useInlinePhone: false,
+            useInlineDate: false,
+            useGrid: false,
+        },
+        minimal: {
+            inputHeight: '36px',
+            labelMargin: '4px',
+            formPadding: '16px',
+            fieldGap: '12px',
+            fontSize: '13px',
+            useInlinePhone: false,
+            useInlineDate: false,
+            useGrid: false,
+        },
+        inline: {
+            inputHeight: '40px',
+            labelMargin: '6px',
+            formPadding: '20px',
+            fieldGap: '14px',
+            fontSize: '14px',
+            useInlinePhone: true,
+            useInlineDate: true,
+            useGrid: false,
+        },
+        'compact-grid': {
+            inputHeight: '40px',
+            labelMargin: '6px',
+            formPadding: '20px',
+            fieldGap: '12px',
+            fontSize: '14px',
+            useInlinePhone: false,
+            useInlineDate: false,
+            useGrid: true,
+        }
+    };
+
+    // Select template based on mobile view and configuration
+    const templateKey = isMobileView ? (config.mobileTemplate || 'default') : 'default';
+    const template = MOBILE_TEMPLATES[templateKey];
+
     // ... (rest of the component)
 
 
@@ -235,19 +283,35 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                     <p className="text-white/90 text-sm">{config.subTitle}</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 md:p-8">
+                <form onSubmit={handleSubmit} style={{ padding: isMobileView ? template.formPadding : '2rem' }}>
 
                     {/* Fields Container */}
-                    <div className={isGridLayout ? "grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" : "space-y-5 mb-6"}>
+                    <div
+                        className={isGridLayout ? "grid grid-cols-1 md:grid-cols-2 mb-6" : "mb-6"}
+                        style={{
+                            gap: isMobileView ? template.fieldGap : '1.25rem',
+                            display: isGridLayout ? 'grid' : (template.useGrid && isMobileView ? 'grid' : 'flex'),
+                            gridTemplateColumns: template.useGrid && isMobileView ? 'repeat(2, 1fr)' : undefined,
+                            flexDirection: (!isGridLayout && !template.useGrid) ? 'column' : undefined
+                        }}
+                    >
                         {config.fields.map((field) => {
                             const isFullWidth = field.type === 'textarea' || field.type === 'radio';
 
                             return (
                                 <div
                                     key={field.id}
-                                    className={`${isGridLayout && isFullWidth ? 'md:col-span-2' : ''}`}
+                                    className={`${isGridLayout && isFullWidth ? 'md:col-span-2' : ''} ${template.useGrid && isMobileView && isFullWidth ? 'col-span-2' : ''}`}
                                 >
-                                    <label className="block text-sm font-semibold mb-1" style={{ color: textColor, fontFamily: formStyle.inputFontFamily }}>
+                                    <label
+                                        className="block text-sm font-semibold"
+                                        style={{
+                                            color: textColor,
+                                            fontFamily: formStyle.inputFontFamily,
+                                            marginBottom: isMobileView ? template.labelMargin : '0.25rem',
+                                            fontSize: isMobileView ? template.fontSize : '0.875rem'
+                                        }}
+                                    >
                                         {field.label} {field.required && <span className="text-red-500 text-xs align-top">필수</span>}
                                     </label>
 
