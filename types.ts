@@ -543,6 +543,7 @@ export interface GlobalSettings {
 // NEW: AI 변제금 진단 챗봇 설정
 export interface RehabChatConfig {
   isEnabled: boolean;
+  hideFloatingButton?: boolean; // New: Hide default floating button
   displayMode: 'popup' | 'embedded' | 'floating';
   buttonText: string;
   buttonPosition?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';

@@ -81,29 +81,31 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
     if (displayMode === 'floating') {
         return (
             <>
-                <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleOpen} // Use handleOpen
-                    className={`fixed ${positionStyles[buttonPosition]} z-50 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-bold text-white ${className || ''}`}
-                    style={{
-                        ...(config.buttonBackgroundImage ? {
-                            backgroundImage: `url(${config.buttonBackgroundImage})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundColor: 'transparent'
-                        } : {
-                            background: `linear-gradient(135deg, ${config.buttonColor || '#3B82F6'}, ${config.buttonColor || '#3B82F6'}dd)`
-                        }),
-                        boxShadow: `0 4px 20px ${config.buttonColor || '#3B82F6'}40`
-                    }}
-                >
-                    <Sparkles className="w-5 h-5" />
-                    <span>{config.buttonText || 'AI 변제금 확인'}</span>
-                </motion.button>
+                {!config.hideFloatingButton && (
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleOpen} // Use handleOpen
+                        className={`fixed ${positionStyles[buttonPosition]} z-50 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-bold text-white ${className || ''}`}
+                        style={{
+                            ...(config.buttonBackgroundImage ? {
+                                backgroundImage: `url(${config.buttonBackgroundImage})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundColor: 'transparent'
+                            } : {
+                                background: `linear-gradient(135deg, ${config.buttonColor || '#3B82F6'}, ${config.buttonColor || '#3B82F6'}dd)`
+                            }),
+                            boxShadow: `0 4px 20px ${config.buttonColor || '#3B82F6'}40`
+                        }}
+                    >
+                        <Sparkles className="w-5 h-5" />
+                        <span>{config.buttonText || 'AI 변제금 확인'}</span>
+                    </motion.button>
+                )}
 
                 <AnimatePresence>
                     {isOpen && (

@@ -5949,6 +5949,21 @@ const LandingEditor: React.FC = () => {
 
                                             {config.rehabChatConfig?.isEnabled && (
                                                 <div className="space-y-4">
+                                                    {/* NEW: 플로팅 버튼 표시 토글 */}
+                                                    <div className="flex items-center justify-between p-3 bg-blue-50/50 rounded border border-blue-100">
+                                                        <div>
+                                                            <div className="text-xs font-bold text-gray-700">플로팅 버튼 표시</div>
+                                                            <div className="text-[10px] text-gray-500 mt-0.5">체크 해제 시 버튼은 숨겨지고 팝업 기능만 활성화됩니다.</div>
+                                                        </div>
+                                                        <label className="relative inline-flex items-center cursor-pointer">
+                                                            <input type="checkbox" className="sr-only peer"
+                                                                checked={!config.rehabChatConfig?.hideFloatingButton}
+                                                                onChange={(e) => updateNested(['rehabChatConfig', 'hideFloatingButton'], !e.target.checked)}
+                                                            />
+                                                            <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                                        </label>
+                                                    </div>
+
                                                     {/* 버튼 텍스트 */}
                                                     <div>
                                                         <label className="text-xs font-bold text-gray-500 mb-1 block">버튼 텍스트</label>
