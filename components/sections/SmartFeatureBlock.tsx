@@ -2,6 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FeatureSection, FeatureItem } from '../../types';
 import FeatureSlideBanner from './FeatureSlideBanner';
 
+// Gap mapping for container spacing
+const GAP_MAP: Record<number, string> = {
+    0: '0px',
+    1: '8px',
+    2: '16px',
+    3: '24px',
+    4: '32px',
+    5: '48px'
+};
+
 interface Props {
     data: FeatureSection;
     isMobileView?: boolean;
@@ -9,6 +19,8 @@ interface Props {
 
 const SmartFeatureBlock: React.FC<Props> = ({ data, isMobileView }) => {
     if (!data || !data.isShow) return null;
+
+    const gapValue = GAP_MAP[data.slideBanner?.gap ?? 3] || '24px';
 
     return (
         <section className="py-20 bg-gray-50 overflow-hidden">
@@ -26,7 +38,7 @@ const SmartFeatureBlock: React.FC<Props> = ({ data, isMobileView }) => {
 
                 {/* Slide Banner - NEW */}
                 {data.slideBanner?.isShow && data.slideBanner.images && data.slideBanner.images.length > 0 && (
-                    <div className="mt-16">
+                    <div style={{ marginTop: gapValue }}>
                         <FeatureSlideBanner
                             images={data.slideBanner.images}
                             autoSlide={data.slideBanner.autoSlide ?? true}

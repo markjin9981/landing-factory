@@ -4824,7 +4824,24 @@ const LandingEditor: React.FC = () => {
                                                                 </div>
                                                             </div>
 
-                                                            <p className="text-[9px] text-gray-400">
+                                                            {/* Gap Settings */}
+                                                            <div className="mt-3">
+                                                                <label className="text-[10px] text-gray-500 block mb-1">컨테이너 여백</label>
+                                                                <select
+                                                                    value={config.features?.slideBanner?.gap ?? 3}
+                                                                    onChange={(e) => updateNested(['features', 'slideBanner', 'gap'], parseInt(e.target.value))}
+                                                                    className="w-full border rounded p-1 text-[10px]"
+                                                                >
+                                                                    <option value={0}>없음 (0px)</option>
+                                                                    <option value={1}>아주 좁게 (8px)</option>
+                                                                    <option value={2}>좁게 (16px)</option>
+                                                                    <option value={3}>보통 (24px)</option>
+                                                                    <option value={4}>넓게 (32px)</option>
+                                                                    <option value={5}>아주 넓게 (48px)</option>
+                                                                </select>
+                                                            </div>
+
+                                                            <p className="text-[9px] text-gray-400 mt-2">
                                                                 * 이미지가 자동으로 오른쪽으로 슬라이드됩니다. 사용자가 화살표나 스와이프로 넘길 수도 있습니다.
                                                             </p>
                                                         </div>
