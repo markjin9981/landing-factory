@@ -35,6 +35,9 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
   const [dynamicConfig, setDynamicConfig] = useState<LandingConfig | null>(initialConfig);
   const [loading, setLoading] = useState(!initialConfig && !previewConfig);
 
+  // AI Chat Popup State - Must be at the top to maintain hook order
+  const [isRehabChatOpen, setIsRehabChatOpen] = useState(false);
+
   useEffect(() => {
     if (!previewConfig && id) {
       const fetchConfig = async () => {
@@ -276,9 +279,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     if (formElement) formElement.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // New: Advanced Interaction Handlers
-  const [isRehabChatOpen, setIsRehabChatOpen] = useState(false);
-
+  // Advanced Interaction Handlers
   const handleHeroCtaClick = () => {
     const action = hero.ctaActionType || 'scroll_to_form';
     if (action === 'open_rehab_chat') {
@@ -617,13 +618,6 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           isOpen={isRehabChatOpen}
           onOpen={() => setIsRehabChatOpen(true)}
           onClose={() => setIsRehabChatOpen(false)}
-          // If placement is NOT floating, we hide the default floating button here
-          // But actually, we might want to respect check status.
-          // Wait, RehabChatButton component renders itself based on displayMode.
-          // If we want to support 'open from hero' but NOT show floating button, we need to handle that.
-          // For now, assume if enabled, it might show floating button if configured.
-          // We pass forceMode if needed, but here we just pass control props.
-          className={!config.rehabChatConfig?.placement?.showAsFloating ? 'hidden' : ''}
         />
       )}
 
