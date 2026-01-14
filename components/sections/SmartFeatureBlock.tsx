@@ -22,23 +22,48 @@ const SmartFeatureBlock: React.FC<Props> = ({ data, isMobileView }) => {
 
     const gapValue = GAP_MAP[data.slideBanner?.gap ?? 3] || '24px';
 
+    // Check if only slide banner is being used (no title, description, or feature items)
+    const hasTitle = data.title && data.title.trim() !== '';
+    const hasDescription = data.description && data.description.trim() !== '';
+    const hasItems = data.items && data.items.length > 0;
+    const hasOnlySlideBanner = !hasTitle && !hasDescription && !hasItems &&
+        data.slideBanner?.isShow &&
+        data.slideBanner.images &&
+        data.slideBanner.images.length > 0;
+
+    // Conditional section class - no padding/background when only slide banner
+    const sectionClass = hasOnlySlideBanner
+        ? "overflow-hidden"
+        : "py-20 bg-gray-50 overflow-hidden";
+
+    // Conditional container class - no max-width/padding when only slide banner
+    const containerClass = hasOnlySlideBanner
+        ? ""
+        : "max-w-7xl mx-auto px-4";
+
     return (
-        <section className="py-20 bg-gray-50 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="text-center mb-16 animate-fade-in">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">{data.title}</h2>
-                    {data.description && <p className="text-gray-600 max-w-2xl mx-auto">{data.description}</p>}
-                </div>
+        <section className={sectionClass}>
+            <div className={containerClass}>
+                {/* Title/Description - only show if there's content */}
+                {(hasTitle || hasDescription) && (
+                    <div className="text-center mb-16 animate-fade-in">
+                        {hasTitle && <h2 className="text-3xl md:text-4xl font-bold mb-4">{data.title}</h2>}
+                        {hasDescription && <p className="text-gray-600 max-w-2xl mx-auto">{data.description}</p>}
+                    </div>
+                )}
 
-                <div className="space-y-24">
-                    {data.items.map((item, idx) => (
-                        <FeatureRow key={item.id || idx} item={item} index={idx} isMobileView={isMobileView} />
-                    ))}
-                </div>
+                {/* Feature Items - only show if there are items */}
+                {hasItems && (
+                    <div className="space-y-24">
+                        {data.items.map((item, idx) => (
+                            <FeatureRow key={item.id || idx} item={item} index={idx} isMobileView={isMobileView} />
+                        ))}
+                    </div>
+                )}
 
-                {/* Slide Banner - NEW */}
+                {/* Slide Banner */}
                 {data.slideBanner?.isShow && data.slideBanner.images && data.slideBanner.images.length > 0 && (
-                    <div style={{ marginTop: gapValue }}>
+                    <div style={{ marginTop: hasOnlySlideBanner ? '0' : gapValue }}>
                         <FeatureSlideBanner
                             images={data.slideBanner.images}
                             autoSlide={data.slideBanner.autoSlide ?? true}
