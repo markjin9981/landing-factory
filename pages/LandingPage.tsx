@@ -276,6 +276,39 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     if (formElement) formElement.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // New: Advanced Interaction Handlers
+  const [isRehabChatOpen, setIsRehabChatOpen] = useState(false);
+
+  const handleHeroCtaClick = () => {
+    const action = hero.ctaActionType || 'scroll_to_form';
+    if (action === 'open_rehab_chat') {
+      setIsRehabChatOpen(true);
+    } else if (action === 'link_url' && hero.ctaLinkUrl) {
+      if (hero.ctaLinkUrl.startsWith('http')) {
+        window.open(hero.ctaLinkUrl, '_blank');
+      } else {
+        window.location.href = hero.ctaLinkUrl;
+      }
+    } else {
+      scrollToForm();
+    }
+  };
+
+  const handleBannerClick = (e: React.MouseEvent, banner: FloatingBanner) => {
+    const action = banner.actionType || 'scroll_to_form';
+
+    // Determine if we should prevent default link behavior
+    // If it's a simple link, we might let <a> tag handle it, but for custom logic:
+    if (action === 'open_rehab_chat') {
+      e.preventDefault();
+      setIsRehabChatOpen(true);
+    } else if (action === 'scroll_to_form') {
+      e.preventDefault();
+      scrollToForm();
+    }
+    // If action is 'link_url', we let the <a> tag handle it (href is set)
+  };
+
   const renderDetailContent = (item: DetailContentType, index: number) => {
     if (item.type === 'banner') return <BannerBlock key={item.id || index} data={item} />;
     if (item.type === 'map') return <div key={index} className="w-full mb-4"><KakaoMap address={item.content} height="400px" /></div>;
@@ -373,13 +406,18 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     const hasBackgroundImage = !!banner.backgroundImageUrl;
     const bgOpacity = banner.backgroundImageOpacity ?? 100;
 
+    // Determine href based on action
+    const href = banner.actionType === 'link_url' ? (banner.linkUrl || '#') : '#lead-form';
+
     return (
       <a
-        href={banner.linkUrl || "#lead-form"}
+        href={href}
+        onClick={(e) => handleBannerClick(e, banner)}
         className={`block shadow-lg relative overflow-hidden ${animClass} ${bannerAnimClass}`}
         style={{
           backgroundColor: hasBackgroundImage ? 'transparent' : banner.backgroundColor,
-          color: banner.textColor
+          color: banner.textColor,
+          cursor: 'pointer'
         }}
       >
         {/* Background image layer */}
@@ -457,7 +495,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
                 {/* CTA Button */}
                 <div style={{ display: 'flex', justifyContent: hero.ctaStyle?.alignment === 'left' ? 'flex-start' : (hero.ctaStyle?.alignment === 'right' ? 'flex-end' : 'center') }}>
                   <button
-                    onClick={scrollToForm}
+                    onClick={handleHeroCtaClick}
                     className={`font-bold transition-transform hover:scale-105 ${hero.ctaStyle?.animation ? `animate-btn-${hero.ctaStyle.animation}` : ''}`}
                     style={{
                       backgroundColor: hero.ctaStyle?.backgroundColor || theme.primaryColor,
@@ -565,8 +603,21 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
       {snsConfig && <SNSFloatingBar config={snsConfig} isMobileView={isMobileView || isPreview} />}
 
       {/* AI 변제금 진단 챗봇 */}
-      {config.rehabChatConfig?.isEnabled && config.rehabChatConfig?.placement?.showAsFloating && (
-        <RehabChatButton config={config.rehabChatConfig} />
+      {config.rehabChatConfig?.isEnabled && (
+        <RehabChatButton
+          config={config.rehabChatConfig}
+          // Lifting State for shared control
+          isOpen={isRehabChatOpen}
+          onOpen={() => setIsRehabChatOpen(true)}
+          onClose={() => setIsRehabChatOpen(false)}
+          // If placement is NOT floating, we hide the default floating button here
+          // But actually, we might want to respect check status.
+          // Wait, RehabChatButton component renders itself based on displayMode.
+          // If we want to support 'open from hero' but NOT show floating button, we need to handle that.
+          // For now, assume if enabled, it might show floating button if configured.
+          // We pass forceMode if needed, but here we just pass control props.
+          className={!config.rehabChatConfig?.placement?.showAsFloating ? 'hidden' : ''}
+        />
       )}
 
     </div >

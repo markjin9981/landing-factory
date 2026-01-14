@@ -18,6 +18,11 @@ interface RehabChatButtonProps {
     className?: string;
     // 팝업 모드인 경우 버튼 렌더링, embedded인 경우 직접 삽입
     forceMode?: 'popup' | 'embedded' | 'floating';
+
+    // Controlled Mode (Optional)
+    isOpen?: boolean;
+    onClose?: () => void;
+    onOpen?: () => void; // Parent trigger
 }
 
 const DEFAULT_CONFIG: RehabChatConfig = {
@@ -34,9 +39,32 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
     globalSettings,
     onComplete,
     className,
-    forceMode
+    forceMode,
+    isOpen: propIsOpen,
+    onClose: propOnClose,
+    onOpen: propOnOpen
 }) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+    // Determine state mode (Controlled vs Uncontrolled)
+    const isControlled = propIsOpen !== undefined;
+    const isOpen = isControlled ? propIsOpen : internalIsOpen;
+
+    const handleOpen = () => {
+        if (isControlled && propOnOpen) {
+            propOnOpen();
+        } else if (!isControlled) {
+            setInternalIsOpen(true);
+        }
+    };
+
+    const handleClose = () => {
+        if (isControlled && propOnClose) {
+            propOnClose();
+        } else {
+            setInternalIsOpen(false);
+        }
+    };
 
     const displayMode = forceMode || config.displayMode;
     const buttonPosition = config.buttonPosition || 'bottom-right';
@@ -58,7 +86,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                     animate={{ opacity: 1, scale: 1 }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsOpen(true)}
+                    onClick={handleOpen} // Use handleOpen
                     className={`fixed ${positionStyles[buttonPosition]} z-50 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-bold text-white ${className || ''}`}
                     style={{
                         ...(config.buttonBackgroundImage ? {
@@ -81,7 +109,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                     {isOpen && (
                         <AIRehabChatbot
                             isOpen={isOpen}
-                            onClose={() => setIsOpen(false)}
+                            onClose={handleClose}
                             onComplete={onComplete}
                             characterName={config.characterName}
                             characterImage={config.characterImage}
@@ -96,10 +124,11 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
     // 임베디드/팝업 버튼 렌더링
     return (
         <>
+            {/* 임베디드 모드에서 버튼 클릭 시에도 팝업 열려야 함 (기존 로직 유지) */}
             <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setIsOpen(true)}
+                onClick={handleOpen} // Use handleOpen
                 className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition-all ${className || ''}`}
                 style={{
                     ...(config.buttonBackgroundImage ? {
@@ -122,7 +151,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                 {isOpen && (
                     <AIRehabChatbot
                         isOpen={isOpen}
-                        onClose={() => setIsOpen(false)}
+                        onClose={handleClose}
                         onComplete={onComplete}
                         characterName={config.characterName}
                         characterImage={config.characterImage}

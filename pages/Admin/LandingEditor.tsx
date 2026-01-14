@@ -2141,19 +2141,58 @@ const LandingEditor: React.FC = () => {
                                                                     }}
                                                                     className="w-6 h-6 border rounded cursor-pointer p-0"
                                                                 />
-                                                                <input
-                                                                    type="text"
-                                                                    value={banner.linkUrl || ''}
-                                                                    onChange={(e) => {
-                                                                        const newBanners = [...config.banners];
-                                                                        newBanners[index].linkUrl = e.target.value;
-                                                                        updateNested(['banners'], newBanners);
-                                                                    }}
-                                                                    className="flex-1 border rounded p-1.5 text-xs text-gray-400"
-                                                                    placeholder="링크 URL (선택, 예: #lead-form)"
-                                                                />
                                                             </div>
-                                                            <div className="flex gap-2 items-center text-[10px] text-gray-500">
+                                                            {/* New: Banner Action Settings */}
+                                                            <div className="flex flex-col gap-2 mt-2 border-t pt-2">
+                                                                <label className="text-[10px] text-gray-500 font-bold">배너 클릭 동작</label>
+                                                                <div className="flex gap-1">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const newBanners = [...config.banners];
+                                                                            newBanners[index].actionType = 'scroll_to_form';
+                                                                            updateNested(['banners'], newBanners);
+                                                                        }}
+                                                                        className={`flex-1 py-1 px-2 text-[10px] rounded border ${(!banner.actionType || banner.actionType === 'scroll_to_form') ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-500'}`}
+                                                                    >
+                                                                        폼 이동
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const newBanners = [...config.banners];
+                                                                            newBanners[index].actionType = 'open_rehab_chat';
+                                                                            updateNested(['banners'], newBanners);
+                                                                        }}
+                                                                        className={`flex-1 py-1 px-2 text-[10px] rounded border ${(banner.actionType === 'open_rehab_chat') ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-500'}`}
+                                                                    >
+                                                                        채팅 팝업
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const newBanners = [...config.banners];
+                                                                            newBanners[index].actionType = 'link_url';
+                                                                            updateNested(['banners'], newBanners);
+                                                                        }}
+                                                                        className={`flex-1 py-1 px-2 text-[10px] rounded border ${(banner.actionType === 'link_url') ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-500'}`}
+                                                                    >
+                                                                        링크 이동
+                                                                    </button>
+                                                                </div>
+                                                                {banner.actionType === 'link_url' && (
+                                                                    <input
+                                                                        type="text"
+                                                                        value={banner.linkUrl || ''}
+                                                                        onChange={(e) => {
+                                                                            const newBanners = [...config.banners];
+                                                                            newBanners[index].linkUrl = e.target.value;
+                                                                            updateNested(['banners'], newBanners);
+                                                                        }}
+                                                                        className="flex-1 border rounded p-1.5 text-xs text-gray-600"
+                                                                        placeholder="링크 URL (예: https://...)"
+                                                                    />
+                                                                )}
+                                                            </div>
+
+                                                            <div className="flex gap-2 items-center text-[10px] text-gray-500 mt-2">
                                                                 <label className="flex items-center gap-1">
                                                                     <input
                                                                         type="checkbox"

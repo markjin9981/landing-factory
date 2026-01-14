@@ -90,6 +90,7 @@ export interface FloatingBanner {
   text: string;
   imageUrl?: string;
   linkUrl?: string;
+  actionType?: 'scroll_to_form' | 'open_rehab_chat' | 'link_url'; // New: Interactive action
   backgroundColor: string;
   textColor: string;
   position: 'top' | 'bottom';
@@ -260,6 +261,9 @@ export interface HeroSection {
   subHeadlineStyle?: TextStyle;
   ctaText: string;
   ctaStyle?: ButtonStyle;
+  // New: CTA Action
+  ctaActionType?: 'scroll_to_form' | 'open_rehab_chat' | 'link_url';
+  ctaLinkUrl?: string; // Used when ctaActionType is 'link_url'
   backgroundImage?: string;
   overlayOpacity?: number; // New: 0-100% opacity for the black overlay
   verticalAlign?: number; // New: -2 (Top) to +2 (Bottom)
@@ -900,12 +904,14 @@ export interface ChatButtonConfig {
   size: number; // px
 
   // Action
-  linkUrl: string;
+  linkUrl?: string; // Optional link on click
+  actionType?: 'scroll_to_form' | 'open_rehab_chat' | 'link_url'; // New: Interactive action
   openInNewWindow: boolean;
 
   // Advanced
   showLabel: boolean;
   isCustomShape?: boolean; // New: Custom Shape Mode
+  imageUrl?: string; // Custom Shape/Image Banner
   animation?: ButtonAnimationType; // New: Animation Effect
   buttonBackgroundImage?: string; // New: Background Image
   labelStyle?: {
