@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, User, Bot, ArrowRight, Check, ChevronDown } from 'lucide-react';
 import { calculateRepayment, RehabUserInput, RehabCalculationResult, formatCurrency } from '../../services/calculationService';
@@ -323,13 +324,13 @@ const AIRehabChatbot: React.FC<AIRehabChatbotProps> = ({
 
     if (!isOpen) return null;
 
-    return (
+    return createPortal(
         <>
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                 onClick={(e) => e.target === e.currentTarget && onClose()}
             >
                 <motion.div
@@ -379,8 +380,8 @@ const AIRehabChatbot: React.FC<AIRehabChatbotProps> = ({
                                     <div className={`max-w-[85%] ${msg.type === 'user' ? 'order-1' : 'order-2'}`}>
                                         <div
                                             className={`px-4 py-3 rounded-2xl ${msg.type === 'user'
-                                                    ? 'bg-blue-600 text-white rounded-br-sm'
-                                                    : 'bg-slate-700 text-slate-100 rounded-bl-sm'
+                                                ? 'bg-blue-600 text-white rounded-br-sm'
+                                                : 'bg-slate-700 text-slate-100 rounded-bl-sm'
                                                 }`}
                                         >
                                             <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.content}</p>
@@ -468,7 +469,8 @@ const AIRehabChatbot: React.FC<AIRehabChatbotProps> = ({
                     onClose={() => setShowResult(false)}
                 />
             )}
-        </>
+        </>,
+        document.body
     );
 };
 
