@@ -6,6 +6,7 @@ interface FeatureSlideBannerProps {
     autoSlide?: boolean;
     intervalMs?: number;
     height?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'auto';
+    indicatorColor?: string; // Custom indicator color (default: white)
 }
 
 // Height mapping
@@ -22,7 +23,8 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
     images,
     autoSlide = true,
     intervalMs = 3000,
-    height = 'auto'
+    height = 'auto',
+    indicatorColor = '#ffffff'
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
@@ -88,7 +90,7 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
     return (
         <div
             ref={containerRef}
-            className="relative w-full overflow-hidden rounded-2xl bg-gray-100"
+            className="relative w-full overflow-hidden bg-gray-100"
             style={isFixedHeight ? { height: heightValue } : undefined}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -153,10 +155,12 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
                         <button
                             key={idx}
                             onClick={() => goToSlide(idx)}
-                            className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex
-                                ? 'bg-white w-4'
-                                : 'bg-white/50 hover:bg-white/80'
-                                }`}
+                            className="w-2 h-2 rounded-full transition-all"
+                            style={{
+                                backgroundColor: idx === currentIndex ? indicatorColor : `${indicatorColor}80`,
+                                width: idx === currentIndex ? '16px' : '8px',
+                                opacity: idx === currentIndex ? 1 : 0.5
+                            }}
                             aria-label={`Go to slide ${idx + 1}`}
                         />
                     ))}

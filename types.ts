@@ -606,6 +606,7 @@ export interface FeatureSection {
     intervalMs: number;      // Slide interval in milliseconds (default: 3000)
     height?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'auto';  // Banner height (default: 'auto')
     gap?: 0 | 1 | 2 | 3 | 4 | 5;  // Gap between containers (0=none, 5=widest, default: 3)
+    indicatorColor?: string;  // Indicator dot color (default: #ffffff)
   };
 }
 

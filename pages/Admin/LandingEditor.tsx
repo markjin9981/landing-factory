@@ -4841,6 +4841,26 @@ const LandingEditor: React.FC = () => {
                                                                 </select>
                                                             </div>
 
+                                                            {/* Indicator Color */}
+                                                            <div className="mt-3">
+                                                                <label className="text-[10px] text-gray-500 block mb-1">인디케이터 색상</label>
+                                                                <div className="flex gap-2 items-center">
+                                                                    <input
+                                                                        type="color"
+                                                                        value={config.features?.slideBanner?.indicatorColor || '#ffffff'}
+                                                                        onChange={(e) => updateNested(['features', 'slideBanner', 'indicatorColor'], e.target.value)}
+                                                                        className="w-8 h-8 rounded border cursor-pointer"
+                                                                    />
+                                                                    <input
+                                                                        type="text"
+                                                                        value={config.features?.slideBanner?.indicatorColor || '#ffffff'}
+                                                                        onChange={(e) => updateNested(['features', 'slideBanner', 'indicatorColor'], e.target.value)}
+                                                                        className="flex-1 border rounded p-1 text-[10px]"
+                                                                        placeholder="#ffffff"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
                                                             <p className="text-[9px] text-gray-400 mt-2">
                                                                 * 이미지가 자동으로 오른쪽으로 슬라이드됩니다. 사용자가 화살표나 스와이프로 넘길 수도 있습니다.
                                                             </p>

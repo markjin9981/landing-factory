@@ -69,6 +69,7 @@ const SmartFeatureBlock: React.FC<Props> = ({ data, isMobileView }) => {
                             autoSlide={data.slideBanner.autoSlide ?? true}
                             intervalMs={data.slideBanner.intervalMs || 3000}
                             height={data.slideBanner.height || 'auto'}
+                            indicatorColor={data.slideBanner.indicatorColor || '#ffffff'}
                         />
                     </div>
                 )}
