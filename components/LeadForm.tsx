@@ -806,8 +806,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                     value={formData[field.id] || ''}
                                                     onChange={handleChange}
                                                     maxLength={20}
-                                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all pr-12 bg-white text-gray-900"
-                                                    style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                    className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all pr-12 bg-white text-gray-900"
+                                                    style={{
+                                                        '--tw-ring-color': themeColor,
+                                                        fontFamily: formStyle.inputFontFamily,
+                                                        height: isMobileView ? template.inputHeight : '44px',
+                                                        fontSize: isMobileView ? template.fontSize : '14px',
+                                                        paddingLeft: '1rem',
+                                                        paddingRight: '3rem' // Extra padding for character count
+                                                    } as React.CSSProperties}
                                                 />
                                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 font-mono">
                                                     {currentLen}/20
