@@ -735,6 +735,31 @@ const LandingEditor: React.FC = () => {
                             <option value="right">오른쪽</option>
                         </select>
                     </div>
+                    <div className="col-span-2">
+                        <label className="text-[10px] text-gray-500 block mb-1">버튼 배경 이미지</label>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => openImagePicker((url) => updateStyle('backgroundImage', url))}
+                                className="flex-1 bg-white border rounded p-1.5 text-xs hover:bg-gray-50 flex items-center justify-center gap-1 text-gray-600"
+                            >
+                                <Upload className="w-3 h-3" /> 배경 이미지 업로드
+                            </button>
+                            {getValue('backgroundImage') && (
+                                <button
+                                    onClick={() => updateStyle('backgroundImage', '')}
+                                    className="p-1.5 text-red-500 hover:bg-red-50 rounded border"
+                                    title="이미지 제거"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            )}
+                        </div>
+                        {getValue('backgroundImage') && (
+                            <div className="mt-2 w-full h-10 rounded border overflow-hidden bg-gray-100 relative group">
+                                <img src={getValue('backgroundImage')} className="w-full h-full object-cover" alt="btn-bg" />
+                            </div>
+                        )}
+                    </div>
                     <div className="col-span-2 border-t pt-2 mt-1">
                         <label className="text-xs font-bold text-blue-600 block mb-1">✨ 버튼 애니메이션 효과</label>
                         <select
@@ -1937,14 +1962,43 @@ const LandingEditor: React.FC = () => {
                                                 <TextStyleEditor label="서브카피" stylePath={['hero', 'subHeadlineStyle']} />
                                             </div>
                                             <div className="border-t pt-4">
-                                                <label className="text-xs font-bold text-gray-500 mb-1 block">신청하기(CTA) 버튼 문구</label>
-                                                <input
-                                                    type="text"
-                                                    value={config.hero.ctaText}
-                                                    onChange={(e) => updateNested(['hero', 'ctaText'], e.target.value)}
-                                                    className="w-full border rounded p-2 text-sm mb-2"
-                                                    placeholder="예: 무료 상담 신청하기"
-                                                />
+                                                <label className="text-xs font-bold text-gray-500 mb-1 block">신청하기(CTA) 버튼설정</label>
+                                                <div className="bg-gray-50 p-3 rounded-lg border mb-3 space-y-3">
+                                                    <div>
+                                                        <label className="text-[10px] text-gray-500 block mb-1">버튼 문구</label>
+                                                        <input
+                                                            type="text"
+                                                            value={config.hero.ctaText}
+                                                            onChange={(e) => updateNested(['hero', 'ctaText'], e.target.value)}
+                                                            className="w-full border rounded p-2 text-sm"
+                                                            placeholder="예: 무료 상담 신청하기"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] text-gray-500 block mb-1">버튼 동작</label>
+                                                        <select
+                                                            value={config.hero.ctaActionType || 'scroll_to_form'}
+                                                            onChange={(e) => updateNested(['hero', 'ctaActionType'], e.target.value)}
+                                                            className="w-full border rounded p-2 text-sm"
+                                                        >
+                                                            <option value="scroll_to_form">폼으로 스크롤 이동 (기본)</option>
+                                                            <option value="link_url">URL 링크 이동</option>
+                                                            <option value="open_rehab_chat">AI 챗봇 열기</option>
+                                                        </select>
+                                                    </div>
+                                                    {config.hero.ctaActionType === 'link_url' && (
+                                                        <div>
+                                                            <input
+                                                                type="text"
+                                                                value={config.hero.ctaLinkUrl || ''}
+                                                                onChange={(e) => updateNested(['hero', 'ctaLinkUrl'], e.target.value)}
+                                                                className="w-full border rounded p-2 text-sm"
+                                                                placeholder="https://example.com"
+                                                            />
+                                                            <p className="text-[10px] text-gray-400 mt-1">* http:// 또는 https:// 를 포함해 입력하세요.</p>
+                                                        </div>
+                                                    )}
+                                                </div>
                                                 <ButtonStyleEditor label="CTA 버튼" stylePath={['hero', 'ctaStyle']} />
                                             </div>
                                         </>

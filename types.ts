@@ -119,6 +119,10 @@ export interface HeroSection {
   ctaStyle?: ButtonStyle;
   backgroundImage?: string;
   size?: '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'; // Expanded range
+
+  // ENHANCEMENT: Button Actions
+  ctaActionType?: 'scroll_to_form' | 'link_url' | 'open_rehab_chat';
+  ctaLinkUrl?: string;
 }
 // ... (Skipping Problem/Solution/Trust for brevity in matching, only showing relevant interfaces if needed context, but I will target specific lines or blocks)
 
