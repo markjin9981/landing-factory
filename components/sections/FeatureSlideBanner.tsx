@@ -98,7 +98,7 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
         >
             {/* Image Container */}
             <div
-                className="flex transition-transform duration-500 ease-out items-center"
+                className="flex transition-transform duration-500 ease-out"
                 style={{
                     transform: `translateX(-${currentIndex * 100}%)`,
                     height: isFixedHeight ? '100%' : 'auto'
@@ -107,18 +107,17 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
                 {images.map((img, idx) => (
                     <div
                         key={idx}
-                        className="w-full flex-shrink-0 flex items-center justify-center"
+                        className="w-full flex-shrink-0"
                         style={{ height: isFixedHeight ? '100%' : 'auto' }}
                     >
                         <img
                             src={img}
                             alt={`Slide ${idx + 1}`}
-                            className="max-w-full max-h-full"
                             style={{
-                                width: 'auto',
-                                height: isFixedHeight ? '100%' : 'auto',
-                                maxWidth: '100%',
-                                objectFit: 'contain'
+                                width: '100%',
+                                height: isFixedHeight ? heightValue : 'auto',
+                                objectFit: isFixedHeight ? 'contain' : 'cover',
+                                objectPosition: 'center'
                             }}
                         />
                     </div>
