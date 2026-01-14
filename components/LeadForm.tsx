@@ -38,7 +38,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
     // FORCE Vertical layout if mobile view, even if grid is selected
     const isGridLayout = config.layout === 'grid' && !isMobileView;
 
-    // Mobile Template Styles
+    // Mobile Template Styles - ULTRA COMPACT OPTIMIZATION
     const MOBILE_TEMPLATES = {
         default: {
             inputHeight: '44px',
@@ -49,36 +49,48 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
             useInlinePhone: false,
             useInlineDate: false,
             useGrid: false,
+            headerPadding: '2rem', // default p-8
+            headerScale: 1,
+            forceSinglePhone: false,
         },
         minimal: {
             inputHeight: '36px',
-            labelMargin: '4px',
-            formPadding: '16px',
-            fieldGap: '12px',
+            labelMargin: '2px', // Reduced
+            formPadding: '12px', // Drastically reduced
+            fieldGap: '8px', // Reduced
             fontSize: '13px',
             useInlinePhone: false,
             useInlineDate: false,
             useGrid: false,
+            headerPadding: '12px',
+            headerScale: 0.8,
+            forceSinglePhone: true,
         },
         inline: {
             inputHeight: '40px',
-            labelMargin: '6px',
-            formPadding: '20px',
-            fieldGap: '14px',
+            labelMargin: '4px',
+            formPadding: '16px',
+            fieldGap: '10px',
             fontSize: '14px',
             useInlinePhone: true,
             useInlineDate: true,
             useGrid: false,
+            headerPadding: '16px',
+            headerScale: 0.9,
+            forceSinglePhone: false,
         },
         'compact-grid': {
-            inputHeight: '40px',
-            labelMargin: '6px',
-            formPadding: '20px',
-            fieldGap: '12px',
-            fontSize: '14px',
+            inputHeight: '34px', // Ultra slim
+            labelMargin: '2px',
+            formPadding: '10px', // Minimal padding
+            fieldGap: '6px', // Tight gap
+            fontSize: '13px',
             useInlinePhone: false,
             useInlineDate: false,
             useGrid: true,
+            headerPadding: '12px',
+            headerScale: 0.75,
+            forceSinglePhone: true, // New: Force single-line phone input
         }
     };
 
@@ -268,11 +280,19 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                 className="shadow-2xl overflow-hidden"
                 style={{ backgroundColor: containerBg, borderRadius: containerRadius, border: containerBorder }}
             >
-                <div className="p-6 md:p-8 text-center border-b border-black/5" style={{ backgroundColor: themeColor }}>
+                <div
+                    className="text-center border-b border-black/5"
+                    style={{
+                        backgroundColor: themeColor,
+                        padding: isMobileView ? (template.headerPadding || '2rem') : '2rem'
+                    }}
+                >
                     <h3
                         className="font-bold mb-2"
                         style={{
-                            fontSize: formStyle.titleFontSize || '1.5rem',
+                            fontSize: isMobileView
+                                ? `calc(${formStyle.titleFontSize || '1.5rem'} * ${template.headerScale || 1})`
+                                : (formStyle.titleFontSize || '1.5rem'),
                             color: formStyle.titleColor || 'white',
                             textAlign: (formStyle.titleAlign || 'center') as any,
                             fontFamily: formStyle.titleFontFamily
@@ -280,7 +300,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                     >
                         {config.title}
                     </h3>
-                    <p className="text-white/90 text-sm">{config.subTitle}</p>
+                    <p className="text-white/90 text-sm" style={{ fontSize: isMobileView ? '0.75rem' : '0.875rem' }}>{config.subTitle}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ padding: isMobileView ? template.formPadding : '2rem' }}>
@@ -296,7 +316,8 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                         }}
                     >
                         {config.fields.map((field) => {
-                            const isFullWidth = field.type === 'textarea' || field.type === 'radio';
+                            // Smart Grid Logic: Force full width for Textarea, Radio, and Phone (in compact mode)
+                            const isFullWidth = field.type === 'textarea' || field.type === 'radio' || (field.type === 'tel' && template.forceSinglePhone);
 
                             return (
                                 <div
@@ -304,13 +325,17 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                     className={`${isGridLayout && isFullWidth ? 'md:col-span-2' : ''} ${template.useGrid && isMobileView && isFullWidth ? 'col-span-2' : ''}`}
                                 >
                                     <label
-                                        className="block text-sm font-semibold"
+                                        className="block text-sm font-semibold truncate"
                                         style={{
                                             color: textColor,
                                             fontFamily: formStyle.inputFontFamily,
                                             marginBottom: isMobileView ? template.labelMargin : '0.25rem',
-                                            fontSize: isMobileView ? template.fontSize : '0.875rem'
+                                            fontSize: isMobileView ? template.fontSize : '0.875rem',
+                                            whiteSpace: 'nowrap', // Prevent wrapping
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
                                         }}
+                                        title={field.label} // Show full label on hover/touch
                                     >
                                         {field.label} {field.required && <span className="text-red-500 text-xs align-top">필수</span>}
                                     </label>
@@ -326,8 +351,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         required={field.required}
                                                         value={formData[field.id] || ''}
                                                         onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all appearance-none bg-white pr-10 text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                        className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all appearance-none bg-white pr-8 text-gray-900"
+                                                        style={{
+                                                            '--tw-ring-color': themeColor,
+                                                            fontFamily: formStyle.inputFontFamily,
+                                                            height: isMobileView ? template.inputHeight : '44px',
+                                                            fontSize: isMobileView ? template.fontSize : '14px',
+                                                            paddingLeft: '1rem',
+                                                            paddingRight: '1rem'
+                                                        } as React.CSSProperties}
                                                     >
                                                         <option value="" disabled>선택해주세요</option>
                                                         {field.options.map(opt => (
@@ -372,8 +404,50 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                             );
                                         }
 
-                                        // 3. TEL (3-Part Split)
+                                        // 3. TEL (Split or Single based on template)
                                         if (field.type === 'tel') {
+                                            if (isMobileView && template.forceSinglePhone) {
+                                                // Single Line Phone Input for Ultra Compact Mobile
+                                                return (
+                                                    <div className="relative">
+                                                        <input
+                                                            type="tel"
+                                                            value={formData[field.id] || ''}
+                                                            onChange={(e) => {
+                                                                let val = e.target.value.replace(/[^0-9]/g, '');
+                                                                if (val.length > 11) val = val.slice(0, 11);
+
+                                                                let formatted = val;
+                                                                if (val.length > 3 && val.length <= 7) {
+                                                                    formatted = `${val.slice(0, 3)}-${val.slice(3)}`;
+                                                                } else if (val.length > 7) {
+                                                                    formatted = `${val.slice(0, 3)}-${val.slice(3, 7)}-${val.slice(7)}`;
+                                                                }
+                                                                // If starts with 02 (Seoul), logic differs slightly but for now 010 standard
+                                                                if (val.startsWith('02') && val.length > 2) {
+                                                                    if (val.length <= 5) formatted = `${val.slice(0, 2)}-${val.slice(2)}`;
+                                                                    else if (val.length <= 9) formatted = `${val.slice(0, 2)}-${val.slice(2, 5)}-${val.slice(5)}`;
+                                                                    else formatted = `${val.slice(0, 2)}-${val.slice(2, 6)}-${val.slice(6)}`;
+                                                                }
+
+                                                                setFormData({ ...formData, [field.id]: formatted });
+                                                            }}
+                                                            placeholder="010-0000-0000"
+                                                            className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
+                                                            style={{
+                                                                '--tw-ring-color': themeColor,
+                                                                fontFamily: formStyle.inputFontFamily,
+                                                                height: isMobileView ? template.inputHeight : '44px',
+                                                                fontSize: isMobileView ? template.fontSize : '14px',
+                                                                paddingLeft: '1rem',
+                                                                paddingRight: '1rem'
+                                                            } as React.CSSProperties}
+                                                        />
+                                                    </div>
+                                                );
+                                            }
+
+                                            // Desktop: 3-Part Split
                                             const { p1, p2, p3 } = parsePhone(formData[field.id]);
                                             return (
                                                 <div className="flex gap-2 items-center">
