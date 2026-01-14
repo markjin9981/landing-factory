@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FeatureSection, FeatureItem } from '../../types';
+import FeatureSlideBanner from './FeatureSlideBanner';
 
 interface Props {
     data: FeatureSection;
@@ -22,6 +23,17 @@ const SmartFeatureBlock: React.FC<Props> = ({ data, isMobileView }) => {
                         <FeatureRow key={item.id || idx} item={item} index={idx} isMobileView={isMobileView} />
                     ))}
                 </div>
+
+                {/* Slide Banner - NEW */}
+                {data.slideBanner?.isShow && data.slideBanner.images && data.slideBanner.images.length > 0 && (
+                    <div className="mt-16">
+                        <FeatureSlideBanner
+                            images={data.slideBanner.images}
+                            autoSlide={data.slideBanner.autoSlide ?? true}
+                            intervalMs={data.slideBanner.intervalMs || 3000}
+                        />
+                    </div>
+                )}
             </div>
         </section>
     );

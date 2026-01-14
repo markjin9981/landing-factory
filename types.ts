@@ -598,6 +598,13 @@ export interface FeatureSection {
   title: string;
   description?: string;
   items: FeatureItem[];
+  // NEW: Slide Banner Configuration
+  slideBanner?: {
+    isShow: boolean;
+    images: string[];        // Max 10 images
+    autoSlide: boolean;      // Auto-slide enabled
+    intervalMs: number;      // Slide interval in milliseconds (default: 3000)
+  };
 }
 
 export interface LandingConfig {

@@ -4646,17 +4646,29 @@ const LandingEditor: React.FC = () => {
                                                                             <span className="text-xs text-gray-400">이미지 없음</span>
                                                                         )}
 
-                                                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                            <label className="cursor-pointer text-white text-xs underline">
+                                                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-2">
+                                                                            <button
+                                                                                onClick={() => openImagePicker((url) => {
+                                                                                    const newItems = [...(config.features?.items || [])];
+                                                                                    newItems[idx] = { ...newItems[idx], imageUrl: url };
+                                                                                    updateNested(['features', 'items'], newItems);
+                                                                                })}
+                                                                                className="cursor-pointer text-white text-xs underline bg-transparent border-none hover:text-blue-300"
+                                                                            >
                                                                                 이미지 업로드
-                                                                                <input type="file" className="hidden" accept="image/*"
-                                                                                    onChange={(e) => handleImageUpload(e, (url) => {
+                                                                            </button>
+                                                                            {item.imageUrl && (
+                                                                                <button
+                                                                                    onClick={() => {
                                                                                         const newItems = [...(config.features?.items || [])];
-                                                                                        newItems[idx] = { ...newItems[idx], imageUrl: url };
+                                                                                        newItems[idx] = { ...newItems[idx], imageUrl: '' };
                                                                                         updateNested(['features', 'items'], newItems);
-                                                                                    })}
-                                                                                />
-                                                                            </label>
+                                                                                    }}
+                                                                                    className="text-red-300 text-xs underline hover:text-red-400"
+                                                                                >
+                                                                                    삭제
+                                                                                </button>
+                                                                            )}
                                                                         </div>
                                                                     </div>
 
@@ -4707,6 +4719,101 @@ const LandingEditor: React.FC = () => {
                                                             </div>
                                                         ))}
                                                     </div>
+                                                </div>
+
+                                                {/* NEW: Slide Banner Section */}
+                                                <div className="border-t pt-4 mt-4">
+                                                    <div className="flex justify-between items-center mb-3">
+                                                        <h4 className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                                                            🖼️ 슬라이드 배너 (자동 롤링)
+                                                        </h4>
+                                                        <label className="flex items-center gap-2 cursor-pointer">
+                                                            <span className="text-[10px] text-gray-500">사용</span>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={config.features?.slideBanner?.isShow ?? false}
+                                                                onChange={(e) => updateNested(['features', 'slideBanner', 'isShow'], e.target.checked)}
+                                                                className="rounded text-purple-600 focus:ring-purple-500"
+                                                            />
+                                                        </label>
+                                                    </div>
+
+                                                    {config.features?.slideBanner?.isShow && (
+                                                        <div className="space-y-3 bg-purple-50 p-3 rounded-lg border border-purple-100">
+                                                            {/* Image List */}
+                                                            <div>
+                                                                <div className="flex items-center justify-between mb-2">
+                                                                    <label className="text-[10px] text-gray-600 font-bold">배너 이미지 (최대 10개)</label>
+                                                                    <span className="text-[10px] text-gray-400">
+                                                                        {config.features?.slideBanner?.images?.length || 0}/10
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex gap-2 flex-wrap">
+                                                                    {(config.features?.slideBanner?.images || []).map((img, imgIdx) => (
+                                                                        <div key={imgIdx} className="relative group w-16 h-12 rounded border overflow-hidden bg-gray-100">
+                                                                            <img src={img} alt={`slide-${imgIdx}`} className="w-full h-full object-cover" />
+                                                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        const newImages = (config.features?.slideBanner?.images || []).filter((_, i) => i !== imgIdx);
+                                                                                        updateNested(['features', 'slideBanner', 'images'], newImages);
+                                                                                    }}
+                                                                                    className="text-red-400 hover:text-red-300"
+                                                                                >
+                                                                                    <X className="w-4 h-4" />
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                    {(config.features?.slideBanner?.images?.length || 0) < 10 && (
+                                                                        <button
+                                                                            onClick={() => openImagePicker((url) => {
+                                                                                const currentImages = config.features?.slideBanner?.images || [];
+                                                                                if (currentImages.length < 10) {
+                                                                                    updateNested(['features', 'slideBanner', 'images'], [...currentImages, url]);
+                                                                                }
+                                                                            })}
+                                                                            className="w-16 h-12 rounded border-2 border-dashed border-purple-300 flex items-center justify-center text-purple-400 hover:border-purple-500 hover:text-purple-600 transition-colors"
+                                                                        >
+                                                                            <Plus className="w-5 h-5" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Settings */}
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={config.features?.slideBanner?.autoSlide ?? true}
+                                                                        onChange={(e) => updateNested(['features', 'slideBanner', 'autoSlide'], e.target.checked)}
+                                                                        className="rounded text-purple-600 focus:ring-purple-500"
+                                                                    />
+                                                                    <span className="text-[10px] text-gray-600">자동 슬라이드</span>
+                                                                </label>
+                                                                <div>
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">슬라이드 간격</label>
+                                                                    <select
+                                                                        value={config.features?.slideBanner?.intervalMs || 3000}
+                                                                        onChange={(e) => updateNested(['features', 'slideBanner', 'intervalMs'], parseInt(e.target.value))}
+                                                                        className="w-full border rounded p-1 text-[10px]"
+                                                                    >
+                                                                        <option value={2000}>2초</option>
+                                                                        <option value={3000}>3초 (기본)</option>
+                                                                        <option value={4000}>4초</option>
+                                                                        <option value={5000}>5초</option>
+                                                                        <option value={7000}>7초</option>
+                                                                        <option value={10000}>10초</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <p className="text-[9px] text-gray-400">
+                                                                * 이미지가 자동으로 오른쪽으로 슬라이드됩니다. 사용자가 화살표나 스와이프로 넘길 수도 있습니다.
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
