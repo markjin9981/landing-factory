@@ -691,10 +691,16 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                 minWidth: formStyle.buttonWidth === 'auto' ? '200px' : undefined, // Optional: ensure not too small if auto
                                 paddingLeft: '2rem', paddingRight: '2rem',
                                 fontFamily: formStyle.buttonFontFamily,
-                                ...(formStyle.buttonAnimation === 'shimmer' ? {
+                                ...(formStyle.buttonBackgroundImage ? {
+                                    backgroundImage: `url(${formStyle.buttonBackgroundImage})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat',
+                                    border: 'none'
+                                } : (formStyle.buttonAnimation === 'shimmer' ? {
                                     '--btn-bg': btnBg,
                                     '--btn-shine': 'rgba(255,255,255,0.4)'
-                                } : {})
+                                } : {}))
                             }}
                         >
                             {status === 'submitting' ? (

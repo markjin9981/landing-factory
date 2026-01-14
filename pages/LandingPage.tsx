@@ -472,10 +472,17 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
                               (hero.ctaStyle?.width === 'lg' ? '320px' :
                                 (hero.ctaStyle?.width === 'xl' ? '384px' : 'auto'))))),
                       padding: '1rem 2rem',
-                      ...(hero.ctaStyle?.animation === 'shimmer' ? {
+                      ...(hero.ctaStyle?.backgroundImage ? {
+                        backgroundImage: `url(${hero.ctaStyle.backgroundImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        border: 'none', // Remove border if image is used
+                        color: hero.ctaStyle.textColor || 'white' // Ensure text is visible
+                      } : (hero.ctaStyle?.animation === 'shimmer' ? {
                         '--btn-bg': hero.ctaStyle?.backgroundColor || theme.primaryColor,
                         '--btn-shine': 'rgba(255,255,255,0.4)'
-                      } : {})
+                      } : {}))
                     } as React.CSSProperties}
                   >
                     {hero.ctaText}

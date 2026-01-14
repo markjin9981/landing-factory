@@ -1363,6 +1363,48 @@ const LandingEditor: React.FC = () => {
                                                             onChange={(e) => updateNested(['chatConfig', 'isCustomShape'], e.target.checked)}
                                                         /> 커스텀 모양(PNG) 모드
                                                     </label>
+                                                    <div className="grid grid-cols-2 gap-2 mt-2">
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 애니메이션</label>
+                                                            <select
+                                                                value={config.hero.ctaStyle?.animation || 'none'}
+                                                                onChange={(e) => updateNested(['hero', 'ctaStyle', 'animation'], e.target.value)}
+                                                                className="w-full border rounded p-1 text-xs"
+                                                            >
+                                                                <option value="none">없음</option>
+                                                                <option value="pulse">맥박 뛰듯 (Pulse)</option>
+                                                                <option value="bounce">통통 튀기 (Bounce)</option>
+                                                                <option value="shimmer">빛 지나가기 (Shimmer)</option>
+                                                                <option value="wiggle">좌우 흔들기 (Wiggle)</option>
+                                                                <option value="heartbeat">두근두근 (Heartbeat)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 배경 이미지</label>
+                                                            <div className="flex items-center gap-1">
+                                                                <button
+                                                                    onClick={() => openImagePicker((url) => updateNested(['hero', 'ctaStyle', 'backgroundImage'], url))}
+                                                                    className="flex-1 bg-white border rounded p-1 text-xs hover:bg-gray-50 flex items-center justify-center gap-1"
+                                                                >
+                                                                    <Upload className="w-3 h-3" /> 업로드
+                                                                </button>
+                                                                {config.hero.ctaStyle?.backgroundImage && (
+                                                                    <button
+                                                                        onClick={() => updateNested(['hero', 'ctaStyle', 'backgroundImage'], '')}
+                                                                        className="p-1 text-red-500 hover:bg-red-50 rounded border"
+                                                                        title="이미지 제거"
+                                                                    >
+                                                                        <X className="w-3 h-3" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                            {config.hero.ctaStyle?.backgroundImage && (
+                                                                <div className="w-full h-8 mt-1 rounded border overflow-hidden bg-gray-100">
+                                                                    <img src={config.hero.ctaStyle.backgroundImage} className="w-full h-full object-cover" alt="btn-bg" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-xs font-bold text-blue-800">애니메이션:</span>
                                                         <select
@@ -1427,6 +1469,30 @@ const LandingEditor: React.FC = () => {
                                                             ) : (
                                                                 <div className="text-center text-gray-400">
                                                                     {config.chatConfig?.type === 'custom' ? <Upload className="w-5 h-5 mx-auto" /> : <span className="text-[10px]">기본 아이콘</span>}
+                                                                    <div className="mb-2">
+                                                                        <label className="text-gray-400 text-[10px] block mb-1">버튼 배경 이미지</label>
+                                                                        <div className="flex gap-2">
+                                                                            <button
+                                                                                onClick={() => openImagePicker((url) => updateNested(['chatConfig', 'buttonBackgroundImage'], url))}
+                                                                                className="flex-1 bg-white border border-gray-600 rounded p-1 text-xs hover:bg-gray-700 flex items-center justify-center gap-1 text-gray-300"
+                                                                            >
+                                                                                <Upload className="w-3 h-3" /> 업로드
+                                                                            </button>
+                                                                            {config.chatConfig?.buttonBackgroundImage && (
+                                                                                <button
+                                                                                    onClick={() => updateNested(['chatConfig', 'buttonBackgroundImage'], '')}
+                                                                                    className="px-2 border border-red-800 text-red-400 rounded hover:bg-red-900/20"
+                                                                                >
+                                                                                    <X className="w-3 h-3" />
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                        {config.chatConfig?.buttonBackgroundImage && (
+                                                                            <div className="mt-1 w-full h-8 rounded bg-gray-700 overflow-hidden relative">
+                                                                                <img src={config.chatConfig.buttonBackgroundImage} className="w-full h-full object-cover opacity-80" />
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -1548,6 +1614,37 @@ const LandingEditor: React.FC = () => {
                                                             />
                                                         </div>
                                                     </div>
+
+                                                    {/* Rehab Chatbot Image Settings */}
+                                                    {config.rehabChatConfig?.isEnabled && (
+                                                        <div className="mt-4 pt-4 border-t border-gray-100">
+                                                            <h4 className="text-xs font-bold text-gray-700 mb-2">AI 변제금 챗봇 스타일</h4>
+                                                            <div className="mb-2">
+                                                                <label className="text-gray-400 text-[10px] block mb-1">버튼 배경 이미지</label>
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        onClick={() => openImagePicker((url) => updateNested(['rehabChatConfig', 'buttonBackgroundImage'], url))}
+                                                                        className="flex-1 bg-white border border-gray-300 rounded p-1 text-xs hover:bg-gray-50 flex items-center justify-center gap-1 text-gray-600"
+                                                                    >
+                                                                        <Upload className="w-3 h-3" /> 업로드
+                                                                    </button>
+                                                                    {config.rehabChatConfig?.buttonBackgroundImage && (
+                                                                        <button
+                                                                            onClick={() => updateNested(['rehabChatConfig', 'buttonBackgroundImage'], '')}
+                                                                            className="px-2 border border-red-200 text-red-400 rounded hover:bg-red-50"
+                                                                        >
+                                                                            <X className="w-3 h-3" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                                {config.rehabChatConfig?.buttonBackgroundImage && (
+                                                                    <div className="mt-1 w-full h-8 rounded bg-gray-100 overflow-hidden relative border">
+                                                                        <img src={config.rehabChatConfig.buttonBackgroundImage} className="w-full h-full object-cover" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </>
@@ -2992,6 +3089,31 @@ const LandingEditor: React.FC = () => {
                                                         onChange={(e) => updateNested(['formConfig', 'submitButtonText'], e.target.value)}
                                                         className="w-full border rounded p-2 text-sm"
                                                     />
+                                                </div>
+                                                <div className="mt-2 pt-2 border-t border-gray-100">
+                                                    <label className="text-[10px] text-gray-500 block mb-1">버튼 배경 이미지 (단색 대신 이미지 사용)</label>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onClick={() => openImagePicker((url) => updateNested(['formConfig', 'style', 'buttonBackgroundImage'], url))}
+                                                            className="flex-1 bg-white border rounded p-2 text-xs hover:bg-gray-50 flex items-center justify-center gap-1"
+                                                        >
+                                                            <Upload className="w-3 h-3" /> 이미지형 버튼 업로드
+                                                        </button>
+                                                        {config.formConfig.style?.buttonBackgroundImage && (
+                                                            <button
+                                                                onClick={() => updateNested(['formConfig', 'style', 'buttonBackgroundImage'], '')}
+                                                                className="p-2 text-red-500 hover:bg-red-50 rounded border"
+                                                                title="이미지 제거"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    {config.formConfig.style?.buttonBackgroundImage && (
+                                                        <div className="w-full h-10 mt-2 rounded border overflow-hidden bg-gray-100">
+                                                            <img src={config.formConfig.style.buttonBackgroundImage} className="w-full h-full object-cover" alt="submit-btn-bg" />
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <ButtonStyleEditor label="버튼" mode="flat_form_button" />
                                             </div>

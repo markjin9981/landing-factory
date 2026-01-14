@@ -61,7 +61,15 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                     onClick={() => setIsOpen(true)}
                     className={`fixed ${positionStyles[buttonPosition]} z-50 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-bold text-white ${className || ''}`}
                     style={{
-                        background: `linear-gradient(135deg, ${config.buttonColor || '#3B82F6'}, ${config.buttonColor || '#3B82F6'}dd)`,
+                        ...(config.buttonBackgroundImage ? {
+                            backgroundImage: `url(${config.buttonBackgroundImage})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundColor: 'transparent'
+                        } : {
+                            background: `linear-gradient(135deg, ${config.buttonColor || '#3B82F6'}, ${config.buttonColor || '#3B82F6'}dd)`
+                        }),
                         boxShadow: `0 4px 20px ${config.buttonColor || '#3B82F6'}40`
                     }}
                 >
@@ -94,7 +102,15 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                 onClick={() => setIsOpen(true)}
                 className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition-all ${className || ''}`}
                 style={{
-                    background: `linear-gradient(135deg, ${config.buttonColor || '#3B82F6'}, ${config.buttonColor || '#3B82F6'}cc)`,
+                    ...(config.buttonBackgroundImage ? {
+                        backgroundImage: `url(${config.buttonBackgroundImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundColor: 'transparent'
+                    } : {
+                        background: `linear-gradient(135deg, ${config.buttonColor || '#3B82F6'}, ${config.buttonColor || '#3B82F6'}cc)`
+                    }),
                     boxShadow: `0 4px 15px ${config.buttonColor || '#3B82F6'}30`
                 }}
             >

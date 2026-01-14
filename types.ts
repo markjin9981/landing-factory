@@ -79,6 +79,7 @@ export interface ButtonStyle {
   gradientTo?: string;
   gradientVia?: string;
   gradientDirection?: string;
+  backgroundImage?: string; // New: Image Background Support
 }
 
 // Form Design Interface
@@ -149,6 +150,7 @@ export interface FormStyle {
   buttonAlign?: 'left' | 'center' | 'right';
   buttonFontFamily?: string;
   buttonAnimation?: ButtonAnimationType;
+  buttonBackgroundImage?: string; // New: Image Background
   securityBadgeId?: string; // New: Security Footer Preset ID (0-10)
 
   // Layout
@@ -534,6 +536,7 @@ export interface RehabChatConfig {
   buttonText: string;
   buttonPosition?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   buttonColor?: string;
+  buttonBackgroundImage?: string; // New: Custom Image Background
   characterName?: string;  // AI 캐릭터 이름 (기본: 로이)
   characterImage?: string; // AI 캐릭터 이미지 URL
 
@@ -904,6 +907,7 @@ export interface ChatButtonConfig {
   showLabel: boolean;
   isCustomShape?: boolean; // New: Custom Shape Mode
   animation?: ButtonAnimationType; // New: Animation Effect
+  buttonBackgroundImage?: string; // New: Background Image
   labelStyle?: {
     backgroundColor?: string;
     textColor?: string;
