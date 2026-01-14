@@ -9,9 +9,10 @@ interface Props {
     landingId: string;
     themeColor: string;
     pageTitle?: string; // Global Page Title
+    isMobileView?: boolean; // New: For Grid layout control
 }
 
-const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle }) => {
+const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, isMobileView }) => {
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
@@ -34,7 +35,11 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle })
     const btnText = formStyle.buttonTextColor || '#ffffff';
     const btnRadius = formStyle.buttonRadius || '12px';
 
-    const isGridLayout = config.layout === 'grid';
+    // FORCE Vertical layout if mobile view, even if grid is selected
+    const isGridLayout = config.layout === 'grid' && !isMobileView;
+
+    // ... (rest of the component)
+
 
     // Helper for Phone parsing
     const parsePhone = (val: string) => {

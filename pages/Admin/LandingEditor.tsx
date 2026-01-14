@@ -2863,6 +2863,43 @@ const LandingEditor: React.FC = () => {
                                                         placeholder="16"
                                                     />
                                                 </div>
+
+                                                {/* New: Margin & Padding Controls */}
+                                                <div className="col-span-2 pt-2 border-t border-gray-100">
+                                                    <label className="text-[10px] text-gray-500 block mb-1">상하 여백 (Vertical Padding)</label>
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="range"
+                                                            min="0"
+                                                            max="5"
+                                                            step="1"
+                                                            value={config.formConfig.containerStyle?.verticalPadding ?? 3}
+                                                            onChange={(e) => updateNested(['formConfig', 'containerStyle', 'verticalPadding'], parseInt(e.target.value))}
+                                                            className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                                        />
+                                                        <span className="text-xs font-bold text-blue-600 w-12 text-right">
+                                                            Lv.{config.formConfig.containerStyle?.verticalPadding ?? 3}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between text-[9px] text-gray-400 mt-1 px-1">
+                                                        <span>0 (없음)</span>
+                                                        <span>5 (최대)</span>
+                                                    </div>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <label className="flex items-center gap-2 cursor-pointer p-2 border rounded-lg hover:bg-gray-50 transition-colors">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={config.formConfig.containerStyle?.removeContainerPadding || false}
+                                                            onChange={(e) => updateNested(['formConfig', 'containerStyle', 'removeContainerPadding'], e.target.checked)}
+                                                            className="rounded text-blue-600 focus:ring-blue-500"
+                                                        />
+                                                        <div className="flex flex-col">
+                                                            <span className="text-xs font-bold text-gray-700">좌우 컨테이너 여백 제거</span>
+                                                            <span className="text-[10px] text-gray-400">체크 시 폼이 전체 너비로 확장됩니다 (모바일 풀사이즈용)</span>
+                                                        </div>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
 

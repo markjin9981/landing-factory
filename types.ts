@@ -308,6 +308,12 @@ export interface FormSection {
 
   // Custom Style
   style?: FormStyle;
+
+  // New: Container Layout Style
+  containerStyle?: {
+    verticalPadding?: 0 | 1 | 2 | 3 | 4 | 5; // 0=0px, 3=80px(default), 5=192px
+    removeContainerPadding?: boolean; // If true, removes px-4 to make full width
+  };
 }
 
 // New: Footer Configuration

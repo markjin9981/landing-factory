@@ -285,13 +285,45 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     return <img key={index} src={item.content} className={`block mx-auto mb-0 h-auto ${widthClass} max-w-full`} />;
   };
 
-  const FormComponent = () => (
-    <section id="lead-form" className={`py-20 bg-gray-50 ${isFullLayout ? 'w-full' : 'max-w-4xl mx-auto px-4'}`}>
-      <div className={isFullLayout ? 'max-w-3xl mx-auto' : 'w-full'}>
-        <LeadForm config={formConfig} landingId={config.id} themeColor={theme.primaryColor} pageTitle={config.title} />
-      </div>
-    </section>
-  );
+  // Gap Scale Mapping
+  const GAP_MAP: Record<number, string> = {
+    0: '0',
+    1: '2rem',
+    2: '3rem',
+    3: '5rem', // default
+    4: '8rem',
+    5: '12rem'
+  };
+
+  const FormComponent = () => {
+    // Form Container Style logic
+    const vPadding = config.formConfig.containerStyle?.verticalPadding ?? 3;
+
+    const containerStyle = {
+      paddingTop: GAP_MAP[vPadding],
+      paddingBottom: GAP_MAP[vPadding]
+    };
+
+    const removePadding = config.formConfig.containerStyle?.removeContainerPadding;
+
+    return (
+      <section
+        id="lead-form"
+        className={`bg-gray-50 ${isFullLayout ? 'w-full' : (removePadding ? 'max-w-4xl mx-auto' : 'max-w-4xl mx-auto px-4')}`}
+        style={containerStyle}
+      >
+        <div className={isFullLayout ? 'max-w-3xl mx-auto' : 'w-full'}>
+          <LeadForm
+            config={formConfig}
+            landingId={config.id}
+            themeColor={theme.primaryColor}
+            pageTitle={config.title}
+            isMobileView={isMobileView || isPreview}
+          />
+        </div>
+      </section>
+    );
+  };
 
   const getTextStyle = (style?: any, defaults?: any) => ({
     fontSize: style?.fontSize || defaults?.fontSize,
