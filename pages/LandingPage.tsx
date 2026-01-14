@@ -352,7 +352,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
             landingId={config.id}
             themeColor={theme.primaryColor}
             pageTitle={config.title}
-            isMobileView={isMobileView || isPreview}
+            isMobileView={isMobileView}
           />
         </div>
       </section>
