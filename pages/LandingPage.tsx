@@ -385,8 +385,15 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
     // Custom Shape Mode (PNG Image Only)
     if (banner.isCustomShape && banner.imageUrl) {
+      // Determine href based on action
+      const customHref = banner.actionType === 'link_url' ? (banner.linkUrl || '#') : '#lead-form';
+
       return (
-        <a href={banner.linkUrl || "#lead-form"} className={`block relative transition-transform hover:scale-105 ${animClass} ${bannerAnimClass}`}>
+        <a
+          href={customHref}
+          onClick={(e) => handleBannerClick(e, banner)}
+          className={`block relative transition-transform hover:scale-105 ${animClass} ${bannerAnimClass}`}
+        >
           <img
             src={banner.imageUrl}
             alt={banner.text}
