@@ -335,9 +335,8 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis'
                                         }}
-                                        title={field.label} // Show full label on hover/touch
                                     >
-                                        {field.label} {field.required && <span className="text-red-500 text-xs align-top">필수</span>}
+                                        {field.label} {field.required && <span className="text-red-500 text-[10px] align-top ml-0.5">필수</span>}
                                     </label>
 
                                     {/* Field Type Rendering Switch */}
@@ -457,8 +456,13 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         <select
                                                             value={p1}
                                                             onChange={(e) => handlePhonePartChange(field.id, 'p1', e.target.value)}
-                                                            className="w-full px-2 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-center appearance-none text-gray-900"
-                                                            style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                            className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-center appearance-none text-gray-900"
+                                                            style={{
+                                                                '--tw-ring-color': themeColor,
+                                                                fontFamily: formStyle.inputFontFamily,
+                                                                height: isMobileView ? template.inputHeight : '44px',
+                                                                fontSize: isMobileView ? template.fontSize : '14px'
+                                                            } as React.CSSProperties}
                                                         >
                                                             {PHONE_PREFIXES.map(pre => (
                                                                 <option key={pre} value={pre}>{pre}</option>
@@ -474,8 +478,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         onChange={(e) => handlePhonePartChange(field.id, 'p2', e.target.value)}
                                                         maxLength={4}
                                                         placeholder="0000"
-                                                        className="flex-1 min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-left bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                        className="flex-1 min-w-0 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-left bg-white text-gray-900"
+                                                        style={{
+                                                            '--tw-ring-color': themeColor,
+                                                            fontFamily: formStyle.inputFontFamily,
+                                                            height: isMobileView ? template.inputHeight : '44px',
+                                                            fontSize: isMobileView ? template.fontSize : '14px',
+                                                            paddingLeft: '1rem',
+                                                            paddingRight: '1rem'
+                                                        } as React.CSSProperties}
                                                     />
                                                     <span className="text-gray-400 shrink-0">-</span>
                                                     <input
@@ -485,8 +496,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         onChange={(e) => handlePhonePartChange(field.id, 'p3', e.target.value)}
                                                         maxLength={4}
                                                         placeholder="0000"
-                                                        className="flex-1 min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-left bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                        className="flex-1 min-w-0 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none text-left bg-white text-gray-900"
+                                                        style={{
+                                                            '--tw-ring-color': themeColor,
+                                                            fontFamily: formStyle.inputFontFamily,
+                                                            height: isMobileView ? template.inputHeight : '44px',
+                                                            fontSize: isMobileView ? template.fontSize : '14px',
+                                                            paddingLeft: '1rem',
+                                                            paddingRight: '1rem'
+                                                        } as React.CSSProperties}
                                                     />
                                                 </div>
                                             );
