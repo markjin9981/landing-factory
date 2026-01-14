@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MapPin, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { fetchGlobalSettings } from '../services/googleSheetService';
 
 declare global {
@@ -16,6 +17,7 @@ interface KakaoMapProps {
 }
 
 const KakaoMap: React.FC<KakaoMapProps> = ({ address, placeName, width = '100%', height = '400px' }) => {
+    const navigate = useNavigate();
     const mapContainer = useRef<HTMLDivElement>(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -109,6 +111,12 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ address, placeName, width = '100%',
                                 <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-400" />
                                 <p className="font-bold text-red-500">{error}</p>
                                 <p className="text-xs text-gray-400 mt-1">관리자 설정에서 Kakao API 키를 확인하세요.</p>
+                                <button
+                                    onClick={() => navigate('/admin/settings')}
+                                    className="mt-2 text-xs bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-50 transition-colors"
+                                >
+                                    설정 페이지로 이동
+                                </button>
                             </>
                         ) : (
                             <>

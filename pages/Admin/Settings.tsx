@@ -256,42 +256,6 @@ const Settings: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Gemini API Settings Section */}
-                    <div className="border-t border-gray-200 pt-6 mt-6">
-                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6 text-sm text-purple-800">
-                            <strong className="block mb-1">Gemini API (AI 챗봇)</strong>
-                            AI 변제금 진단 챗봇에 필요합니다. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="underline font-bold">Google AI Studio</a>에서 무료로 발급받을 수 있습니다.
-                        </div>
-
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Gemini API Key</label>
-                                <input
-                                    type="password"
-                                    value={globalSettings?.geminiApiKey || ''}
-                                    onChange={(e) => setGlobalSettings(prev => prev ? { ...prev, geminiApiKey: e.target.value } : null)}
-                                    placeholder="AIza..."
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none"
-                                />
-                            </div>
-                            <button
-                                onClick={async () => {
-                                    if (!globalSettings) return;
-                                    setSavingApiKey(true);
-                                    await saveGlobalSettings(globalSettings);
-                                    setSavingApiKey(false);
-                                    setApiKeySaved(true);
-                                    setTimeout(() => setApiKeySaved(false), 2000);
-                                }}
-                                disabled={savingApiKey || !globalSettings}
-                                className="px-4 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
-                            >
-                                {savingApiKey ? '저장 중...' : apiKeySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> 저장</>}
-                            </button>
-                        </div>
-                    </div>
-
-
                     {/* Kakao Map API Settings Section */}
                     <div className="border-t border-gray-200 pt-6 mt-6">
                         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-sm text-yellow-800">
@@ -328,6 +292,44 @@ const Settings: React.FC = () => {
                             </button>
                         </div>
                     </div>
+
+                    {/* Gemini API Settings Section */}
+                    <div className="border-t border-gray-200 pt-6 mt-6">
+                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6 text-sm text-purple-800">
+                            <strong className="block mb-1">Gemini API (AI 챗봇)</strong>
+                            AI 변제금 진단 챗봇에 필요합니다. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="underline font-bold">Google AI Studio</a>에서 무료로 발급받을 수 있습니다.
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Gemini API Key</label>
+                                <input
+                                    type="password"
+                                    value={globalSettings?.geminiApiKey || ''}
+                                    onChange={(e) => setGlobalSettings(prev => prev ? { ...prev, geminiApiKey: e.target.value } : null)}
+                                    placeholder="AIza..."
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none"
+                                />
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    if (!globalSettings) return;
+                                    setSavingApiKey(true);
+                                    await saveGlobalSettings(globalSettings);
+                                    setSavingApiKey(false);
+                                    setApiKeySaved(true);
+                                    setTimeout(() => setApiKeySaved(false), 2000);
+                                }}
+                                disabled={savingApiKey || !globalSettings}
+                                className="px-4 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {savingApiKey ? '저장 중...' : apiKeySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> 저장</>}
+                            </button>
+                        </div>
+                    </div>
+
+
+
 
                     {/* 2026년 정책 설정 Section */}
                     <div className="border-t border-gray-200 pt-6 mt-6">
