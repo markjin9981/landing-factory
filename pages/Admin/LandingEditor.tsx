@@ -1193,8 +1193,8 @@ const LandingEditor: React.FC = () => {
                                                                                     updateNested(['popupConfig', 'items'], newItems);
                                                                                 }}
                                                                                 className={`flex-1 py-1 px-2 text-[10px] rounded border transition-colors ${(!item.actionType && action.id === 'link_url') || item.actionType === action.id
-                                                                                        ? 'bg-blue-600 text-white border-blue-600 font-bold'
-                                                                                        : 'bg-white text-gray-500 hover:bg-gray-50'
+                                                                                    ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                                                                                    : 'bg-white text-gray-500 hover:bg-gray-50'
                                                                                     }`}
                                                                             >
                                                                                 {action.label}
@@ -2327,6 +2327,11 @@ const LandingEditor: React.FC = () => {
                                                                     <option value="bounce">바운스 (위아래)</option>
                                                                     <option value="shake">흔들림 (좌우)</option>
                                                                     <option value="blink">깜빡임</option>
+                                                                    <option value="rubberBand">탄력 (고무줄)</option>
+                                                                    <option value="wobble">와블 (흔들흔들)</option>
+                                                                    <option value="shimmer">쉬머 (빛 반사)</option>
+                                                                    <option value="swing">스윙 (매달림)</option>
+                                                                    <option value="tada">짜잔 (강조)</option>
                                                                 </select>
                                                             </div>
 
