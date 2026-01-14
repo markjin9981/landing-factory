@@ -321,8 +321,176 @@
     .animate-banner-blink {
       animation: banner-blink 1s ease-in-out infinite;
     }
+
+    /* 6. Banner RubberBand (Elastic) */
+    @keyframes banner-rubberBand {
+      0% {
+        transform: scale3d(1, 1, 1);
+      }
+
+      30% {
+        transform: scale3d(1.15, 0.85, 1);
+      }
+
+      40% {
+        transform: scale3d(0.85, 1.15, 1);
+      }
+
+      50% {
+        transform: scale3d(1.05, 0.95, 1);
+      }
+
+      65% {
+        transform: scale3d(0.98, 1.02, 1);
+      }
+
+      75% {
+        transform: scale3d(1.02, 0.98, 1);
+      }
+
+      100% {
+        transform: scale3d(1, 1, 1);
+      }
+    }
+
+    .animate-banner-rubberBand {
+      animation: banner-rubberBand 1.5s infinite;
+    }
+
+    /* 7. Banner Wobble (Shake) */
+    @keyframes banner-wobble {
+
+      0%,
+      100% {
+        transform: translateX(0%);
+      }
+
+      15% {
+        transform: translateX(-5%) rotate(-5deg);
+      }
+
+      30% {
+        transform: translateX(4%) rotate(3deg);
+      }
+
+      45% {
+        transform: translateX(-3%) rotate(-3deg);
+      }
+
+      60% {
+        transform: translateX(2%) rotate(2deg);
+      }
+
+      75% {
+        transform: translateX(-1%) rotate(-1deg);
+      }
+    }
+
+    .animate-banner-wobble {
+      animation: banner-wobble 2s infinite;
+    }
+
+    /* 8. Banner Shimmer (Overlay Light) */
+    @keyframes banner-shimmer-move {
+      0% {
+        left: -100%;
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+
+      100% {
+        left: 100%;
+        opacity: 0;
+      }
+    }
+
+    .animate-banner-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .animate-banner-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.6), transparent);
+      transform: skewX(-20deg);
+      animation: banner-shimmer-move 2.5s infinite;
+      pointer-events: none;
+    }
+
+    /* 9. Banner Swing (Hanging) */
+    @keyframes banner-swing {
+      20% {
+        transform: rotate3d(0, 0, 1, 5deg);
+      }
+
+      40% {
+        transform: rotate3d(0, 0, 1, -5deg);
+      }
+
+      60% {
+        transform: rotate3d(0, 0, 1, 3deg);
+      }
+
+      80% {
+        transform: rotate3d(0, 0, 1, -3deg);
+      }
+
+      100% {
+        transform: rotate3d(0, 0, 1, 0deg);
+      }
+    }
+
+    .animate-banner-swing {
+      transform-origin: top center;
+      animation: banner-swing 2s infinite;
+    }
+
+    /* 10. Banner Tada (Attention) */
+    @keyframes banner-tada {
+      0% {
+        transform: scale3d(1, 1, 1);
+      }
+
+      10%,
+      20% {
+        transform: scale3d(0.95, 0.95, 0.95) rotate3d(0, 0, 1, -3deg);
+      }
+
+      30%,
+      50%,
+      70%,
+      90% {
+        transform: scale3d(1.05, 1.05, 1.05) rotate3d(0, 0, 1, 3deg);
+      }
+
+      40%,
+      60%,
+      80% {
+        transform: scale3d(1.05, 1.05, 1.05) rotate3d(0, 0, 1, -3deg);
+      }
+
+      100% {
+        transform: scale3d(1, 1, 1);
+      }
+    }
+
+    .animate-banner-tada {
+      animation: banner-tada 1.5s infinite;
+    }
   </style>
-  <script type="module" crossorigin src="/assets/index-Cy3wRnwP.js"></script>
+  <script type="module" crossorigin src="/assets/index-wn42777N.js"></script>
 
     <!-- Pre-rendered SEO Tags -->
     <meta name="description" content="나에게 힘을 주소서">
