@@ -31,6 +31,7 @@ const SmartFeatureBlock: React.FC<Props> = ({ data, isMobileView }) => {
                             images={data.slideBanner.images}
                             autoSlide={data.slideBanner.autoSlide ?? true}
                             intervalMs={data.slideBanner.intervalMs || 3000}
+                            height={data.slideBanner.height || 'auto'}
                         />
                     </div>
                 )}

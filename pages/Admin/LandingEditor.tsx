@@ -4782,7 +4782,7 @@ const LandingEditor: React.FC = () => {
                                                             </div>
 
                                                             {/* Settings */}
-                                                            <div className="grid grid-cols-2 gap-3">
+                                                            <div className="grid grid-cols-3 gap-3">
                                                                 <label className="flex items-center gap-2 cursor-pointer">
                                                                     <input
                                                                         type="checkbox"
@@ -4805,6 +4805,21 @@ const LandingEditor: React.FC = () => {
                                                                         <option value={5000}>5초</option>
                                                                         <option value={7000}>7초</option>
                                                                         <option value={10000}>10초</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">배너 높이</label>
+                                                                    <select
+                                                                        value={config.features?.slideBanner?.height || 'auto'}
+                                                                        onChange={(e) => updateNested(['features', 'slideBanner', 'height'], e.target.value)}
+                                                                        className="w-full border rounded p-1 text-[10px]"
+                                                                    >
+                                                                        <option value="auto">자동 (비율유지)</option>
+                                                                        <option value="xs">아주 작게 (150px)</option>
+                                                                        <option value="sm">작게 (200px)</option>
+                                                                        <option value="md">보통 (300px)</option>
+                                                                        <option value="lg">크게 (400px)</option>
+                                                                        <option value="xl">아주 크게 (500px)</option>
                                                                     </select>
                                                                 </div>
                                                             </div>

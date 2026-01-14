@@ -604,6 +604,7 @@ export interface FeatureSection {
     images: string[];        // Max 10 images
     autoSlide: boolean;      // Auto-slide enabled
     intervalMs: number;      // Slide interval in milliseconds (default: 3000)
+    height?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'auto';  // Banner height (default: 'auto')
   };
 }
 

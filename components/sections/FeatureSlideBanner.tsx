@@ -5,18 +5,33 @@ interface FeatureSlideBannerProps {
     images: string[];
     autoSlide?: boolean;
     intervalMs?: number;
+    height?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'auto';
 }
+
+// Height mapping
+const HEIGHT_MAP: Record<string, string> = {
+    xs: '150px',
+    sm: '200px',
+    md: '300px',
+    lg: '400px',
+    xl: '500px',
+    auto: 'auto'
+};
 
 const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
     images,
     autoSlide = true,
-    intervalMs = 3000
+    intervalMs = 3000,
+    height = 'auto'
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [touchStart, setTouchStart] = useState<number | null>(null);
     const [touchEnd, setTouchEnd] = useState<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const heightValue = HEIGHT_MAP[height] || 'auto';
+    const isFixedHeight = height !== 'auto';
 
     // Auto slide effect
     useEffect(() => {
@@ -74,6 +89,7 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
         <div
             ref={containerRef}
             className="relative w-full overflow-hidden rounded-2xl bg-gray-100"
+            style={isFixedHeight ? { height: heightValue } : undefined}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onTouchStart={handleTouchStart}
@@ -82,16 +98,19 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
         >
             {/* Image Container */}
             <div
-                className="flex transition-transform duration-500 ease-out"
+                className="flex transition-transform duration-500 ease-out h-full"
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
                 {images.map((img, idx) => (
-                    <div key={idx} className="w-full flex-shrink-0">
+                    <div key={idx} className="w-full flex-shrink-0 h-full">
                         <img
                             src={img}
                             alt={`Slide ${idx + 1}`}
-                            className="w-full h-auto object-cover"
-                            style={{ aspectRatio: '16/9' }}
+                            className="w-full object-cover"
+                            style={isFixedHeight
+                                ? { height: heightValue, objectFit: 'cover' }
+                                : { height: 'auto', aspectRatio: '16/9' }
+                            }
                         />
                     </div>
                 ))}
@@ -127,8 +146,8 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
                             key={idx}
                             onClick={() => goToSlide(idx)}
                             className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex
-                                    ? 'bg-white w-4'
-                                    : 'bg-white/50 hover:bg-white/80'
+                                ? 'bg-white w-4'
+                                : 'bg-white/50 hover:bg-white/80'
                                 }`}
                             aria-label={`Go to slide ${idx + 1}`}
                         />
