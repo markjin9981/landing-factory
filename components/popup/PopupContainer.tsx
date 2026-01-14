@@ -7,9 +7,11 @@ interface PopupContainerProps {
     landingId: string;
     isPreview?: boolean;
     forceMobile?: boolean;
+    onScrollToForm?: () => void;
+    onOpenChat?: () => void;
 }
 
-const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPreview = false, forceMobile = false }) => {
+const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPreview = false, forceMobile = false, onScrollToForm, onOpenChat }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -143,6 +145,21 @@ const PopupContainer: React.FC<PopupContainerProps> = ({ config, landingId, isPr
     };
 
     const handleImageClick = () => {
+        // 1. Chat Action
+        if (currentItem.actionType === 'open_rehab_chat') {
+            onOpenChat?.();
+            handleClose(false); // Close popup
+            return;
+        }
+
+        // 2. Scroll Action
+        if (currentItem.actionType === 'scroll_to_form') {
+            onScrollToForm?.();
+            handleClose(false); // Close popup
+            return;
+        }
+
+        // 3. Link Action (Default)
         if (currentItem.linkUrl) {
             if (currentItem.openInNewWindow) {
                 window.open(currentItem.linkUrl, '_blank');

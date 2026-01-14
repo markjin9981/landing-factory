@@ -604,7 +604,16 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         )
       }
 
-      {config.popupConfig && <PopupContainer config={config.popupConfig} landingId={config.id} isPreview={isPreview} forceMobile={isMobileView} />}
+      {config.popupConfig && (
+        <PopupContainer
+          config={config.popupConfig}
+          landingId={config.id}
+          isPreview={isPreview}
+          forceMobile={isMobileView}
+          onScrollToForm={scrollToForm}
+          onOpenChat={() => setIsRehabChatOpen(true)}
+        />
+      )}
       {config.chatConfig && <ChatButton config={config.chatConfig} isPreview={isPreview} />}
 
       {/* SNS Floating Bar (New) */}

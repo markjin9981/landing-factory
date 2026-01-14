@@ -1176,32 +1176,64 @@ const LandingEditor: React.FC = () => {
 
                                                             {/* Config */}
                                                             <div className="space-y-2">
+                                                                {/* Action Type Selector */}
                                                                 <div>
-                                                                    <label className="block text-[10px] text-gray-500 mb-1">연결 링크 (Link URL)</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        value={item.linkUrl || ''}
-                                                                        onChange={(e) => {
-                                                                            const newItems = [...config.popupConfig.items];
-                                                                            newItems[idx].linkUrl = e.target.value;
-                                                                            updateNested(['popupConfig', 'items'], newItems);
-                                                                        }}
-                                                                        className="w-full border rounded p-1 text-xs"
-                                                                        placeholder="https://..."
-                                                                    />
+                                                                    <label className="block text-[10px] text-gray-500 mb-1">클릭 동작</label>
+                                                                    <div className="flex gap-1 mb-2">
+                                                                        {[
+                                                                            { id: 'link_url', label: '링크 이동' },
+                                                                            { id: 'scroll_to_form', label: '폼 이동' },
+                                                                            { id: 'open_rehab_chat', label: '채팅 팝업' }
+                                                                        ].map(action => (
+                                                                            <button
+                                                                                key={action.id}
+                                                                                onClick={() => {
+                                                                                    const newItems = [...config.popupConfig.items];
+                                                                                    newItems[idx].actionType = action.id as any;
+                                                                                    updateNested(['popupConfig', 'items'], newItems);
+                                                                                }}
+                                                                                className={`flex-1 py-1 px-2 text-[10px] rounded border transition-colors ${(!item.actionType && action.id === 'link_url') || item.actionType === action.id
+                                                                                        ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                                                                                        : 'bg-white text-gray-500 hover:bg-gray-50'
+                                                                                    }`}
+                                                                            >
+                                                                                {action.label}
+                                                                            </button>
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
-                                                                <label className="flex items-center gap-1 text-xs text-gray-600">
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={item.openInNewWindow}
-                                                                        onChange={(e) => {
-                                                                            const newItems = [...config.popupConfig.items];
-                                                                            newItems[idx].openInNewWindow = e.target.checked;
-                                                                            updateNested(['popupConfig', 'items'], newItems);
-                                                                        }}
-                                                                    />
-                                                                    새 창에서 열기
-                                                                </label>
+
+                                                                {/* Link URL Input (Only for link_url) */}
+                                                                {(!item.actionType || item.actionType === 'link_url') && (
+                                                                    <div className="space-y-2 p-2 bg-gray-50 rounded border border-gray-100">
+                                                                        <div>
+                                                                            <label className="block text-[10px] text-gray-500 mb-1">연결 링크 (Link URL)</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                value={item.linkUrl || ''}
+                                                                                onChange={(e) => {
+                                                                                    const newItems = [...config.popupConfig.items];
+                                                                                    newItems[idx].linkUrl = e.target.value;
+                                                                                    updateNested(['popupConfig', 'items'], newItems);
+                                                                                }}
+                                                                                className="w-full border rounded p-1 text-xs bg-white"
+                                                                                placeholder="https://..."
+                                                                            />
+                                                                        </div>
+                                                                        <label className="flex items-center gap-1 text-xs text-gray-600">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={item.openInNewWindow}
+                                                                                onChange={(e) => {
+                                                                                    const newItems = [...config.popupConfig.items];
+                                                                                    newItems[idx].openInNewWindow = e.target.checked;
+                                                                                    updateNested(['popupConfig', 'items'], newItems);
+                                                                                }}
+                                                                            />
+                                                                            새 창에서 열기
+                                                                        </label>
+                                                                    </div>
+                                                                )}
 
                                                                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
                                                                     <div>

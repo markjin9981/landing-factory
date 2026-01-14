@@ -867,6 +867,7 @@ export interface PopupItem {
   id: string;
   imageUrl: string;
   linkUrl?: string;
+  actionType?: 'link_url' | 'scroll_to_form' | 'open_rehab_chat'; // New: Interactive action
   openInNewWindow: boolean;
   startDate: string; // YYYY-MM-DD
   endDate: string;   // YYYY-MM-DD
