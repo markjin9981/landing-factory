@@ -18,6 +18,7 @@ import SNSBlock from '../components/sections/SNSBlock'; // New
 import SmartFeatureBlock from '../components/sections/SmartFeatureBlock';
 import { generateGoogleFontUrl, GOOGLE_FONTS_LIST } from '../utils/fontUtils';
 import RehabChatButton from '../components/rehab/RehabChatButton';
+import StickyBottomForm from '../components/StickyBottomForm';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as unknown as Record<string, LandingConfig>;
 
@@ -595,6 +596,17 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         )}
 
       </div>
+
+      {/* NEW: Sticky Bottom Form */}
+      {config.stickyBottomForm?.isEnabled && (
+        <StickyBottomForm
+          config={config.stickyBottomForm}
+          formConfig={formConfig}
+          landingId={config.id}
+          themeColor={theme.primaryColor}
+          isMobileView={isMobileView}
+        />
+      )}
 
       {
         bottomBanners.length > 0 && (

@@ -44,6 +44,7 @@ export interface CustomFont {
 export interface GlobalSettings {
   customFonts: CustomFont[];
   favoriteFonts: string[]; // List of font family names that are starred
+  kakaoApiKey?: string; // New: Kakao Map API Key
 }
 
 export interface TextStyle {
@@ -327,6 +328,20 @@ export interface FormSection {
     verticalPadding?: 0 | 1 | 2 | 3 | 4 | 5; // 0=0px, 3=80px(default), 5=192px
     removeContainerPadding?: boolean; // If true, removes px-4 to make full width
   };
+}
+
+// NEW: Sticky Bottom Form Configuration
+export interface StickyBottomFormConfig {
+  isEnabled?: boolean;
+  backgroundColor?: string;
+  textColor?: string;
+  buttonColor?: string;
+  buttonTextColor?: string;
+  showOnMobile?: boolean; // default: true
+  showOnPC?: boolean;     // default: true
+  // Fields to display (simplified for slim design)
+  // Defaults to name + phone if not specified
+  fieldIds?: string[];
 }
 
 // New: Footer Configuration
@@ -663,6 +678,8 @@ export interface LandingConfig {
   // solution: SolutionSection; // Removed
   // trust: TrustSection; // Removed
   formConfig: FormSection;
+  // NEW: Sticky Bottom Form (Slim fixed footer form)
+  stickyBottomForm?: StickyBottomFormConfig;
   footer?: FooterSection; // New Footer Section
 
   // --- NEW FEATURES (Website Mode) ---

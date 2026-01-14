@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 import { compressImage } from '../../utils/imageCompression';
@@ -3068,6 +3068,166 @@ const LandingEditor: React.FC = () => {
                                                 <option value="after_hero">히어로 섹션 바로 아래 (상단)</option>
                                             </select>
                                         </div>
+                                    </div>
+
+                                    {/* Sticky Bottom Form Settings (NEW) */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm relative overflow-hidden mb-4">
+                                        <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
+                                            <ArrowDown className="w-24 h-24 text-blue-900" />
+                                        </div>
+                                        <div className="flex justify-between items-start mb-4 relative z-10">
+                                            <div>
+                                                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                                    <ArrowDown className="w-4 h-4 text-blue-600" /> 하단 고정 폼 (Sticky Bottom)
+                                                </h3>
+                                                <p className="text-[10px] text-gray-400 mt-1">화면 하단에 항상 고정되어 따라다니는 간편 신청 폼입니다.</p>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={config.stickyBottomForm?.isEnabled || false}
+                                                    onChange={(e) => updateNested(['stickyBottomForm', 'isEnabled'], e.target.checked)}
+                                                    className="sr-only peer"
+                                                />
+                                                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                            </label>
+                                        </div>
+
+                                        {config.stickyBottomForm?.isEnabled && (
+                                            <div className="space-y-3 relative z-10 animate-fade-in">
+                                                {/* Display Settings */}
+                                                <div className="grid grid-cols-2 gap-3 p-3 bg-blue-50/50 rounded border border-blue-100">
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={config.stickyBottomForm?.showOnMobile !== false}
+                                                            onChange={(e) => updateNested(['stickyBottomForm', 'showOnMobile'], e.target.checked)}
+                                                            className="rounded text-blue-600 focus:ring-blue-500"
+                                                        />
+                                                        <span className="text-xs font-bold text-gray-700">모바일에서 표시</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={config.stickyBottomForm?.showOnPC !== false}
+                                                            onChange={(e) => updateNested(['stickyBottomForm', 'showOnPC'], e.target.checked)}
+                                                            className="rounded text-blue-600 focus:ring-blue-500"
+                                                        />
+                                                        <span className="text-xs font-bold text-gray-700">PC에서 표시</span>
+                                                    </label>
+                                                </div>
+
+                                                {/* Field Selection */}
+                                                <div>
+                                                    <label className="text-xs text-gray-500 block mb-1">표시할 입력 항목 선택 (최대 3개 미만 권장)</label>
+                                                    <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-white min-h-[50px]">
+                                                        {config.formConfig.fields.map(field => (
+                                                            <label key={field.id} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all ${(config.stickyBottomForm?.fieldIds || ['name', 'phone']).includes(field.id)
+                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                                                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                                                                }`}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="hidden"
+                                                                    checked={(config.stickyBottomForm?.fieldIds || ['name', 'phone']).includes(field.id)}
+                                                                    onChange={(e) => {
+                                                                        const currentIds = config.stickyBottomForm?.fieldIds || ['name', 'phone'];
+                                                                        let newIds;
+                                                                        if (e.target.checked) {
+                                                                            newIds = [...currentIds, field.id];
+                                                                        } else {
+                                                                            newIds = currentIds.filter(id => id !== field.id);
+                                                                        }
+                                                                        updateNested(['stickyBottomForm', 'fieldIds'], newIds);
+                                                                    }}
+                                                                />
+                                                                {field.label}
+                                                                {(config.stickyBottomForm?.fieldIds || ['name', 'phone']).includes(field.id) && <Check className="w-3 h-3 ml-1" />}
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Style Settings */}
+                                                <div className="p-3 border rounded-lg bg-gray-50/50">
+                                                    <h4 className="text-xs font-bold text-gray-700 mb-2">디자인 커스텀</h4>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        {/* Background Color */}
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">배경색</label>
+                                                            <div className="flex gap-1">
+                                                                <input
+                                                                    type="color"
+                                                                    value={config.stickyBottomForm?.backgroundColor || '#1f2937'}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'backgroundColor'], e.target.value)}
+                                                                    className="w-8 h-8 border rounded cursor-pointer p-0"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={config.stickyBottomForm?.backgroundColor || ''}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'backgroundColor'], e.target.value)}
+                                                                    className="flex-1 border rounded p-1 text-xs uppercase"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        {/* Text Color */}
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">글자색</label>
+                                                            <div className="flex gap-1">
+                                                                <input
+                                                                    type="color"
+                                                                    value={config.stickyBottomForm?.textColor || '#ffffff'}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'textColor'], e.target.value)}
+                                                                    className="w-8 h-8 border rounded cursor-pointer p-0"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={config.stickyBottomForm?.textColor || ''}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'textColor'], e.target.value)}
+                                                                    className="flex-1 border rounded p-1 text-xs uppercase"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        {/* Button Color */}
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 배경색</label>
+                                                            <div className="flex gap-1">
+                                                                <input
+                                                                    type="color"
+                                                                    value={config.stickyBottomForm?.buttonColor || config.theme.primaryColor}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'buttonColor'], e.target.value)}
+                                                                    className="w-8 h-8 border rounded cursor-pointer p-0"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={config.stickyBottomForm?.buttonColor || ''}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'buttonColor'], e.target.value)}
+                                                                    className="flex-1 border rounded p-1 text-xs uppercase"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        {/* Button Text Color */}
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 글자색</label>
+                                                            <div className="flex gap-1">
+                                                                <input
+                                                                    type="color"
+                                                                    value={config.stickyBottomForm?.buttonTextColor || '#ffffff'}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'buttonTextColor'], e.target.value)}
+                                                                    className="w-8 h-8 border rounded cursor-pointer p-0"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={config.stickyBottomForm?.buttonTextColor || ''}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'buttonTextColor'], e.target.value)}
+                                                                    className="flex-1 border rounded p-1 text-xs uppercase"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Success Message Settings */}
