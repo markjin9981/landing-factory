@@ -316,8 +316,8 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                         }}
                     >
                         {config.fields.map((field) => {
-                            // Smart Grid Logic: Force full width for Textarea, Radio, and Phone (in compact mode)
-                            const isFullWidth = field.type === 'textarea' || field.type === 'radio' || (field.type === 'tel' && template.forceSinglePhone);
+                            // Smart Grid Logic: Force full width for Textarea, Radio, Phone, Email, and Address (in compact mode)
+                            const isFullWidth = field.type === 'textarea' || field.type === 'radio' || field.type === 'email' || field.type === 'address' || (field.type === 'tel' && template.forceSinglePhone);
 
                             return (
                                 <div
@@ -847,7 +847,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
 
                     {/* --- Policy Agreements Section --- */}
                     <div
-                        className="p-4 rounded-lg text-sm space-y-3 border mb-6"
+                        className={`rounded-lg space-y-3 border ${isMobileView ? 'p-3 text-xs mb-4' : 'p-4 text-sm mb-6'}`}
                         style={{
                             backgroundColor: formStyle.backgroundColor === '#1e40af' ? 'rgba(255,255,255,0.1)' : '#f9fafb', // Adjust for dark theme
                             borderColor: formStyle.backgroundColor === '#1e40af' ? 'rgba(255,255,255,0.2)' : '#f3f4f6',
