@@ -378,14 +378,16 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                     {field.options.map((opt) => (
                                                         <label
                                                             key={opt.value}
-                                                            className={`flex items-center justify-center px-3 py-3 rounded-lg border cursor-pointer transition-all ${formData[field.id] === opt.value
+                                                            className={`flex items-center justify-center px-3 rounded-lg border cursor-pointer transition-all ${formData[field.id] === opt.value
                                                                 ? 'border-transparent bg-opacity-10 font-bold shadow-inner'
                                                                 : 'border-gray-200 hover:bg-gray-50'
                                                                 }`}
                                                             style={{
                                                                 backgroundColor: formData[field.id] === opt.value ? themeColor : '#ffffff',
                                                                 color: formData[field.id] === opt.value ? 'black' : '#374151',
-                                                                borderColor: formData[field.id] === opt.value ? themeColor : '#e5e7eb'
+                                                                borderColor: formData[field.id] === opt.value ? themeColor : '#e5e7eb',
+                                                                height: isMobileView ? template.inputHeight : '44px',
+                                                                fontSize: isMobileView ? template.fontSize : '14px'
                                                             }}
                                                         >
                                                             <input
@@ -502,8 +504,13 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         value={formData[field.id] || ''}
                                                         onChange={handleTextareaChange}
                                                         maxLength={200}
-                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all resize-none h-32 bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                        className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all resize-none h-32 bg-white text-gray-900"
+                                                        style={{
+                                                            '--tw-ring-color': themeColor,
+                                                            fontFamily: formStyle.inputFontFamily,
+                                                            padding: isMobileView ? '0.75rem' : '1rem', // Reduced padding for mobile
+                                                            fontSize: isMobileView ? template.fontSize : '14px'
+                                                        } as React.CSSProperties}
                                                     />
                                                     <div className="absolute bottom-3 right-3 text-xs text-gray-400 font-mono">
                                                         {currentLen}/200
@@ -552,8 +559,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         name={field.id}
                                                         value={formData[field.id] || ''}
                                                         onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none appearance-none bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                        className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none appearance-none bg-white text-gray-900"
+                                                        style={{
+                                                            '--tw-ring-color': themeColor,
+                                                            fontFamily: formStyle.inputFontFamily,
+                                                            height: isMobileView ? template.inputHeight : '44px',
+                                                            fontSize: isMobileView ? template.fontSize : '14px',
+                                                            paddingLeft: '1rem',
+                                                            paddingRight: '1rem'
+                                                        } as React.CSSProperties}
                                                     >
                                                         <option value="">시간을 선택해주세요</option>
                                                         {timeSlots.map((slot, idx) => (
@@ -575,8 +589,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         required={field.required}
                                                         value={formData[field.id] || ''}
                                                         onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                        className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
+                                                        style={{
+                                                            '--tw-ring-color': themeColor,
+                                                            fontFamily: formStyle.inputFontFamily,
+                                                            height: isMobileView ? template.inputHeight : '44px',
+                                                            fontSize: isMobileView ? template.fontSize : '14px',
+                                                            paddingLeft: '1rem',
+                                                            paddingRight: '1rem'
+                                                        } as React.CSSProperties}
                                                     />
                                                 </div>
                                             );
@@ -629,16 +650,30 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         placeholder="이메일 아이디"
                                                         value={id}
                                                         onChange={(e) => updateEmail('id', e.target.value)}
-                                                        className="flex-1 min-w-[120px] px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                        className="flex-1 min-w-[120px] rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
+                                                        style={{
+                                                            '--tw-ring-color': themeColor,
+                                                            fontFamily: formStyle.inputFontFamily,
+                                                            height: isMobileView ? template.inputHeight : '44px',
+                                                            fontSize: isMobileView ? template.fontSize : '14px',
+                                                            paddingLeft: '1rem',
+                                                            paddingRight: '1rem'
+                                                        } as React.CSSProperties}
                                                     />
                                                     <span className="text-gray-400">@</span>
                                                     <div className="relative flex-1 min-w-[140px]">
                                                         <select
                                                             value={domain}
                                                             onChange={(e) => updateEmail('domain', e.target.value)}
-                                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none appearance-none bg-white pr-10 text-gray-900"
-                                                            style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                            className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none appearance-none bg-white pr-10 text-gray-900"
+                                                            style={{
+                                                                '--tw-ring-color': themeColor,
+                                                                fontFamily: formStyle.inputFontFamily,
+                                                                height: isMobileView ? template.inputHeight : '44px',
+                                                                fontSize: isMobileView ? template.fontSize : '14px',
+                                                                paddingLeft: '1rem',
+                                                                paddingRight: '1rem'
+                                                            } as React.CSSProperties}
                                                         >
                                                             <option value="naver.com">naver.com</option>
                                                             <option value="hanmail.net">hanmail.net</option>
@@ -656,8 +691,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                             placeholder="도메인 입력"
                                                             value={direct}
                                                             onChange={(e) => updateEmail('direct', e.target.value)}
-                                                            className="w-full md:w-auto md:flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
-                                                            style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                            className="w-full md:w-auto md:flex-1 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
+                                                            style={{
+                                                                '--tw-ring-color': themeColor,
+                                                                fontFamily: formStyle.inputFontFamily,
+                                                                height: isMobileView ? template.inputHeight : '44px',
+                                                                fontSize: isMobileView ? template.fontSize : '14px',
+                                                                paddingLeft: '1rem',
+                                                                paddingRight: '1rem'
+                                                            } as React.CSSProperties}
                                                         />
                                                     )}
                                                 </div>
@@ -709,12 +751,24 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                             placeholder="주소를 검색해주세요"
                                                             value={formData[field.id] || ''}
                                                             onClick={handleAddressSearch}
-                                                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none cursor-pointer text-gray-900"
+                                                            className="flex-1 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none cursor-pointer text-gray-900"
+                                                            style={{
+                                                                height: isMobileView ? template.inputHeight : '44px',
+                                                                fontSize: isMobileView ? template.fontSize : '14px',
+                                                                paddingLeft: '1rem',
+                                                                paddingRight: '1rem'
+                                                            }}
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={handleAddressSearch}
-                                                            className="px-4 py-3 bg-gray-800 text-white rounded-lg whitespace-nowrap text-sm font-bold hover:bg-gray-700"
+                                                            className="bg-gray-800 text-white rounded-lg whitespace-nowrap font-bold hover:bg-gray-700"
+                                                            style={{
+                                                                height: isMobileView ? template.inputHeight : '44px',
+                                                                fontSize: isMobileView ? '12px' : '14px', // Smaller font for button on mobile
+                                                                paddingLeft: isMobileView ? '0.75rem' : '1rem',
+                                                                paddingRight: isMobileView ? '0.75rem' : '1rem'
+                                                            }}
                                                         >
                                                             주소 검색
                                                         </button>
@@ -725,9 +779,16 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                         name={`${field.id}_detail`}
                                                         placeholder="상세주소를 입력해주세요"
                                                         value={formData[`${field.id}_detail`] || ''}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none transition-all bg-white text-gray-900"
-                                                        style={{ '--tw-ring-color': themeColor, fontFamily: formStyle.inputFontFamily } as React.CSSProperties}
+                                                        onChange={(e) => setFormData({ ...formData, [`${field.id}_detail`]: e.target.value })}
+                                                        className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
+                                                        style={{
+                                                            '--tw-ring-color': themeColor,
+                                                            fontFamily: formStyle.inputFontFamily,
+                                                            height: isMobileView ? template.inputHeight : '44px',
+                                                            fontSize: isMobileView ? template.fontSize : '14px',
+                                                            paddingLeft: '1rem',
+                                                            paddingRight: '1rem'
+                                                        } as React.CSSProperties}
                                                     />
                                                 </div>
                                             );
