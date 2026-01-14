@@ -113,10 +113,10 @@ const FeatureSlideBanner: React.FC<FeatureSlideBannerProps> = ({
                         <img
                             src={img}
                             alt={`Slide ${idx + 1}`}
-                            className="w-full object-cover"
+                            className="w-full"
                             style={isFixedHeight
                                 ? { height: '100%', width: '100%', objectFit: 'cover' }
-                                : { height: 'auto', width: '100%', aspectRatio: '16/9' }
+                                : { height: 'auto', width: '100%', objectFit: 'contain' }
                             }
                         />
                     </div>
