@@ -469,7 +469,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         {/* Smart Feature Block (Animated) - New Phase 3 */}
         {features && features.isShow && isMainView && (
           <div className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
-            <SmartFeatureBlock data={features} isMobileView={isMobileView || isPreview} />
+            <SmartFeatureBlock data={features} isMobileView={isMobileView} />
           </div>
         )}
 
