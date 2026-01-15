@@ -211,7 +211,7 @@ const StickyBottomForm: React.FC<Props> = ({
 
                         // Helper to render a field for PC (always use 'inline' layout for uniform height)
                         const renderPcField = (field: typeof fieldsToShow[0], isWide: boolean = false) => (
-                            <div key={field.id} className={isWide ? 'flex-1 min-w-[120px]' : 'min-w-[200px] flex-1 max-w-xs'}>
+                            <div key={field.id} className={isWide ? 'flex-1 min-w-[120px]' : 'min-w-[200px] flex-1'}>
                                 <UnifiedFormField
                                     field={field}
                                     value={formData[field.id]}
@@ -229,7 +229,7 @@ const StickyBottomForm: React.FC<Props> = ({
 
                         // Helper to render a row of fields for PC (stacked layout)
                         const renderPcRow = (fields: typeof fieldsToShow) => (
-                            <div className="flex flex-wrap justify-center gap-6 w-full items-end">
+                            <div className="flex flex-wrap justify-center gap-12 w-full items-end">
                                 {fields.map(field => renderPcField(field, false))}
                             </div>
                         );
@@ -323,7 +323,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="px-16 py-3 text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                        className="px-24 py-3 text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                         style={{
                                             backgroundColor: buttonColor,
                                             color: buttonTextColor

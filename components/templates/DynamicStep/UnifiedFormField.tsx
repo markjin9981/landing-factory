@@ -183,7 +183,10 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
         <div className={containerClasses}>
             {/* Label: Hidden for stickyMobile */}
             {!isStickyMobile && (
-                <label className="block font-bold mb-2 break-keep" style={getLabelStyle()}>
+                <label
+                    className={`block font-bold break-keep ${isInline ? 'mb-0 whitespace-nowrap' : 'mb-2'}`}
+                    style={getLabelStyle()}
+                >
                     {field.label}
                     {field.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
