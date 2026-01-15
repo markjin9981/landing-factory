@@ -349,6 +349,9 @@ export interface StickyBottomFormConfig {
     row1Fields: string[]; // List of field IDs for the first row
     row2Fields: string[]; // List of field IDs for the second row
   };
+
+  // New: Input styling
+  inputBorderRadius?: string; // e.g., '8px', '12px', '9999px' for pill shape
 }
 
 // New: Footer Configuration

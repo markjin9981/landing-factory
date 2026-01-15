@@ -131,6 +131,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                                     answerColor: '#111827',
                                                     answerFontSize: '12px',
                                                     questionSize: 'sm',
+                                                    inputBorderRadius: config.inputBorderRadius,
                                                 }}
                                                 layout="stickyMobile"
                                             />
@@ -165,7 +166,8 @@ const StickyBottomForm: React.FC<Props> = ({
                                                         answerBgColor: 'rgba(255,255,255,0.95)',
                                                         answerColor: '#111827',
                                                         answerFontSize: '12px',
-                                                        questionSize: 'sm'
+                                                        questionSize: 'sm',
+                                                        inputBorderRadius: config.inputBorderRadius,
                                                     }}
                                                     layout="stickyMobile"
                                                 />
