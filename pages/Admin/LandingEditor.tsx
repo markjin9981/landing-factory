@@ -3160,6 +3160,103 @@ const LandingEditor: React.FC = () => {
                                                     </div>
                                                 </div>
 
+                                                {/* Mobile Row Configuration (New) */}
+                                                {(config.stickyBottomForm?.showOnMobile !== false) && (
+                                                    <div className="mt-3 p-3 border rounded-lg bg-orange-50 border-orange-100">
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <h4 className="text-xs font-bold text-orange-800 flex items-center gap-1">
+                                                                <Layout className="w-3 h-3" /> 모바일 줄바꿈 설정 (수동)
+                                                            </h4>
+                                                            {(config.stickyBottomForm?.mobileRowConfig?.row1Fields?.length || 0) + (config.stickyBottomForm?.mobileRowConfig?.row2Fields?.length || 0) > 0 && (
+                                                                <button
+                                                                    onClick={() => updateNested(['stickyBottomForm', 'mobileRowConfig'], undefined)}
+                                                                    className="text-[10px] text-gray-500 underline hover:text-orange-600"
+                                                                >
+                                                                    설정 초기화 (자동 배치)
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-[10px] text-orange-600/80 mb-3 leading-relaxed">
+                                                            필드가 4개 이상일 때, 1/2번째 줄에 표시할 항목을 직접 지정할 수 있습니다.<br />
+                                                            지정하지 않으면 자동으로 배치됩니다.
+                                                        </p>
+
+                                                        {/* Row 1 Config */}
+                                                        <div className="mb-3">
+                                                            <label className="text-[10px] text-gray-500 font-bold block mb-1">1번째 줄 표시 항목 (위)</label>
+                                                            <div className="flex flex-wrap gap-1.5 min-h-[30px] p-2 bg-white rounded border border-orange-200 border-dashed">
+                                                                {config.formConfig.fields
+                                                                    .filter(f => (config.stickyBottomForm?.fieldIds || ['name', 'phone']).includes(f.id))
+                                                                    .map(field => {
+                                                                        const isRow1 = config.stickyBottomForm?.mobileRowConfig?.row1Fields?.includes(field.id);
+                                                                        return (
+                                                                            <button
+                                                                                key={`r1-${field.id}`}
+                                                                                onClick={() => {
+                                                                                    const currentConfig = config.stickyBottomForm?.mobileRowConfig || { row1Fields: [], row2Fields: [] };
+                                                                                    let newRow1 = [...(currentConfig.row1Fields || [])];
+                                                                                    let newRow2 = [...(currentConfig.row2Fields || [])];
+
+                                                                                    if (isRow1) {
+                                                                                        newRow1 = newRow1.filter(id => id !== field.id);
+                                                                                    } else {
+                                                                                        newRow1.push(field.id);
+                                                                                        newRow2 = newRow2.filter(id => id !== field.id); // Remove from Row 2
+                                                                                    }
+
+                                                                                    updateNested(['stickyBottomForm', 'mobileRowConfig'], { row1Fields: newRow1, row2Fields: newRow2 });
+                                                                                }}
+                                                                                className={`px-2 py-1 rounded text-[10px] border transition-all ${isRow1
+                                                                                    ? 'bg-orange-500 text-white border-orange-500 font-bold shadow-sm'
+                                                                                    : 'bg-white text-gray-500 border-gray-200 hover:bg-orange-50'
+                                                                                    }`}
+                                                                            >
+                                                                                {field.label}
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Row 2 Config */}
+                                                        <div>
+                                                            <label className="text-[10px] text-gray-500 font-bold block mb-1">2번째 줄 표시 항목 (아래)</label>
+                                                            <div className="flex flex-wrap gap-1.5 min-h-[30px] p-2 bg-white rounded border border-orange-200 border-dashed">
+                                                                {config.formConfig.fields
+                                                                    .filter(f => (config.stickyBottomForm?.fieldIds || ['name', 'phone']).includes(f.id))
+                                                                    .map(field => {
+                                                                        const isRow2 = config.stickyBottomForm?.mobileRowConfig?.row2Fields?.includes(field.id);
+                                                                        return (
+                                                                            <button
+                                                                                key={`r2-${field.id}`}
+                                                                                onClick={() => {
+                                                                                    const currentConfig = config.stickyBottomForm?.mobileRowConfig || { row1Fields: [], row2Fields: [] };
+                                                                                    let newRow1 = [...(currentConfig.row1Fields || [])];
+                                                                                    let newRow2 = [...(currentConfig.row2Fields || [])];
+
+                                                                                    if (isRow2) {
+                                                                                        newRow2 = newRow2.filter(id => id !== field.id);
+                                                                                    } else {
+                                                                                        newRow2.push(field.id);
+                                                                                        newRow1 = newRow1.filter(id => id !== field.id); // Remove from Row 1
+                                                                                    }
+
+                                                                                    updateNested(['stickyBottomForm', 'mobileRowConfig'], { row1Fields: newRow1, row2Fields: newRow2 });
+                                                                                }}
+                                                                                className={`px-2 py-1 rounded text-[10px] border transition-all ${isRow2
+                                                                                    ? 'bg-orange-500 text-white border-orange-500 font-bold shadow-sm'
+                                                                                    : 'bg-white text-gray-500 border-gray-200 hover:bg-orange-50'
+                                                                                    }`}
+                                                                            >
+                                                                                {field.label}
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 {/* Style Settings */}
                                                 <div className="p-3 border rounded-lg bg-gray-50/50">
                                                     <h4 className="text-xs font-bold text-gray-700 mb-2">디자인 커스텀</h4>
