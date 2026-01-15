@@ -24,6 +24,18 @@ const StickyBottomForm: React.FC<Props> = ({
     pixelConfig,
     utmParams
 }) => {
+    // Mobile Detection Logic
+    const [isMobileScreen, setIsMobileScreen] = useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobileScreen(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    const effectiveIsMobile = isMobileView || isMobileScreen;
+
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -74,8 +86,8 @@ const StickyBottomForm: React.FC<Props> = ({
     };
 
     // Hide based on device settings
-    if (isMobileView && config.showOnMobile === false) return null;
-    if (!isMobileView && config.showOnPC === false) return null;
+    if (effectiveIsMobile && config.showOnMobile === false) return null;
+    if (!effectiveIsMobile && config.showOnPC === false) return null;
 
     const bgColor = config.backgroundColor || '#1f2937';
     const textColor = config.textColor || '#ffffff';
@@ -100,7 +112,7 @@ const StickyBottomForm: React.FC<Props> = ({
     }
 
     // New: Mobile Layout Selection
-    const isMultiRowMobile = isMobileView && fieldsToShow.length >= 4;
+    const isMultiRowMobile = effectiveIsMobile && fieldsToShow.length >= 4;
 
     return (
         <form
@@ -114,13 +126,13 @@ const StickyBottomForm: React.FC<Props> = ({
                 backgroundPosition: 'center',
             }}
         >
-            <div className={`mx-auto transition-all duration-300 ${isMobileView
+            <div className={`mx-auto transition-all duration-300 ${effectiveIsMobile
                 ? 'px-3 py-2' // Mobile: Compact Padding
                 : 'px-6 py-5 max-w-7xl' // PC: Broad
                 }`}>
 
                 {/* --- Mobile View Layout --- */}
-                {isMobileView ? (
+                {effectiveIsMobile ? (
                     <div className="flex flex-col gap-2">
                         {/* Logic: Use Manual Config if available, else Auto logic */}
                         {(() => {
