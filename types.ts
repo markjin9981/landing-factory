@@ -663,6 +663,16 @@ export interface FeatureSection {
   };
 }
 
+// NEW: Pixel & Tracking Configuration
+export interface PixelConfig {
+  facebookPixelId?: string;
+  kakaoPixelId?: string;
+  googleAdsEventId?: string; // Event ID or Conversion ID
+  tiktokPixelId?: string;
+  daangnTrackingId?: string;
+  googleAnalyticsId?: string;
+}
+
 export interface LandingConfig {
   id: string;
   theme: LandingTheme; // Changed from LandingTheme to ThemeConfig
@@ -686,6 +696,9 @@ export interface LandingConfig {
   // New: Search Engine Verification
   naverVerification?: string;
   googleVerification?: string;
+
+  // New: Pixel & Tracking
+  pixelConfig?: PixelConfig;
 
   // Sections
   banners: FloatingBanner[]; // Changed from single banner to array

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FormSection, StickyBottomFormConfig, LeadData } from '../types';
+import { FormSection, StickyBottomFormConfig, LeadData, PixelConfig } from '../types';
+import { trackConversion } from '../utils/pixelUtils';
 import { submitLeadToSheet } from '../services/googleSheetService';
 import { Check, Loader2 } from 'lucide-react';
 import UnifiedFormField from './templates/DynamicStep/UnifiedFormField';
@@ -10,6 +11,7 @@ interface Props {
     landingId: string;
     themeColor?: string;
     isMobileView?: boolean;
+    pixelConfig?: PixelConfig;
 }
 
 const StickyBottomForm: React.FC<Props> = ({
@@ -17,7 +19,8 @@ const StickyBottomForm: React.FC<Props> = ({
     formConfig,
     landingId,
     themeColor = '#3b82f6',
-    isMobileView = false
+    isMobileView = false,
+    pixelConfig
 }) => {
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,6 +55,7 @@ const StickyBottomForm: React.FC<Props> = ({
                 ...formData
             };
             await submitLeadToSheet(leadData);
+            trackConversion(pixelConfig);
             setIsSubmitted(true);
             setFormData({});
         } catch (error) {

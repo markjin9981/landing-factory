@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check, Activity } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 import { compressImage } from '../../utils/imageCompression';
@@ -1066,6 +1066,7 @@ const LandingEditor: React.FC = () => {
                                 { id: 'sns', label: 'SNS/외부', icon: <Share2 className="w-4 h-4" /> },
                                 { id: 'footer', label: '하단', icon: <Anchor className="w-4 h-4" /> },
                                 { id: 'ai_chatbot', label: 'AI챗봇', icon: <Sparkles className="w-4 h-4" /> },
+                                { id: 'pixel', label: '픽셀 관리', icon: <Activity className="w-4 h-4 text-green-600" /> },
                                 { id: 'seo', label: '검색엔진', icon: <Globe className="w-4 h-4" /> },
                             ].map(tab => (
                                 <button
@@ -6346,6 +6347,123 @@ const LandingEditor: React.FC = () => {
                                     </div>
                                 )
                             }
+
+
+                            {/* --- PIXEL TAB (NEW) --- */}
+                            {activeTab === 'pixel' && (
+                                <div className="space-y-6 animate-fade-in">
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                        <h3 className="text-sm font-bold text-blue-800 mb-1">픽셀(Pixel) 관리</h3>
+                                        <p className="text-xs text-blue-600">페이스북, 카카오, 구글, 틱톡 등에 유입 전환 확인에 활용되는 픽셀을 설정합니다.</p>
+                                    </div>
+
+                                    {/* FACEBOOK */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                            <div className="w-6 h-6 bg-blue-600 rounded text-center text-white flex items-center justify-center font-bold">f</div>
+                                            페이스북 (Facebook)
+                                        </h3>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-700">픽셀 ID (Pixel ID)</label>
+                                            <input type="text"
+                                                value={config.pixelConfig?.facebookPixelId || ''}
+                                                onChange={(e) => updateNested(['pixelConfig', 'facebookPixelId'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                                placeholder="예: 123456789012345"
+                                            />
+                                            <div className="text-[10px] text-gray-400">
+                                                * 페이스북 이벤트 관리자에서 ID를 확인하세요.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* KAKAO */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                            <div className="w-6 h-6 bg-yellow-400 rounded text-center text-black flex items-center justify-center font-bold">K</div>
+                                            카카오 (Kakao)
+                                        </h3>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-700">픽셀 ID</label>
+                                            <input type="text"
+                                                value={config.pixelConfig?.kakaoPixelId || ''}
+                                                onChange={(e) => updateNested(['pixelConfig', 'kakaoPixelId'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                                placeholder="예: 1234567890"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* GOOGLE ADS */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                            <div className="w-6 h-6 bg-blue-500 rounded text-center text-white flex items-center justify-center font-bold">G</div>
+                                            구글 애드워즈 (Google Ads)
+                                        </h3>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-700">이벤트 ID / 전환 ID (AW-XXXX)</label>
+                                            <input type="text"
+                                                value={config.pixelConfig?.googleAdsEventId || ''}
+                                                onChange={(e) => updateNested(['pixelConfig', 'googleAdsEventId'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                                placeholder="예: AW-123456789/AbCdEfGhIjKlMn"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* GOOGLE ANALYTICS */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                            <div className="w-6 h-6 bg-orange-500 rounded text-center text-white flex items-center justify-center font-bold">G</div>
+                                            구글 애널리틱스 (GA4)
+                                        </h3>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-700">측정 ID (Measurement ID)</label>
+                                            <input type="text"
+                                                value={config.pixelConfig?.googleAnalyticsId || ''}
+                                                onChange={(e) => updateNested(['pixelConfig', 'googleAnalyticsId'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                                placeholder="예: G-XXXXXXXXXX"
+                                            />
+                                        </div>
+                                    </div>
+
+
+                                    {/* TIKTOK */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                            <div className="w-6 h-6 bg-black rounded text-center text-white flex items-center justify-center font-bold">T</div>
+                                            틱톡 (TikTok)
+                                        </h3>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-700">픽셀 ID</label>
+                                            <input type="text"
+                                                value={config.pixelConfig?.tiktokPixelId || ''}
+                                                onChange={(e) => updateNested(['pixelConfig', 'tiktokPixelId'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                                placeholder="TikTok Pixel ID 입력"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* DAANGN */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                            <div className="w-6 h-6 bg-orange-600 rounded text-center text-white flex items-center justify-center font-bold">D</div>
+                                            당근마켓 (Daangn)
+                                        </h3>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-700">추적 ID</label>
+                                            <input type="text"
+                                                value={config.pixelConfig?.daangnTrackingId || ''}
+                                                onChange={(e) => updateNested(['pixelConfig', 'daangnTrackingId'], e.target.value)}
+                                                className="w-full border rounded p-2 text-sm"
+                                                placeholder="당근마켓 추적 코드 ID 입력"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* --- AI CHATBOT TAB (NEW) --- */}
                             {

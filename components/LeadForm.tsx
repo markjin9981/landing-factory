@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FormSection, LeadData } from '../types';
+import { FormSection, LeadData, PixelConfig } from '../types';
+import { trackConversion } from '../utils/pixelUtils';
 import { submitLeadToSheet } from '../services/googleSheetService';
 import { CheckCircle, AlertCircle, Loader2, Lock, FileText, X, ChevronDown } from 'lucide-react';
 import SecurityFooter from './SecurityFooter';
@@ -10,9 +11,10 @@ interface Props {
     themeColor: string;
     pageTitle?: string; // Global Page Title
     isMobileView?: boolean; // New: For Grid layout control
+    pixelConfig?: PixelConfig;
 }
 
-const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, isMobileView }) => {
+const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, isMobileView, pixelConfig }) => {
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
@@ -216,6 +218,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
         const success = await submitLeadToSheet(payload);
 
         if (success) {
+            trackConversion(pixelConfig);
             setStatus('success');
             setFormData({});
         } else {

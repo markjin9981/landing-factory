@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LandingConfig, LeadData } from '../../../types';
+import { trackConversion } from '../../../utils/pixelUtils';
 import StepHero from './StepHero';
 import StepForm from './StepForm';
 import StepContent from './StepContent';
@@ -45,6 +46,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
             ...formData
         };
         await onSubmit(leadData);
+        trackConversion(config.pixelConfig);
         setViewState('success');
     };
 
@@ -74,6 +76,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                 ...newData
             };
             await onSubmit(leadData);
+            trackConversion(config.pixelConfig);
             setBuilderFinished(true);
         }
     };

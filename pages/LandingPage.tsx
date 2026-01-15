@@ -5,6 +5,7 @@ import { LandingConfig, FloatingBanner, HeroSection, DetailContent as DetailCont
 import LeadForm from '../components/LeadForm';
 import { Check, Star, Shield, Clock, ThumbsUp, ArrowRight } from 'lucide-react';
 import { logVisit, fetchLandingConfigById, fetchGlobalSettings } from '../services/googleSheetService';
+import PixelTracker from '../components/utils/PixelTracker';
 import KakaoMap from '../components/KakaoMap';
 import BannerBlock from '../components/inline/BannerBlock';
 import PopupContainer from '../components/popup/PopupContainer';
@@ -212,6 +213,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
     return (
       <React.Suspense fallback={<div className="h-screen flex items-center justify-center">Loading Template...</div>}>
+        <PixelTracker config={config.pixelConfig} />
         <DynamicStepTemplate config={config} onSubmit={handleDynamicSubmit} />
       </React.Suspense>
     );
@@ -354,6 +356,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
             themeColor={theme.primaryColor}
             pageTitle={config.title}
             isMobileView={isMobileView}
+            pixelConfig={config.pixelConfig}
           />
         </div>
       </section>
@@ -597,6 +600,8 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
 
       </div>
 
+      <PixelTracker config={config.pixelConfig} />
+
       {/* NEW: Sticky Bottom Form */}
       {config.stickyBottomForm?.isEnabled && (
         <StickyBottomForm
@@ -605,6 +610,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           landingId={config.id}
           themeColor={theme.primaryColor}
           isMobileView={isMobileView}
+          pixelConfig={config.pixelConfig}
         />
       )}
 
