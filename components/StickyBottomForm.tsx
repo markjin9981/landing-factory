@@ -233,14 +233,14 @@ const StickyBottomForm: React.FC<Props> = ({
                             </div>
                         );
 
-                        // WIDE LAYOUT: All fields + button in single horizontal row
+                        // WIDE LAYOUT: Fields on left, Button section on right (separated)
                         if (pcLayout === 'wide') {
                             return (
-                                <div className="flex items-end gap-4 w-full">
-                                    {/* Fields Section - Left */}
-                                    <div className="flex-1 flex flex-wrap gap-3 items-end">
+                                <div className="flex items-stretch w-full">
+                                    {/* Fields Section - Left (larger area) */}
+                                    <div className="flex-1 flex flex-col justify-center gap-2 pr-4">
                                         {hasManualConfig ? (
-                                            <div className="flex flex-col gap-2 w-full">
+                                            <>
                                                 {mobileRowConfig!.row1Fields?.length > 0 && (
                                                     <div className="flex gap-3 items-end">
                                                         {fieldsToShow
@@ -255,18 +255,25 @@ const StickyBottomForm: React.FC<Props> = ({
                                                             .map(field => renderPcField(field, true))}
                                                     </div>
                                                 )}
-                                            </div>
+                                            </>
                                         ) : (
-                                            fieldsToShow.map(field => renderPcField(field, true))
+                                            <div className="flex gap-3 items-end flex-wrap">
+                                                {fieldsToShow.map(field => renderPcField(field, true))}
+                                            </div>
                                         )}
                                     </div>
 
-                                    {/* Button + Agreement Section - Right */}
-                                    <div className="flex flex-col items-center gap-1 shrink-0">
+                                    {/* Button + Agreement Section - Right (dedicated area with contrasting background) */}
+                                    <div
+                                        className="shrink-0 flex flex-col items-center justify-center gap-2 px-6 py-3 rounded-lg min-w-[180px]"
+                                        style={{
+                                            backgroundColor: 'rgba(0,0,0,0.85)',
+                                        }}
+                                    >
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="px-8 py-3 text-base font-bold rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+                                            className="w-full px-8 py-4 text-lg font-bold rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                                             style={{
                                                 backgroundColor: buttonColor,
                                                 color: buttonTextColor
@@ -275,14 +282,14 @@ const StickyBottomForm: React.FC<Props> = ({
                                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료상담 신청하기')}
                                             {!isSubmitting && <Check className="w-5 h-5" />}
                                         </button>
-                                        <label className="flex items-center gap-1 cursor-pointer opacity-80 hover:opacity-100 transition-opacity text-xs">
+                                        <label className="flex items-center gap-1.5 cursor-pointer opacity-90 hover:opacity-100 transition-opacity text-xs text-white">
                                             <input
                                                 type="checkbox"
                                                 checked={agreed}
                                                 onChange={(e) => setAgreed(e.target.checked)}
-                                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                className="w-4 h-4 rounded border-gray-400 text-blue-500 focus:ring-blue-500 bg-gray-700"
                                             />
-                                            <span>개인정보 수집 및 이용에 동의합니다</span>
+                                            <span>개인정보 수집 및 이용 동의</span>
                                         </label>
                                     </div>
                                 </div>

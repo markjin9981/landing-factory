@@ -208,11 +208,11 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                 const { p1, p2, p3 } = parsePhone(value);
                 return (
                     <div className="flex gap-2 items-center">
-                        <div className="relative w-24 shrink-0">
+                        <div className="relative w-20 shrink-0">
                             <select
                                 value={p1}
                                 onChange={(e) => handlePhoneChange('p1', e.target.value)}
-                                className={`w-full ${isCompact ? 'px-1 py-2 text-sm' : 'px-2 py-3'} rounded-lg border focus:ring-2 outline-none bg-white text-center appearance-none`}
+                                className={`w-full ${isCompact ? 'px-1 py-1.5 text-sm' : 'px-2 py-2'} rounded-lg border focus:ring-2 outline-none bg-white text-center appearance-none`}
                                 style={getInputStyle()}
                             >
                                 {PHONE_PREFIXES.map(pre => <option key={pre} value={pre}>{pre}</option>)}
@@ -227,7 +227,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                             onChange={(e) => handlePhoneChange('p2', e.target.value)}
                             maxLength={4}
                             placeholder="0000"
-                            className="flex-1 min-w-0 px-4 py-3 rounded-lg border focus:ring-2 outline-none"
+                            className={`w-20 shrink-0 ${isCompact ? 'px-2 py-1.5 text-sm' : 'px-3 py-2'} rounded-lg border focus:ring-2 outline-none text-center`}
                             style={getInputStyle()}
                         />
                         <span className="text-gray-400 shrink-0">-</span>
@@ -238,7 +238,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                             onChange={(e) => handlePhoneChange('p3', e.target.value)}
                             maxLength={4}
                             placeholder="0000"
-                            className="flex-1 min-w-0 px-4 py-3 rounded-lg border focus:ring-2 outline-none"
+                            className={`w-20 shrink-0 ${isCompact ? 'px-2 py-1.5 text-sm' : 'px-3 py-2'} rounded-lg border focus:ring-2 outline-none text-center`}
                             style={getInputStyle()}
                         />
                     </div>
