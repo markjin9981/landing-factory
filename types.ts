@@ -343,6 +343,12 @@ export interface StickyBottomFormConfig {
   // Defaults to name + phone if not specified
   fieldIds?: string[];
   hideOriginalForm?: boolean; // New: Hide main form when sticky form is active
+
+  // New: Manual Mobile Layout Configuration
+  mobileRowConfig?: {
+    row1Fields: string[]; // List of field IDs for the first row
+    row2Fields: string[]; // List of field IDs for the second row
+  };
 }
 
 // New: Footer Configuration

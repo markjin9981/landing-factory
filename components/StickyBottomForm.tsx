@@ -109,28 +109,73 @@ const StickyBottomForm: React.FC<Props> = ({
                 {/* --- Mobile View Layout --- */}
                 {isMobileView ? (
                     <div className="flex flex-col gap-2">
-                        {/* Mobile Inputs Container */}
-                        <div className={`${isMultiRowMobile ? 'grid grid-cols-2 gap-2' : 'flex gap-2 overflow-x-auto'}`}>
-                            {fieldsToShow.map(field => (
-                                <div
-                                    key={field.id}
-                                    className={`${isMultiRowMobile ? 'w-full' : (field.id === 'name' ? 'w-[30%] shrink-0' : field.id === 'phone' ? 'w-[70%] shrink-0' : 'flex-1 min-w-[30%]')} `}
-                                >
-                                    <UnifiedFormField
-                                        field={field}
-                                        value={formData[field.id]}
-                                        onChange={(val) => handleChange(field.id, val)}
-                                        formStyle={{
-                                            answerBgColor: 'rgba(255,255,255,0.95)',
-                                            answerColor: '#111827',
-                                            answerFontSize: '12px',
-                                            questionSize: 'sm'
-                                        }}
-                                        layout="compact"
-                                    />
+                        {/* Logic: Use Manual Config if available, else Auto logic */}
+                        {(() => {
+                            const { mobileRowConfig } = config;
+                            const hasManualConfig = mobileRowConfig && (mobileRowConfig.row1Fields?.length > 0 || mobileRowConfig.row2Fields?.length > 0);
+
+                            // Helper for rendering a row of fields
+                            const renderRow = (fields: typeof fieldsToShow, isGrid: boolean) => (
+                                <div className={`${isGrid ? 'grid grid-cols-2 gap-2' : 'flex gap-2 overflow-x-auto'}`}>
+                                    {fields.map(field => (
+                                        <div
+                                            key={field.id}
+                                            className={`${isGrid ? 'w-full' : (field.id === 'name' ? 'w-[30%] shrink-0' : field.id === 'phone' ? 'w-[70%] shrink-0' : 'flex-1 min-w-[30%]')} `}
+                                        >
+                                            <UnifiedFormField
+                                                field={field}
+                                                value={formData[field.id]}
+                                                onChange={(val) => handleChange(field.id, val)}
+                                                formStyle={{
+                                                    answerBgColor: 'rgba(255,255,255,0.95)',
+                                                    answerColor: '#111827',
+                                                    answerFontSize: '12px',
+                                                    questionSize: 'sm',
+                                                }}
+                                                layout="minimal"
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            );
+
+                            if (hasManualConfig) {
+                                const row1 = fieldsToShow.filter(f => mobileRowConfig?.row1Fields.includes(f.id));
+                                const row2 = fieldsToShow.filter(f => mobileRowConfig?.row2Fields.includes(f.id));
+                                return (
+                                    <>
+                                        {row1.length > 0 && renderRow(row1, false)}
+                                        {row2.length > 0 && renderRow(row2, row2.length >= 2)}
+                                    </>
+                                );
+                            } else {
+                                // Auto Logic
+                                return (
+                                    <div className={`${isMultiRowMobile ? 'grid grid-cols-2 gap-2' : 'flex gap-2 overflow-x-auto'}`}>
+                                        {fieldsToShow.map(field => (
+                                            <div
+                                                key={field.id}
+                                                className={`${isMultiRowMobile ? 'w-full' : (field.id === 'name' ? 'w-[30%] shrink-0' : field.id === 'phone' ? 'w-[70%] shrink-0' : 'flex-1 min-w-[30%]')} `}
+                                            >
+                                                <UnifiedFormField
+                                                    field={field}
+                                                    value={formData[field.id]}
+                                                    onChange={(val) => handleChange(field.id, val)}
+                                                    formStyle={{
+                                                        answerBgColor: 'rgba(255,255,255,0.95)',
+                                                        answerColor: '#111827',
+                                                        answerFontSize: '12px',
+                                                        questionSize: 'sm'
+                                                    }}
+                                                    layout="minimal"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                );
+                            }
+                        })()}
+
                         {/* Mobile Bottom Row: Agreement + Button */}
                         <div className="flex items-center gap-2 justify-between">
                             <label className="flex items-center gap-1.5 cursor-pointer opacity-90 hover:opacity-100">
@@ -162,10 +207,6 @@ const StickyBottomForm: React.FC<Props> = ({
                         <div className="flex flex-wrap justify-center gap-4 w-full items-end">
                             {fieldsToShow.map(field => (
                                 <div key={field.id} className="min-w-[200px] flex-1 max-w-xs">
-                                    {/* Hide Label for cleaner sticky look, or keep it small? User requested similar to standard form, but sticky bar usually hides labels or puts them inside placeholders. 
-                                        UnifiedFormField shows labels by default. We can try to keep them or pass a prop to hide/inline them if needed. 
-                                        Looking at UnifiedFormField, it renders label block. 
-                                        Let's keep them but style them to be readable on dark bg. */}
                                     <UnifiedFormField
                                         field={field}
                                         value={formData[field.id]}

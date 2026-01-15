@@ -148,7 +148,9 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
         fontSize: formStyle?.answerFontSize || '1rem'
     });
 
-    const inputBaseClass = "w-full p-4 rounded-xl border focus:ring-2 focus:ring-blue-500 transition-all outline-none";
+    // Adjusted: Smaller padding for compact/minimal layouts
+    const isCompact = layout === 'compact' || layout === 'minimal';
+    const inputBaseClass = `w-full ${isCompact ? 'px-3 py-2 text-sm' : 'p-4'} rounded-xl border focus:ring-2 focus:ring-blue-500 transition-all outline-none`;
 
     // NEW: Determine container classes based on layout
     const isInline = layout === 'inline';
@@ -172,7 +174,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                             <select
                                 value={p1}
                                 onChange={(e) => handlePhoneChange('p1', e.target.value)}
-                                className="w-full px-2 py-3 rounded-lg border focus:ring-2 outline-none bg-white text-center appearance-none"
+                                className={`w-full ${isCompact ? 'px-1 py-2 text-sm' : 'px-2 py-3'} rounded-lg border focus:ring-2 outline-none bg-white text-center appearance-none`}
                                 style={getInputStyle()}
                             >
                                 {PHONE_PREFIXES.map(pre => <option key={pre} value={pre}>{pre}</option>)}
@@ -218,7 +220,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                             placeholder="이메일 아이디"
                             value={id}
                             onChange={(e) => handleEmailChange('id', e.target.value)}
-                            className="flex-1 min-w-[120px] px-4 py-3 rounded-lg border focus:ring-2 outline-none"
+                            className={`flex-1 min-w-[120px] ${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} rounded-lg border focus:ring-2 outline-none`}
                             style={getInputStyle()}
                         />
                         <span className="text-gray-400">@</span>
@@ -226,7 +228,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                             <select
                                 value={currentDomain}
                                 onChange={(e) => handleEmailChange('domain', e.target.value)}
-                                className="w-full px-4 py-3 rounded-lg border focus:ring-2 outline-none appearance-none pr-10"
+                                className={`w-full ${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} rounded-lg border focus:ring-2 outline-none appearance-none pr-10`}
                                 style={getInputStyle()}
                             >
                                 {EMAIL_DOMAINS.map(d => <option key={d} value={d}>{d === 'direct' ? '직접입력' : d}</option>)}
@@ -240,7 +242,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                                 placeholder="도메인 입력"
                                 value={domain}
                                 onChange={(e) => handleEmailChange('direct', e.target.value)}
-                                className="w-full md:w-auto md:flex-1 px-4 py-3 rounded-lg border focus:ring-2 outline-none"
+                                className={`w-full md:w-auto md:flex-1 ${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} rounded-lg border focus:ring-2 outline-none`}
                                 style={getInputStyle()}
                             />
                         )}
@@ -258,13 +260,13 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                             placeholder="주소를 검색해주세요"
                             value={value || ''}
                             onClick={handleAddressSearch}
-                            className="flex-1 px-4 py-3 rounded-lg border bg-gray-50 cursor-pointer"
+                            className={`flex-1 ${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} rounded-lg border bg-gray-50 cursor-pointer`}
                             style={getInputStyle()}
                         />
                         <button
                             type="button"
                             onClick={handleAddressSearch}
-                            className="px-4 py-3 bg-gray-800 text-white rounded-lg whitespace-nowrap text-sm font-bold hover:bg-gray-700"
+                            className={`${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} bg-gray-800 text-white rounded-lg whitespace-nowrap font-bold hover:bg-gray-700`}
                         >
                             주소 검색
                         </button>
@@ -278,7 +280,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                     <select
                         value={value || ''}
                         onChange={(e) => onChange(e.target.value)}
-                        className="w-full px-4 py-3 rounded-lg border focus:ring-2 outline-none appearance-none"
+                        className={`w-full ${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} rounded-lg border focus:ring-2 outline-none appearance-none`}
                         style={getInputStyle()}
                     >
                         <option value="">시간을 선택해주세요</option>
@@ -305,7 +307,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                     <select
                         value={value || ''}
                         onChange={(e) => onChange(e.target.value)}
-                        className="w-full px-4 py-3 rounded-lg border focus:ring-2 outline-none appearance-none"
+                        className={`w-full ${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} rounded-lg border focus:ring-2 outline-none appearance-none`}
                         style={getInputStyle()}
                     >
                         <option value="">선택해주세요</option>
@@ -329,7 +331,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                         return (
                             <label
                                 key={optValue}
-                                className={`flex items-center p-4 rounded-xl border cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
+                                className={`flex items-center ${isCompact ? 'p-2 rounded-lg' : 'p-4 rounded-xl'} border cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
                                 style={{
                                     backgroundColor: isSelected ? (primaryColor + '10') : (formStyle?.answerBgColor || '#ffffff'),
                                     borderColor: isSelected ? primaryColor : (formStyle?.answerBorderColor || '#e5e7eb'),
@@ -380,7 +382,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                         return (
                             <label
                                 key={optValue}
-                                className={`flex items-center p-4 rounded-xl border cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
+                                className={`flex items-center ${isCompact ? 'p-2 rounded-lg' : 'p-4 rounded-xl'} border cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
                                 style={{
                                     backgroundColor: isSelected ? (primaryColor + '10') : (formStyle?.answerBgColor || '#ffffff'),
                                     borderColor: isSelected ? primaryColor : (formStyle?.answerBorderColor || '#e5e7eb')
