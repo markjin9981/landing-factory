@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FormSection, StickyBottomFormConfig, LeadData } from '../types';
 import { submitLeadToSheet } from '../services/googleSheetService';
 import { Check, Loader2 } from 'lucide-react';
+import UnifiedFormField from './templates/DynamicStep/UnifiedFormField';
 
 interface Props {
     config: StickyBottomFormConfig;
@@ -30,7 +31,7 @@ const StickyBottomForm: React.FC<Props> = ({
 
     const fieldsToShow = formConfig.fields.filter(f =>
         displayFieldIds.includes(f.id)
-    ).slice(0, 3); // Max 3 fields for slim design
+    ).slice(0, 5); // Max 5 fields
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -61,7 +62,7 @@ const StickyBottomForm: React.FC<Props> = ({
         }
     };
 
-    const handleChange = (id: string, value: string) => {
+    const handleChange = (id: string, value: any) => { // Changed value type to any
         setFormData(prev => ({ ...prev, [id]: value }));
     };
 
@@ -91,6 +92,9 @@ const StickyBottomForm: React.FC<Props> = ({
         );
     }
 
+    // New: Mobile Layout Selection
+    const isMultiRowMobile = isMobileView && fieldsToShow.length >= 4;
+
     return (
         <form
             onSubmit={handleSubmit}
@@ -99,44 +103,32 @@ const StickyBottomForm: React.FC<Props> = ({
         >
             <div className={`mx-auto transition-all duration-300 ${isMobileView
                 ? 'px-3 py-2' // Mobile: Compact Padding
-                : 'px-6 py-5 max-w-4xl' // PC: Spacious Padding
+                : 'px-6 py-5 max-w-7xl' // PC: Broad
                 }`}>
 
                 {/* --- Mobile View Layout --- */}
                 {isMobileView ? (
                     <div className="flex flex-col gap-2">
-                        {/* Mobile Inputs: Flex Row */}
-                        <div className="flex gap-2">
+                        {/* Mobile Inputs Container */}
+                        <div className={`${isMultiRowMobile ? 'grid grid-cols-2 gap-2' : 'flex gap-2 overflow-x-auto'}`}>
                             {fieldsToShow.map(field => (
-                                <input
+                                <div
                                     key={field.id}
-                                    type={field.type === 'tel' ? 'tel' : 'text'}
-                                    placeholder={field.placeholder || field.label}
-                                    value={formData[field.id] || ''}
-                                    onFocus={(e) => {
-                                        if (field.id === 'phone' && !formData[field.id]) {
-                                            handleChange(field.id, '010');
-                                        }
-                                    }}
-                                    onChange={(e) => {
-                                        let value = e.target.value;
-                                        if (field.id === 'phone') {
-                                            // Auto-format phone number
-                                            value = value.replace(/[^0-9]/g, '')
-                                                .replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
-
-                                            // Remove hyphen logic for better deleting experience if needed, 
-                                            // but standard request "Auto hyphen" usually implies this.
-                                            // To be safe with "010" auto-fill, we keep standard KR mobile format.
-                                        }
-                                        handleChange(field.id, value);
-                                    }}
-                                    required={field.required}
-                                    className={`px-3 py-1.5 text-xs rounded border-0 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none h-9 ${field.id === 'name' ? 'w-[30%]' :
-                                            field.id === 'phone' ? 'w-[70%]' : 'flex-1'
-                                        }`}
-                                    style={{ backgroundColor: 'rgba(255,255,255,0.95)', color: '#111827' }}
-                                />
+                                    className={`${isMultiRowMobile ? 'w-full' : (field.id === 'name' ? 'w-[30%] shrink-0' : field.id === 'phone' ? 'w-[70%] shrink-0' : 'flex-1 min-w-[30%]')} `}
+                                >
+                                    <UnifiedFormField
+                                        field={field}
+                                        value={formData[field.id]}
+                                        onChange={(val) => handleChange(field.id, val)}
+                                        formStyle={{
+                                            answerBgColor: 'rgba(255,255,255,0.95)',
+                                            answerColor: '#111827',
+                                            answerFontSize: '12px',
+                                            questionSize: 'sm'
+                                        }}
+                                        layout="compact"
+                                    />
+                                </div>
                             ))}
                         </div>
                         {/* Mobile Bottom Row: Agreement + Button */}
@@ -166,19 +158,26 @@ const StickyBottomForm: React.FC<Props> = ({
                 ) : (
                     /* --- PC View Layout --- */
                     <div className="flex flex-col gap-4 items-center">
-                        {/* PC Row 1: Large Inputs */}
-                        <div className="flex flex-wrap justify-center gap-3 w-full">
+                        {/* PC Row 1: Rich Inputs with UnifiedFormField */}
+                        <div className="flex flex-wrap justify-center gap-4 w-full items-end">
                             {fieldsToShow.map(field => (
-                                <input
-                                    key={field.id}
-                                    type={field.type === 'tel' ? 'tel' : 'text'}
-                                    placeholder={field.placeholder || field.label}
-                                    value={formData[field.id] || ''}
-                                    onChange={(e) => handleChange(field.id, e.target.value)}
-                                    required={field.required}
-                                    className="min-w-[200px] flex-1 max-w-xs px-4 py-3 text-base rounded-lg border-0 shadow-md focus:scale-105 focus:ring-4 focus:ring-blue-500/30 outline-none transition-all placeholder-gray-400"
-                                    style={{ backgroundColor: 'rgba(255,255,255,0.98)', color: '#111827' }}
-                                />
+                                <div key={field.id} className="min-w-[200px] flex-1 max-w-xs">
+                                    {/* Hide Label for cleaner sticky look, or keep it small? User requested similar to standard form, but sticky bar usually hides labels or puts them inside placeholders. 
+                                        UnifiedFormField shows labels by default. We can try to keep them or pass a prop to hide/inline them if needed. 
+                                        Looking at UnifiedFormField, it renders label block. 
+                                        Let's keep them but style them to be readable on dark bg. */}
+                                    <UnifiedFormField
+                                        field={field}
+                                        value={formData[field.id]}
+                                        onChange={(val) => handleChange(field.id, val)}
+                                        formStyle={{
+                                            questionColor: textColor, // Adapt label color to background
+                                            answerBgColor: 'rgba(255,255,255,0.98)',
+                                            answerColor: '#111827',
+                                        }}
+                                        layout="standard"
+                                    />
+                                </div>
                             ))}
                         </div>
 
