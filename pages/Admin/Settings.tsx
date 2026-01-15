@@ -50,6 +50,9 @@ const Settings: React.FC = () => {
             setCloudinaryCloudName(settings.cloudinaryCloudName || '');
             setCloudinaryUploadPreset(settings.cloudinaryUploadPreset || '');
             setKakaoApiKey(settings.kakaoApiKey || '');
+        } else {
+            // First time setup: Init with empty object
+            setGlobalSettings({} as GlobalSettings);
         }
     };
 
@@ -276,16 +279,18 @@ const Settings: React.FC = () => {
                             </div>
                             <button
                                 onClick={async () => {
-                                    if (!globalSettings) return;
                                     setSavingApiKey(true);
-                                    const newSettings = { ...globalSettings, kakaoApiKey };
+                                    // Use current state or empty object
+                                    const baseSettings = globalSettings || {} as GlobalSettings;
+                                    const newSettings = { ...baseSettings, kakaoApiKey };
+
                                     await saveGlobalSettings(newSettings);
                                     setGlobalSettings(newSettings);
                                     setSavingApiKey(false);
                                     setApiKeySaved(true);
                                     setTimeout(() => setApiKeySaved(false), 2000);
                                 }}
-                                disabled={savingApiKey || !globalSettings}
+                                disabled={savingApiKey}
                                 className="px-4 py-3 bg-yellow-400 text-black hover:bg-yellow-500 rounded-lg font-bold disabled:opacity-50 flex items-center gap-2"
                             >
                                 {savingApiKey ? '저장 중...' : apiKeySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> Kakao 키 저장</>}
