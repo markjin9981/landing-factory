@@ -657,8 +657,47 @@ function handleLeadSubmission(params) {
 
 function handleVisitLog(params) {
   var sheet = getOrCreateSheet("Visits");
+  
+  // [UPDATED] Dynamic Column Logic (Like Leads)
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var headerMap = {};
+  for(var i=0; i<headers.length; i++) headerMap[headers[i].toLowerCase()] = headers[i];
+
+  var standardMapping = { 
+      'landing_id': 'Landing ID', 'ip': 'IP', 'device': 'Device', 
+      'os': 'OS', 'browser': 'Browser', 'referrer': 'Referrer',
+      'utm_source': 'utm_source', 'utm_medium': 'utm_medium', 
+      'utm_campaign': 'utm_campaign', 'utm_term': 'utm_term', 'utm_content': 'utm_content'
+  };
+
+  var newHeaders = [];
+  for (var key in params) {
+    if (key === 'type' || key === 'timestamp') continue;
+    var targetHeader = standardMapping[key] || key;
+    if (!headerMap[targetHeader.toLowerCase()] && !headerMap[key.toLowerCase()]) {
+       newHeaders.push(targetHeader);
+       headerMap[targetHeader.toLowerCase()] = targetHeader;
+    }
+  }
+
+  if (newHeaders.length > 0) {
+    sheet.getRange(1, sheet.getLastColumn() + 1, 1, newHeaders.length).setValues([newHeaders]);
+    headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  }
+
   var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
-  sheet.appendRow([timestamp, params.landing_id || 'Unknown', params.ip || 'Unknown', params.device || 'Unknown', params.os || 'Unknown', params.browser || 'Unknown', params.referrer || 'Unknown']);
+  var rowData = headers.map(function(header) {
+    var headerLower = header.toLowerCase();
+    if (headerLower === 'timestamp') return timestamp;
+    if (params[header] !== undefined) return params[header];
+    if (params[headerLower] !== undefined) return params[headerLower];
+    for (var k in standardMapping) {
+      if (standardMapping[k].toLowerCase() === headerLower && params[k] !== undefined) return params[k];
+    }
+    return '';
+  });
+
+  sheet.appendRow(rowData);
   return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
 }
 

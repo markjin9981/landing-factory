@@ -134,6 +134,35 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         }
         link.setAttribute('href', config.favicon);
       }
+
+      // --- Search Engine Verification ---
+      if (config.naverVerification) {
+        let meta = document.querySelector('meta[name="naver-site-verification"]');
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('name', 'naver-site-verification');
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', config.naverVerification);
+      }
+      if (config.googleVerification) {
+        let meta = document.querySelector('meta[name="google-site-verification"]');
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('name', 'google-site-verification');
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', config.googleVerification);
+      }
+      if (config.keywords) {
+        let meta = document.querySelector('meta[name="keywords"]');
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('name', 'keywords');
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', config.keywords);
+      }
     }
 
     if (!previewConfig) window.scrollTo(0, 0);
