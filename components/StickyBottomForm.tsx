@@ -105,17 +105,36 @@ const StickyBottomForm: React.FC<Props> = ({
                 {/* --- Mobile View Layout --- */}
                 {isMobileView ? (
                     <div className="flex flex-col gap-2">
-                        {/* Mobile Inputs: Grid 2 Columns */}
-                        <div className="grid grid-cols-2 gap-2">
+                        {/* Mobile Inputs: Flex Row */}
+                        <div className="flex gap-2">
                             {fieldsToShow.map(field => (
                                 <input
                                     key={field.id}
                                     type={field.type === 'tel' ? 'tel' : 'text'}
                                     placeholder={field.placeholder || field.label}
                                     value={formData[field.id] || ''}
-                                    onChange={(e) => handleChange(field.id, e.target.value)}
+                                    onFocus={(e) => {
+                                        if (field.id === 'phone' && !formData[field.id]) {
+                                            handleChange(field.id, '010');
+                                        }
+                                    }}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (field.id === 'phone') {
+                                            // Auto-format phone number
+                                            value = value.replace(/[^0-9]/g, '')
+                                                .replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
+
+                                            // Remove hyphen logic for better deleting experience if needed, 
+                                            // but standard request "Auto hyphen" usually implies this.
+                                            // To be safe with "010" auto-fill, we keep standard KR mobile format.
+                                        }
+                                        handleChange(field.id, value);
+                                    }}
                                     required={field.required}
-                                    className="w-full px-3 py-1.5 text-xs rounded border-0 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none h-9"
+                                    className={`px-3 py-1.5 text-xs rounded border-0 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none h-9 ${field.id === 'name' ? 'w-[30%]' :
+                                            field.id === 'phone' ? 'w-[70%]' : 'flex-1'
+                                        }`}
                                     style={{ backgroundColor: 'rgba(255,255,255,0.95)', color: '#111827' }}
                                 />
                             ))}
