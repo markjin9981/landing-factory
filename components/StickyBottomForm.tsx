@@ -208,7 +208,8 @@ const StickyBottomForm: React.FC<Props> = ({
                         const { mobileRowConfig, pcLayout = 'stacked' } = config;
                         const hasManualConfig = mobileRowConfig && (mobileRowConfig.row1Fields?.length > 0 || mobileRowConfig.row2Fields?.length > 0);
 
-                        // Helper to render a field for PC
+
+                        // Helper to render a field for PC (always use 'inline' layout for uniform height)
                         const renderPcField = (field: typeof fieldsToShow[0], isWide: boolean = false) => (
                             <div key={field.id} className={isWide ? 'flex-1 min-w-[120px]' : 'min-w-[200px] flex-1 max-w-xs'}>
                                 <UnifiedFormField
@@ -221,7 +222,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                         answerColor: '#111827',
                                         inputBorderRadius: config.inputBorderRadius,
                                     }}
-                                    layout={isWide ? 'inline' : 'standard'}
+                                    layout="inline"
                                 />
                             </div>
                         );
