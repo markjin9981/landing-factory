@@ -205,31 +205,91 @@ const StickyBottomForm: React.FC<Props> = ({
                 ) : (
                     /* --- PC View Layout --- */
                     (() => {
-                        const { mobileRowConfig } = config;
+                        const { mobileRowConfig, pcLayout = 'stacked' } = config;
                         const hasManualConfig = mobileRowConfig && (mobileRowConfig.row1Fields?.length > 0 || mobileRowConfig.row2Fields?.length > 0);
 
-                        // Helper to render a row of fields for PC
-                        const renderPcRow = (fields: typeof fieldsToShow) => (
-                            <div className="flex flex-wrap justify-center gap-4 w-full items-end">
-                                {fields.map(field => (
-                                    <div key={field.id} className="min-w-[200px] flex-1 max-w-xs">
-                                        <UnifiedFormField
-                                            field={field}
-                                            value={formData[field.id]}
-                                            onChange={(val) => handleChange(field.id, val)}
-                                            formStyle={{
-                                                questionColor: textColor,
-                                                answerBgColor: 'rgba(255,255,255,0.98)',
-                                                answerColor: '#111827',
-                                                inputBorderRadius: config.inputBorderRadius,
-                                            }}
-                                            layout="standard"
-                                        />
-                                    </div>
-                                ))}
+                        // Helper to render a field for PC
+                        const renderPcField = (field: typeof fieldsToShow[0], isWide: boolean = false) => (
+                            <div key={field.id} className={isWide ? 'flex-1 min-w-[120px]' : 'min-w-[200px] flex-1 max-w-xs'}>
+                                <UnifiedFormField
+                                    field={field}
+                                    value={formData[field.id]}
+                                    onChange={(val) => handleChange(field.id, val)}
+                                    formStyle={{
+                                        questionColor: textColor,
+                                        answerBgColor: 'rgba(255,255,255,0.98)',
+                                        answerColor: '#111827',
+                                        inputBorderRadius: config.inputBorderRadius,
+                                    }}
+                                    layout={isWide ? 'inline' : 'standard'}
+                                />
                             </div>
                         );
 
+                        // Helper to render a row of fields for PC (stacked layout)
+                        const renderPcRow = (fields: typeof fieldsToShow) => (
+                            <div className="flex flex-wrap justify-center gap-4 w-full items-end">
+                                {fields.map(field => renderPcField(field, false))}
+                            </div>
+                        );
+
+                        // WIDE LAYOUT: All fields + button in single horizontal row
+                        if (pcLayout === 'wide') {
+                            return (
+                                <div className="flex items-end gap-4 w-full">
+                                    {/* Fields Section - Left */}
+                                    <div className="flex-1 flex flex-wrap gap-3 items-end">
+                                        {hasManualConfig ? (
+                                            <div className="flex flex-col gap-2 w-full">
+                                                {mobileRowConfig!.row1Fields?.length > 0 && (
+                                                    <div className="flex gap-3 items-end">
+                                                        {fieldsToShow
+                                                            .filter(f => mobileRowConfig!.row1Fields.includes(f.id))
+                                                            .map(field => renderPcField(field, true))}
+                                                    </div>
+                                                )}
+                                                {mobileRowConfig!.row2Fields?.length > 0 && (
+                                                    <div className="flex gap-3 items-end">
+                                                        {fieldsToShow
+                                                            .filter(f => mobileRowConfig!.row2Fields.includes(f.id))
+                                                            .map(field => renderPcField(field, true))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            fieldsToShow.map(field => renderPcField(field, true))
+                                        )}
+                                    </div>
+
+                                    {/* Button + Agreement Section - Right */}
+                                    <div className="flex flex-col items-center gap-1 shrink-0">
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className="px-8 py-3 text-base font-bold rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+                                            style={{
+                                                backgroundColor: buttonColor,
+                                                color: buttonTextColor
+                                            }}
+                                        >
+                                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료상담 신청하기')}
+                                            {!isSubmitting && <Check className="w-5 h-5" />}
+                                        </button>
+                                        <label className="flex items-center gap-1 cursor-pointer opacity-80 hover:opacity-100 transition-opacity text-xs">
+                                            <input
+                                                type="checkbox"
+                                                checked={agreed}
+                                                onChange={(e) => setAgreed(e.target.checked)}
+                                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <span>개인정보 수집 및 이용에 동의합니다</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // STACKED LAYOUT (default): Fields on top, button below
                         return (
                             <div className="flex flex-col gap-4 items-center">
                                 {/* PC Fields: 2-row or single-row layout */}

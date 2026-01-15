@@ -3355,6 +3355,48 @@ const LandingEditor: React.FC = () => {
                                                                 <span>둥근 형태</span>
                                                             </div>
                                                         </div>
+                                                        {/* PC Layout Mode */}
+                                                        <div className="col-span-2">
+                                                            <label className="text-[10px] text-gray-500 block mb-1">PC 레이아웃</label>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => updateNested(['stickyBottomForm', 'pcLayout'], 'stacked')}
+                                                                    className={`p-2 text-xs rounded-lg border-2 transition-all ${(!config.stickyBottomForm?.pcLayout || config.stickyBottomForm?.pcLayout === 'stacked')
+                                                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                                            : 'border-gray-200 hover:border-gray-300'
+                                                                        }`}
+                                                                >
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <div className="flex gap-0.5 mx-auto">
+                                                                            <div className="w-3 h-2 bg-gray-300 rounded-sm"></div>
+                                                                            <div className="w-3 h-2 bg-gray-300 rounded-sm"></div>
+                                                                        </div>
+                                                                        <div className="w-4 h-2 bg-blue-400 rounded-sm mx-auto"></div>
+                                                                    </div>
+                                                                    <span className="block mt-1">세로 배치</span>
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => updateNested(['stickyBottomForm', 'pcLayout'], 'wide')}
+                                                                    className={`p-2 text-xs rounded-lg border-2 transition-all ${config.stickyBottomForm?.pcLayout === 'wide'
+                                                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                                            : 'border-gray-200 hover:border-gray-300'
+                                                                        }`}
+                                                                >
+                                                                    <div className="flex gap-1 items-center justify-center">
+                                                                        <div className="flex gap-0.5">
+                                                                            <div className="w-2 h-2 bg-gray-300 rounded-sm"></div>
+                                                                            <div className="w-2 h-2 bg-gray-300 rounded-sm"></div>
+                                                                            <div className="w-2 h-2 bg-gray-300 rounded-sm"></div>
+                                                                        </div>
+                                                                        <div className="w-3 h-3 bg-blue-400 rounded-sm"></div>
+                                                                    </div>
+                                                                    <span className="block mt-1">가로 배치</span>
+                                                                </button>
+                                                            </div>
+                                                            <p className="text-[9px] text-gray-400 mt-1">가로 배치: 버튼이 오른쪽에 배치되어 폼 높이가 낮아집니다</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
