@@ -201,7 +201,10 @@ const StickyBottomForm: React.FC<Props> = ({
                                 className="flex-1 h-9 flex items-center justify-center gap-1.5 font-bold rounded text-xs shadow-md active:scale-95 transition-transform"
                                 style={{
                                     backgroundColor: buttonColor,
-                                    color: buttonTextColor
+                                    color: buttonTextColor,
+                                    backgroundImage: config.buttonImage ? `url(${config.buttonImage})` : undefined,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
                                 }}
                             >
                                 {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (formConfig.submitButtonText || '신청하기')}
