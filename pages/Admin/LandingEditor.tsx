@@ -6462,6 +6462,37 @@ const LandingEditor: React.FC = () => {
                                             />
                                         </div>
                                     </div>
+
+                                    {/* OTHER SETTINGS (UTM) */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-gray-900 mb-4 pb-2 border-b">기타 설정</h3>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <label className="text-sm font-bold text-gray-700">UTM 측정 사용 유무</label>
+                                                    <div className="group relative cursor-help">
+                                                        <span className="bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.5 rounded border border-gray-200 hover:bg-gray-200 transition-colors">? UTM이 궁금하신가요?</span>
+                                                        <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                                            UTM(Urchin Tracking Module)은 사용자가 어떤 링크를 통해 들어왔는지 추적하는 파라미터입니다. (예: utm_source=instagram)
+                                                            <div className="absolute bottom-[-4px] left-4 w-2 h-2 bg-gray-900 rotate-45"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs text-gray-500 leading-relaxed">
+                                                    마케팅 추적 코드(UTM)를 기록하고 마케팅 통계를 활성화합니다.<br />
+                                                    UTM 통계는 <b>접속통계 → 마케팅 통계</b>에서 확인 가능합니다.
+                                                </p>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" className="sr-only peer"
+                                                    checked={config.pixelConfig?.utmTracking || false}
+                                                    onChange={(e) => updateNested(['pixelConfig', 'utmTracking'], e.target.checked)}
+                                                />
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                <span className="ml-3 text-sm font-bold text-gray-700">{config.pixelConfig?.utmTracking ? 'ON' : 'OFF'}</span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 

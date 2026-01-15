@@ -12,9 +12,10 @@ interface Props {
     pageTitle?: string; // Global Page Title
     isMobileView?: boolean; // New: For Grid layout control
     pixelConfig?: PixelConfig;
+    utmParams?: Record<string, string | undefined>;
 }
 
-const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, isMobileView, pixelConfig }) => {
+const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, isMobileView, pixelConfig, utmParams }) => {
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 

@@ -11,9 +11,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface DynamicStepTemplateProps {
     config: LandingConfig;
     onSubmit: (data: LeadData) => Promise<void>;
+    utmParams?: Record<string, string | undefined>;
 }
 
-const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSubmit }) => {
+const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSubmit, utmParams }) => {
     // 1. Check if we are in "Builder Mode" (Custom Steps)
     const isBuilderMode = config.steps && config.steps.length > 0;
 
@@ -43,6 +44,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
             phone: formData.phone || '',
             user_agent: navigator.userAgent,
             referrer: document.referrer,
+            ...utmParams,
             ...formData
         };
         await onSubmit(leadData);
@@ -73,6 +75,7 @@ const DynamicStepTemplate: React.FC<DynamicStepTemplateProps> = ({ config, onSub
                 phone: newData.phone || '',
                 user_agent: navigator.userAgent,
                 referrer: document.referrer,
+                ...utmParams,
                 ...newData
             };
             await onSubmit(leadData);

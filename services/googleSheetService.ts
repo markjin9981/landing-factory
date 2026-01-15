@@ -192,7 +192,7 @@ export const submitRehabDiagnosis = async (data: RehabDiagnosisData): Promise<bo
 /**
  * 방문자 로그를 기록합니다.
  */
-export const logVisit = async (visit: { landing_id: string, ip: string, device: string, os: string, browser: string, referrer: string }): Promise<void> => {
+export const logVisit = async (visit: { landing_id: string, ip: string, device: string, os: string, browser: string, referrer: string, utm_source?: string, utm_medium?: string, utm_campaign?: string, utm_term?: string, utm_content?: string }): Promise<void> => {
     if (!isUrlConfigured()) {
         console.log(" Mock Visit Log:", visit);
         return;

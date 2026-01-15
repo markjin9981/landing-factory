@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import LANDING_CONFIGS_JSON from '../data/landingConfigs.json';
 import { LandingConfig, FloatingBanner, HeroSection, DetailContent as DetailContentType } from '../types';
 import LeadForm from '../components/LeadForm';
@@ -90,6 +90,20 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
   const isPreview = !!previewConfig;
   const visitLogged = useRef(false);
 
+  // UTM Capture Logic
+  const routerLocation = useLocation();
+  const utmParams = React.useMemo(() => {
+    if (!config?.pixelConfig?.utmTracking) return {};
+    const params = new URLSearchParams(routerLocation.search);
+    return {
+      utm_source: params.get('utm_source') || undefined,
+      utm_medium: params.get('utm_medium') || undefined,
+      utm_campaign: params.get('utm_campaign') || undefined,
+      utm_term: params.get('utm_term') || undefined,
+      utm_content: params.get('utm_content') || undefined,
+    };
+  }, [config?.pixelConfig?.utmTracking, routerLocation.search]);
+
   useEffect(() => {
     if (config) {
       const effectiveOgTitle = config.ogTitle || config.title;
@@ -127,7 +141,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     if (!isPreview && id && !visitLogged.current) {
       // Visit logging logic ... 
       visitLogged.current = true;
-      logVisit({ landing_id: id, ip: 'Unknown', device: 'PC', os: 'Unknown', browser: 'Unknown', referrer: document.referrer });
+      logVisit({ landing_id: id, ip: 'Unknown', device: 'PC', os: 'Unknown', browser: 'Unknown', referrer: document.referrer, ...utmParams });
     }
   }, [config, previewConfig, id]);
 
@@ -214,7 +228,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     return (
       <React.Suspense fallback={<div className="h-screen flex items-center justify-center">Loading Template...</div>}>
         <PixelTracker config={config.pixelConfig} />
-        <DynamicStepTemplate config={config} onSubmit={handleDynamicSubmit} />
+        <DynamicStepTemplate config={config} onSubmit={handleDynamicSubmit} utmParams={utmParams} />
       </React.Suspense>
     );
   }
@@ -357,6 +371,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
             pageTitle={config.title}
             isMobileView={isMobileView}
             pixelConfig={config.pixelConfig}
+            utmParams={utmParams}
           />
         </div>
       </section>
@@ -611,6 +626,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           themeColor={theme.primaryColor}
           isMobileView={isMobileView}
           pixelConfig={config.pixelConfig}
+          utmParams={utmParams}
         />
       )}
 

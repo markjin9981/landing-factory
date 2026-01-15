@@ -12,6 +12,7 @@ interface Props {
     themeColor?: string;
     isMobileView?: boolean;
     pixelConfig?: PixelConfig;
+    utmParams?: Record<string, string | undefined>;
 }
 
 const StickyBottomForm: React.FC<Props> = ({
@@ -20,7 +21,8 @@ const StickyBottomForm: React.FC<Props> = ({
     landingId,
     themeColor = '#3b82f6',
     isMobileView = false,
-    pixelConfig
+    pixelConfig,
+    utmParams
 }) => {
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,6 +54,7 @@ const StickyBottomForm: React.FC<Props> = ({
                 phone: formData['phone'] || '',
                 user_agent: navigator.userAgent,
                 referrer: document.referrer || 'direct',
+                ...utmParams,
                 ...formData
             };
             await submitLeadToSheet(leadData);

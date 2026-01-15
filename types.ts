@@ -671,6 +671,7 @@ export interface PixelConfig {
   tiktokPixelId?: string;
   daangnTrackingId?: string;
   googleAnalyticsId?: string;
+  utmTracking?: boolean; // New: UTM Tracking Toggle
 }
 
 export interface LandingConfig {
@@ -896,6 +897,11 @@ export interface LeadData {
   user_agent: string;
   referrer: string;
   page_title?: string; // New: For Email Notification Subject
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
   [key: string]: string | undefined; // Allow dynamic fields
 }
 
@@ -907,6 +913,11 @@ export interface VisitData {
   OS: string;
   Browser: string;
   Referrer: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
 }
 
 // Popup Interfaces
