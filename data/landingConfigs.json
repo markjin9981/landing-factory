@@ -1,22 +1,28 @@
 {
-  "717150": {
-    "id": "717150",
-    "title": "",
-    "favicon": "",
-    "ogImage": "",
-    "ogTitle": "",
-    "ogDescription": "",
-    "keywords": "",
-    "theme": {
-      "primaryColor": "#0ea5e9",
-      "secondaryColor": "#0f172a",
-      "fontConfig": {
-        "primaryFont": "",
-        "source": "google"
-      },
-      "customFonts": []
-    },
+  "undefined": {
+    "kakaoApiKey": "a55f5c760d4f8473af9d363fdae5b29f",
+    "cloudinaryCloudName": "duc4iqkmu",
+    "cloudinaryUploadPreset": "landing_unsigned",
     "banners": [],
+    "footer": {
+      "isShow": true,
+      "images": [],
+      "copyrightText": "© 2025 Company Name. All Rights Reserved.",
+      "copyrightStyle": {
+        "fontSize": "0.75rem",
+        "fontWeight": "400",
+        "color": "#9ca3af",
+        "textAlign": "center"
+      }
+    },
+    "detailContent": [
+      {
+        "id": "07256134-597a-4836-931c-dd839508b3d8",
+        "type": "image",
+        "content": "https://res.cloudinary.com/duc4iqkmu/image/upload/v1768487534/landing-factory/unlbnvzjidp7zdmxgzdq.jpg",
+        "width": "100%"
+      }
+    ],
     "hero": {
       "isShow": true,
       "headline": "메인 카피를 입력하세요",
@@ -37,7 +43,6 @@
       "backgroundImage": "https://picsum.photos/1920/1080",
       "size": "md"
     },
-    "detailContent": [],
     "formConfig": {
       "title": "무료 상담 신청",
       "subTitle": "",
@@ -71,35 +76,6 @@
         "borderWidth": "1px"
       }
     },
-    "footer": {
-      "isShow": true,
-      "images": [],
-      "copyrightText": "© 2025 Company Name. All Rights Reserved.",
-      "copyrightStyle": {
-        "fontSize": "0.75rem",
-        "fontWeight": "400",
-        "color": "#9ca3af",
-        "textAlign": "center"
-      }
-    },
-    "navigation": {
-      "isShow": false,
-      "showHome": false,
-      "items": []
-    },
-    "gallery": {
-      "isShow": false,
-      "showOnMainPage": true,
-      "title": "갤러리",
-      "images": []
-    },
-    "board": {
-      "isShow": false,
-      "showOnMainPage": true,
-      "title": "게시판",
-      "type": "list",
-      "items": []
-    },
     "location": {
       "isShow": false,
       "title": "오시는 길",
@@ -118,6 +94,12 @@
         "textAlign": "center"
       }
     },
+    "features": {
+      "isShow": false,
+      "title": "주요 특징",
+      "description": "우리 서비스의 특별한 점을 소개합니다.",
+      "items": []
+    },
     "snsConfig": {
       "isShow": false,
       "position": "bottom-right",
@@ -125,29 +107,18 @@
       "style": {},
       "items": []
     },
-    "features": {
-      "isShow": false,
-      "title": "주요 특징",
-      "description": "우리 서비스의 특별한 점을 소개합니다.",
-      "items": []
-    },
-    "rehabChatConfig": {
-      "isEnabled": false,
-      "displayMode": "floating",
-      "buttonText": "AI 변제금 확인",
-      "buttonPosition": "bottom-left",
-      "buttonColor": "#8B5CF6",
-      "characterName": "로이",
-      "placement": {
-        "showAsFloating": true,
-        "showInHero": false,
-        "showInPopup": false,
-        "showInTopBanner": false,
-        "showInBottomBanner": false
-      }
+    "theme": {
+      "primaryColor": "#0ea5e9",
+      "secondaryColor": "#0f172a",
+      "fontConfig": {
+        "primaryFont": "Inter",
+        "source": "google"
+      },
+      "customFonts": []
     },
     "stickyBottomForm": {
-      "isEnabled": true
+      "isEnabled": true,
+      "pcLayout": "wide"
     }
   }
 }
