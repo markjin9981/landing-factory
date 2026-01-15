@@ -151,9 +151,10 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
         '--placeholder-color': '#9ca3af' // Gray placeholder color
     } as React.CSSProperties);
 
-    // Adjusted: Smaller padding for compact/minimal/stickyMobile layouts
+    // Adjusted: Smaller padding for compact/minimal/stickyMobile/inline layouts
     const isStickyMobile = layout === 'stickyMobile';
-    const isCompact = layout === 'compact' || layout === 'minimal' || isStickyMobile;
+    const isInlineLayout = layout === 'inline';
+    const isCompact = layout === 'compact' || layout === 'minimal' || isStickyMobile || isInlineLayout;
     // Remove rounded-xl from class since we apply it via style
     const inputBaseClass = `w-full ${isCompact ? 'px-3 py-2 text-sm' : 'p-4'} border focus:ring-2 focus:ring-blue-500 transition-all outline-none placeholder-gray-400`;
 

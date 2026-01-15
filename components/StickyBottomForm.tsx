@@ -263,17 +263,12 @@ const StickyBottomForm: React.FC<Props> = ({
                                         )}
                                     </div>
 
-                                    {/* Button + Agreement Section - Right (dedicated area with contrasting background) */}
-                                    <div
-                                        className="shrink-0 flex flex-col items-center justify-center gap-2 px-6 py-3 rounded-lg min-w-[180px]"
-                                        style={{
-                                            backgroundColor: 'rgba(0,0,0,0.85)',
-                                        }}
-                                    >
+                                    {/* Button + Agreement Section - Right (no background) */}
+                                    <div className="shrink-0 flex flex-col items-center justify-center gap-2 px-4 min-w-[270px]">
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="w-full px-8 py-4 text-lg font-bold rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                                            className="w-full px-12 py-4 text-lg font-bold rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                                             style={{
                                                 backgroundColor: buttonColor,
                                                 color: buttonTextColor
@@ -282,12 +277,12 @@ const StickyBottomForm: React.FC<Props> = ({
                                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료상담 신청하기')}
                                             {!isSubmitting && <Check className="w-5 h-5" />}
                                         </button>
-                                        <label className="flex items-center gap-1.5 cursor-pointer opacity-90 hover:opacity-100 transition-opacity text-xs text-white">
+                                        <label className="flex items-center gap-1.5 cursor-pointer opacity-90 hover:opacity-100 transition-opacity text-xs">
                                             <input
                                                 type="checkbox"
                                                 checked={agreed}
                                                 onChange={(e) => setAgreed(e.target.checked)}
-                                                className="w-4 h-4 rounded border-gray-400 text-blue-500 focus:ring-blue-500 bg-gray-700"
+                                                className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
                                             />
                                             <span>개인정보 수집 및 이용 동의</span>
                                         </label>
