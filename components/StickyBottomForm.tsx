@@ -132,7 +132,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                                     answerFontSize: '12px',
                                                     questionSize: 'sm',
                                                 }}
-                                                layout="minimal"
+                                                layout="stickyMobile"
                                             />
                                         </div>
                                     ))}
@@ -167,7 +167,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                                         answerFontSize: '12px',
                                                         questionSize: 'sm'
                                                     }}
-                                                    layout="minimal"
+                                                    layout="stickyMobile"
                                                 />
                                             </div>
                                         ))}
@@ -202,51 +202,74 @@ const StickyBottomForm: React.FC<Props> = ({
                     </div>
                 ) : (
                     /* --- PC View Layout --- */
-                    <div className="flex flex-col gap-4 items-center">
-                        {/* PC Row 1: Rich Inputs with UnifiedFormField */}
-                        <div className="flex flex-wrap justify-center gap-4 w-full items-end">
-                            {fieldsToShow.map(field => (
-                                <div key={field.id} className="min-w-[200px] flex-1 max-w-xs">
-                                    <UnifiedFormField
-                                        field={field}
-                                        value={formData[field.id]}
-                                        onChange={(val) => handleChange(field.id, val)}
-                                        formStyle={{
-                                            questionColor: textColor, // Adapt label color to background
-                                            answerBgColor: 'rgba(255,255,255,0.98)',
-                                            answerColor: '#111827',
-                                        }}
-                                        layout="standard"
-                                    />
-                                </div>
-                            ))}
-                        </div>
+                    (() => {
+                        const { mobileRowConfig } = config;
+                        const hasManualConfig = mobileRowConfig && (mobileRowConfig.row1Fields?.length > 0 || mobileRowConfig.row2Fields?.length > 0);
 
-                        {/* PC Row 2: Agreement & Large Button */}
-                        <div className="flex items-center gap-6">
-                            <label className="flex items-center gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity p-2 hover:bg-white/10 rounded">
-                                <input
-                                    type="checkbox"
-                                    checked={agreed}
-                                    onChange={(e) => setAgreed(e.target.checked)}
-                                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="text-sm font-medium">개인정보 수집 및 이용에 동의합니다</span>
-                            </label>
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="px-10 py-3 text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                                style={{
-                                    backgroundColor: buttonColor,
-                                    color: buttonTextColor
-                                }}
-                            >
-                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료 상담 신청하기')}
-                                {!isSubmitting && <Check className="w-5 h-5" />}
-                            </button>
-                        </div>
-                    </div>
+                        // Helper to render a row of fields for PC
+                        const renderPcRow = (fields: typeof fieldsToShow) => (
+                            <div className="flex flex-wrap justify-center gap-4 w-full items-end">
+                                {fields.map(field => (
+                                    <div key={field.id} className="min-w-[200px] flex-1 max-w-xs">
+                                        <UnifiedFormField
+                                            field={field}
+                                            value={formData[field.id]}
+                                            onChange={(val) => handleChange(field.id, val)}
+                                            formStyle={{
+                                                questionColor: textColor,
+                                                answerBgColor: 'rgba(255,255,255,0.98)',
+                                                answerColor: '#111827',
+                                            }}
+                                            layout="standard"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        );
+
+                        return (
+                            <div className="flex flex-col gap-4 items-center">
+                                {/* PC Fields: 2-row or single-row layout */}
+                                {hasManualConfig ? (
+                                    <div className="flex flex-col gap-3 w-full max-w-4xl mx-auto">
+                                        {mobileRowConfig!.row1Fields?.length > 0 && renderPcRow(
+                                            fieldsToShow.filter(f => mobileRowConfig!.row1Fields.includes(f.id))
+                                        )}
+                                        {mobileRowConfig!.row2Fields?.length > 0 && renderPcRow(
+                                            fieldsToShow.filter(f => mobileRowConfig!.row2Fields.includes(f.id))
+                                        )}
+                                    </div>
+                                ) : (
+                                    renderPcRow(fieldsToShow)
+                                )}
+
+                                {/* PC Row 2: Agreement & Large Button */}
+                                <div className="flex items-center gap-6">
+                                    <label className="flex items-center gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity p-2 hover:bg-white/10 rounded">
+                                        <input
+                                            type="checkbox"
+                                            checked={agreed}
+                                            onChange={(e) => setAgreed(e.target.checked)}
+                                            className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="text-sm font-medium">개인정보 수집 및 이용에 동의합니다</span>
+                                    </label>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="px-10 py-3 text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                        style={{
+                                            backgroundColor: buttonColor,
+                                            color: buttonTextColor
+                                        }}
+                                    >
+                                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료 상담 신청하기')}
+                                        {!isSubmitting && <Check className="w-5 h-5" />}
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })()
                 )}
             </div>
         </form>

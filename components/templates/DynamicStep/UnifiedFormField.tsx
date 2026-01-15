@@ -18,7 +18,7 @@ interface UnifiedFormFieldProps {
         answerFontSize?: string;
     };
     primaryColor?: string;
-    layout?: 'standard' | 'inline' | 'compact' | 'minimal' | 'card'; // NEW: Layout template
+    layout?: 'standard' | 'inline' | 'compact' | 'minimal' | 'card' | 'stickyMobile'; // NEW: Added stickyMobile for sticky bottom form mobile view
 }
 
 const PHONE_PREFIXES = [
@@ -148,9 +148,25 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
         fontSize: formStyle?.answerFontSize || '1rem'
     });
 
-    // Adjusted: Smaller padding for compact/minimal layouts
-    const isCompact = layout === 'compact' || layout === 'minimal';
+    // Adjusted: Smaller padding for compact/minimal/stickyMobile layouts
+    const isStickyMobile = layout === 'stickyMobile';
+    const isCompact = layout === 'compact' || layout === 'minimal' || isStickyMobile;
     const inputBaseClass = `w-full ${isCompact ? 'px-3 py-2 text-sm' : 'p-4'} rounded-xl border focus:ring-2 focus:ring-blue-500 transition-all outline-none`;
+
+    // Helper: Format phone number with auto-hyphen (for stickyMobile)
+    const formatPhoneNumber = (input: string): string => {
+        const numbers = input.replace(/\D/g, '').slice(0, 11);
+        if (numbers.length <= 3) return numbers;
+        if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
+    };
+
+    // Helper: Get placeholder with label (for stickyMobile)
+    const getStickyPlaceholder = (defaultPlaceholder?: string): string => {
+        if (!isStickyMobile) return defaultPlaceholder || '';
+        const prefix = field.required ? '*' : '';
+        return `${prefix}${field.label}`;
+    };
 
     // NEW: Determine container classes based on layout
     const isInline = layout === 'inline';
@@ -160,13 +176,31 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
 
     return (
         <div className={containerClasses}>
-            <label className="block font-bold mb-2 break-keep" style={getLabelStyle()}>
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
-            </label>
+            {/* Label: Hidden for stickyMobile */}
+            {!isStickyMobile && (
+                <label className="block font-bold mb-2 break-keep" style={getLabelStyle()}>
+                    {field.label}
+                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+            )}
 
             {/* TEL */}
             {field.type === 'tel' && (() => {
+                // stickyMobile: Single input with auto-hyphen
+                if (isStickyMobile) {
+                    return (
+                        <input
+                            type="tel"
+                            value={value || ''}
+                            onChange={(e) => onChange(formatPhoneNumber(e.target.value))}
+                            placeholder={getStickyPlaceholder('010-0000-0000')}
+                            className={inputBaseClass}
+                            style={getInputStyle()}
+                        />
+                    );
+                }
+
+                // Standard: 3-part phone input
                 const { p1, p2, p3 } = parsePhone(value);
                 return (
                     <div className="flex gap-2 items-center">
@@ -209,6 +243,21 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
 
             {/* EMAIL */}
             {field.type === 'email' && (() => {
+                // stickyMobile: Single email input
+                if (isStickyMobile) {
+                    return (
+                        <input
+                            type="email"
+                            value={value || ''}
+                            onChange={(e) => onChange(e.target.value)}
+                            placeholder={getStickyPlaceholder('example@email.com')}
+                            className={inputBaseClass}
+                            style={getInputStyle()}
+                        />
+                    );
+                }
+
+                // Standard: Split email input
                 const { id, domain } = parseEmail(value);
                 const isDirect = !EMAIL_DOMAINS.includes(domain) && domain !== '';
                 const currentDomain = isDirect ? 'direct' : domain;
@@ -283,7 +332,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                         className={`w-full ${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} rounded-lg border focus:ring-2 outline-none appearance-none`}
                         style={getInputStyle()}
                     >
-                        <option value="">시간을 선택해주세요</option>
+                        <option value="">{isStickyMobile ? getStickyPlaceholder() : '시간을 선택해주세요'}</option>
                         {generateTimeSlots().map((slot, idx) => <option key={idx} value={slot}>{slot}</option>)}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
@@ -310,7 +359,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                         className={`w-full ${isCompact ? 'px-3 py-2 text-sm' : 'px-4 py-3'} rounded-lg border focus:ring-2 outline-none appearance-none`}
                         style={getInputStyle()}
                     >
-                        <option value="">선택해주세요</option>
+                        <option value="">{isStickyMobile ? getStickyPlaceholder() : '선택해주세요'}</option>
                         {(field.options || []).map((opt: any) => (
                             <option key={typeof opt === 'string' ? opt : opt.value} value={typeof opt === 'string' ? opt : opt.value}>
                                 {typeof opt === 'string' ? opt : opt.label}
@@ -420,7 +469,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                             onChange={(e) => {
                                 if (e.target.value.length <= 200) onChange(e.target.value);
                             }}
-                            placeholder={field.placeholder || '내용을 입력해주세요 (최대 200자)'}
+                            placeholder={isStickyMobile ? getStickyPlaceholder() : (field.placeholder || '내용을 입력해주세요 (최대 200자)')}
                             maxLength={200}
                             className={`${inputBaseClass} min-h-[120px] resize-none`}
                             style={getInputStyle()}
@@ -442,7 +491,7 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
                                 if (field.type !== 'number' && e.target.value.length > 50) return;
                                 onChange(e.target.value);
                             }}
-                            placeholder={field.placeholder || (field.type === 'number' ? '숫자 입력' : '최대 50자')}
+                            placeholder={isStickyMobile ? getStickyPlaceholder() : (field.placeholder || (field.type === 'number' ? '숫자 입력' : '최대 50자'))}
                             maxLength={field.type === 'number' ? undefined : 50}
                             className={`${inputBaseClass} pr-12`}
                             style={getInputStyle()}
