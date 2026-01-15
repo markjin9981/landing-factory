@@ -99,7 +99,13 @@ const StickyBottomForm: React.FC<Props> = ({
         <form
             onSubmit={handleSubmit}
             className="fixed bottom-0 left-0 right-0 z-[100] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] border-t border-white/10"
-            style={{ backgroundColor: bgColor, color: textColor }}
+            style={{
+                backgroundColor: bgColor,
+                color: textColor,
+                backgroundImage: config.backgroundImage ? `url(${config.backgroundImage})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            }}
         >
             <div className={`mx-auto transition-all duration-300 ${isMobileView
                 ? 'px-3 py-2' // Mobile: Compact Padding
@@ -272,7 +278,10 @@ const StickyBottomForm: React.FC<Props> = ({
                                             className="w-full px-12 py-4 text-lg font-bold rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                                             style={{
                                                 backgroundColor: buttonColor,
-                                                color: buttonTextColor
+                                                color: buttonTextColor,
+                                                backgroundImage: config.buttonImage ? `url(${config.buttonImage})` : undefined,
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
                                             }}
                                         >
                                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료상담 신청하기')}
@@ -326,7 +335,10 @@ const StickyBottomForm: React.FC<Props> = ({
                                         className="px-24 py-3 text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                         style={{
                                             backgroundColor: buttonColor,
-                                            color: buttonTextColor
+                                            color: buttonTextColor,
+                                            backgroundImage: config.buttonImage ? `url(${config.buttonImage})` : undefined,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center',
                                         }}
                                     >
                                         {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료 상담 신청하기')}

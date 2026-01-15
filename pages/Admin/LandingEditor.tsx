@@ -3261,22 +3261,46 @@ const LandingEditor: React.FC = () => {
                                                 <div className="p-3 border rounded-lg bg-gray-50/50">
                                                     <h4 className="text-xs font-bold text-gray-700 mb-2">디자인 커스텀</h4>
                                                     <div className="grid grid-cols-2 gap-3">
-                                                        {/* Background Color */}
+                                                        {/* Background Color & Image */}
                                                         <div>
-                                                            <label className="text-[10px] text-gray-500 block mb-1">배경색</label>
-                                                            <div className="flex gap-1">
+                                                            <label className="text-[10px] text-gray-500 block mb-1">배경색 / 이미지</label>
+                                                            <div className="flex gap-1 items-center">
                                                                 <input
                                                                     type="color"
                                                                     value={config.stickyBottomForm?.backgroundColor || '#1f2937'}
                                                                     onChange={(e) => updateNested(['stickyBottomForm', 'backgroundColor'], e.target.value)}
-                                                                    className="w-8 h-8 border rounded cursor-pointer p-0"
+                                                                    className="w-8 h-8 border rounded cursor-pointer p-0 shrink-0"
                                                                 />
                                                                 <input
                                                                     type="text"
                                                                     value={config.stickyBottomForm?.backgroundColor || ''}
                                                                     onChange={(e) => updateNested(['stickyBottomForm', 'backgroundColor'], e.target.value)}
-                                                                    className="flex-1 border rounded p-1 text-xs uppercase"
+                                                                    className="flex-1 border rounded p-1 text-xs uppercase min-w-0"
                                                                 />
+                                                                {/* Image Picker */}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => openImagePicker((url) => updateNested(['stickyBottomForm', 'backgroundImage'], url))}
+                                                                    className={`shrink-0 w-8 h-8 border rounded flex items-center justify-center transition-colors ${config.stickyBottomForm?.backgroundImage ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50'}`}
+                                                                    title="배경 이미지 설정"
+                                                                >
+                                                                    {config.stickyBottomForm?.backgroundImage ? (
+                                                                        <div className="relative w-full h-full group">
+                                                                            <img src={config.stickyBottomForm.backgroundImage} className="w-full h-full object-cover rounded-[3px]" alt="bg" />
+                                                                            <div
+                                                                                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white cursor-pointer"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    updateNested(['stickyBottomForm', 'backgroundImage'], '');
+                                                                                }}
+                                                                            >
+                                                                                <X className="w-3 h-3" />
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <ImageIcon className="w-4 h-4 text-gray-400" />
+                                                                    )}
+                                                                </button>
                                                             </div>
                                                         </div>
                                                         {/* Text Color */}
@@ -3297,22 +3321,46 @@ const LandingEditor: React.FC = () => {
                                                                 />
                                                             </div>
                                                         </div>
-                                                        {/* Button Color */}
+                                                        {/* Button Color & Image */}
                                                         <div>
-                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 배경색</label>
-                                                            <div className="flex gap-1">
+                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 배경색 / 이미지</label>
+                                                            <div className="flex gap-1 items-center">
                                                                 <input
                                                                     type="color"
                                                                     value={config.stickyBottomForm?.buttonColor || config.theme.primaryColor}
                                                                     onChange={(e) => updateNested(['stickyBottomForm', 'buttonColor'], e.target.value)}
-                                                                    className="w-8 h-8 border rounded cursor-pointer p-0"
+                                                                    className="w-8 h-8 border rounded cursor-pointer p-0 shrink-0"
                                                                 />
                                                                 <input
                                                                     type="text"
                                                                     value={config.stickyBottomForm?.buttonColor || ''}
                                                                     onChange={(e) => updateNested(['stickyBottomForm', 'buttonColor'], e.target.value)}
-                                                                    className="flex-1 border rounded p-1 text-xs uppercase"
+                                                                    className="flex-1 border rounded p-1 text-xs uppercase min-w-0"
                                                                 />
+                                                                {/* Image Picker */}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => openImagePicker((url) => updateNested(['stickyBottomForm', 'buttonImage'], url))}
+                                                                    className={`shrink-0 w-8 h-8 border rounded flex items-center justify-center transition-colors ${config.stickyBottomForm?.buttonImage ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50'}`}
+                                                                    title="버튼 이미지 설정"
+                                                                >
+                                                                    {config.stickyBottomForm?.buttonImage ? (
+                                                                        <div className="relative w-full h-full group">
+                                                                            <img src={config.stickyBottomForm.buttonImage} className="w-full h-full object-cover rounded-[3px]" alt="btn-bg" />
+                                                                            <div
+                                                                                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white cursor-pointer"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    updateNested(['stickyBottomForm', 'buttonImage'], '');
+                                                                                }}
+                                                                            >
+                                                                                <X className="w-3 h-3" />
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <ImageIcon className="w-4 h-4 text-gray-400" />
+                                                                    )}
+                                                                </button>
                                                             </div>
                                                         </div>
                                                         {/* Button Text Color */}
@@ -3363,8 +3411,8 @@ const LandingEditor: React.FC = () => {
                                                                     type="button"
                                                                     onClick={() => updateNested(['stickyBottomForm', 'pcLayout'], 'stacked')}
                                                                     className={`p-2 text-xs rounded-lg border-2 transition-all ${(!config.stickyBottomForm?.pcLayout || config.stickyBottomForm?.pcLayout === 'stacked')
-                                                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                                                            : 'border-gray-200 hover:border-gray-300'
+                                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                                        : 'border-gray-200 hover:border-gray-300'
                                                                         }`}
                                                                 >
                                                                     <div className="flex flex-col gap-1">
@@ -3380,8 +3428,8 @@ const LandingEditor: React.FC = () => {
                                                                     type="button"
                                                                     onClick={() => updateNested(['stickyBottomForm', 'pcLayout'], 'wide')}
                                                                     className={`p-2 text-xs rounded-lg border-2 transition-all ${config.stickyBottomForm?.pcLayout === 'wide'
-                                                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                                                            : 'border-gray-200 hover:border-gray-300'
+                                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                                        : 'border-gray-200 hover:border-gray-300'
                                                                         }`}
                                                                 >
                                                                     <div className="flex gap-1 items-center justify-center">

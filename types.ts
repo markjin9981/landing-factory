@@ -353,6 +353,10 @@ export interface StickyBottomFormConfig {
   // New: Input styling
   inputBorderRadius?: string; // e.g., '8px', '12px', '9999px' for pill shape
 
+  // New: Background Images
+  backgroundImage?: string;
+  buttonImage?: string;
+
   // New: PC Layout option
   pcLayout?: 'stacked' | 'wide'; // 'stacked' = vertical (default), 'wide' = horizontal with button on right
 }
