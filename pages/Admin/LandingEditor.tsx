@@ -3333,6 +3333,28 @@ const LandingEditor: React.FC = () => {
                                                                 />
                                                             </div>
                                                         </div>
+                                                        {/* Input Border Radius */}
+                                                        <div className="col-span-2">
+                                                            <label className="text-[10px] text-gray-500 block mb-1">입력 박스 곡률</label>
+                                                            <div className="flex gap-2 items-center">
+                                                                <input
+                                                                    type="range"
+                                                                    min="0"
+                                                                    max="24"
+                                                                    step="2"
+                                                                    value={parseInt(config.stickyBottomForm?.inputBorderRadius || '12')}
+                                                                    onChange={(e) => updateNested(['stickyBottomForm', 'inputBorderRadius'], `${e.target.value}px`)}
+                                                                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                                                />
+                                                                <span className="text-xs text-gray-600 w-12 text-center">
+                                                                    {config.stickyBottomForm?.inputBorderRadius || '12px'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between text-[9px] text-gray-400 mt-1">
+                                                                <span>각진 형태</span>
+                                                                <span>둥근 형태</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

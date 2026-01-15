@@ -116,11 +116,11 @@ const StickyBottomForm: React.FC<Props> = ({
 
                             // Helper for rendering a row of fields
                             const renderRow = (fields: typeof fieldsToShow, isGrid: boolean) => (
-                                <div className={`${isGrid ? 'grid grid-cols-2 gap-2' : 'flex gap-2 overflow-x-auto'}`}>
+                                <div className={`${isGrid ? 'grid grid-cols-2 gap-2' : 'flex gap-2'}`}>
                                     {fields.map(field => (
                                         <div
                                             key={field.id}
-                                            className={`${isGrid ? 'w-full' : (field.id === 'name' ? 'w-[30%] shrink-0' : field.id === 'phone' ? 'w-[70%] shrink-0' : 'flex-1 min-w-[30%]')} `}
+                                            className={`${isGrid ? 'w-full' : (field.id === 'name' ? 'flex-shrink-0 w-20' : 'flex-1 min-w-0')}`}
                                         >
                                             <UnifiedFormField
                                                 field={field}
@@ -152,11 +152,11 @@ const StickyBottomForm: React.FC<Props> = ({
                             } else {
                                 // Auto Logic
                                 return (
-                                    <div className={`${isMultiRowMobile ? 'grid grid-cols-2 gap-2' : 'flex gap-2 overflow-x-auto'}`}>
+                                    <div className={`${isMultiRowMobile ? 'grid grid-cols-2 gap-2' : 'flex gap-2'}`}>
                                         {fieldsToShow.map(field => (
                                             <div
                                                 key={field.id}
-                                                className={`${isMultiRowMobile ? 'w-full' : (field.id === 'name' ? 'w-[30%] shrink-0' : field.id === 'phone' ? 'w-[70%] shrink-0' : 'flex-1 min-w-[30%]')} `}
+                                                className={`${isMultiRowMobile ? 'w-full' : (field.id === 'name' ? 'flex-shrink-0 w-20' : 'flex-1 min-w-0')}`}
                                             >
                                                 <UnifiedFormField
                                                     field={field}
