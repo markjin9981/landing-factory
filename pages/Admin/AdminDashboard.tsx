@@ -4,7 +4,7 @@ import LANDING_CONFIGS_JSON from '../../data/landingConfigs.json';
 import { LandingConfig } from '../../types';
 import { fetchLandingConfigs, fetchLeads } from '../../services/googleSheetService';
 import { deleteConfigFromGithub } from '../../services/githubService';
-import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2 } from 'lucide-react';
+import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2, Copy } from 'lucide-react';
 
 import OgStatusBadge from '../../components/OgStatusBadge';
 
@@ -152,6 +152,31 @@ const AdminDashboard: React.FC = () => {
                 <Globe className="w-3 h-3 mr-1" /> 배포됨 (Live)
             </span>
         );
+    };
+
+    const handleDuplicate = (targetConfig: LandingConfig) => {
+        if (!confirm(`'${targetConfig.title}' 페이지를 복제하시겠습니까?\n\n복제된 페이지는 '작성 중' 상태로 생성됩니다.`)) return;
+
+        // 1. Generate New ID
+        const newId = String(Date.now());
+
+        // 2. Deep Clone & Modify
+        const newConfig = JSON.parse(JSON.stringify(targetConfig));
+        newConfig.id = newId;
+        newConfig.title = `${targetConfig.title} (복제본)`;
+        if (newConfig.hero) {
+            newConfig.hero.headline = `[복제] ${newConfig.hero.headline}`;
+        }
+
+        // 3. Save to Local Drafts
+        const stored = localStorage.getItem('landing_drafts');
+        const drafts = stored ? JSON.parse(stored) : {};
+        drafts[newId] = newConfig;
+        localStorage.setItem('landing_drafts', JSON.stringify(drafts));
+
+        // 4. Reload List
+        alert('페이지가 복제되었습니다.\n목록 상단에 "작성 중" 상태로 추가됩니다.');
+        window.location.reload();
     };
 
     return (
@@ -322,6 +347,14 @@ const AdminDashboard: React.FC = () => {
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                         <button
+                                            onClick={() => handleDuplicate(config)}
+                                            className="flex items-center justify-center px-4 py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                            title="페이지 복제"
+                                        >
+                                            <Copy className="w-4 h-4 mr-2" />
+                                            복제
+                                        </button>
+                                        <button
                                             onClick={() => {
                                                 const url = `${window.location.origin}/${config.id}`;
                                                 navigator.clipboard.writeText(url);
@@ -331,7 +364,7 @@ const AdminDashboard: React.FC = () => {
                                             title="배포 링크 복사"
                                         >
                                             <Link2 className="w-4 h-4 mr-2" />
-                                            링크 복사
+                                            링크
                                         </button>
                                         <Link
                                             to={`/${config.id}`}
