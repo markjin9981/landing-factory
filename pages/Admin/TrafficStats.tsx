@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, BarChart2, Filter, Calendar as CalendarIcon, X } from 'lucide-react';
+import { ArrowLeft, RefreshCw, BarChart2, Filter, Calendar as CalendarIcon, X, PieChart, TrendingUp } from 'lucide-react';
 import { fetchVisits, fetchLeads, fetchLandingConfigs } from '../../services/googleSheetService';
 import { VisitData, LeadData, LandingConfig } from '../../types';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -16,6 +16,7 @@ const TrafficStats: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<string | null>(null); // 'YYYY-MM-DD'
     const [showCalendar, setShowCalendar] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [activeTab, setActiveTab] = useState<'overview' | 'marketing'>('overview'); // New Tab State
 
     const loadData = async () => {
         setLoading(true);
@@ -208,6 +209,90 @@ const TrafficStats: React.FC = () => {
         return result;
     }, [visits, leads, selectedLandingId, selectedDate]);
 
+
+    // --- UTM Statistics Logic ---
+    const utmStats = useMemo(() => {
+        // Filter filteredVisits/Leads based on selectedLandingId etc (Re-using filtering logic?)
+        // Actually, chartData logic computed filters inside. We should extract filtering logic.
+        let vList = visits;
+        let lList = leads;
+
+        if (selectedLandingId !== 'all') {
+            vList = visits.filter(v => String(v['Landing ID']) === selectedLandingId);
+            lList = leads.filter(l => String(l['Landing ID']) === selectedLandingId);
+        }
+
+        // Filter by Date (if selected)
+        if (selectedDate) {
+            // Very basic date filtering based on string match for now
+            // v.Timestamp format check needed? Google Sheet usually returns "YYYY-MM-DD ..." or similar.
+            // But parseKoreanDate handles it.
+            vList = vList.filter(v => {
+                const t = parseKoreanDate(v.Timestamp);
+                if (!t) return false;
+                const d = new Date(t);
+                const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                return dateStr === selectedDate;
+            });
+            lList = lList.filter(l => {
+                const t = parseKoreanDate(l.timestamp || l['Timestamp']);
+                if (!t) return false;
+                const d = new Date(t);
+                const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                return dateStr === selectedDate;
+            });
+        } else {
+            // Last 7 days filter? chartData does it.
+            // For consistency, let's just use ALL data if no date selected, OR Apply 7 days range?
+            // Usually overview table implies range.
+            // Let's filter to last 30 days for UTM stats default? Or All Time?
+            // Users usually want All Time or controlled range.
+            // Since we only passed "Last 7 days" to Chart, maybe we should respect that range context?
+            // But existing code only filters "Daily Mode (Last 7 Days)" FOR THE CHART buckets.
+            // The raw data `visits` is fetched from Sheet (which usually has ALL rows).
+            // Let's Default to "All Time" if no date selected, but maybe limit to prevent huge calc?
+            // For now, All Time if no date selected, to show full history.
+        }
+
+        const stats: Record<string, {
+            id: string, source: string, medium: string, campaign: string, term: string, content: string,
+            visits: number, leads: number
+        }> = {};
+
+        // Aggregate Visits
+        vList.forEach(v => {
+            const source = v.utm_source || '(direct)';
+            const medium = v.utm_medium || '-';
+            const campaign = v.utm_campaign || '-';
+            const term = v.utm_term || '-';
+            const content = v.utm_content || '-';
+            const key = `${source}|${medium}|${campaign}|${term}|${content}`;
+
+            if (!stats[key]) {
+                stats[key] = { id: key, source, medium, campaign, term, content, visits: 0, leads: 0 };
+            }
+            stats[key].visits++;
+        });
+
+        // Aggregate Leads
+        lList.forEach(l => {
+            const source = l.utm_source || '(direct)';
+            const medium = l.utm_medium || '-';
+            const campaign = l.utm_campaign || '-';
+            const term = l.utm_term || '-';
+            const content = l.utm_content || '-';
+            const key = `${source}|${medium}|${campaign}|${term}|${content}`;
+
+            if (!stats[key]) {
+                // If lead exists but no visit logged (e.g. tracking block), we still count it
+                stats[key] = { id: key, source, medium, campaign, term, content, visits: 0, leads: 0 };
+            }
+            stats[key].leads++;
+        });
+
+        return Object.values(stats).sort((a, b) => b.leads - a.leads || b.visits - a.visits);
+    }, [visits, leads, selectedLandingId, selectedDate]);
+
     const totalVisits = chartData.reduce((acc, cur) => acc + cur.visits, 0);
     const totalLeads = chartData.reduce((acc, cur) => acc + cur.leads, 0);
     const conversionRate = totalVisits > 0 ? ((totalLeads / totalVisits) * 100).toFixed(1) : '0';
@@ -324,52 +409,156 @@ const TrafficStats: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <div className="text-gray-500 text-sm font-bold mb-1">
-                            총 방문자 ({selectedDate ? '선택일' : '최근 7일'})
-                        </div>
-                        <div className="text-3xl font-bold text-gray-900">{totalVisits}명</div>
-                    </div>
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <div className="text-gray-500 text-sm font-bold mb-1">
-                            총 접수 ({selectedDate ? '선택일' : '최근 7일'})
-                        </div>
-                        <div className="text-3xl font-bold text-blue-600">{totalLeads}건</div>
-                    </div>
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <div className="text-gray-500 text-sm font-bold mb-1">전환율</div>
-                        <div className="text-3xl font-bold text-green-600">{conversionRate}%</div>
-                    </div>
+                {/* TABS */}
+                <div className="flex gap-6 border-b border-gray-200 mb-8">
+                    <button
+                        onClick={() => setActiveTab('overview')}
+                        className={`pb-3 px-2 text-sm font-bold transition-colors relative ${activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        기본 통계 (Dashboard)
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('marketing')}
+                        className={`pb-3 px-2 text-sm font-bold transition-colors relative ${activeTab === 'marketing' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        마케팅 분석 (UTM Stats)
+                    </button>
                 </div>
 
-                {/* Chart */}
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-8 h-[400px]">
-                    <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                        <BarChart2 className="w-5 h-5 text-gray-500" />
-                        {selectedDate ? '시간대별 방문 및 접수 현황' : '일별 방문 및 접수 현황'}
-                    </h3>
-                    <ResponsiveContainer width="100%" height="85%">
-                        <LineChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis dataKey="display" stroke="#94a3b8" />
-                            <YAxis stroke="#94a3b8" />
-                            <Tooltip
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                            />
-                            <Legend />
-                            <Line type="monotone" dataKey="visits" name="방문수" stroke="#94a3b8" strokeWidth={2} activeDot={{ r: 8 }} />
-                            <Line type="monotone" dataKey="pc" name="PC 유입" stroke="#0ea5e9" strokeWidth={2} />
-                            <Line type="monotone" dataKey="mobile" name="모바일 유입" stroke="#f97316" strokeWidth={2} />
-                            <Line type="monotone" dataKey="leads" name="접수(DB)" stroke="#22c55e" strokeWidth={3} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
+                {/* --- OVERVIEW TAB --- */}
+                {activeTab === 'overview' && (
+                    <div className="animate-fade-in">
 
-                <div className="text-center text-gray-400 text-xs">
-                    * 차트 데이터는 브라우저 시간대를 기준으로 집계됩니다.
-                </div>
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                <div className="text-gray-500 text-sm font-bold mb-1">
+                                    총 방문자 ({selectedDate ? '선택일' : '최근 7일'})
+                                </div>
+                                <div className="text-3xl font-bold text-gray-900">{totalVisits}명</div>
+                            </div>
+                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                <div className="text-gray-500 text-sm font-bold mb-1">
+                                    총 접수 ({selectedDate ? '선택일' : '최근 7일'})
+                                </div>
+                                <div className="text-3xl font-bold text-blue-600">{totalLeads}건</div>
+                            </div>
+                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                <div className="text-gray-500 text-sm font-bold mb-1">전환율</div>
+                                <div className="text-3xl font-bold text-green-600">{conversionRate}%</div>
+                            </div>
+                        </div>
+
+                        {/* Chart */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-8 h-[400px]">
+                            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                                <BarChart2 className="w-5 h-5 text-gray-500" />
+                                {selectedDate ? '시간대별 방문 및 접수 현황' : '일별 방문 및 접수 현황'}
+                            </h3>
+                            <ResponsiveContainer width="100%" height="85%">
+                                <LineChart data={chartData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                    <XAxis dataKey="display" stroke="#94a3b8" />
+                                    <YAxis stroke="#94a3b8" />
+                                    <Tooltip
+                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                    />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="visits" name="방문수" stroke="#94a3b8" strokeWidth={2} activeDot={{ r: 8 }} />
+                                    <Line type="monotone" dataKey="pc" name="PC 유입" stroke="#0ea5e9" strokeWidth={2} />
+                                    <Line type="monotone" dataKey="mobile" name="모바일 유입" stroke="#f97316" strokeWidth={2} />
+                                    <Line type="monotone" dataKey="leads" name="접수(DB)" stroke="#22c55e" strokeWidth={3} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                    </div>
+
+                )}
+
+                {/* --- MARKETING TAB --- */}
+                {activeTab === 'marketing' && (
+                    <div className="animate-fade-in space-y-8">
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                                <div className="text-gray-500 text-xs font-bold mb-1">UTM 추적 방문</div>
+                                <div className="text-2xl font-bold text-gray-900">
+                                    {utmStats.reduce((acc, s) => s.source !== '(direct)' ? acc + s.visits : acc, 0).toLocaleString()}
+                                    <span className="text-xs text-gray-400 font-normal ml-1">/ {totalVisits.toLocaleString()}</span>
+                                </div>
+                            </div>
+                            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                                <div className="text-gray-500 text-xs font-bold mb-1">마케팅 전환 (Leads)</div>
+                                <div className="text-2xl font-bold text-blue-600">
+                                    {utmStats.reduce((acc, s) => s.source !== '(direct)' ? acc + s.leads : acc, 0).toLocaleString()}
+                                    <span className="text-xs text-gray-400 font-normal ml-1">건</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* UTM Breakdown Table */}
+                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                            <div className="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                                    <TrendingUp className="w-4 h-4 text-gray-500" />
+                                    캠페인 상세 분석
+                                </h3>
+                                <div className="text-xs text-gray-400">전환수(DB) 기준 내림차순 정렬</div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
+                                        <tr>
+                                            <th className="px-6 py-3">Source (출처)</th>
+                                            <th className="px-6 py-3">Medium (매체)</th>
+                                            <th className="px-6 py-3">Campaign</th>
+                                            <th className="px-6 py-3 text-right text-gray-400">방문수</th>
+                                            <th className="px-6 py-3 text-right font-bold text-blue-600">전환수(DB)</th>
+                                            <th className="px-6 py-3 text-right">전환율</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {utmStats.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
+                                                    데이터가 없습니다. (기간을 조정하거나 UTM 설정을 확인하세요)
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            utmStats.map((stat, idx) => (
+                                                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="px-6 py-3 font-medium text-gray-900">
+                                                        {stat.source === '(direct)' ? (
+                                                            <span className="text-gray-400 font-normal italic">(직접 유입)</span>
+                                                        ) : (
+                                                            <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs border border-blue-100">{stat.source}</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-3 text-gray-600">{stat.medium}</td>
+                                                    <td className="px-6 py-3 text-gray-600">
+                                                        {stat.campaign !== '-' && <div className="font-medium">{stat.campaign}</div>}
+                                                        {stat.term !== '-' && <div className="text-xs text-gray-400">Term: {stat.term}</div>}
+                                                    </td>
+                                                    <td className="px-6 py-3 text-right">{stat.visits.toLocaleString()}</td>
+                                                    <td className="px-6 py-3 text-right font-bold text-blue-600">{stat.leads.toLocaleString()}</td>
+                                                    <td className="px-6 py-3 text-right text-gray-600">
+                                                        {stat.visits > 0 ? ((stat.leads / stat.visits) * 100).toFixed(1) : '0'}%
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-xs text-blue-700">
+                            <strong>💡 팁:</strong> UTM 파라미터가 포함된 링크로 유입된 경우에만 이곳에 집계됩니다.
+                            (예: <code className="bg-white px-1 py-0.5 rounded border">?utm_source=instagtram&utm_medium=sns</code>)
+                        </div>
+                    </div>
+                )}
 
             </main>
         </div>
