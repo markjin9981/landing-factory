@@ -221,6 +221,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                                 questionColor: textColor,
                                                 answerBgColor: 'rgba(255,255,255,0.98)',
                                                 answerColor: '#111827',
+                                                inputBorderRadius: config.inputBorderRadius,
                                             }}
                                             layout="standard"
                                         />
