@@ -3562,7 +3562,7 @@ const LandingEditor: React.FC = () => {
                                             </label>
 
                                             {/* Field Mapping Section */}
-                                            {config.additionalSheetConfig?.sheetName && (
+                                            {(config.additionalSheetConfig?.spreadsheetUrl || config.additionalSheetConfig?.sheetName) && (
                                                 <div className="mt-4 p-3 bg-gray-50 rounded border animate-fade-in">
                                                     <div className="flex items-center justify-between mb-3">
                                                         <h4 className="text-xs font-semibold text-gray-700">필드 매핑 설정</h4>
