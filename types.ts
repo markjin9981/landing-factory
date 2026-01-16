@@ -746,6 +746,7 @@ export interface FieldMapping {
 }
 
 export interface AdditionalSheetConfig {
+  spreadsheetUrl?: string;          // URL of external spreadsheet (optional, if empty = same spreadsheet)
   sheetName: string;                // Name of the additional sheet
   fieldMappings: FieldMapping[];    // Field mappings (empty = all fields)
 }

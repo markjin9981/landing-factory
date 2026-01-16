@@ -598,8 +598,30 @@ function handleLeadSubmission(params) {
     try {
       var config = JSON.parse(additionalConfig);
       if (config.sheetName && config.sheetName !== '') {
-        var additionalSheet = getOrCreateSheet(config.sheetName);
+        var additionalSheet;
+        var targetSpreadsheet;
         
+        // Check if external spreadsheet URL is provided
+        if (config.spreadsheetUrl && config.spreadsheetUrl !== '') {
+          try {
+            // Try to open external spreadsheet
+            targetSpreadsheet = SpreadsheetApp.openByUrl(config.spreadsheetUrl);
+            additionalSheet = targetSpreadsheet.getSheetByName(config.sheetName);
+            
+            if (!additionalSheet) {
+              additionalSheet = targetSpreadsheet.insertSheet(config.sheetName);
+            }
+          } catch (externalError) {
+            Logger.log("External spreadsheet error: " + externalError.message);
+            // Fall back to current spreadsheet if external fails
+            additionalSheet = getOrCreateSheet(config.sheetName);
+          }
+        } else {
+          // Use current spreadsheet (same file, different tab)
+          additionalSheet = getOrCreateSheet(config.sheetName);
+        }
+        
+        // Save data with or without field mapping
         if (config.fieldMappings && config.fieldMappings.length > 0) {
           saveToSheetWithMapping(additionalSheet, params, config.fieldMappings);
         } else {

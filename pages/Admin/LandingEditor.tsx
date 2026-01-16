@@ -3511,6 +3511,34 @@ const LandingEditor: React.FC = () => {
                                                 </p>
                                             </div>
 
+                                            {/* Spreadsheet URL Input - NEW */}
+                                            <label className="block mb-4">
+                                                <span className="text-xs font-medium text-gray-700 block mb-1">
+                                                    스프레드시트 URL (선택사항)
+                                                </span>
+                                                <input
+                                                    type="text"
+                                                    value={config.additionalSheetConfig?.spreadsheetUrl || ''}
+                                                    onChange={(e) => setConfig({
+                                                        ...config,
+                                                        additionalSheetConfig: {
+                                                            spreadsheetUrl: e.target.value,
+                                                            sheetName: config.additionalSheetConfig?.sheetName || '',
+                                                            fieldMappings: config.additionalSheetConfig?.fieldMappings || []
+                                                        }
+                                                    })}
+                                                    placeholder="https://docs.google.com/spreadsheets/d/xxxxx"
+                                                    className="w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500 font-mono text-xs"
+                                                />
+                                                <p className="text-[10px] text-gray-500 mt-1">
+                                                    💡 비워두면 현재 스프레드시트 내 다른 탭으로 저장됩니다.
+                                                    <br />
+                                                    📌 다른 구글 계정의 스프레드시트 URL을 입력하면 해당 파일로 전송됩니다.
+                                                    <br />
+                                                    ⚠️ 외부 스프레드시트 사용 시 Apps Script 계정(beanhull@gmail.com)을 편집자로 추가해야 합니다.
+                                                </p>
+                                            </label>
+
                                             {/* Sheet Name Input */}
                                             <label className="block mb-4">
                                                 <span className="text-xs font-medium text-gray-700 block mb-1">추가 DB 전송 시트 이름</span>
@@ -3520,15 +3548,16 @@ const LandingEditor: React.FC = () => {
                                                     onChange={(e) => setConfig({
                                                         ...config,
                                                         additionalSheetConfig: {
+                                                            spreadsheetUrl: config.additionalSheetConfig?.spreadsheetUrl || '',
                                                             sheetName: e.target.value,
                                                             fieldMappings: config.additionalSheetConfig?.fieldMappings || []
                                                         }
                                                     })}
-                                                    placeholder="예: 고객사A_DB, Landing_메이크업"
+                                                    placeholder="예: 고객사A_DB, DB수집"
                                                     className="w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500"
                                                 />
                                                 <p className="text-[10px] text-gray-500 mt-1">
-                                                    💡 비워두면 Leads 시트에만 저장됩니다.
+                                                    💡 스프레드시트 내 시트(탭) 이름을 입력하세요.
                                                 </p>
                                             </label>
 
