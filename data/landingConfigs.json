@@ -1,11 +1,11 @@
 {
-  "meta2": {
-    "id": "meta2",
-    "title": "메타 무료 상담 신청",
-    "favicon": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057617911______2026-01-06_105937_ALTools_AIUpscaler.png",
-    "ogImage": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057633515_22.jpg",
-    "ogTitle": "개인회생 졸아",
-    "ogDescription": "개인회생 정말 좋아요~~최고 따봉",
+  "722734": {
+    "id": "722734",
+    "title": "명율은 길을 찾겠습니다.",
+    "favicon": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768051577409______2026-01-06_105937_ALTools_AIUpscaler.png",
+    "ogImage": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768536966088______2026-01-16_131541.png",
+    "ogTitle": "2026년은 빚 정리하세요!",
+    "ogDescription": "이제 묶은 빚은 정리하고 새로 시작하세요. 명율이 끝까지 함께 하겠습니다!",
     "keywords": "",
     "theme": {
       "primaryColor": "#0ea5e9",
@@ -18,36 +18,27 @@
     },
     "banners": [
       {
-        "id": "d1c7349a-a660-47fd-8c14-d3cdd8c28843",
+        "id": "fad4b29d-6637-4644-9b94-bf07f5e6c415",
         "isShow": true,
-        "text": "새로운 배너입니다. 새로운 배너입니다.새로운 배너입니다.",
-        "backgroundColor": "#1f2937",
+        "text": "명율은 반드시 길을 찾겠습니다. 2026년은 빚 정리하고 시작하세요!",
+        "backgroundColor": "#3c1e01",
         "textColor": "#ffffff",
-        "position": "bottom",
-        "size": "md",
-        "isSliding": true
-      },
-      {
-        "id": "b76b89da-eedf-4c37-960a-3c576a4479a1",
-        "isShow": true,
-        "text": "새로운 배너입니다. 새로운 배너입니다.새로운 배너입니다.",
-        "backgroundColor": "#b36b95",
-        "textColor": "#d0e372",
         "position": "top",
         "size": "md",
-        "isSliding": true
+        "isSliding": true,
+        "bannerAnimation": "shimmer"
       }
     ],
     "hero": {
-      "isShow": true,
-      "headline": "힘드시죠?",
+      "isShow": false,
+      "headline": "메인 카피를 입력하세요",
       "headlineStyle": {
         "fontSize": "3rem",
         "fontWeight": "800",
         "color": "#ffffff",
         "textAlign": "center"
       },
-      "subHeadline": "명률에서 해결하세요!!!",
+      "subHeadline": "서브 카피를 입력하세요",
       "subHeadlineStyle": {
         "fontSize": "1.25rem",
         "fontWeight": "400",
@@ -60,83 +51,40 @@
     },
     "detailContent": [
       {
-        "id": "ec298e42-d858-4b49-bdf9-701acd7003f2",
+        "id": "4f17b5bb-b0ba-4e3f-90fd-52bc40a0e648",
         "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768061328762_img2_250317.gif",
-        "width": "100%",
-        "videoSize": "md",
-        "autoPlay": false,
-        "mapSize": "md"
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768536966088______2026-01-16_131541.png",
+        "width": "75%"
       },
       {
-        "id": "7225cc4a-11fa-43c6-80b3-c82a438b986b",
+        "id": "b7eb86e7-c427-4100-9994-5ba8fd9d0a74",
         "type": "image",
-        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768060894273_img4_250527.gif",
-        "width": "100%",
-        "videoSize": "md",
-        "autoPlay": false,
-        "mapSize": "md"
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768537074620_landing_top_45472_1740626153_1_15522122.png",
+        "width": "75%"
       },
       {
-        "id": "1eeddf58-bb69-484e-9b85-91b0ed6c1aac",
-        "type": "banner",
-        "content": "이곳에 내용을 입력하세요.",
-        "bannerStyle": {
-          "height": "auto",
-          "backgroundColor": "#f3f4f6",
-          "textColor": "#000000",
-          "fontSize": "1.25rem",
-          "fontWeight": "400",
-          "textAlign": "center",
-          "padding": "3rem",
-          "overlayOpacity": 0.5,
-          "backgroundImage": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768052833614_22.jpg"
-        },
-        "urgencyConfig": {
-          "showCountdown": false,
-          "showTicker": true,
-          "tickerType": "vertical_list",
-          "tickerConfig": {
-            "mode": "vertical_list",
-            "columns": [
-              {
-                "id": "name",
-                "label": "이름",
-                "type": "name",
-                "isEnabled": true,
-                "masking": true
-              },
-              {
-                "id": "phone",
-                "label": "연락처",
-                "type": "phone",
-                "isEnabled": true,
-                "masking": true
-              },
-              {
-                "id": "text",
-                "label": "상담내용",
-                "type": "text",
-                "isEnabled": true,
-                "masking": false
-              },
-              {
-                "id": "debt",
-                "label": "신청금액",
-                "type": "debt",
-                "isEnabled": false,
-                "masking": false
-              },
-              {
-                "id": "gender",
-                "label": "성별",
-                "type": "gender",
-                "isEnabled": false,
-                "masking": false
-              }
-            ]
-          }
-        }
+        "id": "fd8cd4b2-f227-4602-92bc-53525dbe2c31",
+        "type": "image",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768537007680_landing_top_45472_1740586199_0_80923343.gif",
+        "width": "75%"
+      },
+      {
+        "id": "bd67ffb9-8d3d-4449-a20e-151ded4c4029",
+        "type": "image",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768537038180_landing_top_45472_1740586199_1_47689276.jpg",
+        "width": "75%"
+      },
+      {
+        "id": "34e737be-f279-4ab0-b40b-91eeafb5372d",
+        "type": "image",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768537054483_landing_top_45472_1740586199_3_49230759.gif",
+        "width": "75%"
+      },
+      {
+        "id": "db7fd9bc-69c0-43d9-9caf-c992175e8d94",
+        "type": "image",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768537065610_landing_top_45472_1740586294_0_45698002.jpg",
+        "width": "75%"
       }
     ],
     "formConfig": {
@@ -146,7 +94,7 @@
       "submitSuccessTitle": "신청이 완료되었습니다!",
       "submitSuccessMessage": "담당자가 내용을 확인 후 최대한 빠르게 연락드리겠습니다.",
       "position": "bottom",
-      "layout": "grid",
+      "layout": "vertical",
       "fields": [
         {
           "id": "name",
@@ -161,27 +109,25 @@
           "required": true
         },
         {
-          "id": "f1768131524326",
-          "label": "새 항목",
-          "type": "text",
-          "required": true
+          "id": "f1768539971044",
+          "label": "채무 금액",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "label": "3천 이상",
+              "value": "3천 이상"
+            },
+            {
+              "label": "5천 이상",
+              "value": "5천 이상"
+            }
+          ]
         },
         {
-          "id": "f1768131527215",
-          "label": "새 항목",
-          "type": "text",
-          "required": true
-        },
-        {
-          "id": "f1768489775056",
-          "label": "새 항목",
-          "type": "text",
-          "required": true
-        },
-        {
-          "id": "f1768489776346",
-          "label": "새 항목",
-          "type": "text",
+          "id": "f1768539972199",
+          "label": "상담가능 시간",
+          "type": "time",
           "required": true
         }
       ],
@@ -193,10 +139,7 @@
         "backgroundColor": "#ffffff",
         "borderRadius": "16px",
         "borderColor": "#e5e7eb",
-        "borderWidth": "1px",
-        "titleFontFamily": "Do Hyeon",
-        "inputFontFamily": "Do Hyeon",
-        "buttonAnimation": "heartbeat"
+        "borderWidth": "1px"
       }
     },
     "footer": {
@@ -216,7 +159,7 @@
       "items": []
     },
     "gallery": {
-      "isShow": true,
+      "isShow": false,
       "showOnMainPage": true,
       "title": "갤러리",
       "images": []
@@ -247,36 +190,11 @@
       }
     },
     "snsConfig": {
-      "isShow": true,
+      "isShow": false,
       "position": "bottom-right",
-      "displayMode": "block",
+      "displayMode": "floating",
       "style": {},
-      "items": [
-        {
-          "id": "022332c3-f3d4-4450-8813-881ea6fb8c2c",
-          "type": "kakao",
-          "url": "",
-          "label": ""
-        },
-        {
-          "id": "e111ac91-4f83-409f-97a2-27015eadc58e",
-          "type": "blog",
-          "url": "",
-          "label": ""
-        },
-        {
-          "id": "f4bf34c7-43cd-4ade-81fb-69c62a354310",
-          "type": "instagram",
-          "url": "",
-          "label": ""
-        },
-        {
-          "id": "3af9c8a3-7d5d-4536-9a35-6044f4f29271",
-          "type": "youtube",
-          "url": "",
-          "label": ""
-        }
-      ]
+      "items": []
     },
     "features": {
       "isShow": false,
@@ -284,47 +202,30 @@
       "description": "우리 서비스의 특별한 점을 소개합니다.",
       "items": []
     },
-    "layoutMode": "full",
-    "popupConfig": {
-      "usePopup": true,
-      "items": [
-        {
-          "id": "b3e663e0-4b96-4804-9ba6-eb97d72d0df4",
-          "imageUrl": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768053490059_img3.jpg",
-          "openInNewWindow": false,
-          "startDate": "2026-01-10",
-          "endDate": "2026-01-13"
-        }
-      ],
-      "pcStyle": {
-        "width": 400,
-        "top": 100,
-        "left": 100,
-        "isCentered": true
-      },
-      "mobileStyle": {
-        "width": 300,
-        "top": 50,
-        "left": 20,
-        "isCentered": true
-      },
-      "showDoNotOpenToday": true,
-      "disableOverlay": true
-    },
-    "chatConfig": {
-      "useChat": true,
-      "type": "kakao",
-      "isCustomShape": true,
-      "animation": "bounce",
-      "iconUrl": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768052827500______2026-01-06_105937_ALTools_AIUpscaler.png"
+    "rehabChatConfig": {
+      "isEnabled": false,
+      "displayMode": "floating",
+      "buttonText": "AI 변제금 확인",
+      "buttonPosition": "bottom-left",
+      "buttonColor": "#8B5CF6",
+      "characterName": "로이",
+      "placement": {
+        "showAsFloating": true,
+        "showInHero": false,
+        "showInPopup": false,
+        "showInTopBanner": false,
+        "showInBottomBanner": false
+      }
     },
     "stickyBottomForm": {
       "isEnabled": true,
+      "buttonAnimation": "heartbeat",
+      "hideOriginalForm": true,
       "fieldIds": [
         "name",
         "phone",
-        "f1768131527215",
-        "f1768131524326"
+        "f1768539971044",
+        "f1768539972199"
       ],
       "mobileRowConfig": {
         "row1Fields": [
@@ -332,10 +233,11 @@
           "phone"
         ],
         "row2Fields": [
-          "f1768131524326",
-          "f1768131527215"
+          "f1768539971044",
+          "f1768539972199"
         ]
       },
+      "buttonColor": "#e7230d",
       "pcLayout": "wide"
     }
   }
