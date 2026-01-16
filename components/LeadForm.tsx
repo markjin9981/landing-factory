@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FormSection, LeadData, PixelConfig } from '../types';
+import { FormSection, LeadData, PixelConfig, LandingConfig } from '../types';
 import { trackConversion } from '../utils/pixelUtils';
 import { submitLeadToSheet } from '../services/googleSheetService';
 import { CheckCircle, AlertCircle, Loader2, Lock, FileText, X, ChevronDown } from 'lucide-react';
@@ -13,9 +13,10 @@ interface Props {
     isMobileView?: boolean; // New: For Grid layout control
     pixelConfig?: PixelConfig;
     utmParams?: Record<string, string | undefined>;
+    landingConfig?: LandingConfig; // NEW: For additional sheet config
 }
 
-const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, isMobileView, pixelConfig, utmParams }) => {
+const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, isMobileView, pixelConfig, utmParams, landingConfig }) => {
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
@@ -212,11 +213,14 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
         // and uses the correct LABEL instead of internal IDs.
         const formattedFields = (config.fields || []).map(field => {
             let val = formData[field.id] || '';
-            // Enhance value formatting if needed (e.g. adding 'Hour' to time?)
-            // For now, raw value is fine as the form inputs are quite explicit.
             return { label: field.label, value: val };
         });
         (payload as any).formatted_fields = JSON.stringify(formattedFields);
+
+        // NEW: Additional sheet configuration
+        if (landingConfig?.additionalSheetConfig) {
+            (payload as any).additional_sheet_config = JSON.stringify(landingConfig.additionalSheetConfig);
+        }
 
         console.log("Submitting Payload:", payload); // Debug log for robust tracking
 

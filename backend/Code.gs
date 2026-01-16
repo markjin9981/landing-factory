@@ -583,42 +583,34 @@ function handleLeadSubmission(params) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
-  var sheet = getOrCreateSheet("Leads");
-  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  var headerMap = {};
-  for(var i=0; i<headers.length; i++) headerMap[headers[i].toLowerCase()] = headers[i];
 
-  var standardMapping = { 'landing_id': 'Landing ID', 'name': 'Name', 'phone': 'Phone', 'timestamp': 'Timestamp', 'user_agent': 'User Agent', 'referrer': 'Referrer' };
-  var newHeaders = [];
+  // ========================================
+  // 1. Save to main Leads sheet (all fields)
+  // ========================================
+  var mainSheet = getOrCreateSheet("Leads");
+  saveToSheetAllFields(mainSheet, params);
   
-  for (var key in params) {
-    if (key === 'type' || key === 'formatted_fields' || key === 'api_token' || key === 'website') continue; // Skip internal/security fields
-    var targetHeader = standardMapping[key] || key;
-    if (!headerMap[targetHeader.toLowerCase()] && !headerMap[key.toLowerCase()]) {
-       newHeaders.push(targetHeader);
-       headerMap[targetHeader.toLowerCase()] = targetHeader; 
+  // ========================================
+  // 2. Save to additional sheet (if configured)
+  // ========================================
+  var additionalConfig = params.additional_sheet_config;
+  if (additionalConfig) {
+    try {
+      var config = JSON.parse(additionalConfig);
+      if (config.sheetName && config.sheetName !== '') {
+        var additionalSheet = getOrCreateSheet(config.sheetName);
+        
+        if (config.fieldMappings && config.fieldMappings.length > 0) {
+          saveToSheetWithMapping(additionalSheet, params, config.fieldMappings);
+        } else {
+          saveToSheetAllFields(additionalSheet, params);
+        }
+      }
+    } catch (e) {
+      Logger.log("Additional sheet config parse error: " + e);
     }
   }
-
-  if (newHeaders.length > 0) {
-    sheet.getRange(1, sheet.getLastColumn() + 1, 1, newHeaders.length).setValues([newHeaders]);
-    headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  }
-
-  var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
-  var rowData = headers.map(function(header) {
-    var headerLower = header.toLowerCase();
-    if (headerLower === 'timestamp') return timestamp;
-    
-    if (params[header] !== undefined) return params[header];
-    if (params[headerLower] !== undefined) return params[headerLower];
-    for (var k in standardMapping) {
-      if (standardMapping[k].toLowerCase() === headerLower && params[k] !== undefined) return params[k];
-    }
-    return '';
-  });
   
-  sheet.appendRow(rowData);
   
   // Email Notification
   try {
@@ -652,7 +644,7 @@ function handleLeadSubmission(params) {
         var priorityKeys = ['name', 'phone'];
         priorityKeys.forEach(function(k) { if (params[k]) body += "■ " + k.toUpperCase() + ": " + params[k] + "\n"; });
 
-        var systemKeys = ['type', 'page_title', 'landing_id', 'timestamp', 'user_agent', 'referrer', 'marketing_consent', 'third_party_consent', 'privacy_consent', 'ip', 'device', 'formatted_fields', 'api_token', 'website'];
+        var systemKeys = ['type', 'page_title', 'landing_id', 'timestamp', 'user_agent', 'referrer', 'marketing_consent', 'third_party_consent', 'privacy_consent', 'ip', 'device', 'formatted_fields', 'api_token', 'website', 'additional_sheet_config'];
         
         for (var k in params) {
           if (priorityKeys.indexOf(k) !== -1) continue;
@@ -802,4 +794,114 @@ function getOrCreateSheet(name) {
     else if (name === "AdminUsers") sheet.appendRow(["email", "name", "memo"]);
   }
   return sheet;
+}
+
+// ===== NEW HELPER FUNCTIONS FOR ADDITIONAL SHEET =====
+
+// Helper: Save all fields to sheet
+function saveToSheetAllFields(sheet, params) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var headerMap = {};
+  for(var i=0; i<headers.length; i++) {
+    headerMap[headers[i].toLowerCase()] = headers[i];
+  }
+
+  var standardMapping = {
+    'landing_id': 'Landing ID',
+    'name': 'Name',
+    'phone': 'Phone',
+    'timestamp': 'Timestamp',
+    'user_agent': 'User Agent',
+    'referrer': 'Referrer'
+  };
+  
+  var skipKeys = ['type', 'formatted_fields', 'api_token', 'website', 'additional_sheet_config'];
+  var newHeaders = [];
+  
+  for (var key in params) {
+    if (skipKeys.indexOf(key) !== -1) continue;
+    
+    var targetHeader = standardMapping[key] || key;
+    if (!headerMap[targetHeader.toLowerCase()] && !headerMap[key.toLowerCase()]) {
+       newHeaders.push(targetHeader);
+       headerMap[targetHeader.toLowerCase()] = targetHeader; 
+    }
+  }
+
+  if (newHeaders.length > 0) {
+    sheet.getRange(1, sheet.getLastColumn() + 1, 1, newHeaders.length)
+      .setValues([newHeaders]);
+    headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  }
+
+  var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
+  var rowData = headers.map(function(header) {
+    var headerLower = header.toLowerCase();
+    if (headerLower === 'timestamp') return timestamp;
+    
+    if (params[header] !== undefined) return params[header];
+    if (params[headerLower] !== undefined) return params[headerLower];
+    
+    for (var k in standardMapping) {
+      if (standardMapping[k].toLowerCase() === headerLower && 
+          params[k] !== undefined) {
+        return params[k];
+      }
+    }
+    return '';
+  });
+  
+  sheet.appendRow(rowData);
+}
+
+// Helper: Save mapped fields to sheet
+function saveToSheetWithMapping(sheet, params, fieldMappings) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var headerMap = {};
+  for(var i=0; i<headers.length; i++) {
+    headerMap[headers[i]] = i;
+  }
+  
+  var targetColumns = fieldMappings.map(function(m) { return m.targetColumn; });
+  
+  if (headerMap['Timestamp'] === undefined) {
+    targetColumns.unshift('Timestamp');
+  }
+  
+  var newHeaders = [];
+  for (var i=0; i<targetColumns.length; i++) {
+    if (headerMap[targetColumns[i]] === undefined) {
+      newHeaders.push(targetColumns[i]);
+    }
+  }
+  
+  if (newHeaders.length > 0) {
+    sheet.getRange(1, sheet.getLastColumn() + 1, 1, newHeaders.length)
+      .setValues([newHeaders]);
+    headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    headerMap = {};
+    for(var i=0; i<headers.length; i++) {
+      headerMap[headers[i]] = i;
+    }
+  }
+  
+  var rowData = new Array(headers.length).fill('');
+  
+  var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
+  var timestampIdx = headerMap['Timestamp'];
+  if (timestampIdx !== undefined) {
+    rowData[timestampIdx] = timestamp;
+  }
+  
+  for (var i=0; i<fieldMappings.length; i++) {
+    var mapping = fieldMappings[i];
+    var sourceValue = params[mapping.sourceField];
+    var targetIdx = headerMap[mapping.targetColumn];
+    
+    if (targetIdx !== undefined && sourceValue !== undefined) {
+      rowData[targetIdx] = sourceValue;
+    }
+  }
+  
+  sheet.appendRow(rowData);
 }

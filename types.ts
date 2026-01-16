@@ -734,6 +734,20 @@ export interface LandingConfig {
   location?: LocationSection; // New
   features?: FeatureSection; // New Smart Feature Block
   rehabChatConfig?: RehabChatConfig; // NEW: AI 변제금 진단 챗봇
+
+  // NEW: Additional Sheet Configuration for Customer Sheets
+  additionalSheetConfig?: AdditionalSheetConfig;
+}
+
+// NEW: Field Mapping for Additional Sheets
+export interface FieldMapping {
+  sourceField: string;    // Source field ID from form (e.g., 'name', 'phone')
+  targetColumn: string;   // Target column name in customer sheet (e.g., '고객명', '연락처')
+}
+
+export interface AdditionalSheetConfig {
+  sheetName: string;                // Name of the additional sheet
+  fieldMappings: FieldMapping[];    // Field mappings (empty = all fields)
 }
 
 export interface DynamicStepItem {

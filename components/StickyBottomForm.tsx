@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FormSection, StickyBottomFormConfig, LeadData, PixelConfig } from '../types';
+import { FormSection, StickyBottomFormConfig, LeadData, PixelConfig, LandingConfig } from '../types';
 import { trackConversion } from '../utils/pixelUtils';
 import { submitLeadToSheet } from '../services/googleSheetService';
 import { Check, Loader2 } from 'lucide-react';
@@ -13,6 +13,7 @@ interface Props {
     isMobileView?: boolean;
     pixelConfig?: PixelConfig;
     utmParams?: Record<string, string | undefined>;
+    landingConfig?: LandingConfig; // NEW: For additional sheet config
 }
 
 const StickyBottomForm: React.FC<Props> = ({
@@ -22,7 +23,8 @@ const StickyBottomForm: React.FC<Props> = ({
     themeColor = '#3b82f6',
     isMobileView = false,
     pixelConfig,
-    utmParams
+    utmParams,
+    landingConfig // NEW
 }) => {
     // Mobile Detection Logic
     const [isMobileScreen, setIsMobileScreen] = useState(false);
@@ -73,6 +75,11 @@ const StickyBottomForm: React.FC<Props> = ({
                 ...utmParams,
                 ...formData
             };
+
+            // NEW: Additional sheet configuration
+            if (landingConfig?.additionalSheetConfig) {
+                (leadData as any).additional_sheet_config = JSON.stringify(landingConfig.additionalSheetConfig);
+            }
             await submitLeadToSheet(leadData);
             trackConversion(pixelConfig);
             setIsSubmitted(true);

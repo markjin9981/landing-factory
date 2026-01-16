@@ -401,6 +401,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
             isMobileView={isMobileView}
             pixelConfig={config.pixelConfig}
             utmParams={utmParams}
+            landingConfig={config}
           />
         </div>
       </section>
@@ -656,6 +657,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           isMobileView={isMobileView}
           pixelConfig={config.pixelConfig}
           utmParams={utmParams}
+          landingConfig={config}
         />
       )}
 
