@@ -94,6 +94,7 @@ const StickyBottomForm: React.FC<Props> = ({
     const buttonColor = config.buttonColor || themeColor;
     const buttonTextColor = config.buttonTextColor || '#ffffff';
     const buttonTextFont = config.buttonTextFont || formConfig.style?.buttonFontFamily;
+    const buttonTextSize = config.buttonTextSize;
     const buttonAnimation = config.buttonAnimation || 'none';
 
     if (isSubmitted) {
@@ -228,6 +229,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
                                     fontFamily: buttonTextFont,
+                                    fontSize: buttonTextSize,
                                 }}
                             >
                                 {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (formConfig.submitButtonText || '신청하기')}
@@ -310,6 +312,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                                 backgroundSize: 'cover',
                                                 backgroundPosition: 'center',
                                                 fontFamily: buttonTextFont,
+                                                fontSize: buttonTextSize,
                                             }}
                                         >
                                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료상담 신청하기')}
@@ -369,6 +372,7 @@ const StickyBottomForm: React.FC<Props> = ({
                                             backgroundSize: 'cover',
                                             backgroundPosition: 'center',
                                             fontFamily: buttonTextFont,
+                                            fontSize: buttonTextSize,
                                         }}
                                     >
                                         {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료 상담 신청하기')}

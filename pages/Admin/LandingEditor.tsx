@@ -3393,6 +3393,18 @@ const LandingEditor: React.FC = () => {
                                                                 onSettingsChange={setGlobalSettings}
                                                             />
                                                         </div>
+                                                        {/* Button Text Size */}
+                                                        <div className="col-span-2">
+                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 텍스트 크기</label>
+                                                            <input
+                                                                type="text"
+                                                                value={config.stickyBottomForm?.buttonTextSize || ''}
+                                                                onChange={(e) => updateNested(['stickyBottomForm', 'buttonTextSize'], e.target.value)}
+                                                                placeholder="예: 14px, 1rem (비워두면 기본값)"
+                                                                className="w-full border rounded p-2 text-sm"
+                                                            />
+                                                            <p className="text-[9px] text-gray-400 mt-1">권장: 모바일 12px~14px, PC 16px~18px</p>
+                                                        </div>
                                                         {/* Button Animation */}
                                                         <div className="col-span-2">
                                                             <label className="text-[10px] text-gray-500 block mb-1">버튼 애니메이션 효과</label>

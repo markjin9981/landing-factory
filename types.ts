@@ -363,6 +363,9 @@ export interface StickyBottomFormConfig {
   // New: Button Text Font
   buttonTextFont?: string;
 
+  // New: Button Text Size
+  buttonTextSize?: string; // e.g., '14px', '1rem'
+
   // New: Button Animation
   buttonAnimation?: ButtonAnimationType;
 }
