@@ -184,6 +184,10 @@
         {
           "sourceField": "f1768557246075",
           "targetColumn": "상담가능시간"
+        },
+        {
+          "sourceField": "Timestamp",
+          "targetColumn": "접수시간"
         }
       ]
     }
