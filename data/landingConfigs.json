@@ -1,7 +1,7 @@
 {
-  "660307": {
-    "id": "660307",
-    "title": "테스트 랜딩",
+  "": {
+    "id": "",
+    "title": "",
     "favicon": "",
     "ogImage": "",
     "ogTitle": "",
@@ -19,7 +19,7 @@
     "banners": [],
     "hero": {
       "isShow": true,
-      "headline": "테스트랜딩 스프레드시트",
+      "headline": "메인 카피를 입력하세요",
       "headlineStyle": {
         "fontSize": "3rem",
         "fontWeight": "800",
@@ -57,18 +57,6 @@
           "id": "phone",
           "label": "연락처",
           "type": "tel",
-          "required": true
-        },
-        {
-          "id": "f1768557244655",
-          "label": "채무 금액",
-          "type": "text",
-          "required": true
-        },
-        {
-          "id": "f1768557246075",
-          "label": "상담가능시간",
-          "type": "text",
           "required": true
         }
       ],
@@ -159,8 +147,8 @@
       }
     },
     "additionalSheetConfig": {
-      "spreadsheetUrl": "",
-      "sheetName": "https://docs.google.com/spreadsheets/d/1zm82VOZq6zHIZ-h-DPBq3I9wxvRs8npGR5wS1ggG0D8/edit?usp=sharing",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1zm82VOZq6zHIZ-h-DPBq3I9wxvRs8npGR5wS1ggG0D8/edit?usp=sharing",
+      "sheetName": "",
       "fieldMappings": [
         {
           "sourceField": "name",
@@ -169,14 +157,6 @@
         {
           "sourceField": "phone",
           "targetColumn": "전화번호"
-        },
-        {
-          "sourceField": "f1768557244655",
-          "targetColumn": "채무금액"
-        },
-        {
-          "sourceField": "f1768557246075",
-          "targetColumn": "상담가능시간"
         }
       ]
     }
