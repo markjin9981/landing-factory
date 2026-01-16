@@ -159,8 +159,8 @@
       }
     },
     "additionalSheetConfig": {
-      "spreadsheetUrl": "",
-      "sheetName": "https://docs.google.com/spreadsheets/d/1zm82VOZq6zHIZ-h-DPBq3I9wxvRs8npGR5wS1ggG0D8/edit?usp=sharing",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1zm82VOZq6zHIZ-h-DPBq3I9wxvRs8npGR5wS1ggG0D8/edit?usp=sharing",
+      "sheetName": "",
       "fieldMappings": [
         {
           "sourceField": "name",
