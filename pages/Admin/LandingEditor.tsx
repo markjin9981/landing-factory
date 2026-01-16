@@ -208,6 +208,7 @@ const LandingEditor: React.FC = () => {
     const [fontUploadTab, setFontUploadTab] = useState<'google' | 'file'>('google');
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [inputGithubToken, setInputGithubToken] = useState('');
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     // Global Settings
     const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({ customFonts: [], favoriteFonts: [] });
@@ -303,6 +304,14 @@ const LandingEditor: React.FC = () => {
                     }
 
                     setConfig(sheetConfig);
+
+                    // Console log for verification
+                    console.log('✅ Config loaded:', {
+                        id: sheetConfig.id,
+                        hasExternalSheet: !!sheetConfig.additionalSheetConfig?.spreadsheetUrl,
+                        sheetName: sheetConfig.additionalSheetConfig?.sheetName,
+                        fieldMappingsCount: sheetConfig.additionalSheetConfig?.fieldMappings?.length || 0
+                    });
                 } else {
                     // Fallback or New
                     // Keep default
@@ -402,8 +411,31 @@ const LandingEditor: React.FC = () => {
             const remoteParams = await fetchLandingConfigById(config.id);
             const isVerified = remoteParams && String(remoteParams.id) === String(config.id);
 
+
             if (isVerified) {
                 setDeployStatus('success');
+                setHasUnsavedChanges(false);
+
+                // Build detailed success message
+                const savedFeatures = ['✅ 랜딩페이지 설정 저장 완료'];
+                if (config.additionalSheetConfig?.spreadsheetUrl) {
+                    const urlPreview = config.additionalSheetConfig.spreadsheetUrl.length > 50
+                        ? config.additionalSheetConfig.spreadsheetUrl.substring(0, 50) + '...'
+                        : config.additionalSheetConfig.spreadsheetUrl;
+                    savedFeatures.push(`✅ 외부 시트: ${urlPreview}`);
+                }
+                if (config.additionalSheetConfig?.sheetName) {
+                    savedFeatures.push(`✅ 시트 이름: ${config.additionalSheetConfig.sheetName}`);
+                }
+                if (config.additionalSheetConfig?.fieldMappings?.length) {
+                    savedFeatures.push(`✅ 필드 매핑: ${config.additionalSheetConfig.fieldMappings.length}개`);
+                }
+
+                // Show detailed success alert
+                if (savedFeatures.length > 1) {
+                    alert('🎉 저장 완료!\n\n' + savedFeatures.join('\n'));
+                }
+
                 // Clear local draft only if verified
                 const stored = localStorage.getItem('landing_drafts');
                 if (stored) {
@@ -3516,20 +3548,31 @@ const LandingEditor: React.FC = () => {
                                                 <span className="text-xs font-medium text-gray-700 block mb-1">
                                                     스프레드시트 URL (선택사항)
                                                 </span>
-                                                <input
-                                                    type="text"
-                                                    value={config.additionalSheetConfig?.spreadsheetUrl || ''}
-                                                    onChange={(e) => setConfig({
-                                                        ...config,
-                                                        additionalSheetConfig: {
-                                                            spreadsheetUrl: e.target.value,
-                                                            sheetName: config.additionalSheetConfig?.sheetName || '',
-                                                            fieldMappings: config.additionalSheetConfig?.fieldMappings || []
-                                                        }
-                                                    })}
-                                                    placeholder="https://docs.google.com/spreadsheets/d/xxxxx"
-                                                    className="w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500 font-mono text-xs"
-                                                />
+                                                <div className="relative">
+                                                    <input
+                                                        type="text"
+                                                        value={config.additionalSheetConfig?.spreadsheetUrl || ''}
+                                                        onChange={(e) => {
+                                                            setConfig({
+                                                                ...config,
+                                                                additionalSheetConfig: {
+                                                                    spreadsheetUrl: e.target.value,
+                                                                    sheetName: config.additionalSheetConfig?.sheetName || '',
+                                                                    fieldMappings: config.additionalSheetConfig?.fieldMappings || []
+                                                                }
+                                                            });
+                                                            setHasUnsavedChanges(true);
+                                                        }}
+                                                        placeholder="https://docs.google.com/spreadsheets/d/xxxxx"
+                                                        className={`w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500 font-mono text-xs ${hasUnsavedChanges ? 'border-yellow-400 bg-yellow-50' : ''
+                                                            }`}
+                                                    />
+                                                    {hasUnsavedChanges && (
+                                                        <span className="absolute right-3 top-2.5 text-xs text-yellow-600 font-semibold">
+                                                            ⚠️ 저장 필요
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-[10px] text-gray-500 mt-1">
                                                     💡 비워두면 현재 스프레드시트 내 다른 탭으로 저장됩니다.
                                                     <br />
@@ -3545,14 +3588,17 @@ const LandingEditor: React.FC = () => {
                                                 <input
                                                     type="text"
                                                     value={config.additionalSheetConfig?.sheetName || ''}
-                                                    onChange={(e) => setConfig({
-                                                        ...config,
-                                                        additionalSheetConfig: {
-                                                            spreadsheetUrl: config.additionalSheetConfig?.spreadsheetUrl || '',
-                                                            sheetName: e.target.value,
-                                                            fieldMappings: config.additionalSheetConfig?.fieldMappings || []
-                                                        }
-                                                    })}
+                                                    onChange={(e) => {
+                                                        setConfig({
+                                                            ...config,
+                                                            additionalSheetConfig: {
+                                                                spreadsheetUrl: config.additionalSheetConfig?.spreadsheetUrl || '',
+                                                                sheetName: e.target.value,
+                                                                fieldMappings: config.additionalSheetConfig?.fieldMappings || []
+                                                            }
+                                                        });
+                                                        setHasUnsavedChanges(true);
+                                                    }}
                                                     placeholder="예: 고객사A_DB, DB수집"
                                                     className="w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500"
                                                 />
@@ -3579,6 +3625,7 @@ const LandingEditor: React.FC = () => {
                                                                         ]
                                                                     }
                                                                 });
+                                                                setHasUnsavedChanges(true);
                                                             }}
                                                             className="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
                                                         >
@@ -3603,6 +3650,7 @@ const LandingEditor: React.FC = () => {
                                                                                     fieldMappings: newMappings
                                                                                 }
                                                                             });
+                                                                            setHasUnsavedChanges(true);
                                                                         }}
                                                                         className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
                                                                     >
@@ -3632,6 +3680,7 @@ const LandingEditor: React.FC = () => {
                                                                                     fieldMappings: newMappings
                                                                                 }
                                                                             });
+                                                                            setHasUnsavedChanges(true);
                                                                         }}
                                                                         placeholder="예: 고객명, 연락처"
                                                                         className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
@@ -3649,6 +3698,7 @@ const LandingEditor: React.FC = () => {
                                                                                 fieldMappings: newMappings
                                                                             }
                                                                         });
+                                                                        setHasUnsavedChanges(true);
                                                                     }}
                                                                     className="text-red-500 hover:bg-red-50 p-2 rounded transition mt-4"
                                                                 >

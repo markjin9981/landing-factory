@@ -822,10 +822,16 @@ function getOrCreateSheet(name) {
 
 // Helper: Save all fields to sheet
 function saveToSheetAllFields(sheet, params) {
-  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  // Handle empty sheets (getLastColumn() returns 0)
+  var lastCol = sheet.getLastColumn();
+  var headers = [];
   var headerMap = {};
-  for(var i=0; i<headers.length; i++) {
-    headerMap[headers[i].toLowerCase()] = headers[i];
+  
+  if (lastCol > 0) {
+    headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    for(var i=0; i<headers.length; i++) {
+      headerMap[headers[i].toLowerCase()] = headers[i];
+    }
   }
 
   var standardMapping = {
@@ -851,7 +857,8 @@ function saveToSheetAllFields(sheet, params) {
   }
 
   if (newHeaders.length > 0) {
-    sheet.getRange(1, sheet.getLastColumn() + 1, 1, newHeaders.length)
+    var currentLastCol = sheet.getLastColumn();
+    sheet.getRange(1, currentLastCol + 1, 1, newHeaders.length)
       .setValues([newHeaders]);
     headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   }
@@ -878,10 +885,16 @@ function saveToSheetAllFields(sheet, params) {
 
 // Helper: Save mapped fields to sheet
 function saveToSheetWithMapping(sheet, params, fieldMappings) {
-  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  // Handle empty sheets (getLastColumn() returns 0)
+  var lastCol = sheet.getLastColumn();
+  var headers = [];
   var headerMap = {};
-  for(var i=0; i<headers.length; i++) {
-    headerMap[headers[i]] = i;
+  
+  if (lastCol > 0) {
+    headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    for(var i=0; i<headers.length; i++) {
+      headerMap[headers[i]] = i;
+    }
   }
   
   var targetColumns = fieldMappings.map(function(m) { return m.targetColumn; });
@@ -898,7 +911,8 @@ function saveToSheetWithMapping(sheet, params, fieldMappings) {
   }
   
   if (newHeaders.length > 0) {
-    sheet.getRange(1, sheet.getLastColumn() + 1, 1, newHeaders.length)
+    var currentLastCol = sheet.getLastColumn();
+    sheet.getRange(1, currentLastCol + 1, 1, newHeaders.length)
       .setValues([newHeaders]);
     headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     headerMap = {};
