@@ -166,16 +166,16 @@
       }
     },
     "additionalSheetConfig": {
-      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1zm82VOZq6zHIZ-h-DPBq3I9wxvRs8npGR5wS1ggG0D8/edit?usp=sharing",
-      "sheetName": "시트1",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1tXA1U09gcgQF8w7CiVBVtscqZnGcvdCpwBpMlyIxRBg/edit?usp=sharing",
+      "sheetName": "Leads",
       "fieldMappings": [
         {
           "sourceField": "name",
-          "targetColumn": "이름"
+          "targetColumn": "CustomerName"
         },
         {
           "sourceField": "phone",
-          "targetColumn": "전화번호"
+          "targetColumn": "Phone"
         },
         {
           "sourceField": "f1768557244655",
@@ -187,7 +187,7 @@
         },
         {
           "sourceField": "Timestamp",
-          "targetColumn": "접수시간"
+          "targetColumn": "UpdatedAt"
         }
       ]
     }
