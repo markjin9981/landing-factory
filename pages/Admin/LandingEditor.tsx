@@ -383,7 +383,9 @@ const LandingEditor: React.FC = () => {
         const drafts = stored ? JSON.parse(stored) : {};
         drafts[config.id] = config;
         localStorage.setItem('landing_drafts', JSON.stringify(drafts));
-        alert('브라우저 임시 저장소에 저장되었습니다.');
+        if (typeof window !== 'undefined') {
+            alert('브라우저 임시 저장소에 저장되었습니다.');
+        }
     };
 
     const handleSaveToSheet = async () => {
@@ -391,12 +393,14 @@ const LandingEditor: React.FC = () => {
         // We conservatively check for 45,000 to be safe.
         const configStr = JSON.stringify(config);
         if (configStr.length > 45000) {
-            alert(
-                '저장 용량을 초과했습니다! (현재: ' + (configStr.length / 1024).toFixed(2) + 'KB)\n\n' +
-                'Google Sheets에는 대용량 이미지(Base64)를 직접 저장할 수 없습니다.\n' +
-                '이미지 "업로드" 대신 "이미지 주소(URL)"를 입력해주세요.\n\n' +
-                '(팁: 이미지를 웹에 올린 후 주소를 복사해 붙여넣으세요.)'
-            );
+            if (typeof window !== 'undefined') {
+                alert(
+                    '저장 용량을 초과했습니다! (현재: ' + (configStr.length / 1024).toFixed(2) + 'KB)\n\n' +
+                    'Google Sheets에는 대용량 이미지(Base64)를 직접 저장할 수 없습니다.\n' +
+                    '이미지 "업로드" 대신 "이미지 주소(URL)"를 입력해주세요.\n\n' +
+                    '(팁: 이미지를 웹에 올린 후 주소를 복사해 붙여넣으세요.)'
+                );
+            }
             return;
         }
 
@@ -433,7 +437,9 @@ const LandingEditor: React.FC = () => {
 
                 // Show detailed success alert
                 if (savedFeatures.length > 1) {
-                    alert('🎉 저장 완료!\n\n' + savedFeatures.join('\n'));
+                    if (typeof window !== 'undefined') {
+                        alert('🎉 저장 완료!\n\n' + savedFeatures.join('\n'));
+                    }
                 }
 
                 // Clear local draft only if verified
@@ -446,11 +452,15 @@ const LandingEditor: React.FC = () => {
             } else {
                 // If verification failed, keeps draft but shows success message with warning
                 setDeployStatus('success');
-                alert('저장이 완료되었으나 서버 확인이 지연되고 있습니다.\n잠시 후 다시 확인해주세요.');
+                if (typeof window !== 'undefined') {
+                    alert('저장이 완료되었으나 서버 확인이 지연되고 있습니다.\n잠시 후 다시 확인해주세요.');
+                }
             }
         } else {
             setDeployStatus('error');
-            alert('저장에 실패했습니다. 네트워크 상태를 확인해주세요.');
+            if (typeof window !== 'undefined') {
+                alert('저장에 실패했습니다. 네트워크 상태를 확인해주세요.');
+            }
         }
 
         setTimeout(() => setDeployStatus('idle'), 3000);
@@ -478,7 +488,9 @@ const LandingEditor: React.FC = () => {
         if (originalFile) {
             // Check file size (GitHub API limit is 100MB, but let's keep it reasonable)
             if (originalFile.size > 10 * 1024 * 1024) {
-                alert("파일 용량이 너무 큽니다. (10MB 제한)");
+                if (typeof window !== 'undefined') {
+                    alert("파일 용량이 너무 큽니다. (10MB 제한)");
+                }
                 return;
             }
 
@@ -486,7 +498,9 @@ const LandingEditor: React.FC = () => {
             const ghToken = getGithubToken();
 
             if (!ghToken) {
-                alert("이미지 업로드를 위해 GitHub 토큰 설정이 필요합니다.\n설정 창으로 이동합니다.");
+                if (typeof window !== 'undefined') {
+                    alert("이미지 업로드를 위해 GitHub 토큰 설정이 필요합니다.\n설정 창으로 이동합니다.");
+                }
                 setShowSettingsModal(true);
                 // Clear input so user can try again after setting token
                 e.target.value = '';
@@ -508,11 +522,15 @@ const LandingEditor: React.FC = () => {
                     callback(res.url);
                     // alert("GitHub 업로드 완료! (배포 후 적용됩니다)");
                 } else {
-                    alert(`GitHub 업로드 실패: ${res.message}`);
+                    if (typeof window !== 'undefined') {
+                        alert(`GitHub 업로드 실패: ${res.message}`);
+                    }
                 }
             } catch (err) {
                 console.error(err);
-                alert("오류가 발생했습니다.");
+                if (typeof window !== 'undefined') {
+                    alert("오류가 발생했습니다.");
+                }
             } finally {
                 document.body.style.cursor = prevCursor;
                 // Clear input
@@ -563,7 +581,9 @@ const LandingEditor: React.FC = () => {
     // ... (Banner functions are same as before) ...
     const addBanner = () => {
         if (config.banners.length >= 5) {
-            alert("띠배너는 최대 5개까지 추가할 수 있습니다.");
+            if (typeof window !== 'undefined') {
+                alert("띠배너는 최대 5개까지 추가할 수 있습니다.");
+            }
             return;
         }
         setConfig(prev => ({
