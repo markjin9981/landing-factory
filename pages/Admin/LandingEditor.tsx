@@ -3382,6 +3382,36 @@ const LandingEditor: React.FC = () => {
                                                                 />
                                                             </div>
                                                         </div>
+                                                        {/* Button Text Font */}
+                                                        <div className="col-span-2">
+                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 텍스트 폰트</label>
+                                                            <FontPicker
+                                                                label=""
+                                                                value={config.stickyBottomForm?.buttonTextFont || ''}
+                                                                onChange={(val) => updateNested(['stickyBottomForm', 'buttonTextFont'], val)}
+                                                                globalSettings={globalSettings}
+                                                                onSettingsChange={setGlobalSettings}
+                                                            />
+                                                        </div>
+                                                        {/* Button Animation */}
+                                                        <div className="col-span-2">
+                                                            <label className="text-[10px] text-gray-500 block mb-1">버튼 애니메이션 효과</label>
+                                                            <select
+                                                                value={config.stickyBottomForm?.buttonAnimation || 'none'}
+                                                                onChange={(e) => updateNested(['stickyBottomForm', 'buttonAnimation'], e.target.value)}
+                                                                className="w-full border rounded p-2 text-sm bg-gray-50"
+                                                            >
+                                                                <option value="none">없음 (기본)</option>
+                                                                <option value="pulse">Pulse - 부드러운 맥박</option>
+                                                                <option value="heartbeat">Heartbeat - 심장박동</option>
+                                                                <option value="shimmer">Shimmer - 반짝임</option>
+                                                                <option value="bounce">Bounce - 튀어오름</option>
+                                                                <option value="wiggle">Wiggle - 좌우 흔들림</option>
+                                                                <option value="glow">Glow - 빛나는 효과</option>
+                                                                <option value="shake">Shake - 흔들림</option>
+                                                            </select>
+                                                            <p className="text-[9px] text-gray-400 mt-1">애니메이션은 사용자의 주목을 끌어 클릭률을 높입니다</p>
+                                                        </div>
                                                         {/* Input Border Radius */}
                                                         <div className="col-span-2">
                                                             <label className="text-[10px] text-gray-500 block mb-1">입력 박스 곡률</label>

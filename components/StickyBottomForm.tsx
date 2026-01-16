@@ -93,6 +93,8 @@ const StickyBottomForm: React.FC<Props> = ({
     const textColor = config.textColor || '#ffffff';
     const buttonColor = config.buttonColor || themeColor;
     const buttonTextColor = config.buttonTextColor || '#ffffff';
+    const buttonTextFont = config.buttonTextFont || formConfig.style?.buttonFontFamily;
+    const buttonAnimation = config.buttonAnimation || 'none';
 
     if (isSubmitted) {
         return (
@@ -217,13 +219,15 @@ const StickyBottomForm: React.FC<Props> = ({
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex-1 h-9 flex items-center justify-center gap-1.5 font-bold rounded text-xs shadow-md active:scale-95 transition-transform"
+                                className={`flex-1 h-9 flex items-center justify-center gap-1.5 font-bold rounded text-xs shadow-md active:scale-95 transition-transform ${buttonAnimation !== 'none' ? `animate-${buttonAnimation}` : ''
+                                    }`}
                                 style={{
                                     backgroundColor: buttonColor,
                                     color: buttonTextColor,
                                     backgroundImage: config.buttonImage ? `url(${config.buttonImage})` : undefined,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
+                                    fontFamily: buttonTextFont,
                                 }}
                             >
                                 {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (formConfig.submitButtonText || '신청하기')}
@@ -297,13 +301,15 @@ const StickyBottomForm: React.FC<Props> = ({
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="w-full px-12 py-4 text-lg font-bold rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                                            className={`w-full px-12 py-4 text-lg font-bold rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap ${buttonAnimation !== 'none' ? `animate-${buttonAnimation}` : ''
+                                                }`}
                                             style={{
                                                 backgroundColor: buttonColor,
                                                 color: buttonTextColor,
                                                 backgroundImage: config.buttonImage ? `url(${config.buttonImage})` : undefined,
                                                 backgroundSize: 'cover',
                                                 backgroundPosition: 'center',
+                                                fontFamily: buttonTextFont,
                                             }}
                                         >
                                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료상담 신청하기')}
@@ -354,13 +360,15 @@ const StickyBottomForm: React.FC<Props> = ({
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="px-24 py-3 text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                        className={`px-24 py-3 text-lg font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${buttonAnimation !== 'none' ? `animate-${buttonAnimation}` : ''
+                                            }`}
                                         style={{
                                             backgroundColor: buttonColor,
                                             color: buttonTextColor,
                                             backgroundImage: config.buttonImage ? `url(${config.buttonImage})` : undefined,
                                             backgroundSize: 'cover',
                                             backgroundPosition: 'center',
+                                            fontFamily: buttonTextFont,
                                         }}
                                     >
                                         {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료 상담 신청하기')}

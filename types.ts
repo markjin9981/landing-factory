@@ -359,6 +359,12 @@ export interface StickyBottomFormConfig {
 
   // New: PC Layout option
   pcLayout?: 'stacked' | 'wide'; // 'stacked' = vertical (default), 'wide' = horizontal with button on right
+
+  // New: Button Text Font
+  buttonTextFont?: string;
+
+  // New: Button Animation
+  buttonAnimation?: ButtonAnimationType;
 }
 
 // New: Footer Configuration
