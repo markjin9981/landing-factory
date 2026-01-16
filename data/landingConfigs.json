@@ -37,7 +37,14 @@
       "backgroundImage": "https://picsum.photos/1920/1080",
       "size": "md"
     },
-    "detailContent": [],
+    "detailContent": [
+      {
+        "id": "46f4a6a0-370f-4d68-b4a9-053b3632d698",
+        "type": "image",
+        "content": "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768053490059_img3.jpg",
+        "width": "100%"
+      }
+    ],
     "formConfig": {
       "title": "무료 상담 신청",
       "subTitle": "",
