@@ -23,17 +23,27 @@ const Settings: React.FC = () => {
     // NEW: Global Settings State (for ImgBB API Key)
     const [globalSettings, setGlobalSettings] = useState<GlobalSettings | null>(null);
     const [imgbbApiKey, setImgbbApiKey] = useState('');
-    const [showApiKey, setShowApiKey] = useState(false);
+    const [showApiKey, setShowApiKey] = useState(false); // ImgBB API Key visibility
     const [savingApiKey, setSavingApiKey] = useState(false);
     const [apiKeySaved, setApiKeySaved] = useState(false);
 
+    // Cloudinary states
     const [cloudinaryCloudName, setCloudinaryCloudName] = useState('');
     const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState('');
+    const [showCloudinaryKeys, setShowCloudinaryKeys] = useState(false); // Cloudinary keys visibility
     const [savingCloudinary, setSavingCloudinary] = useState(false);
     const [cloudinarySaved, setCloudinarySaved] = useState(false);
 
     // NEW: Kakao Map Settings State
     const [kakaoApiKey, setKakaoApiKey] = useState('');
+    const [showKakaoKey, setShowKakaoKey] = useState(false); // Kakao API Key visibility
+
+    // NEW: Gemini API Key State
+    const [geminiApiKey, setGeminiApiKey] = useState('');
+    const [showGeminiKey, setShowGeminiKey] = useState(false); // Gemini API Key visibility
+    const [savingGeminiKey, setSavingGeminiKey] = useState(false);
+    const [geminiKeySaved, setGeminiKeySaved] = useState(false);
+
 
     useEffect(() => {
         loadSessions();
@@ -50,6 +60,7 @@ const Settings: React.FC = () => {
             setCloudinaryCloudName(settings.cloudinaryCloudName || '');
             setCloudinaryUploadPreset(settings.cloudinaryUploadPreset || '');
             setKakaoApiKey(settings.kakaoApiKey || '');
+            setGeminiApiKey(settings.geminiApiKey || '');
         } else {
             // First time setup: Init with empty object
             setGlobalSettings({} as GlobalSettings);
@@ -59,6 +70,15 @@ const Settings: React.FC = () => {
     // NEW: Save ImgBB API Key
     const handleSaveApiKey = async () => {
         if (!globalSettings) return;
+
+        // Check if overwriting existing key
+        if (globalSettings.imgbbApiKey && globalSettings.imgbbApiKey !== imgbbApiKey) {
+            const confirmed = window.confirm(
+                '⚠️ 주의: 기존 ImgBB API 키가 이미 설정되어 있습니다.\n\n새 키로 교체하면 기존 키는 복구할 수 없습니다.\n계속하시겠습니까?'
+            );
+            if (!confirmed) return;
+        }
+
         setSavingApiKey(true);
         const newSettings = { ...globalSettings, imgbbApiKey };
         await saveGlobalSettings(newSettings);
@@ -71,6 +91,17 @@ const Settings: React.FC = () => {
     // NEW: Save Cloudinary Settings
     const handleSaveCloudinary = async () => {
         if (!globalSettings) return;
+
+        // Check if overwriting existing settings
+        if ((globalSettings.cloudinaryCloudName || globalSettings.cloudinaryUploadPreset) &&
+            (globalSettings.cloudinaryCloudName !== cloudinaryCloudName ||
+                globalSettings.cloudinaryUploadPreset !== cloudinaryUploadPreset)) {
+            const confirmed = window.confirm(
+                '⚠️ 주의: 기존 Cloudinary 설정이 이미 존재합니다.\n\n새 설정으로 교체하면 기존 설정은 복구할 수 없습니다.\n계속하시겠습니까?'
+            );
+            if (!confirmed) return;
+        }
+
         setSavingCloudinary(true);
         const newSettings = { ...globalSettings, cloudinaryCloudName, cloudinaryUploadPreset };
         await saveGlobalSettings(newSettings);
@@ -190,7 +221,15 @@ const Settings: React.FC = () => {
 
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">API Key</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                API Key
+                                {globalSettings?.imgbbApiKey && (
+                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full flex items-center gap-1">
+                                        <CheckCircle className="w-3 h-3" />
+                                        설정됨
+                                    </span>
+                                )}
+                            </label>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <Key className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -229,24 +268,50 @@ const Settings: React.FC = () => {
 
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Cloud Name</label>
-                                <input
-                                    type="text"
-                                    value={cloudinaryCloudName}
-                                    onChange={(e) => setCloudinaryCloudName(e.target.value)}
-                                    placeholder="예: my-cloud-name"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 outline-none"
-                                />
+                                <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                    Cloud Name
+                                    {globalSettings?.cloudinaryCloudName && (
+                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full flex items-center gap-1">
+                                            <CheckCircle className="w-3 h-3" />
+                                            설정됨
+                                        </span>
+                                    )}
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showCloudinaryKeys ? 'text' : 'password'}
+                                        value={cloudinaryCloudName}
+                                        onChange={(e) => setCloudinaryCloudName(e.target.value)}
+                                        placeholder="예: my-cloud-name"
+                                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCloudinaryKeys(!showCloudinaryKeys)}
+                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showCloudinaryKeys ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Upload Preset (Unsigned)</label>
-                                <input
-                                    type="text"
-                                    value={cloudinaryUploadPreset}
-                                    onChange={(e) => setCloudinaryUploadPreset(e.target.value)}
-                                    placeholder="예: landing_unsigned"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 outline-none"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type={showCloudinaryKeys ? 'text' : 'password'}
+                                        value={cloudinaryUploadPreset}
+                                        onChange={(e) => setCloudinaryUploadPreset(e.target.value)}
+                                        placeholder="예: landing_unsigned"
+                                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCloudinaryKeys(!showCloudinaryKeys)}
+                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showCloudinaryKeys ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
                                 <p className="text-xs text-gray-400 mt-1">Cloudinary 대시보드 → Settings → Upload → Upload Presets에서 생성 (Unsigned 모드)</p>
                             </div>
                             <button
@@ -268,19 +333,43 @@ const Settings: React.FC = () => {
 
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Kakao JavaScript API Key</label>
-                                <input
-                                    type="text"
-                                    value={kakaoApiKey}
-                                    onChange={(e) => setKakaoApiKey(e.target.value)}
-                                    placeholder="Kakao JavaScript App Key"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 outline-none"
-                                />
+                                <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                    Kakao JavaScript API Key
+                                    {globalSettings?.kakaoApiKey && (
+                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full flex items-center gap-1">
+                                            <CheckCircle className="w-3 h-3" />
+                                            설정됨
+                                        </span>
+                                    )}
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showKakaoKey ? 'text' : 'password'}
+                                        value={kakaoApiKey}
+                                        onChange={(e) => setKakaoApiKey(e.target.value)}
+                                        placeholder="Kakao JavaScript App Key"
+                                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowKakaoKey(!showKakaoKey)}
+                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showKakaoKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
                             </div>
                             <button
                                 onClick={async () => {
+                                    // Check if overwriting existing key
+                                    if (globalSettings?.kakaoApiKey && globalSettings.kakaoApiKey !== kakaoApiKey) {
+                                        const confirmed = window.confirm(
+                                            '⚠️ 주의: 기존 Kakao API 키가 이미 설정되어 있습니다.\n\n새 키로 교체하면 기존 키는 복구할 수 없습니다.\n계속하시겠습니까?'
+                                        );
+                                        if (!confirmed) return;
+                                    }
+
                                     setSavingApiKey(true);
-                                    // Use current state or empty object
                                     const baseSettings = globalSettings || {} as GlobalSettings;
                                     const newSettings = { ...baseSettings, kakaoApiKey };
 
@@ -307,28 +396,56 @@ const Settings: React.FC = () => {
 
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Gemini API Key</label>
-                                <input
-                                    type="password"
-                                    value={globalSettings?.geminiApiKey || ''}
-                                    onChange={(e) => setGlobalSettings(prev => prev ? { ...prev, geminiApiKey: e.target.value } : null)}
-                                    placeholder="AIza..."
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none"
-                                />
+                                <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                    Gemini API Key
+                                    {globalSettings?.geminiApiKey && (
+                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full flex items-center gap-1">
+                                            <CheckCircle className="w-3 h-3" />
+                                            설정됨
+                                        </span>
+                                    )}
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showGeminiKey ? 'text' : 'password'}
+                                        value={geminiApiKey}
+                                        onChange={(e) => setGeminiApiKey(e.target.value)}
+                                        placeholder="AIza..."
+                                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowGeminiKey(!showGeminiKey)}
+                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showGeminiKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
                             </div>
                             <button
                                 onClick={async () => {
                                     if (!globalSettings) return;
-                                    setSavingApiKey(true);
-                                    await saveGlobalSettings(globalSettings);
-                                    setSavingApiKey(false);
-                                    setApiKeySaved(true);
-                                    setTimeout(() => setApiKeySaved(false), 2000);
+
+                                    // Check if overwriting existing key
+                                    if (globalSettings.geminiApiKey && globalSettings.geminiApiKey !== geminiApiKey) {
+                                        const confirmed = window.confirm(
+                                            '⚠️ 주의: 기존 Gemini API 키가 이미 설정되어 있습니다.\n\n새 키로 교체하면 기존 키는 복구할 수 없습니다.\n계속하시겠습니까?'
+                                        );
+                                        if (!confirmed) return;
+                                    }
+
+                                    setSavingGeminiKey(true);
+                                    const newSettings = { ...globalSettings, geminiApiKey };
+                                    await saveGlobalSettings(newSettings);
+                                    setGlobalSettings(newSettings);
+                                    setSavingGeminiKey(false);
+                                    setGeminiKeySaved(true);
+                                    setTimeout(() => setGeminiKeySaved(false), 2000);
                                 }}
-                                disabled={savingApiKey || !globalSettings}
+                                disabled={savingGeminiKey || !globalSettings}
                                 className="px-4 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
                             >
-                                {savingApiKey ? '저장 중...' : apiKeySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> 저장</>}
+                                {savingGeminiKey ? '저장 중...' : geminiKeySaved ? <><CheckCircle className="w-4 h-4" /> 저장됨</> : <><Save className="w-4 h-4" /> 저장</>}
                             </button>
                         </div>
                     </div>
