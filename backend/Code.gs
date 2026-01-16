@@ -594,42 +594,54 @@ function handleLeadSubmission(params) {
   // 2. Save to additional sheet (if configured)
   // ========================================
   var additionalConfig = params.additional_sheet_config;
+  var externalSheetStatus = "Not Configured";
+
   if (additionalConfig) {
     try {
       var config = JSON.parse(additionalConfig);
-      if (config.sheetName && config.sheetName !== '') {
-        var additionalSheet;
-        var targetSpreadsheet;
-        
-        // Check if external spreadsheet URL is provided
-        if (config.spreadsheetUrl && config.spreadsheetUrl !== '') {
-          try {
-            // Try to open external spreadsheet
-            targetSpreadsheet = SpreadsheetApp.openByUrl(config.spreadsheetUrl);
-            additionalSheet = targetSpreadsheet.getSheetByName(config.sheetName);
-            
-            if (!additionalSheet) {
-              additionalSheet = targetSpreadsheet.insertSheet(config.sheetName);
+      
+      // [Validation] Sheet Name is required
+      if (!config.sheetName || config.sheetName === '') {
+          externalSheetStatus = "Failed: Sheet Name Missing (DB 전송 시트 이름을 입력해주세요)";
+      } else {
+        if (config.sheetName && config.sheetName !== '') {
+          var additionalSheet;
+          var targetSpreadsheet;
+          
+          // Check if external spreadsheet URL is provided
+          if (config.spreadsheetUrl && config.spreadsheetUrl !== '') {
+            try {
+              // Try to open external spreadsheet
+              targetSpreadsheet = SpreadsheetApp.openByUrl(config.spreadsheetUrl);
+              additionalSheet = targetSpreadsheet.getSheetByName(config.sheetName);
+              
+              if (!additionalSheet) {
+                additionalSheet = targetSpreadsheet.insertSheet(config.sheetName);
+              }
+              externalSheetStatus = "Success (External URL)";
+            } catch (externalError) {
+              Logger.log("External spreadsheet error: " + externalError.message);
+              externalSheetStatus = "Failed: " + externalError.message;
+              // Fall back to current spreadsheet if external fails
+              additionalSheet = getOrCreateSheet(config.sheetName);
             }
-          } catch (externalError) {
-            Logger.log("External spreadsheet error: " + externalError.message);
-            // Fall back to current spreadsheet if external fails
+          } else {
+            // Use current spreadsheet (same file, different tab)
             additionalSheet = getOrCreateSheet(config.sheetName);
+            externalSheetStatus = "Success (Internal Tab)";
           }
-        } else {
-          // Use current spreadsheet (same file, different tab)
-          additionalSheet = getOrCreateSheet(config.sheetName);
-        }
-        
-        // Save data with or without field mapping
-        if (config.fieldMappings && config.fieldMappings.length > 0) {
-          saveToSheetWithMapping(additionalSheet, params, config.fieldMappings);
-        } else {
-          saveToSheetAllFields(additionalSheet, params);
+          
+          // Save data with or without field mapping
+          if (config.fieldMappings && config.fieldMappings.length > 0) {
+            saveToSheetWithMapping(additionalSheet, params, config.fieldMappings);
+          } else {
+            saveToSheetAllFields(additionalSheet, params);
+          }
         }
       }
     } catch (e) {
       Logger.log("Additional sheet config parse error: " + e);
+      externalSheetStatus = "Config Error: " + e.toString();
     }
   }
   
@@ -679,6 +691,16 @@ function handleLeadSubmission(params) {
     body += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     if (params['referrer']) body += "- 유입경로: " + params['referrer'] + "\n";
     if (params['user_agent']) body += "- 기기정보: " + params['user_agent'] + "\n";
+
+    // [System Info]
+    if (additionalConfig) {
+        body += "\n[시스템 알림]\n";
+        body += "- 추가 시트 저장 결과: " + externalSheetStatus + "\n";
+        if (externalSheetStatus.indexOf("Failed") !== -1) {
+             body += "  (권한이 없거나 URL이 잘못되었으면 내부 'Leads' 시트에만 저장됩니다.)\n";
+        }
+    }
+
     body += "\n(본 메일은 랜딩페이지 팩토리에서 자동으로 발송되었습니다.)";
     
     MailApp.sendEmail(recipient, subject, body);
@@ -893,49 +915,33 @@ function saveToSheetWithMapping(sheet, params, fieldMappings) {
   if (lastCol > 0) {
     headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
     for(var i=0; i<headers.length; i++) {
-      headerMap[headers[i]] = i;
+      // [FIX] Trim whitespace to ensure robust matching
+      headerMap[String(headers[i]).trim()] = i;
     }
   }
-  
-  var targetColumns = fieldMappings.map(function(m) { return m.targetColumn; });
-  
-  if (headerMap['Timestamp'] === undefined) {
-    targetColumns.unshift('Timestamp');
-  }
-  
-  var newHeaders = [];
-  for (var i=0; i<targetColumns.length; i++) {
-    if (headerMap[targetColumns[i]] === undefined) {
-      newHeaders.push(targetColumns[i]);
-    }
-  }
-  
-  if (newHeaders.length > 0) {
-    var currentLastCol = sheet.getLastColumn();
-    sheet.getRange(1, currentLastCol + 1, 1, newHeaders.length)
-      .setValues([newHeaders]);
-    headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    headerMap = {};
-    for(var i=0; i<headers.length; i++) {
-      headerMap[headers[i]] = i;
-    }
-  }
-  
+
+  // [UPDATED] Add system variables to params for mapping
+  params['Timestamp'] = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
+
+  // [UPDATED] Do NOT create new columns. Only map to existing ones.
+  // We removed the code that adds new headers.
+
   var rowData = new Array(headers.length).fill('');
-  
-  var timestamp = new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"});
-  var timestampIdx = headerMap['Timestamp'];
-  if (timestampIdx !== undefined) {
-    rowData[timestampIdx] = timestamp;
-  }
   
   for (var i=0; i<fieldMappings.length; i++) {
     var mapping = fieldMappings[i];
-    var sourceValue = params[mapping.sourceField];
-    var targetIdx = headerMap[mapping.targetColumn];
+    var sourceField = mapping.sourceField;
+    var targetColumnName = String(mapping.targetColumn).trim();
     
-    if (targetIdx !== undefined && sourceValue !== undefined) {
-      rowData[targetIdx] = sourceValue;
+    // Check if target column exists in the sheet
+    var targetIdx = headerMap[targetColumnName];
+    
+    if (targetIdx !== undefined) {
+      // Get value from params (now includes Timestamp)
+      var sourceValue = params[sourceField];
+      if (sourceValue !== undefined) {
+         rowData[targetIdx] = sourceValue;
+      }
     }
   }
   

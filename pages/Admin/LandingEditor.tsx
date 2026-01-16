@@ -3675,6 +3675,7 @@ const LandingEditor: React.FC = () => {
                                                                         className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
                                                                     >
                                                                         <option value="">선택...</option>
+                                                                        <option value="Timestamp">접수일시 (Timestamp)</option>
                                                                         {config.formConfig.fields.map(field => (
                                                                             <option key={field.id} value={field.id}>
                                                                                 {field.label}
