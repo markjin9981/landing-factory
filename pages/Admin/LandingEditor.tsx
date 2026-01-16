@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check, Activity } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check, Activity, Database } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 import { compressImage } from '../../utils/imageCompression';
@@ -3492,6 +3492,152 @@ const LandingEditor: React.FC = () => {
                                                 </div>
                                             </div>
                                         )}
+                                    </div>
+
+                                    {/* Additional Sheet Configuration (NEW) */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm relative overflow-hidden mb-4">
+                                        <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
+                                            <Database className="w-24 h-24 text-green-900" />
+                                        </div>
+                                        <div className="relative z-10">
+                                            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
+                                                <Database className="w-4 h-4 text-green-600" /> 추가 DB 전송 설정 (고객사 시트 등)
+                                            </h3>
+                                            <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+                                                <p className="text-xs text-blue-800">
+                                                    <strong>💡 기본 동작:</strong> 모든 DB는 자동으로 "Leads" 시트에 전체 필드가 저장됩니다.
+                                                    <br /><br />
+                                                    <strong>✨ 추가 전송:</strong> 특정 시트에 원하는 필드만 선택적으로 전송할 수 있습니다.
+                                                </p>
+                                            </div>
+
+                                            {/* Sheet Name Input */}
+                                            <label className="block mb-4">
+                                                <span className="text-xs font-medium text-gray-700 block mb-1">추가 DB 전송 시트 이름</span>
+                                                <input
+                                                    type="text"
+                                                    value={config.additionalSheetConfig?.sheetName || ''}
+                                                    onChange={(e) => setConfig({
+                                                        ...config,
+                                                        additionalSheetConfig: {
+                                                            sheetName: e.target.value,
+                                                            fieldMappings: config.additionalSheetConfig?.fieldMappings || []
+                                                        }
+                                                    })}
+                                                    placeholder="예: 고객사A_DB, Landing_메이크업"
+                                                    className="w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500"
+                                                />
+                                                <p className="text-[10px] text-gray-500 mt-1">
+                                                    💡 비워두면 Leads 시트에만 저장됩니다.
+                                                </p>
+                                            </label>
+
+                                            {/* Field Mapping Section */}
+                                            {config.additionalSheetConfig?.sheetName && (
+                                                <div className="mt-4 p-3 bg-gray-50 rounded border animate-fade-in">
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <h4 className="text-xs font-semibold text-gray-700">필드 매핑 설정</h4>
+                                                        <button
+                                                            onClick={() => {
+                                                                const mappings = config.additionalSheetConfig?.fieldMappings || [];
+                                                                setConfig({
+                                                                    ...config,
+                                                                    additionalSheetConfig: {
+                                                                        ...config.additionalSheetConfig!,
+                                                                        fieldMappings: [
+                                                                            ...mappings,
+                                                                            { sourceField: '', targetColumn: '' }
+                                                                        ]
+                                                                    }
+                                                                });
+                                                            }}
+                                                            className="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                                                        >
+                                                            + 필드 추가
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                                                        {(config.additionalSheetConfig?.fieldMappings || []).map((mapping, idx) => (
+                                                            <div key={idx} className="flex gap-2 items-center bg-white p-2 rounded border">
+                                                                <div className="flex-1">
+                                                                    <label className="text-[10px] text-gray-600 block mb-1">원본 필드</label>
+                                                                    <select
+                                                                        value={mapping.sourceField}
+                                                                        onChange={(e) => {
+                                                                            const newMappings = [...(config.additionalSheetConfig?.fieldMappings || [])];
+                                                                            newMappings[idx].sourceField = e.target.value;
+                                                                            setConfig({
+                                                                                ...config,
+                                                                                additionalSheetConfig: {
+                                                                                    ...config.additionalSheetConfig!,
+                                                                                    fieldMappings: newMappings
+                                                                                }
+                                                                            });
+                                                                        }}
+                                                                        className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
+                                                                    >
+                                                                        <option value="">선택...</option>
+                                                                        {config.formConfig.fields.map(field => (
+                                                                            <option key={field.id} value={field.id}>
+                                                                                {field.label}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                </div>
+
+                                                                <div className="text-gray-400 text-sm pt-4">→</div>
+
+                                                                <div className="flex-1">
+                                                                    <label className="text-[10px] text-gray-600 block mb-1">시트 열 이름</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={mapping.targetColumn}
+                                                                        onChange={(e) => {
+                                                                            const newMappings = [...(config.additionalSheetConfig?.fieldMappings || [])];
+                                                                            newMappings[idx].targetColumn = e.target.value;
+                                                                            setConfig({
+                                                                                ...config,
+                                                                                additionalSheetConfig: {
+                                                                                    ...config.additionalSheetConfig!,
+                                                                                    fieldMappings: newMappings
+                                                                                }
+                                                                            });
+                                                                        }}
+                                                                        placeholder="예: 고객명, 연락처"
+                                                                        className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
+                                                                    />
+                                                                </div>
+
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const newMappings = (config.additionalSheetConfig?.fieldMappings || [])
+                                                                            .filter((_, i) => i !== idx);
+                                                                        setConfig({
+                                                                            ...config,
+                                                                            additionalSheetConfig: {
+                                                                                ...config.additionalSheetConfig!,
+                                                                                fieldMappings: newMappings
+                                                                            }
+                                                                        });
+                                                                    }}
+                                                                    className="text-red-500 hover:bg-red-50 p-2 rounded transition mt-4"
+                                                                >
+                                                                    <X className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    {(!config.additionalSheetConfig?.fieldMappings ||
+                                                        config.additionalSheetConfig.fieldMappings.length === 0) && (
+                                                            <div className="text-xs text-gray-500 text-center py-4 bg-white rounded border border-dashed">
+                                                                매핑을 추가하지 않으면 모든 필드가 원본 이름으로 전송됩니다.
+                                                            </div>
+                                                        )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* Success Message Settings */}
