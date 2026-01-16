@@ -563,6 +563,26 @@ function handleVirtualData(params) {
 }
 
 function handleLeadSubmission(params) {
+  // ===== SECURITY: API Token Authentication =====
+  var apiToken = params.api_token;
+  var validToken = PropertiesService.getScriptProperties().getProperty('API_TOKEN');
+  
+  if (!apiToken || apiToken !== validToken) {
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "error",
+      "message": "Unauthorized"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // ===== SECURITY: Honeypot Bot Detection =====
+  // Bots fill this hidden field, humans don't
+  if (params.website && params.website !== '') {
+    // Bot detected - pretend success but don't save
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "success"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
   var sheet = getOrCreateSheet("Leads");
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   var headerMap = {};
@@ -572,7 +592,7 @@ function handleLeadSubmission(params) {
   var newHeaders = [];
   
   for (var key in params) {
-    if (key === 'type' || key === 'formatted_fields') continue; // Skip internal fields
+    if (key === 'type' || key === 'formatted_fields' || key === 'api_token' || key === 'website') continue; // Skip internal/security fields
     var targetHeader = standardMapping[key] || key;
     if (!headerMap[targetHeader.toLowerCase()] && !headerMap[key.toLowerCase()]) {
        newHeaders.push(targetHeader);
@@ -632,7 +652,7 @@ function handleLeadSubmission(params) {
         var priorityKeys = ['name', 'phone'];
         priorityKeys.forEach(function(k) { if (params[k]) body += "■ " + k.toUpperCase() + ": " + params[k] + "\n"; });
 
-        var systemKeys = ['type', 'page_title', 'landing_id', 'timestamp', 'user_agent', 'referrer', 'marketing_consent', 'third_party_consent', 'privacy_consent', 'ip', 'device', 'formatted_fields'];
+        var systemKeys = ['type', 'page_title', 'landing_id', 'timestamp', 'user_agent', 'referrer', 'marketing_consent', 'third_party_consent', 'privacy_consent', 'ip', 'device', 'formatted_fields', 'api_token', 'website'];
         
         for (var k in params) {
           if (priorityKeys.indexOf(k) !== -1) continue;

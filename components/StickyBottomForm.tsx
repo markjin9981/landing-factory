@@ -41,6 +41,9 @@ const StickyBottomForm: React.FC<Props> = ({
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [agreed, setAgreed] = useState(false);
 
+    // Security: Honeypot field (bots fill this, humans don't)
+    const [honeypot, setHoneypot] = useState('');
+
     // Determine which fields to show (default: name + phone)
     const displayFieldIds = config.fieldIds?.length
         ? config.fieldIds
@@ -66,6 +69,7 @@ const StickyBottomForm: React.FC<Props> = ({
                 phone: formData['phone'] || '',
                 user_agent: navigator.userAgent,
                 referrer: document.referrer || 'direct',
+                website: honeypot, // Security: Honeypot field
                 ...utmParams,
                 ...formData
             };
@@ -129,6 +133,23 @@ const StickyBottomForm: React.FC<Props> = ({
                 backgroundPosition: 'center',
             }}
         >
+            {/* Security: Honeypot field - hidden from users, visible to bots */}
+            <input
+                type="text"
+                name="website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                style={{
+                    position: 'absolute',
+                    left: '-9999px',
+                    width: '1px',
+                    height: '1px',
+                    opacity: 0
+                }}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+            />
             <div className={`mx-auto transition-all duration-300 ${effectiveIsMobile
                 ? 'px-3 py-2' // Mobile: Compact Padding
                 : 'px-6 py-5 max-w-7xl' // PC: Broad

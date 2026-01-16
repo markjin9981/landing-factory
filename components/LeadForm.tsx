@@ -19,6 +19,9 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
+    // Security: Honeypot field (bots fill this, humans don't)
+    const [honeypot, setHoneypot] = useState('');
+
     // Consent States
     const [consents, setConsents] = useState({
         privacy: true, // Default checked for better UX, usually requires explicit opt-in in KR
@@ -200,6 +203,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
             page_title: pageTitle || config.title, // Use Global Title if available
             marketing_consent: consents.marketing ? 'Y' : 'N',
             third_party_consent: consents.thirdParty ? 'Y' : 'N',
+            website: honeypot, // Security: Honeypot field
             ...formData,
         };
 
@@ -308,6 +312,24 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ padding: isMobileView ? template.formPadding : '2rem' }}>
+
+                    {/* Security: Honeypot field - hidden from users, visible to bots */}
+                    <input
+                        type="text"
+                        name="website"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                        style={{
+                            position: 'absolute',
+                            left: '-9999px',
+                            width: '1px',
+                            height: '1px',
+                            opacity: 0
+                        }}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        aria-hidden="true"
+                    />
 
                     {/* Fields Container */}
                     <div

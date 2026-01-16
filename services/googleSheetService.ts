@@ -15,6 +15,10 @@ import { LandingConfig, FormField, VisitData, LeadData, GlobalSettings } from '.
 // ==> 1. 여기에 복사한 웹 앱 URL을 붙여넣으세요. <==
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzlSQqgxbVjo1zlBG11OyQmAUJUX6rF4-EDslma5lzc_56kIeHycbIFJjcuFKvZ0v4/exec";
 
+// Security: API Token for DB submission authentication
+// This token must match the value in Google Apps Script Properties (API_TOKEN)
+const API_TOKEN = "landing-factory-secure-2026-jhBx9pQm7sK2vN4L";
+
 // --- 이 아래 코드는 수정하지 마세요. ---
 const PLACEHOLDER_URL: string = "ENTER_YOUR_APP_SCRIPT_URL_HERE";
 const isUrlConfigured = () => GOOGLE_SCRIPT_URL.startsWith("https://script.google.com");
@@ -36,7 +40,7 @@ export const submitLead = async (data: LeadData): Promise<boolean> => {
 
 export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
     if (!isUrlConfigured()) {
-        console.log(" Mock Submit (URL not configured):", data);
+        console.log("🔒 Mock Submit (URL not configured):", data);
         await new Promise(resolve => setTimeout(resolve, 1000));
         return true;
     }
@@ -44,6 +48,7 @@ export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
     try {
         const formData = new FormData();
         formData.append('type', 'lead');
+        formData.append('api_token', API_TOKEN); // Security token
         Object.keys(data).forEach(key => {
             if (data[key] !== undefined) {
                 formData.append(key, String(data[key]));
