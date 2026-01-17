@@ -823,3 +823,52 @@ export const manageVirtualData = async (landingId: string, action: 'init_sheet' 
         return { result: 'error', message: String(e) };
     }
 }
+
+// ===================================
+// LeadMaster CRM Integration
+// ===================================
+
+import { LeadMasterConfig } from '../types';
+
+/**
+ * 리드마스터 CRM에 신규 케이스 등록
+ * - 기존 구글시트 전송과 별개로 동작
+ * - 실패해도 기존 기능에 영향 없음 (fire-and-forget)
+ */
+export const submitToLeadMaster = async (
+    leadMasterConfig: LeadMasterConfig,
+    formData: Record<string, any>,
+    pageTitle?: string
+): Promise<void> => {
+    // 비활성화 또는 URL 없으면 무시
+    if (!leadMasterConfig.isEnabled || !leadMasterConfig.scriptUrl) {
+        return;
+    }
+
+    try {
+        const payload = {
+            // ⭐ 필수: landing_id가 있어야 신규케이스로 등록됨
+            landing_id: leadMasterConfig.landingId || 'landing-factory',
+
+            // ⭐ 필수: 고객 정보
+            customerName: formData.name || formData['이름'] || formData['고객명'] || '',
+            phone: formData.phone || formData['전화번호'] || formData['연락처'] || '',
+
+            // 선택: 추가 정보
+            page_title: pageTitle || '랜딩페이지',
+            preInfo: formData.memo || formData['메모'] || formData['기타'] || '',
+        };
+
+        await fetch(leadMasterConfig.scriptUrl, {
+            method: 'POST',
+            mode: 'no-cors', // CORS 우회
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        console.log('✅ LeadMaster 전송 완료:', payload.customerName, payload.phone);
+    } catch (error) {
+        // 실패해도 무시 (기존 기능에 영향 없음)
+        console.warn('⚠️ LeadMaster 전송 실패 (무시됨):', error);
+    }
+};

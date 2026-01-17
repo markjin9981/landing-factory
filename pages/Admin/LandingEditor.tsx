@@ -3905,6 +3905,115 @@ const LandingEditor: React.FC = () => {
                                         </div>
                                     </div>
 
+                                    {/* LeadMaster CRM Integration (NEW) */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm relative overflow-hidden mb-4">
+                                        <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
+                                            <ExternalLink className="w-24 h-24 text-purple-900" />
+                                        </div>
+                                        <div className="relative z-10">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                                    <ExternalLink className="w-4 h-4 text-purple-600" /> 리드마스터 CRM 연동
+                                                </h3>
+                                                {config.leadMasterConfig?.isEnabled && config.leadMasterConfig?.scriptUrl && (
+                                                    <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full flex items-center gap-1">
+                                                        <CheckCircle className="w-3 h-3" /> 활성화됨
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className="bg-purple-50 border border-purple-200 rounded p-3 mb-4">
+                                                <p className="text-xs text-purple-800">
+                                                    <strong>💡 리드마스터 연동:</strong> 이 랜딩페이지에서 수집된 고객 정보를 리드마스터 CRM에 자동으로 등록합니다.
+                                                    <br /><br />
+                                                    <strong>⚠️ 주의:</strong> 기존 구글시트 저장은 그대로 유지됩니다. 리드마스터는 추가 전송입니다.
+                                                </p>
+                                            </div>
+
+                                            {/* Enable Toggle */}
+                                            <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors mb-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={config.leadMasterConfig?.isEnabled || false}
+                                                    onChange={(e) => setConfig(prev => ({
+                                                        ...prev,
+                                                        leadMasterConfig: {
+                                                            ...prev.leadMasterConfig,
+                                                            isEnabled: e.target.checked,
+                                                            scriptUrl: prev.leadMasterConfig?.scriptUrl || '',
+                                                            landingId: prev.leadMasterConfig?.landingId || ''
+                                                        }
+                                                    }))}
+                                                    className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                                />
+                                                <div>
+                                                    <span className="text-sm font-bold text-gray-700">리드마스터 연동 활성화</span>
+                                                    <p className="text-xs text-gray-500">활성화 시 폼 제출 데이터가 리드마스터로 전송됩니다</p>
+                                                </div>
+                                            </label>
+
+                                            {/* Configuration Fields (shown when enabled) */}
+                                            {config.leadMasterConfig?.isEnabled && (
+                                                <div className="space-y-4 animate-fade-in">
+                                                    {/* Script URL */}
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-700 block mb-1">
+                                                            리드마스터 스크립트 URL <span className="text-red-500">*</span>
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={config.leadMasterConfig?.scriptUrl || ''}
+                                                            onChange={(e) => setConfig(prev => ({
+                                                                ...prev,
+                                                                leadMasterConfig: {
+                                                                    ...prev.leadMasterConfig!,
+                                                                    isEnabled: true,
+                                                                    scriptUrl: e.target.value
+                                                                }
+                                                            }))}
+                                                            placeholder="https://script.google.com/macros/s/xxxxx/exec"
+                                                            className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                                        />
+                                                        <p className="text-[10px] text-gray-500 mt-1">
+                                                            리드마스터 CRM의 Google Apps Script 웹앱 URL을 입력하세요
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Landing ID (Optional) */}
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-700 block mb-1">
+                                                            랜딩 ID (선택)
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={config.leadMasterConfig?.landingId || ''}
+                                                            onChange={(e) => setConfig(prev => ({
+                                                                ...prev,
+                                                                leadMasterConfig: {
+                                                                    ...prev.leadMasterConfig!,
+                                                                    landingId: e.target.value
+                                                                }
+                                                            }))}
+                                                            placeholder="my-landing-page"
+                                                            className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                                        />
+                                                        <p className="text-[10px] text-gray-500 mt-1">
+                                                            리드마스터에서 유입경로를 식별하기 위한 ID입니다. 비워두면 기본값(landing-factory)이 사용됩니다.
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Save Reminder */}
+                                                    <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                                                        <p className="text-xs text-purple-700 flex items-center gap-1">
+                                                            <Save className="w-4 h-4" />
+                                                            <strong>설정 완료 후 상단의 "저장" 버튼을 눌러주세요.</strong>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
 
 
                                     {/* Manual Design Section */}

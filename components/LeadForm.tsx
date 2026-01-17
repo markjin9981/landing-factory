@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { FormSection, LeadData, PixelConfig, LandingConfig } from '../types';
 import { trackConversion } from '../utils/pixelUtils';
-import { submitLeadToSheet } from '../services/googleSheetService';
+import { submitLeadToSheet, submitToLeadMaster } from '../services/googleSheetService';
 import { CheckCircle, AlertCircle, Loader2, Lock, FileText, X, ChevronDown } from 'lucide-react';
 import SecurityFooter from './SecurityFooter';
 import AnimatedHeadline from './AnimatedHeadline';
@@ -232,6 +232,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
         console.log("Submitting Payload:", payload); // Debug log for robust tracking
 
         const success = await submitLeadToSheet(payload);
+
+        // NEW: 리드마스터 전송 (병렬 처리, 실패해도 무시)
+        if (landingConfig?.leadMasterConfig?.isEnabled) {
+            submitToLeadMaster(
+                landingConfig.leadMasterConfig,
+                formData,
+                pageTitle || config.title
+            ).catch(() => { }); // 에러 무시
+        }
 
         if (success) {
             trackConversion(pixelConfig);

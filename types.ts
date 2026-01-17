@@ -768,6 +768,16 @@ export interface LandingConfig {
 
   // NEW: Additional Sheet Configuration for Customer Sheets
   additionalSheetConfig?: AdditionalSheetConfig;
+
+  // NEW: LeadMaster CRM Integration
+  leadMasterConfig?: LeadMasterConfig;
+}
+
+// NEW: LeadMaster CRM 연동 설정
+export interface LeadMasterConfig {
+  isEnabled: boolean;          // 리드마스터 연동 활성화 여부
+  scriptUrl: string;           // 리드마스터 Apps Script URL
+  landingId?: string;          // 선택: 커스텀 landing_id (없으면 기본값 사용)
 }
 
 // NEW: Field Mapping for Additional Sheets
