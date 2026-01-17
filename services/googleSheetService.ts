@@ -837,7 +837,7 @@ import { LeadMasterConfig } from '../types';
  */
 export const submitToLeadMaster = async (
     leadMasterConfig: LeadMasterConfig,
-    formData: Record<string, any>,
+    sourceData: Record<string, any>,
     pageTitle?: string
 ): Promise<void> => {
     // 비활성화 또는 URL 없으면 무시
@@ -846,32 +846,32 @@ export const submitToLeadMaster = async (
     }
 
     try {
-        const payload: Record<string, any> = {
-            // ⭐ 필수: landing_id가 있어야 신규케이스로 등록됨
-            landing_id: leadMasterConfig.landingId || 'landing-factory',
+        // FormData 사용 (no-cors 모드에서 JSON은 허용되지 않음)
+        const formData = new FormData();
 
-            // ⭐ 필수: 고객 정보
-            customerName: formData.name || formData['이름'] || formData['고객명'] || '',
-            phone: formData.phone || formData['전화번호'] || formData['연락처'] || '',
+        // ⭐ 필수: landing_id가 있어야 신규케이스로 등록됨
+        formData.append('landing_id', leadMasterConfig.landingId || 'landing-factory');
 
-            // 선택: 추가 정보
-            page_title: pageTitle || '랜딩페이지',
-            preInfo: formData.memo || formData['메모'] || formData['기타'] || '',
-        };
+        // ⭐ 필수: 고객 정보
+        formData.append('customerName', sourceData.name || sourceData['이름'] || sourceData['고객명'] || '');
+        formData.append('phone', sourceData.phone || sourceData['전화번호'] || sourceData['연락처'] || '');
+
+        // 선택: 추가 정보
+        formData.append('page_title', pageTitle || '랜딩페이지');
+        formData.append('preInfo', sourceData.memo || sourceData['메모'] || sourceData['기타'] || '');
 
         // 시트 이름이 있으면 추가
         if (leadMasterConfig.sheetName) {
-            payload.sheetName = leadMasterConfig.sheetName;
+            formData.append('sheetName', leadMasterConfig.sheetName);
         }
 
         await fetch(leadMasterConfig.scriptUrl, {
             method: 'POST',
             mode: 'no-cors', // CORS 우회
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: formData   // FormData 사용 (Content-Type 자동 설정)
         });
 
-        console.log('✅ LeadMaster 전송 완료:', payload.customerName, payload.phone, payload.sheetName || '(기본 시트)');
+        console.log('✅ LeadMaster 전송 완료:', sourceData.name || sourceData['이름'], sourceData.phone, leadMasterConfig.sheetName || '(기본 시트)');
     } catch (error) {
         // 실패해도 무시 (기존 기능에 영향 없음)
         console.warn('⚠️ LeadMaster 전송 실패 (무시됨):', error);
