@@ -159,6 +159,11 @@ export interface FormStyle {
   buttonBackgroundImage?: string; // New: Image Background
   securityBadgeId?: string; // New: Security Footer Preset ID (0-10)
 
+  // Button Text Animation
+  buttonTextEffect?: HeadlineEffect;
+  buttonTextAnimationDuration?: number;
+  buttonTextAnimationLoop?: boolean;
+
   // Layout
   fieldsPerPage?: number; // New: Fields per page control (0 = all, 1 = one by one)
 

@@ -4,6 +4,7 @@ import { trackConversion } from '../utils/pixelUtils';
 import { submitLeadToSheet } from '../services/googleSheetService';
 import { Check, Loader2 } from 'lucide-react';
 import UnifiedFormField from './templates/DynamicStep/UnifiedFormField';
+import AnimatedHeadline from './AnimatedHeadline';
 
 interface Props {
     config: StickyBottomFormConfig;
@@ -260,7 +261,18 @@ const StickyBottomForm: React.FC<Props> = ({
                                     fontSize: buttonTextSize,
                                 }}
                             >
-                                {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (formConfig.submitButtonText || '신청하기')}
+                                {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (
+                                    formConfig.style?.buttonTextEffect && formConfig.style.buttonTextEffect !== 'none' ? (
+                                        <AnimatedHeadline
+                                            text={formConfig.submitButtonText || '신청하기'}
+                                            effect={formConfig.style.buttonTextEffect}
+                                            duration={formConfig.style.buttonTextAnimationDuration}
+                                            isLoop={formConfig.style.buttonTextAnimationLoop}
+                                            className="w-full h-full flex items-center justify-center"
+                                            style={{}}
+                                        />
+                                    ) : (formConfig.submitButtonText || '신청하기')
+                                )}
                             </button>
                         </div>
                     </div>
@@ -343,8 +355,21 @@ const StickyBottomForm: React.FC<Props> = ({
                                                 fontSize: buttonTextSize,
                                             }}
                                         >
-                                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료상담 신청하기')}
-                                            {!isSubmitting && <Check className="w-5 h-5" />}
+                                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                                                <>
+                                                    {formConfig.style?.buttonTextEffect && formConfig.style.buttonTextEffect !== 'none' ? (
+                                                        <AnimatedHeadline
+                                                            text={formConfig.submitButtonText || '무료상담 신청하기'}
+                                                            effect={formConfig.style.buttonTextEffect}
+                                                            duration={formConfig.style.buttonTextAnimationDuration}
+                                                            isLoop={formConfig.style.buttonTextAnimationLoop}
+                                                            className="flex items-center justify-center"
+                                                            style={{}}
+                                                        />
+                                                    ) : (formConfig.submitButtonText || '무료상담 신청하기')}
+                                                    <Check className="w-5 h-5" />
+                                                </>
+                                            )}
                                         </button>
                                         <label className="flex items-center gap-1.5 cursor-pointer opacity-90 hover:opacity-100 transition-opacity text-xs">
                                             <input
@@ -403,8 +428,21 @@ const StickyBottomForm: React.FC<Props> = ({
                                             fontSize: buttonTextSize,
                                         }}
                                     >
-                                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (formConfig.submitButtonText || '무료 상담 신청하기')}
-                                        {!isSubmitting && <Check className="w-5 h-5" />}
+                                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                                            <>
+                                                {formConfig.style?.buttonTextEffect && formConfig.style.buttonTextEffect !== 'none' ? (
+                                                    <AnimatedHeadline
+                                                        text={formConfig.submitButtonText || '무료 상담 신청하기'}
+                                                        effect={formConfig.style.buttonTextEffect}
+                                                        duration={formConfig.style.buttonTextAnimationDuration}
+                                                        isLoop={formConfig.style.buttonTextAnimationLoop}
+                                                        className="flex items-center justify-center"
+                                                        style={{}}
+                                                    />
+                                                ) : (formConfig.submitButtonText || '무료 상담 신청하기')}
+                                                <Check className="w-5 h-5" />
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </div>

@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { FormSection, LeadData, PixelConfig, LandingConfig } from '../types';
 import { trackConversion } from '../utils/pixelUtils';
 import { submitLeadToSheet } from '../services/googleSheetService';
 import { CheckCircle, AlertCircle, Loader2, Lock, FileText, X, ChevronDown } from 'lucide-react';
 import SecurityFooter from './SecurityFooter';
+import AnimatedHeadline from './AnimatedHeadline';
 
 interface Props {
     config: FormSection;
@@ -34,7 +36,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
 
     const formStyle = config.style || {};
     const containerBg = formStyle.backgroundColor || '#ffffff';
-    const containerBorder = formStyle.borderColor ? `${formStyle.borderWidth || '1px'} solid ${formStyle.borderColor}` : '1px solid #e5e7eb';
+    const containerBorder = formStyle.borderColor ? `${formStyle.borderWidth || '1px'} solid ${formStyle.borderColor} ` : '1px solid #e5e7eb';
     const containerRadius = formStyle.borderRadius || '16px';
     const textColor = formStyle.textColor || '#1f2937'; // Default gray-800
 
@@ -153,11 +155,11 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
         if (part === 'p2') newP2 = val;
         if (part === 'p3') newP3 = val;
 
-        setFormData({ ...formData, [fieldId]: `${newP1}-${newP2}-${newP3}` });
+        setFormData({ ...formData, [fieldId]: `${newP1} -${newP2} -${newP3} ` });
 
         // Auto focus logic: when P2 is filled (4 digits), move to P3
         if (part === 'p2' && val.length >= 4) {
-            const nextInput = document.getElementById(`${fieldId}_p3`);
+            const nextInput = document.getElementById(`${fieldId} _p3`);
             nextInput?.focus();
         }
     };
@@ -377,7 +379,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                             return (
                                 <div
                                     key={field.id}
-                                    className={`${isGridLayout && isFullWidth ? 'md:col-span-2' : ''} ${template.useGrid && isMobileView && isFullWidth ? 'col-span-2' : ''}`}
+                                    className={`${isGridLayout && isFullWidth ? 'md:col-span-2' : ''} ${template.useGrid && isMobileView && isFullWidth ? 'col-span-2' : ''} `}
                                 >
                                     <label
                                         className="block text-sm font-semibold truncate"
@@ -432,10 +434,10 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                     {field.options.map((opt) => (
                                                         <label
                                                             key={opt.value}
-                                                            className={`flex items-center justify-center px-3 rounded-lg border cursor-pointer transition-all ${formData[field.id] === opt.value
+                                                            className={`flex items - center justify - center px - 3 rounded - lg border cursor - pointer transition - all ${formData[field.id] === opt.value
                                                                 ? 'border-transparent bg-opacity-10 font-bold shadow-inner'
                                                                 : 'border-gray-200 hover:bg-gray-50'
-                                                                }`}
+                                                                } `}
                                                             style={{
                                                                 backgroundColor: formData[field.id] === opt.value ? themeColor : '#ffffff',
                                                                 color: formData[field.id] === opt.value ? 'black' : '#374151',
@@ -475,15 +477,15 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
 
                                                                 let formatted = val;
                                                                 if (val.length > 3 && val.length <= 7) {
-                                                                    formatted = `${val.slice(0, 3)}-${val.slice(3)}`;
+                                                                    formatted = `${val.slice(0, 3)} -${val.slice(3)} `;
                                                                 } else if (val.length > 7) {
-                                                                    formatted = `${val.slice(0, 3)}-${val.slice(3, 7)}-${val.slice(7)}`;
+                                                                    formatted = `${val.slice(0, 3)} -${val.slice(3, 7)} -${val.slice(7)} `;
                                                                 }
                                                                 // If starts with 02 (Seoul), logic differs slightly but for now 010 standard
                                                                 if (val.startsWith('02') && val.length > 2) {
-                                                                    if (val.length <= 5) formatted = `${val.slice(0, 2)}-${val.slice(2)}`;
-                                                                    else if (val.length <= 9) formatted = `${val.slice(0, 2)}-${val.slice(2, 5)}-${val.slice(5)}`;
-                                                                    else formatted = `${val.slice(0, 2)}-${val.slice(2, 6)}-${val.slice(6)}`;
+                                                                    if (val.length <= 5) formatted = `${val.slice(0, 2)} -${val.slice(2)} `;
+                                                                    else if (val.length <= 9) formatted = `${val.slice(0, 2)} -${val.slice(2, 5)} -${val.slice(5)} `;
+                                                                    else formatted = `${val.slice(0, 2)} -${val.slice(2, 6)} -${val.slice(6)} `;
                                                                 }
 
                                                                 setFormData({ ...formData, [field.id]: formatted });
@@ -528,7 +530,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                     <span className="text-gray-400 shrink-0">-</span>
                                                     <input
                                                         type="tel"
-                                                        id={`${field.id}_p2`}
+                                                        id={`${field.id} _p2`}
                                                         value={p2}
                                                         onChange={(e) => handlePhonePartChange(field.id, 'p2', e.target.value)}
                                                         maxLength={4}
@@ -546,7 +548,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                     <span className="text-gray-400 shrink-0">-</span>
                                                     <input
                                                         type="tel"
-                                                        id={`${field.id}_p3`}
+                                                        id={`${field.id} _p3`}
                                                         value={p3}
                                                         onChange={(e) => handlePhonePartChange(field.id, 'p3', e.target.value)}
                                                         maxLength={4}
@@ -601,8 +603,8 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                             const generateTimeSlots = () => {
                                                 const slots = [];
                                                 // Create date objects for comparison (fixed date)
-                                                let current = new Date(`2000-01-01T${startTime}`);
-                                                const end = new Date(`2000-01-01T${endTime}`);
+                                                let current = new Date(`2000-01-01T${startTime} `);
+                                                const end = new Date(`2000-01-01T${endTime} `);
 
                                                 // Safety check
                                                 if (current > end) return ['오전 09:00'];
@@ -613,9 +615,9 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                     const ampm = hours >= 12 ? '오후' : '오전';
                                                     let displayHour = hours % 12;
                                                     displayHour = displayHour === 0 ? 12 : displayHour;
-                                                    const displayMinute = minutes < 10 ? `0${minutes}` : minutes;
+                                                    const displayMinute = minutes < 10 ? `0${minutes} ` : minutes;
 
-                                                    const value = `${ampm} ${displayHour < 10 ? `0${displayHour}` : displayHour}:${displayMinute}`;
+                                                    const value = `${ampm} ${displayHour < 10 ? `0${displayHour}` : displayHour}:${displayMinute} `;
                                                     slots.push(value);
 
                                                     // Increment
@@ -713,7 +715,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                 }
 
                                                 const finalDomain = newDomain === 'direct' ? newDirect : newDomain;
-                                                setFormData({ ...formData, [field.id]: `${newId}@${finalDomain}` });
+                                                setFormData({ ...formData, [field.id]: `${newId} @${finalDomain} ` });
                                             };
 
                                             return (
@@ -800,7 +802,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                     oncomplete: function (data: any) {
                                                         const fullAddr = data.roadAddress || data.jibunAddress;
                                                         const extraAddr = data.bname ? ` (${data.bname})` : '';
-                                                        const finalAddr = `[${data.zonecode}] ${fullAddr}${extraAddr}`;
+                                                        const finalAddr = `[${data.zonecode}] ${fullAddr}${extraAddr} `;
 
                                                         setFormData(prev => ({
                                                             ...prev,
@@ -809,7 +811,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
 
                                                         // Auto focus detailed address input
                                                         setTimeout(() => {
-                                                            document.getElementById(`${field.id}_detail`)?.focus();
+                                                            document.getElementById(`${field.id} _detail`)?.focus();
                                                         }, 100);
                                                     }
                                                 }).open();
@@ -848,11 +850,11 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                                     </div>
                                                     <input
                                                         type="text"
-                                                        id={`${field.id}_detail`}
-                                                        name={`${field.id}_detail`}
+                                                        id={`${field.id} _detail`}
+                                                        name={`${field.id} _detail`}
                                                         placeholder="상세주소를 입력해주세요"
-                                                        value={formData[`${field.id}_detail`] || ''}
-                                                        onChange={(e) => setFormData({ ...formData, [`${field.id}_detail`]: e.target.value })}
+                                                        value={formData[`${field.id} _detail`] || ''}
+                                                        onChange={(e) => setFormData({ ...formData, [`${field.id} _detail`]: e.target.value })}
                                                         className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 focus:border-transparent outline-none bg-white text-gray-900"
                                                         style={{
                                                             '--tw-ring-color': themeColor,
@@ -902,7 +904,7 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
 
                     {/* --- Policy Agreements Section --- */}
                     <div
-                        className={`rounded-lg space-y-3 border ${isMobileView ? 'p-3 text-xs mb-4' : 'p-4 text-sm mb-6'}`}
+                        className={`rounded - lg space - y - 3 border ${isMobileView ? 'p-3 text-xs mb-4' : 'p-4 text-sm mb-6'} `}
                         style={{
                             backgroundColor: formStyle.backgroundColor === '#1e40af' ? 'rgba(255,255,255,0.1)' : '#f9fafb', // Adjust for dark theme
                             borderColor: formStyle.backgroundColor === '#1e40af' ? 'rgba(255,255,255,0.2)' : '#f3f4f6',
@@ -988,7 +990,18 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                                     처리중...
                                 </>
                             ) : (
-                                config.submitButtonText
+                                formStyle.buttonTextEffect && formStyle.buttonTextEffect !== 'none' ? (
+                                    <AnimatedHeadline
+                                        text={config.submitButtonText || '신청하기'}
+                                        effect={formStyle.buttonTextEffect}
+                                        duration={formStyle.buttonTextAnimationDuration}
+                                        isLoop={formStyle.buttonTextAnimationLoop}
+                                        className="w-full h-full flex flex-col items-center justify-center text-center leading-normal"
+                                        style={{}}
+                                    />
+                                ) : (
+                                    config.submitButtonText || '신청하기'
+                                )
                             )}
                         </button>
                     </div>

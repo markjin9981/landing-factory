@@ -209,10 +209,10 @@ const AnimatedHeadlineContent: React.FC<AnimatedHeadlineProps> = ({
     return (
         <div
             className={`${className} ${effectStyles.className}`}
-            style={{ ...textStyleObj, ...effectStyles.style }}
+            style={{ ...textStyleObj, ...effectStyles.style, width: '100%' }}
         >
             {lines.map((line, idx) => (
-                <div key={idx}>{line}</div>
+                <div key={idx} style={{ textAlign: 'inherit' }}>{line}</div>
             ))}
         </div>
     );

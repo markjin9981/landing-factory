@@ -4106,6 +4106,60 @@ const LandingEditor: React.FC = () => {
                                                         </div>
                                                     )}
                                                 </div>
+
+                                                <div className="mt-2 pt-2 border-t border-gray-100">
+                                                    <label className="text-[10px] text-gray-500 block mb-1">버튼 텍스트 애니메이션</label>
+                                                    <select
+                                                        value={config.formConfig.style?.buttonTextEffect || 'none'}
+                                                        onChange={(e) => updateNested(['formConfig', 'style', 'buttonTextEffect'], e.target.value)}
+                                                        className="w-full border rounded p-2 text-sm bg-white mb-2"
+                                                    >
+                                                        <option value="none">효과 없음</option>
+                                                        <option value="typewriter">타자기 (Typewriter)</option>
+                                                        <option value="fadeIn">페이드 인 (Fade In)</option>
+                                                        <option value="slideUp">위로 나타나기 (Slide Up)</option>
+                                                        <option value="slideDown">아래로 나타나기 (Slide Down)</option>
+                                                        <option value="blur">블러 효과 (Blur)</option>
+                                                        <option value="bounce">바운스 (Bounce)</option>
+                                                        <option value="scale">확대 효과 (Scale)</option>
+                                                        <option value="glitch">글리치 (Glitch)</option>
+                                                        <option value="wave">웨이브 (Wave)</option>
+                                                    </select>
+
+                                                    {config.formConfig.style?.buttonTextEffect && config.formConfig.style?.buttonTextEffect !== 'none' && (
+                                                        <div className="bg-gray-100 p-2 rounded border border-gray-200 space-y-2">
+                                                            <div>
+                                                                <div className="flex justify-between items-center mb-1">
+                                                                    <label className="text-[10px] text-gray-500">지속 시간 (Duration)</label>
+                                                                    <span className="text-[10px] font-mono text-blue-600">
+                                                                        {((config.formConfig.style?.buttonTextAnimationDuration || 1000) / 1000).toFixed(1)}s
+                                                                    </span>
+                                                                </div>
+                                                                <input
+                                                                    type="range"
+                                                                    min="500"
+                                                                    max="3000"
+                                                                    step="100"
+                                                                    value={config.formConfig.style?.buttonTextAnimationDuration || 1000}
+                                                                    onChange={(e) => updateNested(['formConfig', 'style', 'buttonTextAnimationDuration'], parseInt(e.target.value))}
+                                                                    className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+                                                                />
+                                                            </div>
+                                                            <div className="flex items-center">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    id="btn-anim-loop"
+                                                                    checked={config.formConfig.style?.buttonTextAnimationLoop || false}
+                                                                    onChange={(e) => updateNested(['formConfig', 'style', 'buttonTextAnimationLoop'], e.target.checked)}
+                                                                    className="w-3 h-3 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                                />
+                                                                <label htmlFor="btn-anim-loop" className="ml-2 text-[10px] text-gray-600 cursor-pointer">
+                                                                    무한 반복 (Infinite Loop)
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                                 <ButtonStyleEditor label="버튼" mode="flat_form_button" />
                                             </div>
                                         </div>
