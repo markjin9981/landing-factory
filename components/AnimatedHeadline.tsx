@@ -10,13 +10,13 @@ interface AnimatedHeadlineProps {
     isLoop?: boolean;
 }
 
-const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({
+// Inner component that handles the actual animation
+const AnimatedHeadlineContent: React.FC<AnimatedHeadlineProps> = ({
     text,
     effect,
     style,
     className = '',
-    duration = 1000,
-    isLoop = false
+    duration = 1000
 }) => {
     const [displayText, setDisplayText] = useState('');
     const [isVisible, setIsVisible] = useState(effect === 'none');
@@ -31,7 +31,7 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({
             let currentIndex = 0;
             const fullText = text;
 
-            // Adjust typing speed based on duration (approx)
+            // Adjust typing speed based on duration
             const typingSpeed = Math.max(30, Math.min(200, duration / fullText.length));
 
             const timer = setInterval(() => {
@@ -40,17 +40,6 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({
                     currentIndex++;
                 } else {
                     clearInterval(timer);
-                    // Loop logic for typewriter
-                    if (isLoop) {
-                        setTimeout(() => {
-                            setDisplayText('');
-                            currentIndex = 0;
-                            // Restart interval
-                            // Note: In strict React, this restart logic is cleaner with a separate state trigger, 
-                            // but for simplicity we rely on effect re-trigger or a simple timeout-based recursion if needed.
-                            // Better approach: toggle a trigger state.
-                        }, 2000);
-                    }
                 }
             }, typingSpeed);
 
@@ -58,28 +47,19 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({
         } else {
             setDisplayText(text);
         }
-    }, [effect, text, duration, isLoop]); // Note: Simple typewriter loop isn't fully robust here but standard effects are prioritized.
+    }, [effect, text, duration]);
 
-    // Trigger animation on effect change & Loop
+    // Trigger visual animation on mount
     useEffect(() => {
         if (effect !== 'none' && effect !== 'typewriter') {
-            const startAnimation = () => {
-                setIsVisible(false);
-                setTimeout(() => setIsVisible(true), 100);
-            };
-
-            startAnimation(); // Initial play
-
-            if (isLoop) {
-                const intervalId = setInterval(() => {
-                    startAnimation();
-                }, duration + 2000); // Wait for duration + 2s delay
-                return () => clearInterval(intervalId);
-            }
+            // Start invisible, then set to true to trigger transition
+            setIsVisible(false);
+            const timer = setTimeout(() => setIsVisible(true), 100);
+            return () => clearTimeout(timer);
         } else {
             setIsVisible(true);
         }
-    }, [effect, duration, isLoop]);
+    }, [effect]);
 
     // Build style object
     const textStyleObj: React.CSSProperties = useMemo(() => {
@@ -185,7 +165,7 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({
 
     const effectStyles = getEffectStyles();
 
-    // Wave effect - render each character separately
+    // Wave effect
     if (effect === 'wave') {
         return (
             <div className={className} style={textStyleObj}>
@@ -225,7 +205,7 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({
         );
     }
 
-    // Other effects
+    // Standard Render
     return (
         <div
             className={`${className} ${effectStyles.className}`}
@@ -235,6 +215,36 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({
                 <div key={idx}>{line}</div>
             ))}
         </div>
+    );
+};
+
+// Wrapper Logic for Looping
+const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = (props) => {
+    const [playKey, setPlayKey] = useState(0);
+
+    useEffect(() => {
+        // Reset key when effect changes
+        setPlayKey(0);
+    }, [props.effect]);
+
+    useEffect(() => {
+        if (props.isLoop && props.effect !== 'none') {
+            const pauseDuration = 2000;
+            const cycleDuration = (props.duration || 1000) + pauseDuration;
+
+            const interval = setInterval(() => {
+                setPlayKey(prev => prev + 1);
+            }, cycleDuration);
+
+            return () => clearInterval(interval);
+        }
+    }, [props.isLoop, props.effect, props.duration]);
+
+    return (
+        <AnimatedHeadlineContent
+            {...props}
+            key={`${props.effect}-${playKey}`}
+        />
     );
 };
 
