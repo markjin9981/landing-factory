@@ -138,7 +138,8 @@
       "containerStyle": {
         "verticalPadding": 0,
         "removeContainerPadding": true
-      }
+      },
+      "notificationEmail": "2882@daum.net"
     },
     "footer": {
       "isShow": true,
@@ -195,10 +196,20 @@
       "items": []
     },
     "features": {
-      "isShow": false,
-      "title": "주요 특징",
-      "description": "우리 서비스의 특별한 점을 소개합니다.",
-      "items": []
+      "isShow": true,
+      "title": "",
+      "description": "",
+      "items": [],
+      "slideBanner": {
+        "isShow": true,
+        "images": [
+          "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768124631032_img3.jpg",
+          "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768052946890_img4.jpg",
+          "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768057879606_landing_top_38800_1737599063_1_30808502.gif",
+          "https://raw.githubusercontent.com/markjin9981/landing-factory/main/public/uploads/1768124645344_img5_241104.jpg"
+        ],
+        "indicatorColor": "#392323"
+      }
     },
     "rehabChatConfig": {
       "isEnabled": false,
@@ -228,6 +239,28 @@
         "fontFamily": "MaruBuri"
       },
       "size": 70
+    },
+    "additionalSheetConfig": {
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1tXA1U09gcgQF8w7CiVBVtscqZnGcvdCpwBpMlyIxRBg/edit?usp=sharing",
+      "sheetName": "Leads",
+      "fieldMappings": [
+        {
+          "sourceField": "name",
+          "targetColumn": "CustomerName"
+        },
+        {
+          "sourceField": "phone",
+          "targetColumn": "Phone"
+        },
+        {
+          "sourceField": "f1768637361590",
+          "targetColumn": "PreInfo"
+        },
+        {
+          "sourceField": "Timestamp",
+          "targetColumn": "UpdatedAt"
+        }
+      ]
     }
   }
 }
