@@ -94,7 +94,7 @@ function doGet(e) {
       return handleFontProxy(params);
   }
 
-  return ContentService.createTextOutput("Backend Status: Online | Version: 3.4 (Font Proxy) | Drive Access: OK");
+  return ContentService.createTextOutput("Backend Status: Online | Version: 3.5 (Origin Validation) | Drive Access: OK");
 }
 
 function handleFontProxy(params) {
