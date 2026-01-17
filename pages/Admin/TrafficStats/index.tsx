@@ -130,70 +130,72 @@ const TrafficStats: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
-            <header className="bg-white border-b border-gray-200 px-8 py-5 flex items-center justify-between">
-                <div className="flex items-center gap-4">
+            <header className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 md:py-5 flex items-center justify-between">
+                <div className="flex items-center gap-2 md:gap-4">
                     <Link to="/admin" className="p-2 hover:bg-gray-100 rounded-full">
                         <ArrowLeft className="w-5 h-5 text-gray-600" />
                     </Link>
-                    <h1 className="text-xl font-bold">
-                        접속 통계 ({selectedDate ? selectedDate : '전체 기간'})
+                    <h1 className="text-base md:text-xl font-bold truncate max-w-[180px] md:max-w-none">
+                        접속 통계 {selectedDate && <span className="text-blue-600 hidden md:inline">({selectedDate})</span>}
                     </h1>
                 </div>
-                <button onClick={loadData} className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm font-bold">
-                    <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                    새로고침
+                <button onClick={loadData} className="flex items-center px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-xs md:text-sm font-bold">
+                    <RefreshCw className={`w-4 h-4 mr-1 md:mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">새로고침</span>
                 </button>
             </header>
 
-            <main className="max-w-7xl mx-auto p-8">
+            <main className="max-w-7xl mx-auto p-4 md:p-8">
                 {/* Filters */}
-                <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 flex flex-wrap items-center gap-4 shadow-sm relative">
-                    <div className="flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm font-bold text-gray-700">필터:</span>
-                    </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4 mb-4 md:mb-6 shadow-sm relative">
+                    <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-3 md:gap-4">
+                        <div className="flex items-center gap-2">
+                            <Filter className="w-4 h-4 text-gray-500" />
+                            <span className="text-xs md:text-sm font-bold text-gray-700">필터:</span>
+                        </div>
 
-                    <select
-                        value={selectedLandingId}
-                        onChange={(e) => setSelectedLandingId(e.target.value)}
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                    >
-                        <option value="all">전체 랜딩페이지</option>
-                        {uniqueLandingOptions.map(opt => (
-                            <option key={opt.id} value={opt.id}>{opt.title} ({opt.id})</option>
-                        ))}
-                    </select>
-
-                    {/* Calendar (Simple Date Picker) */}
-                    <div className="relative">
-                        <button
-                            onClick={() => setShowCalendar(!showCalendar)}
-                            className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-sm ${selectedDate ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'border-gray-300 text-gray-700'}`}
+                        <select
+                            value={selectedLandingId}
+                            onChange={(e) => setSelectedLandingId(e.target.value)}
+                            className="w-full md:w-auto border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                         >
-                            <CalendarIcon className="w-4 h-4" />
-                            {selectedDate || '날짜 선택'}
-                            {selectedDate && <X className="w-3 h-3 hover:text-red-500" onClick={(e) => { e.stopPropagation(); setSelectedDate(null); }} />}
-                        </button>
-                        {showCalendar && (
-                            <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl p-4 z-50 w-64">
-                                <div className="flex justify-between items-center mb-4">
-                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="p-1 hover:bg-gray-100 rounded">&lt;</button>
-                                    <span className="text-sm font-bold">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
-                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="p-1 hover:bg-gray-100 rounded">&gt;</button>
+                            <option value="all">전체 랜딩페이지</option>
+                            {uniqueLandingOptions.map(opt => (
+                                <option key={opt.id} value={opt.id}>{opt.title} ({opt.id})</option>
+                            ))}
+                        </select>
+
+                        {/* Calendar (Simple Date Picker) */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowCalendar(!showCalendar)}
+                                className={`w-full md:w-auto flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-sm ${selectedDate ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'border-gray-300 text-gray-700'}`}
+                            >
+                                <CalendarIcon className="w-4 h-4" />
+                                {selectedDate || '날짜 선택'}
+                                {selectedDate && <X className="w-3 h-3 hover:text-red-500" onClick={(e) => { e.stopPropagation(); setSelectedDate(null); }} />}
+                            </button>
+                            {showCalendar && (
+                                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl p-4 z-50 w-64">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="p-1 hover:bg-gray-100 rounded">&lt;</button>
+                                        <span className="text-sm font-bold">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
+                                        <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="p-1 hover:bg-gray-100 rounded">&gt;</button>
+                                    </div>
+                                    <div className="grid grid-cols-7 gap-1">
+                                        {renderCalendar()}
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-7 gap-1">
-                                    {renderCalendar()}
-                                </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* TABS */}
-                <div className="flex gap-8 border-b border-gray-200 mb-8 px-2">
-                    <button onClick={() => setActiveTab('daily')} className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'daily' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent hover:text-gray-700'}`}>일별 현황 (Daily)</button>
-                    <button onClick={() => setActiveTab('detail')} className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'detail' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent hover:text-gray-700'}`}>상세 현황 (Detail)</button>
-                    <button onClick={() => setActiveTab('marketing')} className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'marketing' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent hover:text-gray-700'}`}>마케팅 통계 (UTM)</button>
+                {/* TABS - Scrollable on mobile */}
+                <div className="flex gap-4 md:gap-8 border-b border-gray-200 mb-6 md:mb-8 px-1 md:px-2 overflow-x-auto">
+                    <button onClick={() => setActiveTab('daily')} className={`pb-3 text-xs md:text-sm font-bold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'daily' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent hover:text-gray-700'}`}>일별 현황</button>
+                    <button onClick={() => setActiveTab('detail')} className={`pb-3 text-xs md:text-sm font-bold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'detail' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent hover:text-gray-700'}`}>상세 현황</button>
+                    <button onClick={() => setActiveTab('marketing')} className={`pb-3 text-xs md:text-sm font-bold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'marketing' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent hover:text-gray-700'}`}>마케팅 (UTM)</button>
                 </div>
 
                 {/* CONTENT */}

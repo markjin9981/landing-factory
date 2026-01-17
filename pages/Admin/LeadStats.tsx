@@ -257,7 +257,7 @@ const LeadStats: React.FC = () => {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto p-8 space-y-8">
+            <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
 
                 {/* 1. Dashboard Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
