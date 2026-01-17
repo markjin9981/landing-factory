@@ -181,15 +181,15 @@ const AdminDashboard: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-            <header className="bg-white border-b border-gray-200 px-8 py-5 flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-600 rounded-lg">
-                        <Database className="w-6 h-6 text-white" />
+            <header className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 md:py-5 flex justify-between items-center">
+                <div className="flex items-center gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-2 bg-blue-600 rounded-lg">
+                        <Database className="w-5 h-5 md:w-6 md:h-6 text-white" />
                     </div>
-                    <h1 className="text-xl font-bold">Landing Factory Admin</h1>
+                    <h1 className="text-base md:text-xl font-bold">Landing Admin</h1>
                 </div>
-                <div className="flex gap-3 items-center">
-                    <Link to="/" className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium">
+                <div className="flex gap-2 md:gap-3 items-center">
+                    <Link to="/" className="hidden md:inline-block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium">
                         사이트 홈으로
                     </Link>
                     <Link
@@ -202,7 +202,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto p-8">
+            <main className="max-w-6xl mx-auto p-4 md:p-8">
 
                 {/* Quick Stats Nav */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -310,7 +310,7 @@ const AdminDashboard: React.FC = () => {
                                         <p className="text-sm text-gray-500 line-clamp-1">{config.hero?.headline || '(헤드라인 없음)'}</p>
                                     </div>
 
-                                    <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0">
+                                    <div className="flex flex-wrap items-center gap-2 md:gap-3 border-t md:border-t-0 pt-4 md:pt-0">
                                         <button
                                             onClick={async () => {
                                                 if (confirm(`정말 '${config.title}' 페이지를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.\n(GitHub 배포 파일도 함께 삭제됩니다)`)) {
@@ -341,18 +341,18 @@ const AdminDashboard: React.FC = () => {
                                                     }
                                                 }
                                             }}
-                                            className="flex items-center justify-center w-10 h-10 border border-red-200 bg-red-50 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
+                                            className="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 border border-red-200 bg-red-50 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
                                             title="페이지 삭제"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={() => handleDuplicate(config)}
-                                            className="flex items-center justify-center px-4 py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                            className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
                                             title="페이지 복제"
                                         >
-                                            <Copy className="w-4 h-4 mr-2" />
-                                            복제
+                                            <Copy className="w-4 h-4 md:mr-2" />
+                                            <span className="hidden md:inline">복제</span>
                                         </button>
                                         <button
                                             onClick={() => {
@@ -360,26 +360,27 @@ const AdminDashboard: React.FC = () => {
                                                 navigator.clipboard.writeText(url);
                                                 alert('배포 주소가 복사되었습니다.\n' + url);
                                             }}
-                                            className="flex items-center justify-center px-4 py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                            className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
                                             title="배포 링크 복사"
                                         >
-                                            <Link2 className="w-4 h-4 mr-2" />
-                                            링크
+                                            <Link2 className="w-4 h-4 md:mr-2" />
+                                            <span className="hidden md:inline">링크</span>
                                         </button>
                                         <Link
                                             to={`/${config.id}`}
                                             target="_blank"
-                                            className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                            className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                            title="미리보기"
                                         >
-                                            <ExternalLink className="w-4 h-4 mr-2" />
-                                            미리보기
+                                            <ExternalLink className="w-4 h-4 md:mr-2" />
+                                            <span className="hidden md:inline">미리보기</span>
                                         </Link>
                                         <Link
                                             to={`/admin/editor/${config.id}`}
-                                            className="flex items-center justify-center px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                                            className="flex items-center justify-center px-3 py-2 md:px-4 bg-gray-900 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-gray-800 transition-colors"
                                         >
-                                            <Edit className="w-4 h-4 mr-2" />
-                                            수정하기
+                                            <Edit className="w-4 h-4 mr-1 md:mr-2" />
+                                            수정
                                         </Link>
                                     </div>
                                 </div>
