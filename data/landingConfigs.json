@@ -268,7 +268,8 @@
     "leadMasterConfig": {
       "isEnabled": true,
       "scriptUrl": "https://docs.google.com/spreadsheets/d/1tXA1U09gcgQF8w7CiVBVtscqZnGcvdCpwBpMlyIxRBg/edit?usp=sharing",
-      "landingId": ""
+      "landingId": "",
+      "sheetName": "Leads"
     }
   }
 }
