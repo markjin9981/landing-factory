@@ -30,6 +30,8 @@ function checkExternalUrlPermissions() {
 // =================================================================
 var ALLOWED_ORIGINS = [
   "markjin9981.github.io",
+  "debtzero.store",
+  "www.debtzero.store",
   "localhost:5173",
   "localhost:5174",
   "127.0.0.1:5173",
