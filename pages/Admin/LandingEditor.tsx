@@ -3979,6 +3979,29 @@ const LandingEditor: React.FC = () => {
                                                         </p>
                                                     </div>
 
+                                                    {/* Sheet Name */}
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-700 block mb-1">
+                                                            시트 이름 (탭 이름)
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={config.leadMasterConfig?.sheetName || ''}
+                                                            onChange={(e) => setConfig(prev => ({
+                                                                ...prev,
+                                                                leadMasterConfig: {
+                                                                    ...prev.leadMasterConfig!,
+                                                                    sheetName: e.target.value
+                                                                }
+                                                            }))}
+                                                            placeholder="Cases"
+                                                            className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                                        />
+                                                        <p className="text-[10px] text-gray-500 mt-1">
+                                                            리드마스터 구글시트의 탭 이름입니다. 비워두면 기본 시트에 저장됩니다.
+                                                        </p>
+                                                    </div>
+
                                                     {/* Landing ID (Optional) */}
                                                     <div>
                                                         <label className="text-xs font-bold text-gray-700 block mb-1">

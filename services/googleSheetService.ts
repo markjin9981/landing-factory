@@ -846,7 +846,7 @@ export const submitToLeadMaster = async (
     }
 
     try {
-        const payload = {
+        const payload: Record<string, any> = {
             // ⭐ 필수: landing_id가 있어야 신규케이스로 등록됨
             landing_id: leadMasterConfig.landingId || 'landing-factory',
 
@@ -859,6 +859,11 @@ export const submitToLeadMaster = async (
             preInfo: formData.memo || formData['메모'] || formData['기타'] || '',
         };
 
+        // 시트 이름이 있으면 추가
+        if (leadMasterConfig.sheetName) {
+            payload.sheetName = leadMasterConfig.sheetName;
+        }
+
         await fetch(leadMasterConfig.scriptUrl, {
             method: 'POST',
             mode: 'no-cors', // CORS 우회
@@ -866,7 +871,7 @@ export const submitToLeadMaster = async (
             body: JSON.stringify(payload)
         });
 
-        console.log('✅ LeadMaster 전송 완료:', payload.customerName, payload.phone);
+        console.log('✅ LeadMaster 전송 완료:', payload.customerName, payload.phone, payload.sheetName || '(기본 시트)');
     } catch (error) {
         // 실패해도 무시 (기존 기능에 영향 없음)
         console.warn('⚠️ LeadMaster 전송 실패 (무시됨):', error);

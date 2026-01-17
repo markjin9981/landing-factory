@@ -777,6 +777,7 @@ export interface LandingConfig {
 export interface LeadMasterConfig {
   isEnabled: boolean;          // 리드마스터 연동 활성화 여부
   scriptUrl: string;           // 리드마스터 Apps Script URL
+  sheetName?: string;          // 리드마스터 시트 이름 (탭 이름)
   landingId?: string;          // 선택: 커스텀 landing_id (없으면 기본값 사용)
 }
 
