@@ -37,11 +37,14 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({ text, effect, style
         }
     }, [effect, text]);
 
-    // Trigger animation on mount
+    // Trigger animation on effect change
     useEffect(() => {
         if (effect !== 'none' && effect !== 'typewriter') {
+            setIsVisible(false); // Reset to invisible first
             const timer = setTimeout(() => setIsVisible(true), 100);
             return () => clearTimeout(timer);
+        } else {
+            setIsVisible(true);
         }
     }, [effect]);
 
