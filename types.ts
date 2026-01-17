@@ -614,7 +614,9 @@ export interface RehabChatConfig {
     borderColor?: string;
     icon?: 'sparkles' | 'calculator' | 'chat' | 'none';
     iconPosition?: 'left' | 'right';
-    buttonSize?: 'sm' | 'md' | 'lg' | 'xl';  // NEW: 버튼 크기
+    buttonSize?: 'sm' | 'md' | 'lg' | 'xl';  // NEW: 버튼 크기 (Legacy or Fallback)
+    mobileSize?: 'sm' | 'md' | 'lg' | 'xl';  // NEW: 모바일 크기
+    pcSize?: 'sm' | 'md' | 'lg' | 'xl';      // NEW: PC 크기
   };
 
   // NEW: 삽입 위치 옵션

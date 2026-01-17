@@ -6988,16 +6988,32 @@ const LandingEditor: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="text-xs font-bold text-gray-500 mb-1 block">버튼 크기</label>
-                                                            <select className="w-full border rounded p-2 text-sm"
-                                                                value={config.rehabChatConfig?.buttonStyle?.buttonSize || 'md'}
-                                                                onChange={(e) => updateNested(['rehabChatConfig', 'buttonStyle', 'buttonSize'], e.target.value)}
-                                                            >
-                                                                <option value="sm">Small (작게)</option>
-                                                                <option value="md">Medium (보통)</option>
-                                                                <option value="lg">Large (크게)</option>
-                                                                <option value="xl">Extra Large (아주 크게)</option>
-                                                            </select>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                <div>
+                                                                    <label className="text-xs font-bold text-gray-500 mb-1 block">모바일 크기</label>
+                                                                    <select className="w-full border rounded p-2 text-sm"
+                                                                        value={config.rehabChatConfig?.buttonStyle?.mobileSize || config.rehabChatConfig?.buttonStyle?.buttonSize || 'md'}
+                                                                        onChange={(e) => updateNested(['rehabChatConfig', 'buttonStyle', 'mobileSize'], e.target.value)}
+                                                                    >
+                                                                        <option value="sm">Small (작게)</option>
+                                                                        <option value="md">Medium (보통)</option>
+                                                                        <option value="lg">Large (크게)</option>
+                                                                        <option value="xl">XL (아주 크게)</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-xs font-bold text-gray-500 mb-1 block">PC 크기</label>
+                                                                    <select className="w-full border rounded p-2 text-sm"
+                                                                        value={config.rehabChatConfig?.buttonStyle?.pcSize || config.rehabChatConfig?.buttonStyle?.buttonSize || 'md'}
+                                                                        onChange={(e) => updateNested(['rehabChatConfig', 'buttonStyle', 'pcSize'], e.target.value)}
+                                                                    >
+                                                                        <option value="sm">Small (작게)</option>
+                                                                        <option value="md">Medium (보통)</option>
+                                                                        <option value="lg">Large (크게)</option>
+                                                                        <option value="xl">XL (아주 크게)</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
 

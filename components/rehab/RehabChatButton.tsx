@@ -77,6 +77,26 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
         'top-left': 'top-24 left-6',
     };
 
+    // Size Logic
+    const sizeMap: Record<string, { px: string; py: string; text: string; icon: string }> = {
+        sm: { px: 'px-3', py: 'py-2', text: 'text-xs', icon: 'w-4 h-4' },
+        md: { px: 'px-5', py: 'py-3', text: 'text-sm', icon: 'w-5 h-5' },
+        lg: { px: 'px-6', py: 'py-4', text: 'text-base', icon: 'w-6 h-6' },
+        xl: { px: 'px-8', py: 'py-5', text: 'text-lg', icon: 'w-7 h-7' }
+    };
+
+    const mobileSizeKey = config.buttonStyle?.mobileSize || config.buttonStyle?.buttonSize || 'md';
+    const pcSizeKey = config.buttonStyle?.pcSize || config.buttonStyle?.buttonSize || 'md';
+
+    const m = sizeMap[mobileSizeKey] || sizeMap['md'];
+    const p = sizeMap[pcSizeKey] || sizeMap['md'];
+
+    // Construct responsive classes
+    // Base is Mobile, md: prefix is PC
+    const sizeClasses = `${m.px} ${m.py} ${m.text} md:${p.px} md:${p.py} md:${p.text}`;
+    const iconClasses = `${m.icon} md:${p.icon}`;
+
+
     // 플로팅 버튼 렌더링
     if (displayMode === 'floating') {
         return (
@@ -88,7 +108,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleOpen} // Use handleOpen
-                        className={`fixed ${positionStyles[buttonPosition]} z-50 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-bold text-white ${className || ''}`}
+                        className={`fixed ${positionStyles[buttonPosition]} z-50 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-bold text-white ${sizeClasses} ${className || ''}`}
                         style={{
                             ...(config.buttonBackgroundImage ? {
                                 backgroundImage: `url(${config.buttonBackgroundImage})`,
@@ -101,12 +121,13 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                             }),
                             boxShadow: `0 4px 20px ${config.buttonColor || '#3B82F6'}40`,
                             color: config.buttonStyle?.textColor || '#ffffff',
-                            fontSize: config.buttonStyle?.fontSize || '14px',
                             fontWeight: config.buttonStyle?.fontWeight || 'bold',
-                            fontFamily: config.buttonStyle?.fontFamily || 'inherit'
+                            fontFamily: config.buttonStyle?.fontFamily || 'inherit',
+                            // Allow manual override if strictly set, otherwise rely on class
+                            fontSize: config.buttonStyle?.fontSize || undefined
                         }}
                     >
-                        <Sparkles className="w-5 h-5" />
+                        <Sparkles className={iconClasses} />
                         <span>{config.buttonText || 'AI 변제금 확인'}</span>
                     </motion.button>
                 )}
@@ -135,7 +156,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleOpen} // Use handleOpen
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition-all ${className || ''}`}
+                className={`inline-flex items-center gap-2 rounded-xl font-bold text-white transition-all ${sizeClasses} ${className || ''}`}
                 style={{
                     ...(config.buttonBackgroundImage ? {
                         backgroundImage: `url(${config.buttonBackgroundImage})`,
@@ -148,12 +169,13 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                     }),
                     boxShadow: `0 4px 15px ${config.buttonColor || '#3B82F6'}30`,
                     color: config.buttonStyle?.textColor || '#ffffff',
-                    fontSize: config.buttonStyle?.fontSize || '14px',
                     fontWeight: config.buttonStyle?.fontWeight || 'bold',
-                    fontFamily: config.buttonStyle?.fontFamily || 'inherit'
+                    fontFamily: config.buttonStyle?.fontFamily || 'inherit',
+                    // Allow manual override if strictly set, otherwise rely on class
+                    fontSize: config.buttonStyle?.fontSize || undefined
                 }}
             >
-                <Calculator className="w-5 h-5" />
+                <Calculator className={iconClasses} />
                 <span>{config.buttonText || 'AI 변제금 확인'}</span>
             </motion.button>
 
