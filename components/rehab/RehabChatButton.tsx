@@ -99,7 +99,11 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                             } : {
                                 background: `linear-gradient(135deg, ${config.buttonColor || '#3B82F6'}, ${config.buttonColor || '#3B82F6'}dd)`
                             }),
-                            boxShadow: `0 4px 20px ${config.buttonColor || '#3B82F6'}40`
+                            boxShadow: `0 4px 20px ${config.buttonColor || '#3B82F6'}40`,
+                            color: config.buttonStyle?.textColor || '#ffffff',
+                            fontSize: config.buttonStyle?.fontSize || '14px',
+                            fontWeight: config.buttonStyle?.fontWeight || 'bold',
+                            fontFamily: config.buttonStyle?.fontFamily || 'inherit'
                         }}
                     >
                         <Sparkles className="w-5 h-5" />
@@ -142,7 +146,11 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                     } : {
                         background: `linear-gradient(135deg, ${config.buttonColor || '#3B82F6'}, ${config.buttonColor || '#3B82F6'}cc)`
                     }),
-                    boxShadow: `0 4px 15px ${config.buttonColor || '#3B82F6'}30`
+                    boxShadow: `0 4px 15px ${config.buttonColor || '#3B82F6'}30`,
+                    color: config.buttonStyle?.textColor || '#ffffff',
+                    fontSize: config.buttonStyle?.fontSize || '14px',
+                    fontWeight: config.buttonStyle?.fontWeight || 'bold',
+                    fontFamily: config.buttonStyle?.fontFamily || 'inherit'
                 }}
             >
                 <Calculator className="w-5 h-5" />

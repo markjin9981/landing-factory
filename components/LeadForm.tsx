@@ -222,6 +222,11 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
             (payload as any).additional_sheet_config = JSON.stringify(landingConfig.additionalSheetConfig);
         }
 
+        // NEW: Notification Email
+        if (config.notificationEmail) {
+            (payload as any).notification_email = config.notificationEmail;
+        }
+
         console.log("Submitting Payload:", payload); // Debug log for robust tracking
 
         const success = await submitLeadToSheet(payload);
@@ -260,6 +265,19 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
         setModalContent({ title, content });
     };
 
+    // Handle redirect after submission success
+    const redirectUrl = config.redirectUrl;
+    const redirectDelay = (config.redirectDelay ?? 2) * 1000;
+
+    React.useEffect(() => {
+        if (status === 'success' && redirectUrl) {
+            const timer = setTimeout(() => {
+                window.location.href = redirectUrl;
+            }, redirectDelay);
+            return () => clearTimeout(timer);
+        }
+    }, [status, redirectUrl, redirectDelay]);
+
     if (status === 'success') {
         return (
             <div
@@ -275,13 +293,20 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
                 <p className="whitespace-pre-line opacity-80" style={{ color: textColor }}>
                     {config.submitSuccessMessage || "담당자가 내용을 확인 후 최대한 빠르게 연락드리겠습니다."}
                 </p>
-                <button
-                    onClick={() => setStatus('idle')}
-                    className="mt-6 text-sm underline hover:opacity-80"
-                    style={{ color: textColor }}
-                >
-                    다시 작성하기
-                </button>
+                {redirectUrl && (
+                    <p className="mt-4 text-sm opacity-60" style={{ color: textColor }}>
+                        잠시 후 페이지가 이동됩니다...
+                    </p>
+                )}
+                {!redirectUrl && (
+                    <button
+                        onClick={() => setStatus('idle')}
+                        className="mt-6 text-sm underline hover:opacity-80"
+                        style={{ color: textColor }}
+                    >
+                        다시 작성하기
+                    </button>
+                )}
             </div>
         );
     }

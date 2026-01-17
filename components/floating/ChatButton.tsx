@@ -67,6 +67,12 @@ const ChatButton: React.FC<ChatButtonProps> = ({ config, isPreview = false }) =>
         buttonStyle.backgroundSize = 'cover';
         buttonStyle.backgroundPosition = 'center';
         iconContent = null; // Image covers it
+    } else if (config.buttonBackgroundImage) {
+        // Apply button background image while keeping icon visible
+        buttonStyle.backgroundImage = `url(${config.buttonBackgroundImage})`;
+        buttonStyle.backgroundSize = 'cover';
+        buttonStyle.backgroundPosition = 'center';
+        // Keep iconContent visible on top of background
     } else {
         buttonStyle.backgroundColor = bgColor;
     }

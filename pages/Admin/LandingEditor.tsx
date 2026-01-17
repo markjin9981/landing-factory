@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check, Activity, Database } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check, Activity, Database, ShieldCheck, Pencil, TriangleAlert } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 import { compressImage } from '../../utils/imageCompression';
@@ -209,6 +209,7 @@ const LandingEditor: React.FC = () => {
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [inputGithubToken, setInputGithubToken] = useState('');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [isAdditionalDbEditing, setIsAdditionalDbEditing] = useState(false);
 
     // Global Settings
     const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({ customFonts: [], favoriteFonts: [] });
@@ -3552,9 +3553,18 @@ const LandingEditor: React.FC = () => {
                                             <Database className="w-24 h-24 text-green-900" />
                                         </div>
                                         <div className="relative z-10">
-                                            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
-                                                <Database className="w-4 h-4 text-green-600" /> 추가 DB 전송 설정 (고객사 시트 등)
-                                            </h3>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                                    <Database className="w-4 h-4 text-green-600" /> 추가 DB 전송 설정 (고객사 시트 등)
+                                                </h3>
+                                                {/* Status Badge */}
+                                                {(config.additionalSheetConfig?.spreadsheetUrl || config.additionalSheetConfig?.sheetName) && !isAdditionalDbEditing && (
+                                                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full flex items-center gap-1">
+                                                        <CheckCircle className="w-3 h-3" /> 저장됨
+                                                    </span>
+                                                )}
+                                            </div>
+
                                             <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
                                                 <p className="text-xs text-blue-800">
                                                     <strong>💡 기본 동작:</strong> 모든 DB는 자동으로 "Leads" 시트에 전체 필드가 저장됩니다.
@@ -3563,210 +3573,275 @@ const LandingEditor: React.FC = () => {
                                                 </p>
                                             </div>
 
-                                            {/* Spreadsheet URL Input - NEW */}
-                                            <label className="block mb-4">
-                                                <span className="text-xs font-medium text-gray-700 block mb-1">
-                                                    스프레드시트 URL (선택사항)
-                                                </span>
-                                                <div className="relative">
-                                                    <input
-                                                        type="text"
-                                                        value={config.additionalSheetConfig?.spreadsheetUrl || ''}
-                                                        onChange={(e) => {
-                                                            setConfig({
-                                                                ...config,
-                                                                additionalSheetConfig: {
-                                                                    spreadsheetUrl: e.target.value,
-                                                                    sheetName: config.additionalSheetConfig?.sheetName || '',
-                                                                    fieldMappings: config.additionalSheetConfig?.fieldMappings || []
-                                                                }
-                                                            });
-                                                            setHasUnsavedChanges(true);
-                                                        }}
-                                                        placeholder="https://docs.google.com/spreadsheets/d/xxxxx"
-                                                        className={`w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500 font-mono text-xs ${hasUnsavedChanges ? 'border-yellow-400 bg-yellow-50' : ''
-                                                            }`}
-                                                    />
-                                                    {hasUnsavedChanges && (
-                                                        <span className="absolute right-3 top-2.5 text-xs text-yellow-600 font-semibold">
-                                                            ⚠️ 저장 필요
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <p className="text-[10px] text-gray-500 mt-1">
-                                                    💡 비워두면 현재 스프레드시트 내 다른 탭으로 저장됩니다.
-                                                    <br />
-                                                    📌 다른 구글 계정의 스프레드시트 URL을 입력하면 해당 파일로 전송됩니다.
-                                                    <br />
-                                                    ⚠️ 외부 스프레드시트 사용 시 Apps Script 계정(beanhull@gmail.com)을 편집자로 추가해야 합니다.
-                                                </p>
-                                            </label>
+                                            {/* VIEW MODE: Show saved configuration summary */}
+                                            {!isAdditionalDbEditing && (config.additionalSheetConfig?.spreadsheetUrl || config.additionalSheetConfig?.sheetName) ? (
+                                                <div className="space-y-3">
+                                                    {/* Saved Configuration Display */}
+                                                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                                        <h4 className="text-xs font-bold text-gray-700 mb-3 flex items-center gap-1">
+                                                            <ShieldCheck className="w-3 h-3" /> 현재 저장된 설정
+                                                        </h4>
+                                                        <div className="space-y-2">
+                                                            {config.additionalSheetConfig?.spreadsheetUrl && (
+                                                                <div className="flex items-start gap-2">
+                                                                    <span className="text-xs text-gray-500 whitespace-nowrap w-20">URL:</span>
+                                                                    <span className="text-xs text-gray-700 font-mono bg-white px-2 py-1 rounded border truncate max-w-[200px]" title={config.additionalSheetConfig.spreadsheetUrl}>
+                                                                        {config.additionalSheetConfig.spreadsheetUrl.length > 40
+                                                                            ? config.additionalSheetConfig.spreadsheetUrl.slice(0, 40) + '...'
+                                                                            : config.additionalSheetConfig.spreadsheetUrl}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            {config.additionalSheetConfig?.sheetName && (
+                                                                <div className="flex items-start gap-2">
+                                                                    <span className="text-xs text-gray-500 whitespace-nowrap w-20">시트 이름:</span>
+                                                                    <span className="text-xs text-gray-700 font-bold bg-white px-2 py-1 rounded border">
+                                                                        {config.additionalSheetConfig.sheetName}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            {config.additionalSheetConfig?.fieldMappings && config.additionalSheetConfig.fieldMappings.length > 0 && (
+                                                                <div className="flex items-start gap-2">
+                                                                    <span className="text-xs text-gray-500 whitespace-nowrap w-20">필드 매핑:</span>
+                                                                    <span className="text-xs text-gray-700 bg-white px-2 py-1 rounded border">
+                                                                        {config.additionalSheetConfig.fieldMappings.length}개 설정됨
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
 
-                                            {/* Sheet Name Input */}
-                                            <label className="block mb-4">
-                                                <span className="text-xs font-medium text-gray-700 block mb-1">추가 DB 전송 시트 이름</span>
-                                                <input
-                                                    type="text"
-                                                    value={config.additionalSheetConfig?.sheetName || ''}
-                                                    onChange={(e) => {
-                                                        setConfig({
-                                                            ...config,
-                                                            additionalSheetConfig: {
-                                                                spreadsheetUrl: config.additionalSheetConfig?.spreadsheetUrl || '',
-                                                                sheetName: e.target.value,
-                                                                fieldMappings: config.additionalSheetConfig?.fieldMappings || []
+                                                    {/* Edit Button */}
+                                                    <button
+                                                        onClick={() => {
+                                                            if (window.confirm('⚠️ 추가 DB 전송 설정을 수정하시겠습니까?\n\n잘못된 수정은 데이터 전송에 문제를 일으킬 수 있습니다.\n수정 후 반드시 "저장" 버튼을 눌러주세요.')) {
+                                                                setIsAdditionalDbEditing(true);
                                                             }
-                                                        });
-                                                        setHasUnsavedChanges(true);
-                                                    }}
-                                                    placeholder="예: 고객사A_DB, DB수집"
-                                                    className="w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500"
-                                                />
-                                                <p className="text-[10px] text-gray-500 mt-1">
-                                                    💡 스프레드시트 내 시트(탭) 이름을 입력하세요.
-                                                </p>
-                                            </label>
-
-                                            {/* Field Mapping Section */}
-                                            {(config.additionalSheetConfig?.spreadsheetUrl || config.additionalSheetConfig?.sheetName) && (
-                                                <div className="mt-4 p-3 bg-gray-50 rounded border animate-fade-in">
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <h4 className="text-xs font-semibold text-gray-700">필드 매핑 설정</h4>
+                                                        }}
+                                                        className="w-full py-3 px-4 bg-white border-2 border-yellow-400 rounded-lg text-sm font-bold text-yellow-700 hover:bg-yellow-50 transition-colors flex items-center justify-center gap-2"
+                                                    >
+                                                        <Pencil className="w-4 h-4" /> 설정 수정하기
+                                                    </button>
+                                                    <p className="text-[10px] text-gray-400 text-center">
+                                                        ⚠️ 수정 시 기존 데이터 전송 설정이 변경됩니다. 신중하게 수정해주세요.
+                                                    </p>
+                                                </div>
+                                            ) : !isAdditionalDbEditing ? (
+                                                /* NEW CONFIG: Show setup button */
+                                                <button
+                                                    onClick={() => setIsAdditionalDbEditing(true)}
+                                                    className="w-full py-3 px-4 bg-green-50 border-2 border-green-300 border-dashed rounded-lg text-sm font-bold text-green-600 hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    <Plus className="w-4 h-4" /> 추가 DB 전송 설정하기
+                                                </button>
+                                            ) : (
+                                                /* EDIT MODE: Show full editing interface */
+                                                <div className="animate-fade-in">
+                                                    {/* Cancel Edit Button */}
+                                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-yellow-200 bg-yellow-50 -mx-4 -mt-2 px-4 py-3 rounded-t">
+                                                        <span className="text-xs font-bold text-yellow-700 flex items-center gap-1">
+                                                            <TriangleAlert className="w-4 h-4" /> 수정 모드
+                                                        </span>
                                                         <button
                                                             onClick={() => {
-                                                                const mappings = config.additionalSheetConfig?.fieldMappings || [];
+                                                                if (!hasUnsavedChanges || window.confirm('변경사항을 취소하시겠습니까?')) {
+                                                                    setIsAdditionalDbEditing(false);
+                                                                }
+                                                            }}
+                                                            className="text-xs px-3 py-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors"
+                                                        >
+                                                            수정 취소
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Spreadsheet URL Input */}
+                                                    <label className="block mb-4">
+                                                        <span className="text-xs font-medium text-gray-700 block mb-1">
+                                                            스프레드시트 URL (선택사항)
+                                                        </span>
+                                                        <div className="relative">
+                                                            <input
+                                                                type="text"
+                                                                value={config.additionalSheetConfig?.spreadsheetUrl || ''}
+                                                                onChange={(e) => {
+                                                                    setConfig({
+                                                                        ...config,
+                                                                        additionalSheetConfig: {
+                                                                            spreadsheetUrl: e.target.value,
+                                                                            sheetName: config.additionalSheetConfig?.sheetName || '',
+                                                                            fieldMappings: config.additionalSheetConfig?.fieldMappings || []
+                                                                        }
+                                                                    });
+                                                                    setHasUnsavedChanges(true);
+                                                                }}
+                                                                placeholder="https://docs.google.com/spreadsheets/d/xxxxx"
+                                                                className={`w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500 font-mono text-xs ${hasUnsavedChanges ? 'border-yellow-400 bg-yellow-50' : ''
+                                                                    }`}
+                                                            />
+                                                            {hasUnsavedChanges && (
+                                                                <span className="absolute right-3 top-2.5 text-xs text-yellow-600 font-semibold">
+                                                                    ⚠️ 저장 필요
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-[10px] text-gray-500 mt-1">
+                                                            💡 비워두면 현재 스프레드시트 내 다른 탭으로 저장됩니다.
+                                                            <br />
+                                                            📌 다른 구글 계정의 스프레드시트 URL을 입력하면 해당 파일로 전송됩니다.
+                                                            <br />
+                                                            ⚠️ 외부 스프레드시트 사용 시 Apps Script 계정(beanhull@gmail.com)을 편집자로 추가해야 합니다.
+                                                        </p>
+                                                    </label>
+
+                                                    {/* Sheet Name Input */}
+                                                    <label className="block mb-4">
+                                                        <span className="text-xs font-medium text-gray-700 block mb-1">추가 DB 전송 시트 이름</span>
+                                                        <input
+                                                            type="text"
+                                                            value={config.additionalSheetConfig?.sheetName || ''}
+                                                            onChange={(e) => {
                                                                 setConfig({
                                                                     ...config,
                                                                     additionalSheetConfig: {
-                                                                        ...config.additionalSheetConfig!,
-                                                                        fieldMappings: [
-                                                                            ...mappings,
-                                                                            { sourceField: '', targetColumn: '' }
-                                                                        ]
+                                                                        spreadsheetUrl: config.additionalSheetConfig?.spreadsheetUrl || '',
+                                                                        sheetName: e.target.value,
+                                                                        fieldMappings: config.additionalSheetConfig?.fieldMappings || []
                                                                     }
                                                                 });
                                                                 setHasUnsavedChanges(true);
                                                             }}
-                                                            className="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-                                                        >
-                                                            + 필드 추가
-                                                        </button>
-                                                    </div>
+                                                            placeholder="예: 고객사A_DB, DB수집"
+                                                            className="w-full px-3 py-2 text-sm border rounded focus:ring-2 focus:ring-green-300 focus:border-green-500"
+                                                        />
+                                                        <p className="text-[10px] text-gray-500 mt-1">
+                                                            💡 스프레드시트 내 시트(탭) 이름을 입력하세요.
+                                                        </p>
+                                                    </label>
 
-                                                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                                                        {(config.additionalSheetConfig?.fieldMappings || []).map((mapping, idx) => (
-                                                            <div key={idx} className="flex gap-2 items-center bg-white p-2 rounded border">
-                                                                <div className="flex-1">
-                                                                    <label className="text-[10px] text-gray-600 block mb-1">원본 필드</label>
-                                                                    <select
-                                                                        value={mapping.sourceField}
-                                                                        onChange={(e) => {
-                                                                            const newMappings = [...(config.additionalSheetConfig?.fieldMappings || [])];
-                                                                            newMappings[idx].sourceField = e.target.value;
-                                                                            setConfig({
-                                                                                ...config,
-                                                                                additionalSheetConfig: {
-                                                                                    ...config.additionalSheetConfig!,
-                                                                                    fieldMappings: newMappings
-                                                                                }
-                                                                            });
-                                                                            setHasUnsavedChanges(true);
-                                                                        }}
-                                                                        className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
-                                                                    >
-                                                                        <option value="">선택...</option>
-                                                                        <option value="Timestamp">접수일시 (Timestamp)</option>
-                                                                        {config.formConfig.fields.map(field => (
-                                                                            <option key={field.id} value={field.id}>
-                                                                                {field.label}
-                                                                            </option>
-                                                                        ))}
-                                                                    </select>
-                                                                </div>
-
-                                                                <div className="text-gray-400 text-sm pt-4">→</div>
-
-                                                                <div className="flex-1">
-                                                                    <label className="text-[10px] text-gray-600 block mb-1">시트 열 이름</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        value={mapping.targetColumn}
-                                                                        onChange={(e) => {
-                                                                            const newMappings = [...(config.additionalSheetConfig?.fieldMappings || [])];
-                                                                            newMappings[idx].targetColumn = e.target.value;
-                                                                            setConfig({
-                                                                                ...config,
-                                                                                additionalSheetConfig: {
-                                                                                    ...config.additionalSheetConfig!,
-                                                                                    fieldMappings: newMappings
-                                                                                }
-                                                                            });
-                                                                            setHasUnsavedChanges(true);
-                                                                        }}
-                                                                        placeholder="예: 고객명, 연락처"
-                                                                        className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
-                                                                    />
-                                                                </div>
-
+                                                    {/* Field Mapping Section */}
+                                                    {(config.additionalSheetConfig?.spreadsheetUrl || config.additionalSheetConfig?.sheetName) && (
+                                                        <div className="mt-4 p-3 bg-gray-50 rounded border animate-fade-in">
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                <h4 className="text-xs font-semibold text-gray-700">필드 매핑 설정</h4>
                                                                 <button
                                                                     onClick={() => {
-                                                                        const newMappings = (config.additionalSheetConfig?.fieldMappings || [])
-                                                                            .filter((_, i) => i !== idx);
+                                                                        const mappings = config.additionalSheetConfig?.fieldMappings || [];
                                                                         setConfig({
                                                                             ...config,
                                                                             additionalSheetConfig: {
                                                                                 ...config.additionalSheetConfig!,
-                                                                                fieldMappings: newMappings
+                                                                                fieldMappings: [
+                                                                                    ...mappings,
+                                                                                    { sourceField: '', targetColumn: '' }
+                                                                                ]
                                                                             }
                                                                         });
                                                                         setHasUnsavedChanges(true);
                                                                     }}
-                                                                    className="text-red-500 hover:bg-red-50 p-2 rounded transition mt-4"
+                                                                    className="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
                                                                 >
-                                                                    <X className="w-4 h-4" />
+                                                                    + 필드 추가
                                                                 </button>
                                                             </div>
-                                                        ))}
-                                                    </div>
 
-                                                    {(!config.additionalSheetConfig?.fieldMappings ||
-                                                        config.additionalSheetConfig.fieldMappings.length === 0) && (
-                                                            <div className="text-xs text-gray-500 text-center py-4 bg-white rounded border border-dashed">
-                                                                매핑을 추가하지 않으면 모든 필드가 원본 이름으로 전송됩니다.
+                                                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                                                                {(config.additionalSheetConfig?.fieldMappings || []).map((mapping, idx) => (
+                                                                    <div key={idx} className="flex gap-2 items-center bg-white p-2 rounded border">
+                                                                        <div className="flex-1">
+                                                                            <label className="text-[10px] text-gray-600 block mb-1">원본 필드</label>
+                                                                            <select
+                                                                                value={mapping.sourceField}
+                                                                                onChange={(e) => {
+                                                                                    const newMappings = [...(config.additionalSheetConfig?.fieldMappings || [])];
+                                                                                    newMappings[idx].sourceField = e.target.value;
+                                                                                    setConfig({
+                                                                                        ...config,
+                                                                                        additionalSheetConfig: {
+                                                                                            ...config.additionalSheetConfig!,
+                                                                                            fieldMappings: newMappings
+                                                                                        }
+                                                                                    });
+                                                                                    setHasUnsavedChanges(true);
+                                                                                }}
+                                                                                className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
+                                                                            >
+                                                                                <option value="">선택...</option>
+                                                                                <option value="Timestamp">접수일시 (Timestamp)</option>
+                                                                                {config.formConfig.fields.map(field => (
+                                                                                    <option key={field.id} value={field.id}>
+                                                                                        {field.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </select>
+                                                                        </div>
+
+                                                                        <div className="text-gray-400 text-sm pt-4">→</div>
+
+                                                                        <div className="flex-1">
+                                                                            <label className="text-[10px] text-gray-600 block mb-1">시트 열 이름</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                value={mapping.targetColumn}
+                                                                                onChange={(e) => {
+                                                                                    const newMappings = [...(config.additionalSheetConfig?.fieldMappings || [])];
+                                                                                    newMappings[idx].targetColumn = e.target.value;
+                                                                                    setConfig({
+                                                                                        ...config,
+                                                                                        additionalSheetConfig: {
+                                                                                            ...config.additionalSheetConfig!,
+                                                                                            fieldMappings: newMappings
+                                                                                        }
+                                                                                    });
+                                                                                    setHasUnsavedChanges(true);
+                                                                                }}
+                                                                                placeholder="예: 고객명, 연락처"
+                                                                                className="w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-green-300"
+                                                                            />
+                                                                        </div>
+
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                const newMappings = (config.additionalSheetConfig?.fieldMappings || [])
+                                                                                    .filter((_, i) => i !== idx);
+                                                                                setConfig({
+                                                                                    ...config,
+                                                                                    additionalSheetConfig: {
+                                                                                        ...config.additionalSheetConfig!,
+                                                                                        fieldMappings: newMappings
+                                                                                    }
+                                                                                });
+                                                                                setHasUnsavedChanges(true);
+                                                                            }}
+                                                                            className="text-red-500 hover:bg-red-50 p-2 rounded transition mt-4"
+                                                                        >
+                                                                            <X className="w-4 h-4" />
+                                                                        </button>
+                                                                    </div>
+                                                                ))}
                                                             </div>
-                                                        )}
+
+                                                            {(!config.additionalSheetConfig?.fieldMappings ||
+                                                                config.additionalSheetConfig.fieldMappings.length === 0) && (
+                                                                    <div className="text-xs text-gray-500 text-center py-4 bg-white rounded border border-dashed">
+                                                                        매핑을 추가하지 않으면 모든 필드가 원본 이름으로 전송됩니다.
+                                                                    </div>
+                                                                )}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Save Reminder */}
+                                                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                        <p className="text-xs text-green-700 flex items-center gap-1">
+                                                            <Save className="w-4 h-4" />
+                                                            <strong>수정 완료 후 상단의 "저장" 버튼을 눌러주세요.</strong>
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
 
-                                    {/* Success Message Settings */}
-                                    <div className="bg-white border rounded-lg p-4 shadow-sm">
-                                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4">
-                                            <CheckSquare className="w-4 h-4" /> 제출 완료 메시지 설정
-                                        </h3>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <label className="text-xs text-gray-500 block mb-1">완료 제목</label>
-                                                <input
-                                                    type="text"
-                                                    value={config.formConfig.submitSuccessTitle || ''}
-                                                    onChange={(e) => updateNested(['formConfig', 'submitSuccessTitle'], e.target.value)}
-                                                    className="w-full border rounded p-2 text-sm"
-                                                    placeholder="신청이 완료되었습니다!"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="text-xs text-gray-500 block mb-1">완료 상세 메시지</label>
-                                                <textarea
-                                                    value={config.formConfig.submitSuccessMessage || ''}
-                                                    onChange={(e) => updateNested(['formConfig', 'submitSuccessMessage'], e.target.value)}
-                                                    className="w-full border rounded p-2 text-sm h-20 resize-none"
-                                                    placeholder="담당자가 내용을 확인 후 최대한 빠르게 연락드리겠습니다."
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
+
 
                                     {/* Manual Design Section */}
                                     <div className="bg-white border rounded-lg p-4 shadow-sm">
@@ -4175,6 +4250,80 @@ const LandingEditor: React.FC = () => {
                                         }))} className="w-full py-2 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg text-sm font-bold hover:border-blue-400 hover:text-blue-500">
                                             + 입력 항목 추가
                                         </button>
+                                    </div>
+
+                                    {/* Success Message Settings (Moved) */}
+                                    <div className="bg-white border rounded-lg p-4 shadow-sm border-2 border-blue-100 mt-4">
+                                        <h3 className="text-sm font-bold text-blue-900 flex items-center gap-2 mb-4">
+                                            <CheckSquare className="w-4 h-4" /> 제출 후 동작 설정 (완료 메시지 / 페이지 이동 / 이메일 알림)
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="text-xs text-gray-500 block mb-1">완료 제목</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.formConfig.submitSuccessTitle || ''}
+                                                    onChange={(e) => updateNested(['formConfig', 'submitSuccessTitle'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm"
+                                                    placeholder="신청이 완료되었습니다!"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-gray-500 block mb-1">완료 상세 메시지</label>
+                                                <textarea
+                                                    value={config.formConfig.submitSuccessMessage || ''}
+                                                    onChange={(e) => updateNested(['formConfig', 'submitSuccessMessage'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm h-20 resize-none"
+                                                    placeholder="담당자가 내용을 확인 후 최대한 빠르게 연락드리겠습니다."
+                                                />
+                                            </div>
+
+                                            <div className="pt-2 border-t border-dashed">
+                                                <label className="text-xs text-gray-500 block mb-1 flex items-center gap-1">
+                                                    <span className="font-bold">제출 후 페이지 이동 (선택)</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={config.formConfig.redirectUrl || ''}
+                                                    onChange={(e) => updateNested(['formConfig', 'redirectUrl'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm mb-1"
+                                                    placeholder="https://example.com/thank-you (입력 시 자동 이동)"
+                                                />
+                                                <p className="text-[10px] text-gray-400">
+                                                    * 입력하면 완료 메시지를 보여주고 설정된 시간 후 이동합니다.
+                                                </p>
+                                            </div>
+
+                                            {config.formConfig.redirectUrl && (
+                                                <div>
+                                                    <label className="text-xs text-gray-500 block mb-1">이동 전 대기 시간 (초)</label>
+                                                    <input
+                                                        type="number"
+                                                        value={config.formConfig.redirectDelay ?? 2}
+                                                        onChange={(e) => updateNested(['formConfig', 'redirectDelay'], Number(e.target.value))}
+                                                        className="w-20 border rounded p-2 text-sm"
+                                                        min={0}
+                                                        max={10}
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div className="pt-2 border-t border-dashed">
+                                                <label className="text-xs text-gray-500 block mb-1 flex items-center gap-1">
+                                                    <span className="font-bold">알림 이메일 설정 (선택)</span>
+                                                </label>
+                                                <input
+                                                    type="email"
+                                                    value={config.formConfig.notificationEmail || ''}
+                                                    onChange={(e) => updateNested(['formConfig', 'notificationEmail'], e.target.value)}
+                                                    className="w-full border rounded p-2 text-sm mb-1"
+                                                    placeholder="example@email.com (미입력 시 기본값 사용)"
+                                                />
+                                                <p className="text-[10px] text-gray-400">
+                                                    * 입력하면 새 DB가 들어올 때 이 주소로 알림을 보냅니다.
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )
@@ -6851,6 +7000,96 @@ const LandingEditor: React.FC = () => {
                                                             </select>
                                                         </div>
                                                     </div>
+
+                                                    {/* 🆕 버튼 배경 이미지 */}
+                                                    <div className="bg-gray-50 border rounded p-3 space-y-3">
+                                                        <h4 className="text-xs font-bold text-gray-700 flex items-center gap-1">
+                                                            <ImageIcon className="w-3 h-3" /> 버튼 배경 이미지
+                                                        </h4>
+                                                        <div className="flex gap-2 items-center">
+                                                            <button
+                                                                onClick={() => openImagePicker((url) => updateNested(['rehabChatConfig', 'buttonBackgroundImage'], url))}
+                                                                className="flex-1 bg-white border border-gray-300 rounded p-2 text-xs hover:bg-gray-100 flex items-center justify-center gap-1"
+                                                            >
+                                                                <Upload className="w-3 h-3" /> 이미지 선택
+                                                            </button>
+                                                            {config.rehabChatConfig?.buttonBackgroundImage && (
+                                                                <button
+                                                                    onClick={() => updateNested(['rehabChatConfig', 'buttonBackgroundImage'], '')}
+                                                                    className="px-2 py-2 border border-red-300 text-red-500 rounded hover:bg-red-50"
+                                                                >
+                                                                    <X className="w-3 h-3" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        {config.rehabChatConfig?.buttonBackgroundImage && (
+                                                            <div className="w-full h-16 rounded bg-gray-200 overflow-hidden">
+                                                                <img src={config.rehabChatConfig.buttonBackgroundImage} className="w-full h-full object-cover" alt="버튼 배경" />
+                                                            </div>
+                                                        )}
+                                                        <p className="text-[10px] text-gray-400">버튼 배경에 표시될 이미지를 설정합니다.</p>
+                                                    </div>
+
+                                                    {/* 🆕 버튼 텍스트 스타일 */}
+                                                    <div className="bg-purple-50 border border-purple-100 rounded p-3 space-y-3">
+                                                        <h4 className="text-xs font-bold text-purple-700 flex items-center gap-1">
+                                                            <Type className="w-3 h-3" /> 버튼 텍스트 스타일
+                                                        </h4>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <label className="block text-[10px] text-gray-500 mb-1">글자 색상</label>
+                                                                <div className="flex items-center gap-1">
+                                                                    <input
+                                                                        type="color"
+                                                                        value={config.rehabChatConfig?.buttonStyle?.textColor || '#ffffff'}
+                                                                        onChange={(e) => updateNested(['rehabChatConfig', 'buttonStyle', 'textColor'], e.target.value)}
+                                                                        className="w-8 h-8 p-0 border-0 rounded overflow-hidden cursor-pointer"
+                                                                    />
+                                                                    <span className="text-[10px] text-gray-400">{config.rehabChatConfig?.buttonStyle?.textColor || '#ffffff'}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] text-gray-500 mb-1">글자 크기</label>
+                                                                <select
+                                                                    value={config.rehabChatConfig?.buttonStyle?.fontSize || '14px'}
+                                                                    onChange={(e) => updateNested(['rehabChatConfig', 'buttonStyle', 'fontSize'], e.target.value)}
+                                                                    className="w-full border rounded p-1.5 text-xs"
+                                                                >
+                                                                    <option value="12px">12px (작게)</option>
+                                                                    <option value="14px">14px (기본)</option>
+                                                                    <option value="16px">16px (중간)</option>
+                                                                    <option value="18px">18px (크게)</option>
+                                                                    <option value="20px">20px (아주 크게)</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <label className="block text-[10px] text-gray-500 mb-1">글자 굵기</label>
+                                                                <select
+                                                                    value={config.rehabChatConfig?.buttonStyle?.fontWeight || 'bold'}
+                                                                    onChange={(e) => updateNested(['rehabChatConfig', 'buttonStyle', 'fontWeight'], e.target.value)}
+                                                                    className="w-full border rounded p-1.5 text-xs"
+                                                                >
+                                                                    <option value="normal">보통</option>
+                                                                    <option value="500">약간 굵게 (500)</option>
+                                                                    <option value="600">중간 굵게 (600)</option>
+                                                                    <option value="bold">굵게 (bold)</option>
+                                                                    <option value="800">아주 굵게 (800)</option>
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] text-gray-500 mb-1">폰트</label>
+                                                                <FontPicker
+                                                                    value={config.rehabChatConfig?.buttonStyle?.fontFamily || ''}
+                                                                    onChange={(val) => updateNested(['rehabChatConfig', 'buttonStyle', 'fontFamily'], val)}
+                                                                    globalSettings={globalSettings}
+                                                                    onSettingsChange={setGlobalSettings}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
 
                                                     {/* 버튼 위치 */}
                                                     <div>

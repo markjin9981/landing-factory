@@ -341,7 +341,7 @@ const AIRehabChatbot: React.FC<AIRehabChatbotProps> = ({
                     <div className="px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-500 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             {characterImage ? (
-                                <img src={characterImage} alt={characterName} className="w-10 h-10 rounded-full object-cover" />
+                                <img src={characterImage} alt={characterName} loading="lazy" className="w-10 h-10 rounded-full object-cover" />
                             ) : (
                                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                                     <Bot className="w-6 h-6 text-white" />

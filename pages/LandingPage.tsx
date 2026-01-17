@@ -362,7 +362,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     if (item.type === 'youtube') return <div key={index} className="w-full aspect-video mb-4"><iframe src={item.content} className="w-full h-full" /></div>;
 
     const widthClass = item.width === '100%' || !item.width ? (isFullLayout ? 'max-w-5xl' : 'max-w-4xl') : 'w-full';
-    return <img key={index} src={item.content} className={`block mx-auto mb-0 h-auto ${widthClass} max-w-full`} />;
+    return <img key={index} src={item.content} loading="lazy" className={`block mx-auto mb-0 h-auto ${widthClass} max-w-full`} />;
   };
 
   // Gap Scale Mapping
@@ -447,6 +447,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           <img
             src={banner.imageUrl}
             alt={banner.text}
+            loading="lazy"
             className="w-full h-auto object-contain mx-auto"
             style={{
               maxWidth: banner.size === 'xs' ? '100px' :
@@ -539,7 +540,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
               style={getHeroVerticalPadding(hero.size, hero.verticalAlign ?? 0)}
             >
               <div className="absolute inset-0 z-0">
-                {hero.backgroundImage && <img src={hero.backgroundImage} alt="Background" className="w-full h-full object-cover" />}
+                {hero.backgroundImage && <img src={hero.backgroundImage} alt="Background" loading="eager" className="w-full h-full object-cover" />}
                 <div className="absolute inset-0 bg-black" style={{ opacity: (hero.overlayOpacity ?? 20) / 100 }}></div>
               </div>
               <div className="relative z-10 w-full text-center">
@@ -637,7 +638,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
         {safeFooter.isShow && (
           <footer className="bg-white border-t border-gray-200 max-w-4xl mx-auto pb-12 pt-8">
             <div className="text-center px-4">
-              {safeFooter.images?.map((img, i) => <img key={i} src={img} className="max-w-full h-auto mx-auto mb-4" />)}
+              {safeFooter.images?.map((img, i) => <img key={i} src={img} loading="lazy" className="max-w-full h-auto mx-auto mb-4" />)}
               <p className="text-sm text-gray-400 whitespace-pre-line">{safeFooter.copyrightText}</p>
             </div>
           </footer>

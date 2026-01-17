@@ -119,7 +119,7 @@ const StepContent: React.FC<StepContentProps> = ({
             case 'image':
                 return (
                     <div className="mx-auto" style={mediaContainerStyle}>
-                        <img src={content.content} className="w-full h-auto rounded-lg shadow-sm" alt="Content" />
+                        <img src={content.content} loading="lazy" className="w-full h-auto rounded-lg shadow-sm" alt="Content" />
                     </div>
                 );
             case 'video':

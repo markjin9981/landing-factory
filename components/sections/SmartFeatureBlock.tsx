@@ -135,7 +135,7 @@ const FeatureRow: React.FC<{ item: FeatureItem; index: number; isMobileView?: bo
             <div className={imageWrapperClasses}>
                 {item.imageUrl ? (
                     <div className={`rounded-2xl overflow-hidden shadow-2xl transform transition-transform duration-700 hover:scale-[1.02] ${isVisible ? 'scale-100' : 'scale-95'}`}>
-                        <img src={item.imageUrl} alt={item.title} className="w-full h-auto object-cover" />
+                        <img src={item.imageUrl} alt={item.title} loading="lazy" className="w-full h-auto object-cover" />
                     </div>
                 ) : (
                     <div className="w-full aspect-video bg-gray-200 rounded-2xl flex items-center justify-center text-gray-400">

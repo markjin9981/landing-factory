@@ -648,7 +648,8 @@ function handleLeadSubmission(params) {
   
   // Email Notification
   try {
-    var recipient = "beanhull@gmail.com"; // Consider making this dynamic if needed
+    // [UPDATED] Dynamic Recipient
+    var recipient = params.notification_email || "beanhull@gmail.com";
     var pageTitle = params.page_title || ("랜딩 ID " + params.landing_id);
     var landingId = params.landing_id || "Unknown";
     var dateObj = new Date();

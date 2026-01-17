@@ -280,7 +280,7 @@ const StepForm: React.FC<StepFormProps> = ({
                 {/* NEW: Top Content Slot */}
                 {topContent && (
                     <div className="mb-6 w-full">
-                        {topContent.type === 'image' && <img src={topContent.content} className="w-full h-auto rounded-lg" alt="Top Content" />}
+                        {topContent.type === 'image' && <img src={topContent.content} loading="lazy" className="w-full h-auto rounded-lg" alt="Top Content" />}
                         {topContent.type === 'video' && <video src={topContent.content} controls className="w-full rounded-lg" />}
                         {topContent.type === 'youtube' && (
                             <div className="aspect-video w-full rounded-lg overflow-hidden">

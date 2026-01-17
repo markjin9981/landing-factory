@@ -161,6 +161,12 @@ const UnifiedFormField: React.FC<UnifiedFormFieldProps> = ({
     // Helper: Format phone number with auto-hyphen (for stickyMobile)
     const formatPhoneNumber = (input: string): string => {
         const numbers = input.replace(/\D/g, '').slice(0, 11);
+        if (numbers.startsWith('02')) {
+            if (numbers.length <= 2) return numbers;
+            if (numbers.length <= 5) return `${numbers.slice(0, 2)}-${numbers.slice(2)}`;
+            if (numbers.length <= 9) return `${numbers.slice(0, 2)}-${numbers.slice(2, 5)}-${numbers.slice(5)}`;
+            return `${numbers.slice(0, 2)}-${numbers.slice(2, 6)}-${numbers.slice(6)}`;
+        }
         if (numbers.length <= 3) return numbers;
         if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
         return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;

@@ -299,6 +299,13 @@ export interface FormSection {
   submitSuccessTitle?: string;
   submitSuccessMessage?: string;
 
+  // New: Redirect after submission
+  redirectUrl?: string;           // URL to navigate after successful submission
+  redirectDelay?: number;         // Delay in seconds before redirect (default: 2)
+
+  // New: Email Notification (Optional)
+  notificationEmail?: string;     // Email address to receive new lead notifications
+
   // New: Form Position & Layout Control
   position?: 'bottom' | 'after_hero';
   layout?: 'vertical' | 'grid'; // 'vertical' (1 column), 'grid' (2 columns on desktop)
@@ -600,6 +607,7 @@ export interface RehabChatConfig {
     borderRadius?: string;      // e.g., '8px', '9999px' (pill)
     fontSize?: string;          // e.g., '14px', '16px'
     fontWeight?: string;        // e.g., 'normal', 'bold', '600'
+    fontFamily?: string;        // e.g., 'Noto Sans KR', 'Pretendard'
     padding?: string;           // e.g., '12px 24px'
     boxShadow?: string;         // e.g., '0 4px 12px rgba(0,0,0,0.2)'
     borderWidth?: string;
