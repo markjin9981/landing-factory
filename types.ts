@@ -258,10 +258,24 @@ export interface UrgencyConfig {
   scrollSpeed?: number;
 }
 
+// Headline Text Effect Types
+export type HeadlineEffect =
+  | 'none'
+  | 'typewriter'
+  | 'fadeIn'
+  | 'slideUp'
+  | 'slideDown'
+  | 'blur'
+  | 'bounce'
+  | 'scale'
+  | 'glitch'
+  | 'wave';
+
 export interface HeroSection {
   isShow?: boolean; // New: Toggle Hero Section
   headline: string;
   headlineStyle?: TextStyle;
+  headlineEffect?: HeadlineEffect; // NEW: Text animation effect
   subHeadline: string;
   subHeadlineStyle?: TextStyle;
   ctaText: string;

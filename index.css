@@ -514,3 +514,102 @@ body {
     transform: scale(1);
   }
 }
+
+/* ===== Headline Text Effect Animations ===== */
+
+/* Bounce In */
+@keyframes headline-bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-bounce-in {
+  animation: headline-bounce-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Glitch */
+@keyframes headline-glitch {
+  0% {
+    transform: translate(0);
+    text-shadow: -2px 0 #ff00ff, 2px 0 #00ffff;
+  }
+
+  20% {
+    transform: translate(-2px, 2px);
+    text-shadow: 2px 0 #ff00ff, -2px 0 #00ffff;
+  }
+
+  40% {
+    transform: translate(-2px, -2px);
+    text-shadow: -2px 0 #00ffff, 2px 0 #ff00ff;
+  }
+
+  60% {
+    transform: translate(2px, 2px);
+    text-shadow: 2px 0 #ff00ff, -2px 0 #00ffff;
+  }
+
+  80% {
+    transform: translate(2px, -2px);
+    text-shadow: -2px 0 #ff00ff, 2px 0 #00ffff;
+  }
+
+  100% {
+    transform: translate(0);
+    text-shadow: none;
+  }
+}
+
+.animate-glitch {
+  animation: headline-glitch 0.5s ease-in-out 3;
+}
+
+/* Wave */
+@keyframes headline-wave {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-wave {
+  animation: headline-wave 1s ease-in-out infinite;
+}
+
+/* Blink Cursor for Typewriter */
+@keyframes headline-blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: headline-blink 1s step-end infinite;
+}

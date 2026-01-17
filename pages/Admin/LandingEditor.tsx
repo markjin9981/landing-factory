@@ -2036,6 +2036,25 @@ const LandingEditor: React.FC = () => {
                                                     onChange={(e) => updateNested(['hero', 'headline'], e.target.value)}
                                                     className="w-full border rounded p-2 text-sm h-16 resize-none mb-2"
                                                 />
+                                                <div className="mb-3">
+                                                    <label className="text-[10px] text-gray-500 block mb-1">등장 효과 (Animation)</label>
+                                                    <select
+                                                        value={config.hero.headlineEffect || 'none'}
+                                                        onChange={(e) => updateNested(['hero', 'headlineEffect'], e.target.value)}
+                                                        className="w-full border rounded p-2 text-sm bg-white"
+                                                    >
+                                                        <option value="none">효과 없음</option>
+                                                        <option value="typewriter">타자기 (Typewriter)</option>
+                                                        <option value="fadeIn">페이드 인 (Fade In)</option>
+                                                        <option value="slideUp">위로 나타나기 (Slide Up)</option>
+                                                        <option value="slideDown">아래로 나타나기 (Slide Down)</option>
+                                                        <option value="blur">블러 효과 (Blur)</option>
+                                                        <option value="bounce">바운스 (Bounce)</option>
+                                                        <option value="scale">확대 효과 (Scale)</option>
+                                                        <option value="glitch">글리치 (Glitch)</option>
+                                                        <option value="wave">웨이브 (Wave)</option>
+                                                    </select>
+                                                </div>
                                                 <TextStyleEditor label="헤드카피" stylePath={['hero', 'headlineStyle']} />
                                             </div>
                                             <div className="border-t pt-4">

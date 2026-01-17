@@ -20,6 +20,7 @@ import SmartFeatureBlock from '../components/sections/SmartFeatureBlock';
 import { generateGoogleFontUrl, GOOGLE_FONTS_LIST } from '../utils/fontUtils';
 import RehabChatButton from '../components/rehab/RehabChatButton';
 import StickyBottomForm from '../components/StickyBottomForm';
+import AnimatedHeadline from '../components/AnimatedHeadline';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as unknown as Record<string, LandingConfig>;
 
@@ -551,9 +552,12 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
                 <div className="absolute inset-0 bg-black" style={{ opacity: (hero.overlayOpacity ?? 20) / 100 }}></div>
               </div>
               <div className="relative z-10 w-full text-center">
-                <h1 className="mb-6 leading-tight break-keep" style={getTextStyle(hero.headlineStyle, { fontSize: '3.75rem', fontWeight: '800', color: 'white' })}>
-                  {hero.headline}
-                </h1>
+                <AnimatedHeadline
+                  text={hero.headline}
+                  effect={hero.headlineEffect || 'none'}
+                  style={hero.headlineStyle}
+                  className="mb-6 leading-tight break-keep"
+                />
                 <p className="mb-10 max-w-2xl mx-auto break-keep opacity-90" style={getTextStyle(hero.subHeadlineStyle, { fontSize: '1.25rem' })}>
                   {hero.subHeadline}
                 </p>
