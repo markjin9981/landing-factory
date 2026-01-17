@@ -19,6 +19,9 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzlSQqgxbVjo
 // This token must match the value in Google Apps Script Properties (API_TOKEN)
 const API_TOKEN = "landing-factory-secure-2026-jhBx9pQm7sK2vN4L";
 
+// Security: Get current origin for server-side validation
+const getOrigin = () => window.location.host;
+
 // --- 이 아래 코드는 수정하지 마세요. ---
 const PLACEHOLDER_URL: string = "ENTER_YOUR_APP_SCRIPT_URL_HERE";
 const isUrlConfigured = () => GOOGLE_SCRIPT_URL.startsWith("https://script.google.com");
@@ -49,6 +52,7 @@ export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
         const formData = new FormData();
         formData.append('type', 'lead');
         formData.append('api_token', API_TOKEN); // Security token
+        formData.append('origin', getOrigin()); // Origin validation
         Object.keys(data).forEach(key => {
             if (data[key] !== undefined) {
                 formData.append(key, String(data[key]));

@@ -26,6 +26,39 @@ function checkExternalUrlPermissions() {
 }
 
 // =================================================================
+// [SECURITY] Origin/Referrer Validation
+// =================================================================
+var ALLOWED_ORIGINS = [
+  "markjin9981.github.io",
+  "localhost:5173",
+  "localhost:5174",
+  "127.0.0.1:5173",
+  "127.0.0.1:5174"
+];
+
+function validateOrigin(params) {
+  // Check if origin validation is enabled
+  var origin = params.origin || params.referrer || "";
+  
+  // Allow empty origin for backwards compatibility (existing deployments)
+  // but log a warning for monitoring
+  if (!origin || origin === "") {
+    Logger.log("[SECURITY WARNING] No origin provided in request");
+    return true; // Allow for now to avoid breaking existing deployments
+  }
+  
+  // Check against allowed origins
+  for (var i = 0; i < ALLOWED_ORIGINS.length; i++) {
+    if (origin.indexOf(ALLOWED_ORIGINS[i]) !== -1) {
+      return true;
+    }
+  }
+  
+  Logger.log("[SECURITY BLOCKED] Unauthorized origin: " + origin);
+  return false;
+}
+
+// =================================================================
 // [UPDATED] doGet for Data Retrieval
 // =================================================================
 function doGet(e) {
