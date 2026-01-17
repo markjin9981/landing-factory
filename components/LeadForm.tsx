@@ -155,11 +155,11 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
         if (part === 'p2') newP2 = val;
         if (part === 'p3') newP3 = val;
 
-        setFormData({ ...formData, [fieldId]: `${newP1} -${newP2} -${newP3} ` });
+        setFormData({ ...formData, [fieldId]: `${newP1}-${newP2}-${newP3}` });
 
         // Auto focus logic: when P2 is filled (4 digits), move to P3
         if (part === 'p2' && val.length >= 4) {
-            const nextInput = document.getElementById(`${fieldId} _p3`);
+            const nextInput = document.getElementById(`${fieldId}_p3`);
             nextInput?.focus();
         }
     };
