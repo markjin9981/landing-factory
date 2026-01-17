@@ -105,9 +105,13 @@ async function prerender() {
     <!-- Pre-rendered SEO Tags -->
     <meta name="description" content="${desc.replace(/"/g, '&quot;')}">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://markjin9981.github.io/landing-factory/${id}">
     <meta property="og:title" content="${ogTitle.replace(/"/g, '&quot;')}">
     <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}">
     ${image ? `<meta property="og:image" content="${image}">` : ''}
+    ${image ? `<meta property="og:image:width" content="1200">` : ''}
+    ${image ? `<meta property="og:image:height" content="630">` : ''}
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${ogTitle.replace(/"/g, '&quot;')}">
     <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}">
     ${image ? `<meta name="twitter:image" content="${image}">` : ''}

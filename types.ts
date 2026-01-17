@@ -472,7 +472,7 @@ export interface UrgencyConfig {
 
 export interface DetailContent {
   id: string;
-  type: 'image' | 'youtube' | 'map' | 'banner' | 'video' | 'text';
+  type: 'image' | 'youtube' | 'map' | 'banner' | 'video' | 'text' | 'features';
   content: string; // Image URL, YouTube URL, Address, or Banner Text
 
   // YouTube specific

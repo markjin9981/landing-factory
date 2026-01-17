@@ -2498,6 +2498,16 @@ const LandingEditor: React.FC = () => {
                                             >
                                                 <MapPin className="w-3 h-3 text-green-600" /> 지도
                                             </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    const newItem: DetailContent = { id: crypto.randomUUID(), type: 'features', content: '특징 블록', width: '100%' };
+                                                    updateNested(['detailContent'], [...config.detailContent, newItem]);
+                                                }}
+                                                className="text-xs bg-white border border-purple-300 hover:bg-purple-50 text-purple-700 px-3 py-1.5 rounded flex items-center gap-1 transition-all"
+                                            >
+                                                <Sparkles className="w-3 h-3 text-purple-600" /> 특징 블록
+                                            </button>
                                         </div>
                                     </div>
 

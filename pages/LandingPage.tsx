@@ -360,6 +360,13 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     if (item.type === 'banner') return <BannerBlock key={item.id || index} data={item} />;
     if (item.type === 'map') return <div key={index} className="w-full mb-4"><KakaoMap address={item.content} height="400px" /></div>;
     if (item.type === 'youtube') return <div key={index} className="w-full aspect-video mb-4"><iframe src={item.content} className="w-full h-full" /></div>;
+    if (item.type === 'features' && features && features.isShow) {
+      return (
+        <div key={item.id || `features-${index}`} className={isFullLayout ? 'w-full' : 'max-w-4xl mx-auto'}>
+          <SmartFeatureBlock data={features} isMobileView={isMobileView} />
+        </div>
+      );
+    }
 
     const widthClass = item.width === '100%' || !item.width ? (isFullLayout ? 'max-w-5xl' : 'max-w-4xl') : 'w-full';
     return <img key={index} src={item.content} loading="lazy" className={`block mx-auto mb-0 h-auto ${widthClass} max-w-full`} />;
