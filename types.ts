@@ -276,6 +276,8 @@ export interface HeroSection {
   headline: string;
   headlineStyle?: TextStyle;
   headlineEffect?: HeadlineEffect; // NEW: Text animation effect
+  headlineAnimationDuration?: number; // NEW: Duration in ms
+  headlineAnimationLoop?: boolean; // NEW: Infinite Loop
   subHeadline: string;
   subHeadlineStyle?: TextStyle;
   ctaText: string;

@@ -557,6 +557,8 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
                   effect={hero.headlineEffect || 'none'}
                   style={hero.headlineStyle}
                   className="mb-6 leading-tight break-keep"
+                  duration={hero.headlineAnimationDuration}
+                  isLoop={hero.headlineAnimationLoop}
                 />
                 <p className="mb-10 max-w-2xl mx-auto break-keep opacity-90" style={getTextStyle(hero.subHeadlineStyle, { fontSize: '1.25rem' })}>
                   {hero.subHeadline}

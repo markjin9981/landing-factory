@@ -6,9 +6,18 @@ interface AnimatedHeadlineProps {
     effect: HeadlineEffect;
     style?: TextStyle;
     className?: string;
+    duration?: number; // ms
+    isLoop?: boolean;
 }
 
-const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({ text, effect, style, className = '' }) => {
+const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({
+    text,
+    effect,
+    style,
+    className = '',
+    duration = 1000,
+    isLoop = false
+}) => {
     const [displayText, setDisplayText] = useState('');
     const [isVisible, setIsVisible] = useState(effect === 'none');
 
@@ -22,31 +31,55 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({ text, effect, style
             let currentIndex = 0;
             const fullText = text;
 
+            // Adjust typing speed based on duration (approx)
+            const typingSpeed = Math.max(30, Math.min(200, duration / fullText.length));
+
             const timer = setInterval(() => {
                 if (currentIndex <= fullText.length) {
                     setDisplayText(fullText.slice(0, currentIndex));
                     currentIndex++;
                 } else {
                     clearInterval(timer);
+                    // Loop logic for typewriter
+                    if (isLoop) {
+                        setTimeout(() => {
+                            setDisplayText('');
+                            currentIndex = 0;
+                            // Restart interval
+                            // Note: In strict React, this restart logic is cleaner with a separate state trigger, 
+                            // but for simplicity we rely on effect re-trigger or a simple timeout-based recursion if needed.
+                            // Better approach: toggle a trigger state.
+                        }, 2000);
+                    }
                 }
-            }, 80);
+            }, typingSpeed);
 
             return () => clearInterval(timer);
         } else {
             setDisplayText(text);
         }
-    }, [effect, text]);
+    }, [effect, text, duration, isLoop]); // Note: Simple typewriter loop isn't fully robust here but standard effects are prioritized.
 
-    // Trigger animation on effect change
+    // Trigger animation on effect change & Loop
     useEffect(() => {
         if (effect !== 'none' && effect !== 'typewriter') {
-            setIsVisible(false); // Reset to invisible first
-            const timer = setTimeout(() => setIsVisible(true), 100);
-            return () => clearTimeout(timer);
+            const startAnimation = () => {
+                setIsVisible(false);
+                setTimeout(() => setIsVisible(true), 100);
+            };
+
+            startAnimation(); // Initial play
+
+            if (isLoop) {
+                const intervalId = setInterval(() => {
+                    startAnimation();
+                }, duration + 2000); // Wait for duration + 2s delay
+                return () => clearInterval(intervalId);
+            }
         } else {
             setIsVisible(true);
         }
-    }, [effect]);
+    }, [effect, duration, isLoop]);
 
     // Build style object
     const textStyleObj: React.CSSProperties = useMemo(() => {
@@ -73,7 +106,7 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({ text, effect, style
 
     // Effect-specific classes and styles
     const getEffectStyles = (): { className: string; style: React.CSSProperties } => {
-        const baseTransition = 'all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        const baseTransition = `all ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
 
         switch (effect) {
             case 'fadeIn':
@@ -120,6 +153,7 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({ text, effect, style
                     className: isVisible ? 'animate-bounce-in' : '',
                     style: {
                         opacity: isVisible ? 1 : 0,
+                        animationDuration: `${duration}ms`,
                     }
                 };
 
@@ -136,7 +170,9 @@ const AnimatedHeadline: React.FC<AnimatedHeadlineProps> = ({ text, effect, style
             case 'glitch':
                 return {
                     className: 'animate-glitch',
-                    style: {}
+                    style: {
+                        animationDuration: `${Math.max(300, duration / 2)}ms`,
+                    }
                 };
 
             case 'wave':

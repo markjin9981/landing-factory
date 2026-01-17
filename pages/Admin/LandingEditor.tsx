@@ -2041,7 +2041,7 @@ const LandingEditor: React.FC = () => {
                                                     <select
                                                         value={config.hero.headlineEffect || 'none'}
                                                         onChange={(e) => updateNested(['hero', 'headlineEffect'], e.target.value)}
-                                                        className="w-full border rounded p-2 text-sm bg-white"
+                                                        className="w-full border rounded p-2 text-sm bg-white mb-2"
                                                     >
                                                         <option value="none">효과 없음</option>
                                                         <option value="typewriter">타자기 (Typewriter)</option>
@@ -2054,6 +2054,41 @@ const LandingEditor: React.FC = () => {
                                                         <option value="glitch">글리치 (Glitch)</option>
                                                         <option value="wave">웨이브 (Wave)</option>
                                                     </select>
+
+                                                    {/* Animation Controls - Only show if effect is selected */}
+                                                    {config.hero.headlineEffect && config.hero.headlineEffect !== 'none' && (
+                                                        <div className="bg-gray-50 p-2 rounded border space-y-2">
+                                                            <div>
+                                                                <div className="flex justify-between items-center mb-1">
+                                                                    <label className="text-[10px] text-gray-500">지속 시간 (Duration)</label>
+                                                                    <span className="text-[10px] font-mono text-blue-600">
+                                                                        {((config.hero.headlineAnimationDuration || 1000) / 1000).toFixed(1)}s
+                                                                    </span>
+                                                                </div>
+                                                                <input
+                                                                    type="range"
+                                                                    min="500"
+                                                                    max="3000"
+                                                                    step="100"
+                                                                    value={config.hero.headlineAnimationDuration || 1000}
+                                                                    onChange={(e) => updateNested(['hero', 'headlineAnimationDuration'], parseInt(e.target.value))}
+                                                                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                                                />
+                                                            </div>
+                                                            <div className="flex items-center">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    id="anim-loop"
+                                                                    checked={config.hero.headlineAnimationLoop || false}
+                                                                    onChange={(e) => updateNested(['hero', 'headlineAnimationLoop'], e.target.checked)}
+                                                                    className="w-3 h-3 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                                />
+                                                                <label htmlFor="anim-loop" className="ml-2 text-[10px] text-gray-600 cursor-pointer">
+                                                                    무한 반복 (Infinite Loop)
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <TextStyleEditor label="헤드카피" stylePath={['hero', 'headlineStyle']} />
                                             </div>
