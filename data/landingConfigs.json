@@ -1,7 +1,7 @@
 {
   "506652": {
     "id": "506652",
-    "title": "",
+    "title": "테스트",
     "favicon": "",
     "ogImage": "",
     "ogTitle": "",
@@ -19,7 +19,7 @@
     "banners": [],
     "hero": {
       "isShow": true,
-      "headline": "메인 카피를 입력하세요",
+      "headline": "리드마스터 테스트",
       "headlineStyle": {
         "fontSize": "3rem",
         "fontWeight": "800",
