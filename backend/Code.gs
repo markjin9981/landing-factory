@@ -681,7 +681,7 @@ function handleLeadSubmission(params) {
   }
   
   // ========================================
-  // 3. 리드마스터 CRM 전송 (if configured)
+  // 3. 리드마스터 CRM 전송 (시트 직접 쓰기 방식)
   // ========================================
   var leadmasterConfig = params.leadmaster_config;
   var leadmasterStatus = "Not Configured";
@@ -690,17 +690,24 @@ function handleLeadSubmission(params) {
     try {
       var lmConfig = JSON.parse(leadmasterConfig);
       
-      if (lmConfig.scriptUrl && lmConfig.scriptUrl !== '') {
-        // 리드마스터 전송용 Payload 구성 (PascalCase 필드명)
-        var lmPayload = {
-          CaseID: 'L' + new Date().getTime(),
-          Status: '신규접수',
-          CustomerName: params.name || params['이름'] || params['고객명'] || '',
-          Phone: params.phone || params['전화번호'] || params['연락처'] || '',
-          ManagerName: lmConfig.managerName || '',
-          InboundPath: params.page_title || '랜딩페이지',
-          landing_id: lmConfig.landingId || 'landing-factory'
-        };
+      if (lmConfig.spreadsheetUrl && lmConfig.spreadsheetUrl !== '') {
+        // 리드마스터 스프레드시트 열기
+        var lmSpreadsheet = SpreadsheetApp.openByUrl(lmConfig.spreadsheetUrl);
+        var lmSheetName = lmConfig.sheetName || 'Leads';
+        var lmSheet = lmSpreadsheet.getSheetByName(lmSheetName);
+        
+        if (!lmSheet) {
+          // 시트가 없으면 생성
+          lmSheet = lmSpreadsheet.insertSheet(lmSheetName);
+          // 헤더 추가
+          lmSheet.appendRow(['CaseID', 'UpdatedAt', 'Status', 'ManagerName', 'PartnerId', 
+                             'CustomerName', 'Phone', 'Birth', 'Gender', 'Region', 
+                             'CaseType', 'HistoryType', 'InboundPath', 'PreInfo']);
+        }
+        
+        // 필수 필드 자동 매핑
+        var customerName = params.name || params['이름'] || params['고객명'] || '';
+        var phone = params.phone || params['전화번호'] || params['연락처'] || '';
         
         // PreInfo: 이름/전화번호 제외한 나머지 필드들 포맷팅
         var excludeKeys = ['type', 'name', 'phone', '이름', '전화번호', '고객명', '연락처',
@@ -715,35 +722,34 @@ function handleLeadSubmission(params) {
             preInfoParts.push('*' + pKey + ' : ' + params[pKey]);
           }
         }
-        lmPayload.PreInfo = preInfoParts.join('\n');
+        var preInfo = preInfoParts.join('\n');
         
-        // 시트 이름이 있으면 추가
-        if (lmConfig.sheetName && lmConfig.sheetName !== '') {
-          lmPayload.sheetName = lmConfig.sheetName;
-        }
+        // 리드마스터 필수 필드 구성 (시트 컬럼 순서와 일치)
+        var lmRow = [
+          'L' + new Date().getTime(),        // CaseID (A열)
+          new Date().toISOString(),          // UpdatedAt (B열)
+          '신규접수',                          // Status (C열) - 고정값
+          lmConfig.managerName || '',        // ManagerName (D열)
+          '',                                 // PartnerId (E열) - 빈값
+          customerName,                       // CustomerName (F열)
+          phone,                              // Phone (G열)
+          '',                                 // Birth (H열) - 빈값
+          '',                                 // Gender (I열) - 빈값
+          '',                                 // Region (J열) - 빈값
+          '',                                 // CaseType (K열) - 빈값
+          '',                                 // HistoryType (L열) - 빈값
+          params.page_title || '랜딩페이지',  // InboundPath (M열)
+          preInfo                             // PreInfo (N열)
+        ];
         
-        // UrlFetchApp으로 리드마스터 GAS에 JSON 전송
-        var lmOptions = {
-          method: 'post',
-          contentType: 'application/json',
-          payload: JSON.stringify(lmPayload),
-          muteHttpExceptions: true
-        };
-        
-        var lmResponse = UrlFetchApp.fetch(lmConfig.scriptUrl, lmOptions);
-        var lmResponseCode = lmResponse.getResponseCode();
-        
-        if (lmResponseCode === 200 || lmResponseCode === 302) {
-          leadmasterStatus = "Success";
-          Logger.log("LeadMaster 전송 성공: " + lmPayload.CustomerName + ", " + lmPayload.Phone);
-        } else {
-          leadmasterStatus = "Failed: HTTP " + lmResponseCode;
-          Logger.log("LeadMaster 전송 실패: " + lmResponseCode);
-        }
+        // 시트에 데이터 추가
+        lmSheet.appendRow(lmRow);
+        leadmasterStatus = "Success";
+        Logger.log("LeadMaster 시트 저장 성공: " + customerName + ", " + phone);
       }
     } catch (lmError) {
       leadmasterStatus = "Error: " + lmError.toString();
-      Logger.log("LeadMaster 전송 오류: " + lmError);
+      Logger.log("LeadMaster 시트 저장 오류: " + lmError);
     }
   }
   

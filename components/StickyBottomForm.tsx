@@ -82,11 +82,11 @@ const StickyBottomForm: React.FC<Props> = ({
                 (leadData as any).additional_sheet_config = JSON.stringify(landingConfig.additionalSheetConfig);
             }
 
-            // NEW: 리드마스터 연동 설정 (백엔드에서 처리)
-            if (landingConfig?.leadMasterConfig?.isEnabled && landingConfig.leadMasterConfig.scriptUrl) {
+            // NEW: 리드마스터 연동 설정 (백엔드에서 시트 직접 쓰기)
+            if (landingConfig?.leadMasterConfig?.isEnabled && landingConfig.leadMasterConfig.spreadsheetUrl) {
                 (leadData as any).leadmaster_config = JSON.stringify({
-                    scriptUrl: landingConfig.leadMasterConfig.scriptUrl,
-                    sheetName: landingConfig.leadMasterConfig.sheetName || '',
+                    spreadsheetUrl: landingConfig.leadMasterConfig.spreadsheetUrl,
+                    sheetName: landingConfig.leadMasterConfig.sheetName || 'Leads',
                     managerName: landingConfig.leadMasterConfig.managerName || '',
                     landingId: landingConfig.leadMasterConfig.landingId || 'landing-factory'
                 });

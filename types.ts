@@ -773,11 +773,11 @@ export interface LandingConfig {
   leadMasterConfig?: LeadMasterConfig;
 }
 
-// NEW: LeadMaster CRM 연동 설정
+// NEW: LeadMaster CRM 연동 설정 (시트 직접 쓰기 방식)
 export interface LeadMasterConfig {
   isEnabled: boolean;          // 리드마스터 연동 활성화 여부
-  scriptUrl: string;           // 리드마스터 Apps Script URL
-  sheetName?: string;          // 리드마스터 시트 이름 (탭 이름)
+  spreadsheetUrl: string;      // 리드마스터 스프레드시트 URL
+  sheetName?: string;          // 리드마스터 시트 이름 (탭 이름, 기본값: Leads)
   landingId?: string;          // 선택: 커스텀 landing_id (없으면 기본값 사용)
   managerName?: string;        // 선택: 담당자 이름 (ManagerName으로 전송)
 }

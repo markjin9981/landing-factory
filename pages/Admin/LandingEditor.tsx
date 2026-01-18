@@ -3915,7 +3915,7 @@ const LandingEditor: React.FC = () => {
                                                 <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
                                                     <ExternalLink className="w-4 h-4 text-purple-600" /> 리드마스터 CRM 연동
                                                 </h3>
-                                                {config.leadMasterConfig?.isEnabled && config.leadMasterConfig?.scriptUrl && (
+                                                {config.leadMasterConfig?.isEnabled && config.leadMasterConfig?.spreadsheetUrl && (
                                                     <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full flex items-center gap-1">
                                                         <CheckCircle className="w-3 h-3" /> 활성화됨
                                                     </span>
@@ -3940,7 +3940,7 @@ const LandingEditor: React.FC = () => {
                                                         leadMasterConfig: {
                                                             ...prev.leadMasterConfig,
                                                             isEnabled: e.target.checked,
-                                                            scriptUrl: prev.leadMasterConfig?.scriptUrl || '',
+                                                            spreadsheetUrl: prev.leadMasterConfig?.spreadsheetUrl || '',
                                                             landingId: prev.leadMasterConfig?.landingId || ''
                                                         }
                                                     }))}
@@ -3955,27 +3955,27 @@ const LandingEditor: React.FC = () => {
                                             {/* Configuration Fields (shown when enabled) */}
                                             {config.leadMasterConfig?.isEnabled && (
                                                 <div className="space-y-4 animate-fade-in">
-                                                    {/* Script URL */}
+                                                    {/* Spreadsheet URL */}
                                                     <div>
                                                         <label className="text-xs font-bold text-gray-700 block mb-1">
-                                                            리드마스터 스크립트 URL <span className="text-red-500">*</span>
+                                                            리드마스터 스프레드시트 URL <span className="text-red-500">*</span>
                                                         </label>
                                                         <input
                                                             type="text"
-                                                            value={config.leadMasterConfig?.scriptUrl || ''}
+                                                            value={config.leadMasterConfig?.spreadsheetUrl || ''}
                                                             onChange={(e) => setConfig(prev => ({
                                                                 ...prev,
                                                                 leadMasterConfig: {
                                                                     ...prev.leadMasterConfig!,
                                                                     isEnabled: true,
-                                                                    scriptUrl: e.target.value
+                                                                    spreadsheetUrl: e.target.value
                                                                 }
                                                             }))}
-                                                            placeholder="https://script.google.com/macros/s/xxxxx/exec"
+                                                            placeholder="https://docs.google.com/spreadsheets/d/xxxxx/edit"
                                                             className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                                                         />
                                                         <p className="text-[10px] text-gray-500 mt-1">
-                                                            리드마스터 CRM의 Google Apps Script 웹앱 URL을 입력하세요
+                                                            리드마스터 구글 스프레드시트 URL을 입력하세요 (시트에 직접 저장됩니다)
                                                         </p>
                                                     </div>
 
