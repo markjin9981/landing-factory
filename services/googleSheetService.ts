@@ -849,24 +849,29 @@ export const submitToLeadMaster = async (
         // FormData 사용 (no-cors 모드에서 JSON은 허용되지 않음)
         const formData = new FormData();
 
-        // ⭐ 필수 필드 1: caseId 생성 ('L' + 현재 타임스탬프)
-        formData.append('caseId', 'L' + Date.now());
+        // ⭐ 필수 필드 1: CaseID 생성 ('L' + 현재 타임스탬프)
+        formData.append('CaseID', 'L' + Date.now());
 
-        // ⭐ 필수 필드 2: status 고정값
-        formData.append('status', '신규접수');
+        // ⭐ 필수 필드 2: Status 고정값
+        formData.append('Status', '신규접수');
 
         // ⭐ 필수 필드 3: 고객 이름
         const customerName = sourceData.name || sourceData['이름'] || sourceData['고객명'] || '';
-        formData.append('customerName', customerName);
+        formData.append('CustomerName', customerName);
 
         // ⭐ 필수 필드 4: 전화번호
         const phone = sourceData.phone || sourceData['전화번호'] || sourceData['연락처'] || '';
-        formData.append('phone', phone);
+        formData.append('Phone', phone);
 
-        // 선택 필드: inboundPath (유입경로 = 랜딩페이지 제목)
-        formData.append('inboundPath', pageTitle || '랜딩페이지');
+        // 선택 필드: ManagerName (담당자)
+        if (leadMasterConfig.managerName) {
+            formData.append('ManagerName', leadMasterConfig.managerName);
+        }
 
-        // 선택 필드: preInfo (이름/전화번호 제외한 나머지 수집항목 포맷팅)
+        // 선택 필드: InboundPath (유입경로 = 랜딩페이지 제목)
+        formData.append('InboundPath', pageTitle || '랜딩페이지');
+
+        // 선택 필드: PreInfo (이름/전화번호 제외한 나머지 수집항목 포맷팅)
         const excludeFields = ['name', '이름', '고객명', 'phone', '전화번호', '연락처',
             'timestamp', 'landing_id', 'user_agent', 'referrer', 'website',
             'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
@@ -878,7 +883,7 @@ export const submitToLeadMaster = async (
             }
         });
 
-        formData.append('preInfo', preInfoParts.join('\n'));
+        formData.append('PreInfo', preInfoParts.join('\n'));
 
         // 기존 호환성: landing_id
         formData.append('landing_id', leadMasterConfig.landingId || 'landing-factory');
@@ -894,7 +899,7 @@ export const submitToLeadMaster = async (
             body: formData   // FormData 사용 (Content-Type 자동 설정)
         });
 
-        console.log('✅ LeadMaster 전송 완료:', customerName, phone, preInfoParts.length + '개 추가정보');
+        console.log('✅ LeadMaster 전송 완료:', customerName, phone, leadMasterConfig.managerName || '(담당자 없음)');
     } catch (error) {
         // 실패해도 무시 (기존 기능에 영향 없음)
         console.warn('⚠️ LeadMaster 전송 실패 (무시됨):', error);

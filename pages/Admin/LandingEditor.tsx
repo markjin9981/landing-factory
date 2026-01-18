@@ -4002,6 +4002,29 @@ const LandingEditor: React.FC = () => {
                                                         </p>
                                                     </div>
 
+                                                    {/* Manager Name (담당자) */}
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-700 block mb-1">
+                                                            담당자 이름
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={config.leadMasterConfig?.managerName || ''}
+                                                            onChange={(e) => setConfig(prev => ({
+                                                                ...prev,
+                                                                leadMasterConfig: {
+                                                                    ...prev.leadMasterConfig!,
+                                                                    managerName: e.target.value
+                                                                }
+                                                            }))}
+                                                            placeholder="홍길동"
+                                                            className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                                        />
+                                                        <p className="text-[10px] text-gray-500 mt-1">
+                                                            리드마스터에서 배정될 담당자 이름입니다. 비워두면 담당자 없이 등록됩니다.
+                                                        </p>
+                                                    </div>
+
                                                     {/* Landing ID (Optional) */}
                                                     <div>
                                                         <label className="text-xs font-bold text-gray-700 block mb-1">
