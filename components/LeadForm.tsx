@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { FormSection, LeadData, PixelConfig, LandingConfig } from '../types';
 import { trackConversion } from '../utils/pixelUtils';
-import { submitLeadToSheet, submitToLeadMaster } from '../services/googleSheetService';
+import { submitLeadToSheet } from '../services/googleSheetService';
 import { CheckCircle, AlertCircle, Loader2, Lock, FileText, X, ChevronDown } from 'lucide-react';
 import SecurityFooter from './SecurityFooter';
 import AnimatedHeadline from './AnimatedHeadline';
@@ -224,6 +224,16 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
             (payload as any).additional_sheet_config = JSON.stringify(landingConfig.additionalSheetConfig);
         }
 
+        // NEW: 리드마스터 연동 설정 (백엔드에서 처리)
+        if (landingConfig?.leadMasterConfig?.isEnabled && landingConfig.leadMasterConfig.scriptUrl) {
+            (payload as any).leadmaster_config = JSON.stringify({
+                scriptUrl: landingConfig.leadMasterConfig.scriptUrl,
+                sheetName: landingConfig.leadMasterConfig.sheetName || '',
+                managerName: landingConfig.leadMasterConfig.managerName || '',
+                landingId: landingConfig.leadMasterConfig.landingId || 'landing-factory'
+            });
+        }
+
         // NEW: Notification Email
         if (config.notificationEmail) {
             (payload as any).notification_email = config.notificationEmail;
@@ -232,15 +242,6 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
         console.log("Submitting Payload:", payload); // Debug log for robust tracking
 
         const success = await submitLeadToSheet(payload);
-
-        // NEW: 리드마스터 전송 (병렬 처리, 실패해도 무시)
-        if (landingConfig?.leadMasterConfig?.isEnabled) {
-            submitToLeadMaster(
-                landingConfig.leadMasterConfig,
-                formData,
-                pageTitle || config.title
-            ).catch(() => { }); // 에러 무시
-        }
 
         if (success) {
             trackConversion(pixelConfig);

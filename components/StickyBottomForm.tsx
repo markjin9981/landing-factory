@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FormSection, StickyBottomFormConfig, LeadData, PixelConfig, LandingConfig } from '../types';
 import { trackConversion } from '../utils/pixelUtils';
-import { submitLeadToSheet, submitToLeadMaster } from '../services/googleSheetService';
+import { submitLeadToSheet } from '../services/googleSheetService';
 import { Check, Loader2 } from 'lucide-react';
 import UnifiedFormField from './templates/DynamicStep/UnifiedFormField';
 import AnimatedHeadline from './AnimatedHeadline';
@@ -81,16 +81,18 @@ const StickyBottomForm: React.FC<Props> = ({
             if (landingConfig?.additionalSheetConfig) {
                 (leadData as any).additional_sheet_config = JSON.stringify(landingConfig.additionalSheetConfig);
             }
-            await submitLeadToSheet(leadData);
 
-            // NEW: 리드마스터 전송 (병렬 처리, 실패해도 무시)
-            if (landingConfig?.leadMasterConfig?.isEnabled) {
-                submitToLeadMaster(
-                    landingConfig.leadMasterConfig,
-                    formData,
-                    landingConfig?.title || '랜딩페이지'
-                ).catch(() => { }); // 에러 무시
+            // NEW: 리드마스터 연동 설정 (백엔드에서 처리)
+            if (landingConfig?.leadMasterConfig?.isEnabled && landingConfig.leadMasterConfig.scriptUrl) {
+                (leadData as any).leadmaster_config = JSON.stringify({
+                    scriptUrl: landingConfig.leadMasterConfig.scriptUrl,
+                    sheetName: landingConfig.leadMasterConfig.sheetName || '',
+                    managerName: landingConfig.leadMasterConfig.managerName || '',
+                    landingId: landingConfig.leadMasterConfig.landingId || 'landing-factory'
+                });
             }
+
+            await submitLeadToSheet(leadData);
 
             trackConversion(pixelConfig);
             setIsSubmitted(true);

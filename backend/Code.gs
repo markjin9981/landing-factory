@@ -680,7 +680,74 @@ function handleLeadSubmission(params) {
     }
   }
   
+  // ========================================
+  // 3. 리드마스터 CRM 전송 (if configured)
+  // ========================================
+  var leadmasterConfig = params.leadmaster_config;
+  var leadmasterStatus = "Not Configured";
+
+  if (leadmasterConfig) {
+    try {
+      var lmConfig = JSON.parse(leadmasterConfig);
+      
+      if (lmConfig.scriptUrl && lmConfig.scriptUrl !== '') {
+        // 리드마스터 전송용 Payload 구성 (PascalCase 필드명)
+        var lmPayload = {
+          CaseID: 'L' + new Date().getTime(),
+          Status: '신규접수',
+          CustomerName: params.name || params['이름'] || params['고객명'] || '',
+          Phone: params.phone || params['전화번호'] || params['연락처'] || '',
+          ManagerName: lmConfig.managerName || '',
+          InboundPath: params.page_title || '랜딩페이지',
+          landing_id: lmConfig.landingId || 'landing-factory'
+        };
+        
+        // PreInfo: 이름/전화번호 제외한 나머지 필드들 포맷팅
+        var excludeKeys = ['type', 'name', 'phone', '이름', '전화번호', '고객명', '연락처',
+                           'api_token', 'website', 'timestamp', 'landing_id', 'user_agent', 
+                           'referrer', 'page_title', 'marketing_consent', 'third_party_consent',
+                           'privacy_consent', 'formatted_fields', 'additional_sheet_config',
+                           'leadmaster_config', 'notification_email', 'origin',
+                           'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+        var preInfoParts = [];
+        for (var pKey in params) {
+          if (excludeKeys.indexOf(pKey) === -1 && params[pKey]) {
+            preInfoParts.push('*' + pKey + ' : ' + params[pKey]);
+          }
+        }
+        lmPayload.PreInfo = preInfoParts.join('\n');
+        
+        // 시트 이름이 있으면 추가
+        if (lmConfig.sheetName && lmConfig.sheetName !== '') {
+          lmPayload.sheetName = lmConfig.sheetName;
+        }
+        
+        // UrlFetchApp으로 리드마스터 GAS에 JSON 전송
+        var lmOptions = {
+          method: 'post',
+          contentType: 'application/json',
+          payload: JSON.stringify(lmPayload),
+          muteHttpExceptions: true
+        };
+        
+        var lmResponse = UrlFetchApp.fetch(lmConfig.scriptUrl, lmOptions);
+        var lmResponseCode = lmResponse.getResponseCode();
+        
+        if (lmResponseCode === 200 || lmResponseCode === 302) {
+          leadmasterStatus = "Success";
+          Logger.log("LeadMaster 전송 성공: " + lmPayload.CustomerName + ", " + lmPayload.Phone);
+        } else {
+          leadmasterStatus = "Failed: HTTP " + lmResponseCode;
+          Logger.log("LeadMaster 전송 실패: " + lmResponseCode);
+        }
+      }
+    } catch (lmError) {
+      leadmasterStatus = "Error: " + lmError.toString();
+      Logger.log("LeadMaster 전송 오류: " + lmError);
+    }
+  }
   
+
   // Email Notification
   try {
     // [UPDATED] Dynamic Recipient
