@@ -307,137 +307,144 @@ const LeadStats: React.FC = () => {
                         <p className="text-gray-500">수집된 데이터가 없습니다.</p>
                     </div>
                 ) : (
-                    Object.entries(groupedLeads).map(([landingId, groupLeads]) => {
-                        const config = configs.find(c => String(c.id) === landingId);
-                        const title = config ? config.title : `알 수 없는 페이지 (ID: ${landingId})`;
-                        const { columns } = getColumnsForGroup(landingId, groupLeads);
-                        const previewLeads = groupLeads.slice(0, 5);
-                        const isUnknown = !config;
+                    Object.entries(groupedLeads)
+                        // 최근 생성된 랜딩페이지가 먼저 오도록 정렬 (가장 최신 리드 기준)
+                        .sort(([, leadsA], [, leadsB]) => {
+                            const latestA = leadsA.length > 0 ? parseKoreanDate(leadsA[0]['Timestamp']) : 0;
+                            const latestB = leadsB.length > 0 ? parseKoreanDate(leadsB[0]['Timestamp']) : 0;
+                            return latestB - latestA; // 내림차순 (최신 먼저)
+                        })
+                        .map(([landingId, groupLeads]) => {
+                            const config = configs.find(c => String(c.id) === landingId);
+                            const title = config ? config.title : `알 수 없는 페이지 (ID: ${landingId})`;
+                            const { columns } = getColumnsForGroup(landingId, groupLeads);
+                            const previewLeads = groupLeads.slice(0, 5);
+                            const isUnknown = !config;
 
-                        return (
-                            <div key={landingId} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-fade-in-up">
-                                <div className="px-4 py-3 md:px-6 md:py-4 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0">
-                                    <div className="flex items-start justify-between w-full md:w-auto md:justify-start gap-3">
-                                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <div className="bg-white p-2 border border-gray-200 rounded-lg shrink-0">
-                                                <Database className="w-4 h-4 text-blue-600" />
+                            return (
+                                <div key={landingId} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-fade-in-up">
+                                    <div className="px-4 py-3 md:px-6 md:py-4 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0">
+                                        <div className="flex items-start justify-between w-full md:w-auto md:justify-start gap-3">
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                <div className="bg-white p-2 border border-gray-200 rounded-lg shrink-0">
+                                                    <Database className="w-4 h-4 text-blue-600" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h3 className="font-bold text-gray-800 text-base md:text-lg truncate pr-2">{title}</h3>
+                                                    <p className="text-xs text-gray-400 font-mono truncate">ID: {landingId}</p>
+                                                </div>
                                             </div>
-                                            <div className="min-w-0">
-                                                <h3 className="font-bold text-gray-800 text-base md:text-lg truncate pr-2">{title}</h3>
-                                                <p className="text-xs text-gray-400 font-mono truncate">ID: {landingId}</p>
+                                            {/* Mobile Badge Position: Top Right */}
+                                            <div className="md:hidden shrink-0">
+                                                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-[10px] font-bold">
+                                                    총 {groupLeads.length}건
+                                                </span>
                                             </div>
                                         </div>
-                                        {/* Mobile Badge Position: Top Right */}
-                                        <div className="md:hidden shrink-0">
-                                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-[10px] font-bold">
-                                                총 {groupLeads.length}건
+
+                                        <div className="flex items-center justify-end gap-2 w-full md:w-auto">
+                                            {/* Desktop Badge Position */}
+                                            <span className="hidden md:inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mr-2">
+                                                총 {groupLeads.length} 건
                                             </span>
+
+                                            <button
+                                                onClick={() => navigate(`/admin/stats/${landingId}`)}
+                                                className="flex-1 md:flex-none justify-center items-center gap-1 text-xs md:text-sm font-bold text-gray-600 hover:text-blue-600 bg-white border border-gray-300 hover:border-blue-400 px-3 py-1.5 rounded-lg transition-all flex"
+                                            >
+                                                상세보기 <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 rotate-180" />
+                                            </button>
+
+                                            <button
+                                                onClick={() => handleDeleteStart(landingId)}
+                                                className="p-1.5 md:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                                                title={isUnknown ? "모든 데이터 삭제" : "페이지 삭제"}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-end gap-2 w-full md:w-auto">
-                                        {/* Desktop Badge Position */}
-                                        <span className="hidden md:inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mr-2">
-                                            총 {groupLeads.length} 건
-                                        </span>
-
-                                        <button
-                                            onClick={() => navigate(`/admin/stats/${landingId}`)}
-                                            className="flex-1 md:flex-none justify-center items-center gap-1 text-xs md:text-sm font-bold text-gray-600 hover:text-blue-600 bg-white border border-gray-300 hover:border-blue-400 px-3 py-1.5 rounded-lg transition-all flex"
-                                        >
-                                            상세보기 <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 rotate-180" />
-                                        </button>
-
-                                        <button
-                                            onClick={() => handleDeleteStart(landingId)}
-                                            className="p-1.5 md:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
-                                            title={isUnknown ? "모든 데이터 삭제" : "페이지 삭제"}
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Desktop Table View */}
-                                <div className="hidden md:block overflow-x-auto">
-                                    <table className="w-full text-sm text-left">
-                                        <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 border-b">
-                                            <tr>
-                                                <th className="px-6 py-3 w-12 font-medium">No.</th>
-                                                {columns.slice(0, 5).map(col => (
-                                                    <th key={col.key} className="px-6 py-3 font-medium text-gray-700">
-                                                        {col.label}
-                                                    </th>
-                                                ))}
-                                                {columns.length > 5 && <th className="px-6 py-3 font-medium text-gray-400">...</th>}
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {previewLeads.map((lead, idx) => (
-                                                <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
-                                                    <td className="px-6 py-4 text-gray-400 text-xs">{groupLeads.length - idx}</td>
+                                    {/* Desktop Table View */}
+                                    <div className="hidden md:block overflow-x-auto">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 border-b">
+                                                <tr>
+                                                    <th className="px-6 py-3 w-12 font-medium">No.</th>
                                                     {columns.slice(0, 5).map(col => (
-                                                        <td key={col.key} className="px-6 py-4 whitespace-nowrap text-gray-600">
-                                                            {lead[col.key] || lead[col.key.toLowerCase()] || '-'}
-                                                        </td>
+                                                        <th key={col.key} className="px-6 py-3 font-medium text-gray-700">
+                                                            {col.label}
+                                                        </th>
                                                     ))}
-                                                    {columns.length > 5 && <td className="px-6 py-4 text-gray-300">...</td>}
+                                                    {columns.length > 5 && <th className="px-6 py-3 font-medium text-gray-400">...</th>}
                                                 </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {previewLeads.map((lead, idx) => (
+                                                    <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
+                                                        <td className="px-6 py-4 text-gray-400 text-xs">{groupLeads.length - idx}</td>
+                                                        {columns.slice(0, 5).map(col => (
+                                                            <td key={col.key} className="px-6 py-4 whitespace-nowrap text-gray-600">
+                                                                {lead[col.key] || lead[col.key.toLowerCase()] || '-'}
+                                                            </td>
+                                                        ))}
+                                                        {columns.length > 5 && <td className="px-6 py-4 text-gray-300">...</td>}
+                                                    </tr>
+                                                ))}
+                                                {groupLeads.length > 5 && (
+                                                    <tr>
+                                                        <td colSpan={columns.slice(0, 5).length + 2} className="px-6 py-3 text-center bg-gray-50/30">
+                                                            <button
+                                                                onClick={() => navigate(`/admin/stats/${landingId}`)}
+                                                                className="text-xs font-bold text-blue-600 hover:underline"
+                                                            >
+                                                                + {groupLeads.length - 5}개 더보기
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Mobile Card View */}
+                                    <div className="md:hidden">
+                                        <div className="divide-y divide-gray-100">
+                                            {previewLeads.map((lead, idx) => (
+                                                <div key={idx} className="p-4 bg-white hover:bg-gray-50 transition-colors">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <span className="text-xs font-mono text-gray-400">#{groupLeads.length - idx}</span>
+                                                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                            {lead['Timestamp'] ? lead['Timestamp'].split(' ')[1] : '-'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        {columns.slice(1, 4).map(col => (
+                                                            <div key={col.key} className="flex items-center justify-between">
+                                                                <span className="text-xs text-gray-500 w-16 truncate">{col.label}</span>
+                                                                <span className={`text-sm font-medium ${col.key === 'Phone' ? 'text-blue-600' : 'text-gray-900'} text-right truncate flex-1`}>
+                                                                    {lead[col.key] || lead[col.key.toLowerCase()] || '-'}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             ))}
                                             {groupLeads.length > 5 && (
-                                                <tr>
-                                                    <td colSpan={columns.slice(0, 5).length + 2} className="px-6 py-3 text-center bg-gray-50/30">
-                                                        <button
-                                                            onClick={() => navigate(`/admin/stats/${landingId}`)}
-                                                            className="text-xs font-bold text-blue-600 hover:underline"
-                                                        >
-                                                            + {groupLeads.length - 5}개 더보기
-                                                        </button>
-                                                    </td>
-                                                </tr>
+                                                <div className="p-3 text-center bg-gray-50 border-t border-gray-100">
+                                                    <button
+                                                        onClick={() => navigate(`/admin/stats/${landingId}`)}
+                                                        className="w-full py-2 text-sm font-bold text-blue-600 border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
+                                                    >
+                                                        전체보기 (+{groupLeads.length - 5})
+                                                    </button>
+                                                </div>
                                             )}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                {/* Mobile Card View */}
-                                <div className="md:hidden">
-                                    <div className="divide-y divide-gray-100">
-                                        {previewLeads.map((lead, idx) => (
-                                            <div key={idx} className="p-4 bg-white hover:bg-gray-50 transition-colors">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <span className="text-xs font-mono text-gray-400">#{groupLeads.length - idx}</span>
-                                                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                                                        {lead['Timestamp'] ? lead['Timestamp'].split(' ')[1] : '-'}
-                                                    </span>
-                                                </div>
-                                                <div className="space-y-1">
-                                                    {columns.slice(1, 4).map(col => (
-                                                        <div key={col.key} className="flex items-center justify-between">
-                                                            <span className="text-xs text-gray-500 w-16 truncate">{col.label}</span>
-                                                            <span className={`text-sm font-medium ${col.key === 'Phone' ? 'text-blue-600' : 'text-gray-900'} text-right truncate flex-1`}>
-                                                                {lead[col.key] || lead[col.key.toLowerCase()] || '-'}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {groupLeads.length > 5 && (
-                                            <div className="p-3 text-center bg-gray-50 border-t border-gray-100">
-                                                <button
-                                                    onClick={() => navigate(`/admin/stats/${landingId}`)}
-                                                    className="w-full py-2 text-sm font-bold text-blue-600 border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
-                                                >
-                                                    전체보기 (+{groupLeads.length - 5})
-                                                </button>
-                                            </div>
-                                        )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })
+                            );
+                        })
                 )}
             </main>
 
