@@ -246,24 +246,7 @@
     "additionalSheetConfig": {
       "spreadsheetUrl": "",
       "sheetName": "Leads",
-      "fieldMappings": [
-        {
-          "sourceField": "name",
-          "targetColumn": "CustomerName"
-        },
-        {
-          "sourceField": "phone",
-          "targetColumn": "Phone"
-        },
-        {
-          "sourceField": "f1768637361590",
-          "targetColumn": "PreInfo"
-        },
-        {
-          "sourceField": "Timestamp",
-          "targetColumn": "UpdatedAt"
-        }
-      ]
+      "fieldMappings": []
     },
     "leadMasterConfig": {
       "isEnabled": true,
