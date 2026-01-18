@@ -244,8 +244,8 @@
       "size": 70
     },
     "additionalSheetConfig": {
-      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1tXA1U09gcgQF8w7CiVBVtscqZnGcvdCpwBpMlyIxRBg/edit?usp=sharing",
-      "sheetName": "Leads",
+      "spreadsheetUrl": "",
+      "sheetName": "",
       "fieldMappings": [
         {
           "sourceField": "name",
@@ -258,11 +258,12 @@
       ]
     },
     "leadMasterConfig": {
-      "isEnabled": false,
+      "isEnabled": true,
       "scriptUrl": "https://docs.google.com/spreadsheets/d/1tXA1U09gcgQF8w7CiVBVtscqZnGcvdCpwBpMlyIxRBg/edit?usp=sharing",
       "landingId": "명율",
       "sheetName": "Leads",
-      "managerName": "진성호"
+      "managerName": "진성호",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1tXA1U09gcgQF8w7CiVBVtscqZnGcvdCpwBpMlyIxRBg/edit?usp=sharing"
     }
   }
 }
