@@ -244,12 +244,21 @@
       "size": 70
     },
     "additionalSheetConfig": {
-      "spreadsheetUrl": "",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1tXA1U09gcgQF8w7CiVBVtscqZnGcvdCpwBpMlyIxRBg/edit?usp=sharing",
       "sheetName": "Leads",
-      "fieldMappings": []
+      "fieldMappings": [
+        {
+          "sourceField": "name",
+          "targetColumn": "CustomerName"
+        },
+        {
+          "sourceField": "phone",
+          "targetColumn": "Phone"
+        }
+      ]
     },
     "leadMasterConfig": {
-      "isEnabled": true,
+      "isEnabled": false,
       "scriptUrl": "https://docs.google.com/spreadsheets/d/1tXA1U09gcgQF8w7CiVBVtscqZnGcvdCpwBpMlyIxRBg/edit?usp=sharing",
       "landingId": "명율",
       "sheetName": "Leads",
