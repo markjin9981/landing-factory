@@ -709,17 +709,23 @@ function handleLeadSubmission(params) {
         var customerName = params.name || params['이름'] || params['고객명'] || '';
         var phone = params.phone || params['전화번호'] || params['연락처'] || '';
         
-        // PreInfo: 이름/전화번호 제외한 나머지 필드들 포맷팅
-        var excludeKeys = ['type', 'name', 'phone', '이름', '전화번호', '고객명', '연락처',
-                           'api_token', 'website', 'timestamp', 'landing_id', 'user_agent', 
-                           'referrer', 'page_title', 'marketing_consent', 'third_party_consent',
-                           'privacy_consent', 'formatted_fields', 'additional_sheet_config',
-                           'leadmaster_config', 'notification_email', 'origin',
-                           'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+        // PreInfo: formatted_fields에서 라벨과 값을 추출 (이름/전화번호 제외)
         var preInfoParts = [];
-        for (var pKey in params) {
-          if (excludeKeys.indexOf(pKey) === -1 && params[pKey]) {
-            preInfoParts.push('*' + pKey + ' : ' + params[pKey]);
+        var excludeLabels = ['이름', '고객명', 'name', '전화번호', '연락처', 'phone'];
+        
+        if (params.formatted_fields) {
+          try {
+            var fields = JSON.parse(params.formatted_fields);
+            for (var i = 0; i < fields.length; i++) {
+              var label = fields[i].label;
+              var value = fields[i].value;
+              // 이름/전화번호 필드는 제외
+              if (value && excludeLabels.indexOf(label) === -1) {
+                preInfoParts.push('*' + label + ' : ' + value);
+              }
+            }
+          } catch (e) {
+            Logger.log("formatted_fields 파싱 오류: " + e);
           }
         }
         var preInfo = preInfoParts.join('\n');
