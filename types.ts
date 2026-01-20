@@ -621,6 +621,18 @@ export interface RehabChatConfig {
   characterName?: string;  // AI 캐릭터 이름 (기본: 로이)
   characterImage?: string; // AI 캐릭터 이미지 URL
 
+  // NEW: 챗봇 템플릿 설정
+  templateId?: 'classic' | 'messenger' | 'minimal' | 'gradient' | 'bot' | 'sidebar' | 'modern' | 'bubble' | 'corporate' | 'neon';
+  themeMode?: 'light' | 'dark';
+  customColors?: {
+    primary?: string;
+    secondary?: string;
+    accent?: string;
+    headerText?: string;
+    userText?: string;
+    botText?: string;
+  };
+
   // NEW: 버튼 스타일링
   buttonStyle?: {
     backgroundColor?: string;

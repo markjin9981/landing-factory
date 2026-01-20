@@ -215,12 +215,14 @@
       }
     },
     "rehabChatConfig": {
-      "isEnabled": false,
+      "isEnabled": true,
       "displayMode": "floating",
       "buttonText": "AI 변제금 확인",
       "buttonPosition": "bottom-left",
       "buttonColor": "#8B5CF6",
       "characterName": "로이",
+      "templateId": "gradient",
+      "themeMode": "dark",
       "placement": {
         "showAsFloating": true,
         "showInHero": false,

@@ -14,25 +14,63 @@ import {
 } from '../config/PolicyConfig';
 
 /**
- * 사용자 입력 데이터
+ * 사용자 입력 데이터 (2026년 고도화)
  */
 export interface RehabUserInput {
+    // 기본 정보
     address: string;           // 거주지 주소
-    monthlyIncome: number;     // 월 실수령 소득 (세후)
-    familySize: number;        // 가구원 수 (본인 포함)
-    isMarried: boolean;        // 결혼 여부
-    myAssets: number;          // 본인 재산 (집, 차, 보증금, 퇴직금 등)
-    deposit: number;           // 보증금 (재산에서 분리)
-    spouseAssets: number;      // 배우자 재산
-    totalDebt: number;         // 총 채무
     age?: number;              // 나이 (24개월 특례 확인용)
+
+    // 소득 정보
+    employmentType?: 'salary' | 'business' | 'both' | 'none'; // 고용 형태
+    monthlyIncome: number;     // 월 실수령 소득 (세후)
+    salaryIncome?: number;     // 급여 소득 (겸업 시)
+    businessIncome?: number;   // 사업 소득 (겸업 시)
+
+    // 가족 정보
+    maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed'; // 혼인 상태
+    isMarried: boolean;        // 기혼 여부 (호환성)
+    minorChildren?: number;    // 미성년 자녀 수
+    familySize: number;        // 가구원 수 (본인 포함)
+
+    // 배우자 정보 (기혼 시)
+    spouseIncome?: number;     // 배우자 월 소득
+    spouseAssets: number;      // 배우자 재산 총액
+
+    // 양육비 (이혼 시)
+    isCustodialParent?: boolean;   // 양육권자 여부
+    childSupportReceived?: number; // 양육비 수령액
+    childSupportPaid?: number;     // 양육비 지급액
+
+    // 주거 정보
+    housingType?: 'rent' | 'jeonse' | 'owned' | 'free'; // 거주 형태
+    rentCost?: number;         // 월세
+    deposit: number;           // 보증금/전세금
+    depositLoan?: number;      // 보증금 대출금
+
+    // 추가 생계비
+    medicalCost?: number;      // 월 의료비
+    educationCost?: number;    // 월 교육비
+
+    // 본인 재산
+    myAssets: number;          // 본인 재산 총액
+
+    // 채무 정보
+    creditCardDebt?: number;   // 신용카드 채무
+    totalDebt: number;         // 총 채무
+    priorityDebt?: number;     // 우선변제채권 (세금 체납 등)
+
+    // 투기성 손실
+    speculativeLoss?: number;  // 주식/코인 손실금
     riskFactor?: 'none' | 'recent_loan' | 'investment' | 'gambling'; // 채무 유형
+
+    // 연락처
     name?: string;             // 고객명
     phone?: string;            // 연락처
 }
 
 /**
- * 계산 결과
+ * 계산 결과 (2026년 고도화)
  */
 export interface RehabCalculationResult {
     status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE';
@@ -46,7 +84,9 @@ export interface RehabCalculationResult {
     debtReductionRate: number;   // 탕감율 (%)
 
     // 계산 상세
-    recognizedLivingCost: number; // 인정 생계비
+    baseLivingCost: number;       // 기본 생계비
+    additionalLivingCost: number; // 추가 생계비 (주거/의료/교육/양육)
+    recognizedLivingCost: number; // 총 인정 생계비
     availableIncome: number;      // 가용 소득 (소득 - 생계비)
     liquidationValue: number;     // 청산가치
     exemptDeposit: number;        // 면제 보증금
@@ -59,6 +99,9 @@ export interface RehabCalculationResult {
     // AI 조언
     aiAdvice: string[];
     riskWarnings: string[];
+
+    // 무직자 안내 (신규)
+    unemployedNotice?: string;
 }
 
 /**
@@ -91,6 +134,8 @@ export function calculateRepayment(
             totalRepayment: 0,
             totalDebtReduction: 0,
             debtReductionRate: 0,
+            baseLivingCost: recognizedLivingCost,
+            additionalLivingCost: 0,
             recognizedLivingCost,
             availableIncome: 0,
             liquidationValue: 0,
@@ -198,6 +243,8 @@ export function calculateRepayment(
         totalRepayment,
         totalDebtReduction,
         debtReductionRate,
+        baseLivingCost: recognizedLivingCost,
+        additionalLivingCost: 0,
         recognizedLivingCost,
         availableIncome,
         liquidationValue,

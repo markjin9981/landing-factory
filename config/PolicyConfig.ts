@@ -12,6 +12,8 @@ export interface RehabPolicyConfig {
     medianIncomeIncrement: number;
     // 지역별 보증금 공제 기준
     depositExemptions: Record<string, { limit: number; deduct: number }>;
+    // 지역별 추가 주거비 인정 한도 (신규)
+    housingAllowance: Record<string, { limit: number; included: number }>;
     // 생계비 인정률 (기본 60%)
     livingCostRate: number;
     // 법원별 성향
@@ -26,6 +28,7 @@ export interface CourtTrait {
     name: string;
     allow24Months: boolean;      // 24개월 단축 가능 여부
     spousePropertyRate: number;  // 배우자 재산 반영률 (0.0 ~ 1.0)
+    investLossInclude: boolean;  // 투기성 손실금 청산가치 반영 여부 (신규)
     description?: string;        // 법원 성향 설명
 }
 
@@ -58,55 +61,71 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
     // 생계비 인정률
     livingCostRate: 0.6,
 
+    // 지역별 추가 주거비 인정 한도 (신규 - 2026년 서울회생법원 기준)
+    housingAllowance: {
+        'Seoul': { limit: 589208, included: 273861 },         // 서울
+        'Overcrowded': { limit: 430122, included: 273861 },   // 과밀억제권역/세종/용인/화성
+        'Metro': { limit: 229791, included: 273861 },         // 광역시/안산/김포/광주/파주
+        'Others': { limit: 176762, included: 273861 }         // 그 밖의 지역
+    },
+
     // 법원별 성향
     courtTraits: {
         '서울회생법원': {
             name: '서울회생법원',
             allow24Months: true,
             spousePropertyRate: 0.0,
-            description: '24개월 단축 변제 가능, 배우자 재산 미반영'
+            investLossInclude: false,
+            description: '24개월 단축 변제 가능, 배우자 재산 미반영, 투기손실 미반영'
         },
         '수원회생법원': {
             name: '수원회생법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
-            description: '배우자 재산 50% 반영'
+            investLossInclude: true,
+            description: '배우자 재산 50% 반영, 투기손실 반영'
         },
         '인천회생법원': {
             name: '인천회생법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
-            description: '배우자 재산 50% 반영'
+            investLossInclude: true,
+            description: '배우자 재산 50% 반영, 투기손실 반영'
         },
         '대전회생법원': {
             name: '대전회생법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
-            description: '배우자 재산 50% 반영'
+            investLossInclude: false,
+            description: '배우자 재산 50% 반영, 투기손실 미반영 예상 (2026년 개원)'
         },
         '대구회생법원': {
             name: '대구회생법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
-            description: '배우자 재산 50% 반영'
+            investLossInclude: false,
+            description: '배우자 재산 50% 반영, 투기손실 미반영 예상 (2026년 개원)'
         },
         '부산회생법원': {
             name: '부산회생법원',
             allow24Months: false,
-            spousePropertyRate: 0.5,
-            description: '배우자 재산 50% 반영'
+            spousePropertyRate: 0.0,
+            investLossInclude: false,
+            description: '배우자 재산 미반영, 투기손실 미반영'
         },
         '광주회생법원': {
             name: '광주회생법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
-            description: '배우자 재산 50% 반영'
+            investLossInclude: false,
+            description: '배우자 재산 50% 반영, 투기손실 미반영 예상 (2026년 개원)'
         },
         'Default': {
             name: '기타 법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
-            description: '36개월 변제 기준'
+            investLossInclude: true,
+            description: '36개월 변제 기준, 보수적 접근'
         }
     },
 

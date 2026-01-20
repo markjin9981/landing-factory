@@ -53,7 +53,7 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[300] flex items-center justify-center p-2 bg-black/80 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-2 bg-black/80 backdrop-blur-md overflow-y-auto"
             onClick={(e) => e.target === e.currentTarget && onClose()}
         >
             <motion.div

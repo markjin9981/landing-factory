@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Calculator, Sparkles } from 'lucide-react';
-import AIRehabChatbot from './AIRehabChatbot';
+import AIRehabChatbotV2 from './AIRehabChatbotV2';
 import { RehabChatConfig, GlobalSettings } from '../../types';
 import { RehabCalculationResult, RehabUserInput } from '../../services/calculationService';
 
@@ -134,13 +134,15 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
 
                 <AnimatePresence>
                     {isOpen && (
-                        <AIRehabChatbot
+                        <AIRehabChatbotV2
                             isOpen={isOpen}
                             onClose={handleClose}
                             onComplete={onComplete}
                             characterName={config.characterName}
                             characterImage={config.characterImage}
-                            buttonColor={config.buttonColor}
+                            templateId={config.templateId || 'classic'}
+                            themeMode={config.themeMode || 'dark'}
+                            customColors={config.customColors}
                         />
                     )}
                 </AnimatePresence>
@@ -181,13 +183,15 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
 
             <AnimatePresence>
                 {isOpen && (
-                    <AIRehabChatbot
+                    <AIRehabChatbotV2
                         isOpen={isOpen}
                         onClose={handleClose}
                         onComplete={onComplete}
                         characterName={config.characterName}
                         characterImage={config.characterImage}
-                        buttonColor={config.buttonColor}
+                        templateId={config.templateId || 'classic'}
+                        themeMode={config.themeMode || 'dark'}
+                        customColors={config.customColors}
                     />
                 )}
             </AnimatePresence>
