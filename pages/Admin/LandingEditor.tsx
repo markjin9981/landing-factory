@@ -7436,6 +7436,113 @@ const LandingEditor: React.FC = () => {
                                                             placeholder="로이"
                                                         />
                                                     </div>
+
+                                                    {/* 🆕 챗봇 템플릿 설정 */}
+                                                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 rounded-lg p-4 space-y-4">
+                                                        <h4 className="text-sm font-bold text-purple-700 flex items-center gap-2">
+                                                            🎨 채팅창 디자인 템플릿
+                                                        </h4>
+
+                                                        {/* 템플릿 선택 */}
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-600 mb-2 block">템플릿 선택</label>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                {[
+                                                                    { id: 'classic', name: '클래식', emoji: '💼', color: '#334155' },
+                                                                    { id: 'messenger', name: '메신저', emoji: '💬', color: '#0ea5e9' },
+                                                                    { id: 'minimal', name: '미니멀', emoji: '⬜', color: '#18181b' },
+                                                                    { id: 'gradient', name: '그라데이션', emoji: '🌈', color: '#8b5cf6' },
+                                                                    { id: 'bot', name: '봇 스타일', emoji: '🤖', color: '#10b981' },
+                                                                    { id: 'sidebar', name: '사이드바', emoji: '📌', color: '#ef4444' },
+                                                                    { id: 'modern', name: '모던', emoji: '✨', color: '#6366f1' },
+                                                                    { id: 'bubble', name: '버블', emoji: '🫧', color: '#ec4899' },
+                                                                    { id: 'corporate', name: '기업용', emoji: '🏢', color: '#1e40af' },
+                                                                    { id: 'neon', name: '네온', emoji: '⚡', color: '#06b6d4' }
+                                                                ].map((tpl) => (
+                                                                    <button
+                                                                        key={tpl.id}
+                                                                        onClick={() => updateNested(['rehabChatConfig', 'templateId'], tpl.id)}
+                                                                        className={`p-2 border rounded-lg text-xs transition-all flex items-center gap-2 ${(config.rehabChatConfig?.templateId || 'classic') === tpl.id
+                                                                                ? 'border-purple-500 bg-purple-100 text-purple-800 font-bold ring-1 ring-purple-500'
+                                                                                : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                                                            }`}
+                                                                    >
+                                                                        <span>{tpl.emoji}</span>
+                                                                        <span>{tpl.name}</span>
+                                                                        <div
+                                                                            className="w-4 h-4 rounded-full ml-auto border border-gray-300"
+                                                                            style={{ backgroundColor: tpl.color }}
+                                                                        />
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* 테마 모드 */}
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-600 mb-2 block">테마 모드</label>
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => updateNested(['rehabChatConfig', 'themeMode'], 'light')}
+                                                                    className={`flex-1 p-3 border rounded-lg text-sm flex items-center justify-center gap-2 transition-all ${config.rehabChatConfig?.themeMode === 'light'
+                                                                            ? 'border-yellow-400 bg-yellow-50 text-yellow-800 font-bold'
+                                                                            : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                                                                        }`}
+                                                                >
+                                                                    ☀️ 라이트
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => updateNested(['rehabChatConfig', 'themeMode'], 'dark')}
+                                                                    className={`flex-1 p-3 border rounded-lg text-sm flex items-center justify-center gap-2 transition-all ${(config.rehabChatConfig?.themeMode || 'dark') === 'dark'
+                                                                            ? 'border-slate-600 bg-slate-800 text-white font-bold'
+                                                                            : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                                                                        }`}
+                                                                >
+                                                                    🌙 다크
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* 커스텀 색상 (선택사항) */}
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-600 mb-2 block">커스텀 색상 (선택사항)</label>
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                <div className="text-center">
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">메인 색상</label>
+                                                                    <input
+                                                                        type="color"
+                                                                        value={config.rehabChatConfig?.customColors?.primary || '#3b82f6'}
+                                                                        onChange={(e) => updateNested(['rehabChatConfig', 'customColors', 'primary'], e.target.value)}
+                                                                        className="w-full h-8 rounded cursor-pointer border"
+                                                                    />
+                                                                </div>
+                                                                <div className="text-center">
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">보조 색상</label>
+                                                                    <input
+                                                                        type="color"
+                                                                        value={config.rehabChatConfig?.customColors?.secondary || '#f1f5f9'}
+                                                                        onChange={(e) => updateNested(['rehabChatConfig', 'customColors', 'secondary'], e.target.value)}
+                                                                        className="w-full h-8 rounded cursor-pointer border"
+                                                                    />
+                                                                </div>
+                                                                <div className="text-center">
+                                                                    <label className="text-[10px] text-gray-500 block mb-1">포인트</label>
+                                                                    <input
+                                                                        type="color"
+                                                                        value={config.rehabChatConfig?.customColors?.accent || '#60a5fa'}
+                                                                        onChange={(e) => updateNested(['rehabChatConfig', 'customColors', 'accent'], e.target.value)}
+                                                                        className="w-full h-8 rounded cursor-pointer border"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => updateNested(['rehabChatConfig', 'customColors'], undefined)}
+                                                                className="mt-2 text-xs text-gray-500 underline hover:text-gray-700"
+                                                            >
+                                                                커스텀 색상 초기화
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
