@@ -7463,8 +7463,8 @@ const LandingEditor: React.FC = () => {
                                                                         key={tpl.id}
                                                                         onClick={() => updateNested(['rehabChatConfig', 'templateId'], tpl.id)}
                                                                         className={`p-2 border rounded-lg text-xs transition-all flex items-center gap-2 ${(config.rehabChatConfig?.templateId || 'classic') === tpl.id
-                                                                                ? 'border-purple-500 bg-purple-100 text-purple-800 font-bold ring-1 ring-purple-500'
-                                                                                : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                                                            ? 'border-purple-500 bg-purple-100 text-purple-800 font-bold ring-1 ring-purple-500'
+                                                                            : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                                                             }`}
                                                                     >
                                                                         <span>{tpl.emoji}</span>
@@ -7485,8 +7485,8 @@ const LandingEditor: React.FC = () => {
                                                                 <button
                                                                     onClick={() => updateNested(['rehabChatConfig', 'themeMode'], 'light')}
                                                                     className={`flex-1 p-3 border rounded-lg text-sm flex items-center justify-center gap-2 transition-all ${config.rehabChatConfig?.themeMode === 'light'
-                                                                            ? 'border-yellow-400 bg-yellow-50 text-yellow-800 font-bold'
-                                                                            : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                                                                        ? 'border-yellow-400 bg-yellow-50 text-yellow-800 font-bold'
+                                                                        : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
                                                                         }`}
                                                                 >
                                                                     ☀️ 라이트
@@ -7494,8 +7494,8 @@ const LandingEditor: React.FC = () => {
                                                                 <button
                                                                     onClick={() => updateNested(['rehabChatConfig', 'themeMode'], 'dark')}
                                                                     className={`flex-1 p-3 border rounded-lg text-sm flex items-center justify-center gap-2 transition-all ${(config.rehabChatConfig?.themeMode || 'dark') === 'dark'
-                                                                            ? 'border-slate-600 bg-slate-800 text-white font-bold'
-                                                                            : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                                                                        ? 'border-slate-600 bg-slate-800 text-white font-bold'
+                                                                        : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
                                                                         }`}
                                                                 >
                                                                     🌙 다크
@@ -7541,6 +7541,18 @@ const LandingEditor: React.FC = () => {
                                                             >
                                                                 커스텀 색상 초기화
                                                             </button>
+                                                        </div>
+
+                                                        {/* 채팅창 폰트 */}
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-600 mb-2 block">채팅창 폰트</label>
+                                                            <FontPicker
+                                                                value={config.rehabChatConfig?.chatFontFamily || ''}
+                                                                onChange={(val) => updateNested(['rehabChatConfig', 'chatFontFamily'], val)}
+                                                                globalSettings={globalSettings}
+                                                                onSettingsChange={setGlobalSettings}
+                                                            />
+                                                            <p className="text-[10px] text-gray-400 mt-1">채팅창 내 모든 텍스트에 적용됩니다.</p>
                                                         </div>
                                                     </div>
                                                 </div>

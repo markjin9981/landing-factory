@@ -143,6 +143,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                             templateId={config.templateId || 'classic'}
                             themeMode={config.themeMode || 'dark'}
                             customColors={config.customColors}
+                            chatFontFamily={config.chatFontFamily}
                         />
                     )}
                 </AnimatePresence>
@@ -192,6 +193,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                         templateId={config.templateId || 'classic'}
                         themeMode={config.themeMode || 'dark'}
                         customColors={config.customColors}
+                        chatFontFamily={config.chatFontFamily}
                     />
                 )}
             </AnimatePresence>

@@ -632,6 +632,7 @@ export interface RehabChatConfig {
     userText?: string;
     botText?: string;
   };
+  chatFontFamily?: string; // 채팅창 폰트
 
   // NEW: 버튼 스타일링
   buttonStyle?: {

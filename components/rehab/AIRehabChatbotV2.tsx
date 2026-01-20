@@ -95,6 +95,7 @@ interface AIRehabChatbotV2Props {
     templateId?: ChatbotTemplateId;
     themeMode?: ThemeMode;
     customColors?: Partial<ChatbotColorPalette>;
+    chatFontFamily?: string;
 }
 
 const ASSET_LABELS: Record<AssetType, string> = {
@@ -114,7 +115,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     characterImage,
     templateId = 'classic',
     themeMode = 'dark',
-    customColors
+    customColors,
+    chatFontFamily
 }) => {
     // 템플릿 색상 계산
     const templateInfo = getTemplateById(templateId);
@@ -1086,7 +1088,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     style={{
                         backgroundColor: bgColor,
                         borderWidth: '1px',
-                        borderColor: borderColor
+                        borderColor: borderColor,
+                        fontFamily: chatFontFamily || 'inherit'
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
