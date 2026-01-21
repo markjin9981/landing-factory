@@ -4,7 +4,7 @@ import LANDING_CONFIGS_JSON from '../../data/landingConfigs.json';
 import { LandingConfig } from '../../types';
 import { fetchLandingConfigs, fetchLeads } from '../../services/googleSheetService';
 import { deleteConfigFromGithub } from '../../services/githubService';
-import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2, Copy } from 'lucide-react';
+import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2, Copy, FileText } from 'lucide-react';
 
 import OgStatusBadge from '../../components/OgStatusBadge';
 

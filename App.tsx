@@ -17,6 +17,7 @@ const TrafficLogs = lazy(() => import('./pages/Admin/TrafficLogs'));
 const TrafficStats = lazy(() => import('./pages/Admin/TrafficStats'));
 const Settings = lazy(() => import('./pages/Admin/Settings'));
 const Login = lazy(() => import('./pages/Admin/Login'));
+const PolicyManager = lazy(() => import('./pages/Admin/PolicyManager'));
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as unknown as Record<string, LandingConfig>;
 
@@ -155,6 +156,14 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <TrafficStats />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/policy"
+              element={
+                <ProtectedRoute>
+                  <PolicyManager />
                 </ProtectedRoute>
               }
             />

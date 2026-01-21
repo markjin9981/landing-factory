@@ -1,3 +1,5 @@
+import { RehabPolicyConfig } from './config/PolicyConfig';
+
 export interface FieldOption {
   value: string;
   label: string;
@@ -45,6 +47,7 @@ export interface GlobalSettings {
   customFonts: CustomFont[];
   favoriteFonts: string[]; // List of font family names that are starred
   kakaoApiKey?: string; // New: Kakao Map API Key
+  policyConfig?: RehabPolicyConfig; // New: Policy Rules from Excel Upload
 }
 
 export interface TextStyle {

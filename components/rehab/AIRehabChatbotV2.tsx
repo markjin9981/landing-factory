@@ -20,6 +20,8 @@ import { RehabChatConfig } from '../../types';
 import RehabResultReport from './RehabResultReport';
 import ChatbotRenderer from './templates/ChatbotRenderer';
 import { ChatbotTemplateId, ThemeMode, ChatbotColorPalette, getTemplateById, DEFAULT_DARK_PALETTE, DEFAULT_LIGHT_PALETTE, CHATBOT_TEMPLATES, InteractiveBlockConfig, InteractiveBlockState } from './templates/ChatbotTemplateConfig';
+import { fetchGlobalSettings } from '../../services/googleSheetService';
+import { RehabPolicyConfig } from '../../config/PolicyConfig';
 
 // 대화 메시지 타입
 interface ChatMessage {
@@ -197,6 +199,19 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     const [isTyping, setIsTyping] = useState(false);
     const [result, setResult] = useState<RehabCalculationResult | null>(null);
     const [showResult, setShowResult] = useState(false);
+    const [policyConfig, setPolicyConfig] = useState<RehabPolicyConfig | undefined>(undefined);
+
+    // Fetch Global Policy
+    useEffect(() => {
+        const loadPolicy = async () => {
+            const settings = await fetchGlobalSettings();
+            if (settings?.policyConfig) {
+                console.log('Loaded Global Policy Config:', settings.policyConfig);
+                setPolicyConfig(settings.policyConfig);
+            }
+        };
+        loadPolicy();
+    }, []);
 
     // 추가 상태
     const [selectedAssets, setSelectedAssets] = useState<AssetType[]>([]);
@@ -1189,7 +1204,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
         setIsTyping(true);
 
         setTimeout(() => {
-            const calculationResult = calculateRepayment(input, DEFAULT_POLICY_CONFIG_2026);
+            const calculationResult = calculateRepayment(input, policyConfig);
             setResult(calculationResult);
 
             const statusEmoji = calculationResult.status === 'POSSIBLE' ? '🟢' :
