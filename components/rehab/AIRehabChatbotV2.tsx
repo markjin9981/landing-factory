@@ -1245,11 +1245,11 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                className={`fixed inset-0 z-[9999] flex items-center justify-center ${disablePortal ? '' : 'p-4'} bg-black/60 backdrop-blur-sm`}
                 onClick={(e) => e.target === e.currentTarget && onClose()}
             >
                 <motion.div
-                    className={`${disablePortal ? 'w-full h-full rounded-none shadow-none' : 'w-full max-w-md h-[85vh] rounded-2xl shadow-2xl'} flex flex-col overflow-hidden`}
+                    className={`${disablePortal ? 'w-full max-w-md h-full rounded-none shadow-2xl' : 'w-full max-w-md h-[85vh] rounded-2xl shadow-2xl'} flex flex-col overflow-hidden`}
                     style={{
                         borderWidth: '1px',
                         borderColor: isDark ? '#374151' : '#e5e7eb',
