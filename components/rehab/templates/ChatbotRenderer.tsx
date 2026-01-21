@@ -573,16 +573,22 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                                     {/* Interactive Block (폼-혼합형) */}
                                     {(() => {
                                         const shouldRender = (layout?.hasFormBlocks || enableFormBlocks) && msg.interactiveBlock && msg.blockState && onBlockSubmit;
-                                        if (msg.interactiveBlock) {
-                                            console.log(`[Renderer] Msg ${msg.id} Block Check:`, {
+
+                                        // 디버깅: 마지막 메시지인 경우 항상 로그 출력
+                                        if (msg.isLast || msg.interactiveBlock) {
+                                            console.log(`[Renderer] Msg ${msg.id} Render Check:`, {
+                                                content: msg.content.substring(0, 20),
                                                 shouldRender,
                                                 hasFormBlocks: layout?.hasFormBlocks,
                                                 enableFormBlocks,
                                                 msgHasBlock: !!msg.interactiveBlock,
                                                 msgState: msg.blockState,
-                                                hasSubmitHandler: !!onBlockSubmit
+                                                hasSubmitHandler: !!onBlockSubmit,
+                                                // interactiveBlock 내용 확인
+                                                blockConfig: msg.interactiveBlock
                                             });
                                         }
+
                                         return shouldRender ? (
                                             <div className="mt-3">
                                                 <InteractiveBlock
