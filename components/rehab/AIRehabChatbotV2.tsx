@@ -1282,7 +1282,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         onClose={onClose}
                         messagesEndRef={messagesEndRef}
                         inputRef={inputRef}
-                        enableFormBlocks={enableFormBlocks}
+                        enableFormBlocks={enableFormBlocks || interactiveBlockPreset !== 'none'}
                         onBlockSubmit={handleBlockSubmit}
                         onBlockCancel={(id) => {
                             setMessages(prev => prev.map(msg =>
