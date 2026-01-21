@@ -158,17 +158,23 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
 
     // Interactive Block 사용 여부 확인
     const shouldUseBlock = useCallback((blockType: 'form' | 'multiSelect' | 'datePicker') => {
-
+        console.log(`[RehabChat] shouldUseBlock check: type=${blockType}`, {
+            preset: interactiveBlockPreset,
+            config: interactiveBlockConfig
+        });
 
         switch (interactiveBlockPreset) {
             case 'none': return false;
             case 'basic': return blockType === 'form';
             case 'advanced': return true;
             case 'custom':
-                if (blockType === 'form') return interactiveBlockConfig?.useContactForm ?? false;
-                if (blockType === 'multiSelect') return interactiveBlockConfig?.useMultiSelect ?? false;
-                if (blockType === 'datePicker') return interactiveBlockConfig?.useDatePicker ?? false;
-                return false;
+                const result = blockType === 'form'
+                    ? (interactiveBlockConfig?.useContactForm ?? false)
+                    : blockType === 'datePicker'
+                        ? (interactiveBlockConfig?.useDatePicker ?? false)
+                        : (interactiveBlockConfig?.useMultiSelect ?? false);
+                console.log(`[RehabChat] Custom preset check result for ${blockType}: ${result}`);
+                return result;
             default: return false;
         }
     }, [enableFormBlocks, interactiveBlockPreset, interactiveBlockConfig]);
@@ -251,6 +257,12 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
 
     // 설정 변경 시 채팅 초기화 (Preview 모드에서 즉시 반영 확인용)
     useEffect(() => {
+        console.log('[RehabChat] Config/Template Updated:', {
+            templateId,
+            introConfig,
+            interactiveBlockPreset,
+            interactiveBlockConfig
+        });
         if (disablePortal) { // 에디터/프리뷰 모드일 때만
             setMessages([]);
             setCurrentStep('intro');
