@@ -680,6 +680,45 @@ const Settings: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* Interactive Block Settings Section */}
+                    <div className="border-t border-gray-200 pt-6 mt-6">
+                        <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4 mb-6 text-sm text-pink-800">
+                            <strong className="block mb-1">Interactive Block (폼-혼합형)</strong>
+                            AI 챗봇에서 날짜 선택, 연락처 입력, 다중 선택 등의 고급 폼 UI를 활성화합니다.
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div>
+                                <div className="font-bold text-gray-800">Interactive Block 활성화</div>
+                                <div className="text-sm text-gray-500">모든 챗봇 템플릿에서 폼 블록 UI 사용</div>
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    if (!globalSettings) return;
+                                    const existingConfig = globalSettings.rehabChatConfig || {
+                                        isEnabled: true,
+                                        displayMode: 'floating' as const,
+                                        buttonText: 'AI 변제금 확인'
+                                    };
+                                    const newConfig = {
+                                        ...existingConfig,
+                                        enableFormBlocks: !existingConfig.enableFormBlocks
+                                    };
+                                    const newSettings = { ...globalSettings, rehabChatConfig: newConfig };
+                                    await saveGlobalSettings(newSettings);
+                                    setGlobalSettings(newSettings);
+                                }}
+                                className={`relative w-14 h-7 rounded-full transition-colors ${globalSettings?.rehabChatConfig?.enableFormBlocks
+                                    ? 'bg-gradient-to-r from-pink-500 to-purple-500'
+                                    : 'bg-gray-300'
+                                    }`}
+                            >
+                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${globalSettings?.rehabChatConfig?.enableFormBlocks ? 'translate-x-8' : 'translate-x-1'
+                                    }`} />
+                            </button>
+                        </div>
+                    </div>
+
 
 
 
