@@ -81,6 +81,7 @@ type ChatStep =
     | 'prior_rehab'          // 기존 개인회생/파산 진행 여부
     | 'prior_rehab_detail'   // 면책 년월
     | 'prior_credit_recovery' // 신용회복 상세
+    | 'prior_credit_recovery_amount' // 신용회복 잔액 (NEW)
     | 'risk'
     | 'contact_name'
     | 'contact_phone'
@@ -1107,7 +1108,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         undefined,
                         'number'
                     );
-                    setCurrentStep('contact_name');
+                    setCurrentStep('prior_credit_recovery_amount');
                 } else {
                     setCurrentStep('contact_name');
                     addBotMessage(
@@ -1129,6 +1130,29 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         } : undefined
                     );
                 }
+                break;
+
+            case 'prior_credit_recovery_amount':
+                // 신용회복 잔액 저장 (일단 totalDebt에 합산하거나 별도 저장 - 현재 로직상 입력값만 받고 넘어감)
+                setCurrentStep('contact_name');
+                addBotMessage(
+                    shouldUseBlock('form')
+                        ? '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 정보를 입력해주세요.'
+                        : '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
+                    undefined,
+                    'text',
+                    undefined,
+                    shouldUseBlock('form') ? {
+                        type: 'contact_input',
+                        title: '연락처 입력',
+                        description: '정확한 분석 결과를 위해 성함과 연락처를 입력해주세요.',
+                        contactType: 'phone',
+                        includeName: true,
+                        placeholder: '010-0000-0000',
+                        buttonLabel: '결과 확인하기',
+                        required: true
+                    } : undefined
+                );
                 break;
 
             case 'contact_name':
@@ -1225,7 +1249,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
             'credit_card': 75, 'credit_card_amount': 78,
             'other_debt': 82, 'debt_confirm': 85, 'priority_debt': 88,
             'priority_debt_amount': 90, 'prior_rehab': 91, 'prior_rehab_detail': 92,
-            'prior_credit_recovery': 93, 'risk': 94, 'contact_name': 96,
+            'prior_credit_recovery': 93, 'prior_credit_recovery_amount': 94, 'risk': 95, 'contact_name': 96,
             'contact_phone': 98, 'result': 100
         };
         return stepOrder[currentStep] || 0;
