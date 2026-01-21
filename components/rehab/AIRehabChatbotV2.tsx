@@ -1086,157 +1086,37 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 <motion.div
                     className="w-full max-w-md h-[85vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden"
                     style={{
-                        backgroundColor: bgColor,
                         borderWidth: '1px',
-                        borderColor: borderColor,
+                        borderColor: isDark ? '#374151' : '#e5e7eb',
                         fontFamily: chatFontFamily || 'inherit'
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {/* Header */}
-                    <div
-                        className="px-4 py-3 flex items-center justify-between"
-                        style={{ backgroundColor: colors.primary }}
-                    >
-                        <div className="flex items-center gap-3">
-                            {characterImage ? (
-                                <img src={characterImage} alt={characterName} className="w-10 h-10 rounded-full object-cover" />
-                            ) : (
-                                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                    <Bot className="w-6 h-6" style={{ color: colors.headerText }} />
-                                </div>
-                            )}
-                            <div>
-                                <h3 className="font-bold" style={{ color: colors.headerText }}>{characterName}</h3>
-                                <p className="text-xs opacity-80" style={{ color: colors.headerText }}>AI 법률 비서</p>
-                            </div>
-                        </div>
-                        <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full transition-colors">
-                            <X className="w-5 h-5" style={{ color: colors.headerText }} />
-                        </button>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="h-1" style={{ backgroundColor: borderColor }}>
-                        <motion.div
-                            className="h-full"
-                            style={{ backgroundColor: colors.accent }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${getProgress()}%` }}
-                            transition={{ duration: 0.3 }}
-                        />
-                    </div>
-
-                    {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ backgroundColor: bgColor }}>
-                        <AnimatePresence>
-                            {messages.map((msg) => (
-                                <motion.div
-                                    key={msg.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                                >
-                                    <div className={`max-w-[85%] ${msg.type === 'user' ? 'order-1' : 'order-2'}`}>
-                                        <div
-                                            className="px-4 py-3 rounded-2xl"
-                                            style={msg.type === 'user'
-                                                ? { backgroundColor: colors.primary, color: colors.userText, borderRadius: '18px 18px 4px 18px' }
-                                                : { backgroundColor: colors.secondary, color: colors.botText, borderRadius: '18px 18px 18px 4px' }
-                                            }
-                                        >
-                                            <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.content}</p>
-                                        </div>
-
-                                        {/* Option Buttons */}
-                                        {msg.options && msg.type === 'bot' && (
-                                            <div className="mt-2 flex flex-wrap gap-2">
-                                                {msg.options.map((opt, idx) => (
-                                                    <motion.button
-                                                        key={idx}
-                                                        whileHover={{ scale: 1.02 }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        onClick={() => handleOptionSelect(opt)}
-                                                        className="px-4 py-2 text-sm rounded-full font-medium transition-all hover:shadow-lg"
-                                                        style={{
-                                                            backgroundColor: colors.accent,
-                                                            color: colors.headerText
-                                                        }}
-                                                    >
-                                                        {opt.label}
-                                                    </motion.button>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-
-                        {/* Typing Indicator */}
-                        {isTyping && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="flex justify-start"
-                            >
-                                <div
-                                    className="px-4 py-3 rounded-2xl"
-                                    style={{ backgroundColor: colors.secondary, borderRadius: '18px 18px 18px 4px' }}
-                                >
-                                    <div className="flex gap-1">
-                                        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: colors.botText, animationDelay: '0ms' }} />
-                                        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: colors.botText, animationDelay: '150ms' }} />
-                                        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: colors.botText, animationDelay: '300ms' }} />
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Input Area */}
-                    {messages.length > 0 && messages[messages.length - 1]?.inputType &&
-                        ['number', 'text', 'address'].includes(messages[messages.length - 1]?.inputType || '') &&
-                        !isTyping && (
-                            <div
-                                className="p-4 border-t"
-                                style={{ backgroundColor: bgColor, borderColor: borderColor }}
-                            >
-                                <div className="flex gap-2">
-                                    <input
-                                        ref={inputRef}
-                                        type={messages[messages.length - 1]?.inputType === 'number' ? 'number' : 'text'}
-                                        value={inputValue}
-                                        onChange={(e) => setInputValue(e.target.value)}
-                                        onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                                        placeholder={
-                                            messages[messages.length - 1]?.inputType === 'number'
-                                                ? '숫자 입력 (만원)'
-                                                : messages[messages.length - 1]?.inputType === 'address'
-                                                    ? '예: 서울 강남구'
-                                                    : '입력해주세요'
-                                        }
-                                        className="flex-1 px-4 py-3 rounded-xl border outline-none focus:ring-2 transition-all"
-                                        style={{
-                                            backgroundColor: isDark ? '#334155' : '#f8fafc',
-                                            color: isDark ? '#f1f5f9' : '#1e293b',
-                                            borderColor: borderColor
-                                        }}
-                                    />
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={handleSubmit}
-                                        className="px-4 py-3 rounded-xl hover:shadow-lg transition-shadow"
-                                        style={{ backgroundColor: colors.primary, color: colors.headerText }}
-                                    >
-                                        <Send className="w-5 h-5" />
-                                    </motion.button>
-                                </div>
-                            </div>
-                        )}
+                    {/* ChatbotRenderer를 사용하여 템플릿별 UI 렌더링 */}
+                    <ChatbotRenderer
+                        templateId={templateId}
+                        mode={themeMode}
+                        colors={colors}
+                        messages={messages.map(msg => ({
+                            id: msg.id,
+                            type: msg.type,
+                            content: msg.content,
+                            options: msg.options?.map(opt => ({ label: opt.label, value: String(opt.value) })),
+                            inputType: msg.inputType,
+                            multiSelect: msg.multiSelect,
+                            timestamp: msg.timestamp
+                        }))}
+                        inputValue={inputValue}
+                        isTyping={isTyping}
+                        characterName={characterName}
+                        progress={getProgress()}
+                        onInputChange={setInputValue}
+                        onSubmit={handleSubmit}
+                        onOptionSelect={(opt) => handleOptionSelect({ label: opt.label, value: opt.value })}
+                        onClose={onClose}
+                        messagesEndRef={messagesEndRef}
+                        inputRef={inputRef}
+                    />
                 </motion.div>
             </motion.div>
 
