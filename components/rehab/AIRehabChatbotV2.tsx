@@ -226,6 +226,24 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
         }
     }, [isOpen, characterName, messages.length]);
 
+    // 설정 변경 시 채팅 초기화 (Preview 모드에서 즉시 반영 확인용)
+    useEffect(() => {
+        if (disablePortal) { // 에디터/프리뷰 모드일 때만
+            setMessages([]);
+            setCurrentStep('intro');
+            setUserInput({
+                monthlyIncome: 0,
+                familySize: 1,
+                isMarried: false,
+                myAssets: 0,
+                deposit: 0,
+                spouseAssets: 0,
+                totalDebt: 0
+            });
+            hasInitialized.current = false;
+        }
+    }, [interactiveBlockPreset, interactiveBlockConfig, disablePortal]);
+
     // 봇 메시지 추가 (Interactive Block 지원)
     const addBotMessage = useCallback((
         content: string,
