@@ -717,6 +717,89 @@ const Settings: React.FC = () => {
                                     }`} />
                             </button>
                         </div>
+
+                        {/* 프리셋 선택 UI */}
+                        {globalSettings?.rehabChatConfig?.enableFormBlocks && (
+                            <div className="mt-4 space-y-4">
+                                <label className="block text-sm font-bold text-gray-700">프리셋 선택</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                        { value: 'none', label: '없음', desc: '비활성화' },
+                                        { value: 'basic', label: '기본', desc: '연락처 폼만' },
+                                        { value: 'advanced', label: '고급', desc: '모든 블록' },
+                                        { value: 'custom', label: '사용자 정의', desc: '직접 선택' }
+                                    ].map(preset => (
+                                        <button
+                                            key={preset.value}
+                                            onClick={async () => {
+                                                if (!globalSettings) return;
+                                                const existingConfig = globalSettings.rehabChatConfig || {
+                                                    isEnabled: true,
+                                                    displayMode: 'floating' as const,
+                                                    buttonText: 'AI 변제금 확인'
+                                                };
+                                                const newConfig = {
+                                                    ...existingConfig,
+                                                    interactiveBlockPreset: preset.value as 'none' | 'basic' | 'advanced' | 'custom'
+                                                };
+                                                const newSettings = { ...globalSettings, rehabChatConfig: newConfig };
+                                                await saveGlobalSettings(newSettings);
+                                                setGlobalSettings(newSettings);
+                                            }}
+                                            className={`p-3 rounded-lg border-2 text-left transition-all ${globalSettings?.rehabChatConfig?.interactiveBlockPreset === preset.value
+                                                    ? 'border-purple-500 bg-purple-50'
+                                                    : 'border-gray-200 hover:border-gray-300'
+                                                }`}
+                                        >
+                                            <div className="font-bold text-gray-800">{preset.label}</div>
+                                            <div className="text-xs text-gray-500">{preset.desc}</div>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* 사용자 정의 옵션 */}
+                                {globalSettings?.rehabChatConfig?.interactiveBlockPreset === 'custom' && (
+                                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+                                        <div className="text-sm font-bold text-gray-700">세부 설정</div>
+                                        {[
+                                            { key: 'useContactForm', label: '연락처 폼 블록', desc: '이름/전화 입력을 폼으로' },
+                                            { key: 'useMultiSelect', label: '다중 선택 블록', desc: '재산 선택 시 체크박스 UI' },
+                                            { key: 'useDatePicker', label: '날짜 선택기', desc: '날짜 질문에 캘린더 UI' }
+                                        ].map(option => (
+                                            <label key={option.key} className="flex items-center justify-between p-2 bg-white rounded border">
+                                                <div>
+                                                    <div className="font-medium text-gray-800 text-sm">{option.label}</div>
+                                                    <div className="text-xs text-gray-500">{option.desc}</div>
+                                                </div>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={globalSettings?.rehabChatConfig?.interactiveBlockConfig?.[option.key as 'useContactForm' | 'useMultiSelect' | 'useDatePicker'] || false}
+                                                    onChange={async (e) => {
+                                                        if (!globalSettings) return;
+                                                        const existingConfig = globalSettings.rehabChatConfig || {
+                                                            isEnabled: true,
+                                                            displayMode: 'floating' as const,
+                                                            buttonText: 'AI 변제금 확인'
+                                                        };
+                                                        const newConfig = {
+                                                            ...existingConfig,
+                                                            interactiveBlockConfig: {
+                                                                ...(existingConfig.interactiveBlockConfig || {}),
+                                                                [option.key]: e.target.checked
+                                                            }
+                                                        };
+                                                        const newSettings = { ...globalSettings, rehabChatConfig: newConfig };
+                                                        await saveGlobalSettings(newSettings);
+                                                        setGlobalSettings(newSettings);
+                                                    }}
+                                                    className="w-5 h-5 text-purple-600 rounded"
+                                                />
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
 

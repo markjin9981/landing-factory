@@ -635,6 +635,14 @@ export interface RehabChatConfig {
   chatFontFamily?: string; // 채팅창 폰트
   enableFormBlocks?: boolean; // NEW: 모든 템플릿에서 Interactive Block 활성화
 
+  // NEW: Interactive Block 프리셋 설정
+  interactiveBlockPreset?: 'none' | 'basic' | 'advanced' | 'custom';
+  interactiveBlockConfig?: {
+    useContactForm?: boolean;   // 연락처 입력을 폼 블록으로
+    useDatePicker?: boolean;    // 날짜 관련 질문에 날짜 선택기
+    useMultiSelect?: boolean;   // 재산 선택 등에 다중 선택 UI
+  };
+
   // NEW: 버튼 스타일링
   buttonStyle?: {
     backgroundColor?: string;
