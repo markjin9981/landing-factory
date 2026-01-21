@@ -244,6 +244,20 @@ const AdminDashboard: React.FC = () => {
                             <p className="text-xs text-gray-500">상세 접속 로그 및 IP</p>
                         </div>
                     </Link>
+
+                    {/* Policy Manager Link */}
+                    <Link
+                        to="/admin/policy"
+                        className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:border-blue-400 transition-colors flex items-center gap-4 group"
+                    >
+                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg group-hover:bg-indigo-100 transition-colors">
+                            <FileText className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-800">법원 정책 관리</h3>
+                            <p className="text-xs text-gray-500">2026 개정법 및 관할 법원 설정</p>
+                        </div>
+                    </Link>
                 </div>
 
                 <div className="flex flex-col md:flex-row justify-between md:items-end gap-4 mb-6 border-b pb-4">
@@ -283,151 +297,155 @@ const AdminDashboard: React.FC = () => {
                     </Link>
                 </div>
 
-                {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-                    </div>
-                ) : (
-                    <div className="grid gap-6">
-                        {currentConfigs.map((config) => {
-                            const pageStats = statsMap.get(config.id);
-                            return (
-                                <div key={config.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-blue-300 transition-colors">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono font-bold">
-                                                /{config.id}
-                                            </span>
-                                            {getStatusBadge(config.id)}
-                                            <OgStatusBadge id={config.id} expectedTitle={config.title || config.hero?.headline || ''} />
-                                            {pageStats && pageStats.count > 0 && (
-                                                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold">
-                                                    DB {pageStats.count}건
+                {
+                    loading ? (
+                        <div className="flex justify-center items-center py-20">
+                            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                        </div>
+                    ) : (
+                        <div className="grid gap-6">
+                            {currentConfigs.map((config) => {
+                                const pageStats = statsMap.get(config.id);
+                                return (
+                                    <div key={config.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-blue-300 transition-colors">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono font-bold">
+                                                    /{config.id}
                                                 </span>
-                                            )}
+                                                {getStatusBadge(config.id)}
+                                                <OgStatusBadge id={config.id} expectedTitle={config.title || config.hero?.headline || ''} />
+                                                {pageStats && pageStats.count > 0 && (
+                                                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold">
+                                                        DB {pageStats.count}건
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <h3 className="text-lg font-bold text-gray-800 mb-1">{config.title || '(제목 없음)'}</h3>
+                                            <p className="text-sm text-gray-500 line-clamp-1">{config.hero?.headline || '(헤드라인 없음)'}</p>
                                         </div>
-                                        <h3 className="text-lg font-bold text-gray-800 mb-1">{config.title || '(제목 없음)'}</h3>
-                                        <p className="text-sm text-gray-500 line-clamp-1">{config.hero?.headline || '(헤드라인 없음)'}</p>
-                                    </div>
 
-                                    <div className="flex flex-wrap items-center gap-2 md:gap-3 border-t md:border-t-0 pt-4 md:pt-0">
-                                        <button
-                                            onClick={async () => {
-                                                if (confirm(`정말 '${config.title}' 페이지를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.\n(GitHub 배포 파일도 함께 삭제됩니다)`)) {
-                                                    // 1. Delete from Sheet
-                                                    const sheetSuccess = await import('../../services/googleSheetService').then(m => m.deleteLandingConfig(config.id));
+                                        <div className="flex flex-wrap items-center gap-2 md:gap-3 border-t md:border-t-0 pt-4 md:pt-0">
+                                            <button
+                                                onClick={async () => {
+                                                    if (confirm(`정말 '${config.title}' 페이지를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.\n(GitHub 배포 파일도 함께 삭제됩니다)`)) {
+                                                        // 1. Delete from Sheet
+                                                        const sheetSuccess = await import('../../services/googleSheetService').then(m => m.deleteLandingConfig(config.id));
 
-                                                    // 2. Delete from GitHub (Fire and forget, or wait?)
-                                                    // Let's wait to inform user.
-                                                    let message = '';
-                                                    if (sheetSuccess) {
-                                                        message += 'DB(구글 시트)에서 삭제되었습니다.\n';
+                                                        // 2. Delete from GitHub (Fire and forget, or wait?)
+                                                        // Let's wait to inform user.
+                                                        let message = '';
+                                                        if (sheetSuccess) {
+                                                            message += 'DB(구글 시트)에서 삭제되었습니다.\n';
 
-                                                        try {
-                                                            const ghRes = await deleteConfigFromGithub(config.id);
-                                                            if (ghRes.success) {
-                                                                message += 'GitHub 배포 파일도 삭제되었습니다.';
-                                                            } else {
-                                                                message += 'GitHub 삭제 실패: ' + ghRes.message;
+                                                            try {
+                                                                const ghRes = await deleteConfigFromGithub(config.id);
+                                                                if (ghRes.success) {
+                                                                    message += 'GitHub 배포 파일도 삭제되었습니다.';
+                                                                } else {
+                                                                    message += 'GitHub 삭제 실패: ' + ghRes.message;
+                                                                }
+                                                            } catch (e) {
+                                                                message += 'GitHub 연결 오류 (삭제되지 않았을 수 있습니다)';
                                                             }
-                                                        } catch (e) {
-                                                            message += 'GitHub 연결 오류 (삭제되지 않았을 수 있습니다)';
+
+                                                            alert(message);
+                                                            window.location.reload();
+                                                        } else {
+                                                            alert('삭제에 실패했습니다.');
                                                         }
-
-                                                        alert(message);
-                                                        window.location.reload();
-                                                    } else {
-                                                        alert('삭제에 실패했습니다.');
                                                     }
-                                                }
-                                            }}
-                                            className="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 border border-red-200 bg-red-50 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
-                                            title="페이지 삭제"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDuplicate(config)}
-                                            className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                                            title="페이지 복제"
-                                        >
-                                            <Copy className="w-4 h-4 md:mr-2" />
-                                            <span className="hidden md:inline">복제</span>
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                const url = `${window.location.origin}/${config.id}`;
-                                                navigator.clipboard.writeText(url);
-                                                alert('배포 주소가 복사되었습니다.\n' + url);
-                                            }}
-                                            className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                                            title="배포 링크 복사"
-                                        >
-                                            <Link2 className="w-4 h-4 md:mr-2" />
-                                            <span className="hidden md:inline">링크</span>
-                                        </button>
-                                        <Link
-                                            to={`/${config.id}`}
-                                            target="_blank"
-                                            className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                                            title="미리보기"
-                                        >
-                                            <ExternalLink className="w-4 h-4 md:mr-2" />
-                                            <span className="hidden md:inline">미리보기</span>
-                                        </Link>
-                                        <Link
-                                            to={`/admin/editor/${config.id}`}
-                                            className="flex items-center justify-center px-3 py-2 md:px-4 bg-gray-900 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-gray-800 transition-colors"
-                                        >
-                                            <Edit className="w-4 h-4 mr-1 md:mr-2" />
-                                            수정
-                                        </Link>
+                                                }}
+                                                className="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 border border-red-200 bg-red-50 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
+                                                title="페이지 삭제"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDuplicate(config)}
+                                                className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                                title="페이지 복제"
+                                            >
+                                                <Copy className="w-4 h-4 md:mr-2" />
+                                                <span className="hidden md:inline">복제</span>
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const url = `${window.location.origin}/${config.id}`;
+                                                    navigator.clipboard.writeText(url);
+                                                    alert('배포 주소가 복사되었습니다.\n' + url);
+                                                }}
+                                                className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                                title="배포 링크 복사"
+                                            >
+                                                <Link2 className="w-4 h-4 md:mr-2" />
+                                                <span className="hidden md:inline">링크</span>
+                                            </button>
+                                            <Link
+                                                to={`/${config.id}`}
+                                                target="_blank"
+                                                className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                                title="미리보기"
+                                            >
+                                                <ExternalLink className="w-4 h-4 md:mr-2" />
+                                                <span className="hidden md:inline">미리보기</span>
+                                            </Link>
+                                            <Link
+                                                to={`/admin/editor/${config.id}`}
+                                                className="flex items-center justify-center px-3 py-2 md:px-4 bg-gray-900 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-gray-800 transition-colors"
+                                            >
+                                                <Edit className="w-4 h-4 mr-1 md:mr-2" />
+                                                수정
+                                            </Link>
+                                        </div>
                                     </div>
+                                );
+                            })}
+                            {configs.length === 0 && (
+                                <div className="text-center py-20 bg-gray-100 rounded-xl border-dashed border-2 border-gray-300">
+                                    <p className="text-gray-500">생성된 랜딩페이지가 없습니다.</p>
                                 </div>
-                            );
-                        })}
-                        {configs.length === 0 && (
-                            <div className="text-center py-20 bg-gray-100 rounded-xl border-dashed border-2 border-gray-300">
-                                <p className="text-gray-500">생성된 랜딩페이지가 없습니다.</p>
-                            </div>
-                        )}
-                    </div>
-                )}
+                            )}
+                        </div>
+                    )
+                }
                 {/* Pagination Controls */}
-                {!loading && configs.length > 0 && (
-                    <div className="mt-8 flex justify-center items-center gap-2">
-                        <button
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
-                            className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
-                        >
-                            이전
-                        </button>
-
-                        {Array.from({ length: Math.ceil(configs.length / ITEMS_PER_PAGE) }, (_, i) => i + 1).map(p => (
+                {
+                    !loading && configs.length > 0 && (
+                        <div className="mt-8 flex justify-center items-center gap-2">
                             <button
-                                key={p}
-                                onClick={() => setCurrentPage(p)}
-                                className={`px-3 py-1 rounded border ${currentPage === p
-                                    ? 'bg-blue-600 text-white border-blue-600'
-                                    : 'bg-white border-gray-300 hover:bg-gray-50'
-                                    }`}
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
                             >
-                                {p}
+                                이전
                             </button>
-                        ))}
 
-                        <button
-                            onClick={() => setCurrentPage(p => Math.min(Math.ceil(configs.length / ITEMS_PER_PAGE), p + 1))}
-                            disabled={currentPage === Math.ceil(configs.length / ITEMS_PER_PAGE)}
-                            className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
-                        >
-                            다음
-                        </button>
-                    </div>
-                )}
-            </main>
-        </div>
+                            {Array.from({ length: Math.ceil(configs.length / ITEMS_PER_PAGE) }, (_, i) => i + 1).map(p => (
+                                <button
+                                    key={p}
+                                    onClick={() => setCurrentPage(p)}
+                                    className={`px-3 py-1 rounded border ${currentPage === p
+                                        ? 'bg-blue-600 text-white border-blue-600'
+                                        : 'bg-white border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {p}
+                                </button>
+                            ))}
+
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(Math.ceil(configs.length / ITEMS_PER_PAGE), p + 1))}
+                                disabled={currentPage === Math.ceil(configs.length / ITEMS_PER_PAGE)}
+                                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                            >
+                                다음
+                            </button>
+                        </div>
+                    )
+                }
+            </main >
+        </div >
     );
 };
 
