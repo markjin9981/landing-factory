@@ -1345,12 +1345,14 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                             options: msg.options?.map(opt => ({ label: opt.label, value: String(opt.value) })),
                             inputType: msg.inputType,
                             multiSelect: msg.multiSelect,
-                            timestamp: msg.timestamp
+                            timestamp: msg.timestamp,
+                            interactiveBlock: msg.interactiveBlock,
+                            blockState: msg.blockState
                         }))}
                         inputValue={inputValue}
                         isTyping={isTyping}
                         characterName={characterName}
-                        characterImage={characterImage} // Pass Image
+                        characterImage={characterImage}
                         progress={getProgress()}
                         onInputChange={setInputValue}
                         onSubmit={handleSubmit}
@@ -1358,11 +1360,11 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         onClose={onClose}
                         messagesEndRef={messagesEndRef}
                         inputRef={inputRef}
-                        enableFormBlocks={enableFormBlocks || interactiveBlockPreset !== 'none'}
                         onBlockSubmit={handleBlockSubmit}
+                        enableFormBlocks={enableFormBlocks || interactiveBlockPreset !== 'none'}
                         onBlockCancel={(id) => {
                             setMessages(prev => prev.map(msg =>
-                                msg.id === id ? { ...msg, blockState: { ...msg.blockState, status: 'pending' } as any } : msg
+                                msg.id === id ? { ...msg, blockState: { status: 'cancelled' } } : msg
                             ));
                         }}
                     />

@@ -98,7 +98,7 @@ export interface InteractiveBlockConfig {
 }
 
 // 블록 상태
-export type InteractiveBlockStatus = 'pending' | 'active' | 'completed' | 'error';
+export type InteractiveBlockStatus = 'pending' | 'active' | 'completed' | 'cancelled' | 'error';
 
 export interface InteractiveBlockState {
     status: InteractiveBlockStatus;
