@@ -1756,68 +1756,7 @@ const LandingEditor: React.FC = () => {
                                                                 )}
                                                             </div>
 
-                                                            {/* Interactive Block 프리셋 설정 */}
-                                                            <div className="mt-4 pt-4 border-t border-gray-100">
-                                                                <h5 className="text-xs font-bold text-gray-700 mb-3 flex items-center gap-2">
-                                                                    <Sparkles className="w-3 h-3 text-purple-500" />
-                                                                    Interactive Block (폼-혼합형)
-                                                                </h5>
 
-                                                                <label className="flex items-center gap-2 text-xs text-gray-700 mb-3">
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={config.rehabChatConfig?.enableFormBlocks || false}
-                                                                        onChange={(e) => updateNested(['rehabChatConfig', 'enableFormBlocks'], e.target.checked)}
-                                                                        className="rounded text-purple-600"
-                                                                    />
-                                                                    Interactive Block 활성화
-                                                                </label>
-
-                                                                {config.rehabChatConfig?.enableFormBlocks && (
-                                                                    <div className="space-y-3">
-                                                                        <div className="grid grid-cols-2 gap-2">
-                                                                            {[
-                                                                                { value: 'none', label: '없음', desc: '비활성화' },
-                                                                                { value: 'basic', label: '기본', desc: '연락처 폼만' },
-                                                                                { value: 'advanced', label: '고급', desc: '모든 블록' },
-                                                                                { value: 'custom', label: '사용자 정의', desc: '직접 선택' }
-                                                                            ].map(preset => (
-                                                                                <button
-                                                                                    key={preset.value}
-                                                                                    onClick={() => updateNested(['rehabChatConfig', 'interactiveBlockPreset'], preset.value)}
-                                                                                    className={`p-2 rounded border text-left text-xs ${config.rehabChatConfig?.interactiveBlockPreset === preset.value
-                                                                                        ? 'border-purple-500 bg-purple-50'
-                                                                                        : 'border-gray-200 hover:border-gray-300'
-                                                                                        }`}
-                                                                                >
-                                                                                    <div className="font-bold text-gray-800">{preset.label}</div>
-                                                                                    <div className="text-[10px] text-gray-500">{preset.desc}</div>
-                                                                                </button>
-                                                                            ))}
-                                                                        </div>
-
-                                                                        {config.rehabChatConfig?.interactiveBlockPreset === 'custom' && (
-                                                                            <div className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
-                                                                                {[
-                                                                                    { key: 'useContactForm', label: '연락처 폼 블록' },
-                                                                                    { key: 'useMultiSelect', label: '다중 선택 블록' },
-                                                                                    { key: 'useDatePicker', label: '날짜 선택기' }
-                                                                                ].map(option => (
-                                                                                    <label key={option.key} className="flex items-center gap-2 text-xs">
-                                                                                        <input
-                                                                                            type="checkbox"
-                                                                                            checked={config.rehabChatConfig?.interactiveBlockConfig?.[option.key as 'useContactForm' | 'useMultiSelect' | 'useDatePicker'] || false}
-                                                                                            onChange={(e) => updateNested(['rehabChatConfig', 'interactiveBlockConfig', option.key], e.target.checked)}
-                                                                                            className="rounded text-purple-600"
-                                                                                        />
-                                                                                        {option.label}
-                                                                                    </label>
-                                                                                ))}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
