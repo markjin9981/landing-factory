@@ -571,18 +571,31 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                                     )}
 
                                     {/* Interactive Block (폼-혼합형) */}
-                                    {(layout?.hasFormBlocks || enableFormBlocks) && msg.interactiveBlock && msg.blockState && onBlockSubmit && (
-                                        <div className="mt-3">
-                                            <InteractiveBlock
-                                                config={msg.interactiveBlock}
-                                                state={msg.blockState}
-                                                colors={colors}
-                                                isDark={isDark}
-                                                onSubmit={(value) => onBlockSubmit(msg.id, value)}
-                                                onCancel={onBlockCancel ? () => onBlockCancel(msg.id) : undefined}
-                                            />
-                                        </div>
-                                    )}
+                                    {(() => {
+                                        const shouldRender = (layout?.hasFormBlocks || enableFormBlocks) && msg.interactiveBlock && msg.blockState && onBlockSubmit;
+                                        if (msg.interactiveBlock) {
+                                            console.log(`[Renderer] Msg ${msg.id} Block Check:`, {
+                                                shouldRender,
+                                                hasFormBlocks: layout?.hasFormBlocks,
+                                                enableFormBlocks,
+                                                msgHasBlock: !!msg.interactiveBlock,
+                                                msgState: msg.blockState,
+                                                hasSubmitHandler: !!onBlockSubmit
+                                            });
+                                        }
+                                        return shouldRender ? (
+                                            <div className="mt-3">
+                                                <InteractiveBlock
+                                                    config={msg.interactiveBlock!}
+                                                    state={msg.blockState!}
+                                                    colors={colors}
+                                                    isDark={isDark}
+                                                    onSubmit={(value) => onBlockSubmit!(msg.id, value)}
+                                                    onCancel={onBlockCancel ? () => onBlockCancel(msg.id) : undefined}
+                                                />
+                                            </div>
+                                        ) : null;
+                                    })()}
 
                                     {/* 타임스탬프 (aside 위치) */}
                                     {layout?.timeStampPosition === 'aside' && msg.isLast && (
