@@ -149,7 +149,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
 
     // Interactive Block 사용 여부 확인
     const shouldUseBlock = useCallback((blockType: 'form' | 'multiSelect' | 'datePicker') => {
-        if (!enableFormBlocks) return false;
+
 
         switch (interactiveBlockPreset) {
             case 'none': return false;
