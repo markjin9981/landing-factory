@@ -274,6 +274,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           onOpen={() => { }}
           onClose={() => { }}
           isStandalone={true} // New Prop to enforce full screen / no close button
+          disablePortal={!!previewConfig}
         />
       </div>
     );

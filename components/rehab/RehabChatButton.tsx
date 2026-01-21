@@ -26,6 +26,9 @@ interface RehabChatButtonProps {
 
     // NEW: Standalone Mode
     isStandalone?: boolean;
+
+    // NEW: Disable Portal (For Admin Preview)
+    disablePortal?: boolean;
 }
 
 const DEFAULT_CONFIG: RehabChatConfig = {
@@ -46,7 +49,8 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
     isOpen: propIsOpen,
     onClose: propOnClose,
     onOpen: propOnOpen,
-    isStandalone = false
+    isStandalone = false,
+    disablePortal = false
 }) => {
     const [internalIsOpen, setInternalIsOpen] = useState(false);
 
@@ -153,6 +157,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                             interactiveBlockConfig={config.interactiveBlockConfig}
                             introConfig={config.introConfig} // Forward Intro Config
                             isStandalone={isStandalone} // Forward Standalone state
+                            disablePortal={disablePortal} // Forward Disable Portal
                         />
                     )}
                 </AnimatePresence>
@@ -208,6 +213,7 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                         interactiveBlockConfig={config.interactiveBlockConfig}
                         introConfig={config.introConfig} // Forward Intro Config
                         isStandalone={isStandalone} // Forward Standalone state
+                        disablePortal={disablePortal} // Forward Disable Portal
                     />
                 )}
             </AnimatePresence>

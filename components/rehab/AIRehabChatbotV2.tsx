@@ -110,6 +110,7 @@ interface AIRehabChatbotV2Props {
     // NEW: Intro & Standalone
     introConfig?: RehabChatConfig['introConfig'];
     isStandalone?: boolean;
+    disablePortal?: boolean; // NEW: For Admin Preview
 }
 
 const ASSET_LABELS: Record<AssetType, string> = {
@@ -135,7 +136,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     interactiveBlockPreset = 'none',
     interactiveBlockConfig,
     introConfig, // NEW prop
-    isStandalone = false // NEW prop from RehabChatButton
+    isStandalone = false, // NEW prop from RehabChatButton
+    disablePortal = false // NEW prop
 }) => {
     // 템플릿 색상 계산
     const templateInfo = getTemplateById(templateId);
@@ -1236,7 +1238,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     const bgColor = isDark ? '#1e293b' : '#ffffff';
     const borderColor = isDark ? '#374151' : '#e5e7eb';
 
-    return createPortal(
+    // Portal 렌더링 또는 직접 렌더링
+    const content = (
         <>
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -1399,9 +1402,14 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     onClose={() => setShowResult(false)}
                 />
             )}
-        </>,
-        document.body
+        </>
     );
+
+    if (disablePortal) {
+        return content;
+    }
+
+    return createPortal(content, document.body);
 };
 
 export default AIRehabChatbotV2;
