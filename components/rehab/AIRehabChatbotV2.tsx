@@ -99,6 +99,7 @@ interface AIRehabChatbotV2Props {
     themeMode?: ThemeMode;
     customColors?: Partial<ChatbotColorPalette>;
     chatFontFamily?: string;
+    enableFormBlocks?: boolean; // NEW: 모든 템플릿에서 Interactive Block 활성화
 }
 
 const ASSET_LABELS: Record<AssetType, string> = {
@@ -119,7 +120,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     templateId = 'classic',
     themeMode = 'dark',
     customColors,
-    chatFontFamily
+    chatFontFamily,
+    enableFormBlocks = false
 }) => {
     // 템플릿 색상 계산
     const templateInfo = getTemplateById(templateId);

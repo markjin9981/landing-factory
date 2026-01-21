@@ -54,6 +54,7 @@ interface ChatbotRendererProps {
     isComposerLocked?: boolean;
     onBlockSubmit?: (messageId: string, value: string | string[] | Date) => void;
     onBlockCancel?: (messageId: string) => void;
+    enableFormBlocks?: boolean; // NEW: 모든 템플릿에서 Interactive Block 활성화
 }
 
 const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
@@ -73,7 +74,8 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
     inputRef,
     isComposerLocked,
     onBlockSubmit,
-    onBlockCancel
+    onBlockCancel,
+    enableFormBlocks = false
 }) => {
     const isDark = mode === 'dark';
     const template = getTemplateById(templateId);

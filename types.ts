@@ -633,6 +633,7 @@ export interface RehabChatConfig {
     botText?: string;
   };
   chatFontFamily?: string; // 채팅창 폰트
+  enableFormBlocks?: boolean; // NEW: 모든 템플릿에서 Interactive Block 활성화
 
   // NEW: 버튼 스타일링
   buttonStyle?: {
