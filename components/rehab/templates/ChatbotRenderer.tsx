@@ -484,24 +484,31 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                                 style={{ position: 'relative' }}
                             >
                                 {/* 타임레일 노드 */}
-                                {hasTimeline && (
+                                {hasTimeline && msg.isFirst && (
                                     <div
-                                        className="absolute flex items-center"
+                                        className="absolute flex flex-col items-center"
                                         style={{
-                                            left: '-36px',
-                                            top: '12px'
+                                            left: '-44px',
+                                            top: '0px',
+                                            width: '40px'
                                         }}
                                     >
-                                        <div
-                                            className="w-3 h-3 rounded-full"
-                                            style={{ backgroundColor: colors.accent }}
-                                        />
                                         <span
-                                            className="ml-1 text-xs"
-                                            style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                                            className="text-xs whitespace-nowrap mb-1"
+                                            style={{
+                                                color: isDark ? '#94a3b8' : '#64748b',
+                                                fontSize: '10px'
+                                            }}
                                         >
                                             {new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
                                         </span>
+                                        <div
+                                            className="w-2.5 h-2.5 rounded-full border-2"
+                                            style={{
+                                                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                                                borderColor: colors.accent
+                                            }}
+                                        />
                                     </div>
                                 )}
 
