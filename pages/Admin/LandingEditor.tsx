@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LandingConfig, FormField, TextStyle, FloatingBanner, DetailContent, CustomFont, GlobalSettings, FormStyle } from '../../types';
 import LandingPage from '../LandingPage';
 import { saveLandingConfig, fetchLandingConfigById, uploadImageToDrive, fetchGlobalSettings, manageVirtualData } from '../../services/googleSheetService';
-import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check, Activity, Database, ShieldCheck, Pencil, TriangleAlert } from 'lucide-react';
+import { Save, Copy, ArrowLeft, Trash2, PlusCircle, Smartphone, Monitor, Image as ImageIcon, AlignLeft, CheckSquare, Upload, Type, Palette, ArrowUp, ArrowDown, Youtube, FileText, Megaphone, X, Plus, Layout, AlertCircle, Maximize, Globe, Share2, Anchor, Send, Loader2, CheckCircle, MapPin, Clock, MessageCircle, ExternalLink, RefreshCw, Menu, Grid, List, ListOrdered, Flag, Instagram, Star, Settings, Sparkles, Check, Activity, Database, ShieldCheck, Pencil, TriangleAlert, PlayCircle } from 'lucide-react';
 import GoogleDrivePicker from '../../components/GoogleDrivePicker';
 import { uploadImageToGithub, deployConfigsToGithub, getGithubToken, setGithubToken } from '../../services/githubService';
 import { compressImage } from '../../utils/imageCompression';
@@ -1988,6 +1988,24 @@ const LandingEditor: React.FC = () => {
                                                     <div className="text-base font-bold text-gray-900">스텝형 (Dynamic Step)</div>
                                                     <div className="text-sm text-gray-600 mt-1">
                                                         단계별 입력 폼 (페이지 전환)
+                                                    </div>
+                                                </button>
+
+                                                {/* NEW: Chatbot Standalone Mode */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateNested(['template'], 'chatbot')}
+                                                    className={`p-4 border-2 rounded-lg text-left transition-all min-h-[80px] flex flex-col justify-center ${config.template === 'chatbot'
+                                                        ? 'border-purple-600 bg-purple-50'
+                                                        : 'border-gray-200 hover:border-gray-300'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <div className="text-base font-bold text-gray-900">AI 챗봇 전용</div>
+                                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">NEW</span>
+                                                    </div>
+                                                    <div className="text-sm text-gray-600">
+                                                        랜딩페이지 없이 바로 챗봇 실행
                                                     </div>
                                                 </button>
                                             </div>
@@ -7351,6 +7369,94 @@ const LandingEditor: React.FC = () => {
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    </div>
+
+                                                    {/* NEW: 챗봇 인트로 설정 */}
+                                                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded p-3 space-y-3">
+                                                        <div className="flex items-center justify-between">
+                                                            <h4 className="text-xs font-bold text-purple-700 flex items-center gap-1">
+                                                                <PlayCircle className="w-3 h-3" /> 인트로(Intro) 설정
+                                                            </h4>
+                                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" className="sr-only peer"
+                                                                    checked={config.rehabChatConfig?.introConfig?.useIntro || false}
+                                                                    onChange={(e) => updateNested(['rehabChatConfig', 'introConfig', 'useIntro'], e.target.checked)}
+                                                                />
+                                                                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                                                            </label>
+                                                        </div>
+
+                                                        {config.rehabChatConfig?.introConfig?.useIntro && (
+                                                            <div className="space-y-3">
+                                                                <div className="flex gap-2">
+                                                                    {/* 미디어 타입 선택 */}
+                                                                    <div className="flex bg-white rounded border p-1">
+                                                                        {[
+                                                                            { id: 'image', label: '이미지', icon: <ImageIcon className="w-3 h-3" /> },
+                                                                            { id: 'youtube', label: '유튜브/영상', icon: <Youtube className="w-3 h-3" /> }
+                                                                        ].map(type => (
+                                                                            <button
+                                                                                key={type.id}
+                                                                                onClick={() => updateNested(['rehabChatConfig', 'introConfig', 'mediaType'], type.id)}
+                                                                                className={`flex items-center gap-1 px-2 py-1 text-[10px] rounded ${config.rehabChatConfig?.introConfig?.mediaType === type.id ? 'bg-purple-100 text-purple-700 font-bold' : 'text-gray-500 hover:bg-gray-50'}`}
+                                                                            >
+                                                                                {type.icon} {type.label}
+                                                                            </button>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+
+                                                                {config.rehabChatConfig?.introConfig?.mediaType === 'image' ? (
+                                                                    <div className="space-y-1">
+                                                                        <label className="text-[10px] text-gray-500 block">인트로 이미지</label>
+                                                                        <div className="flex gap-2 items-center">
+                                                                            <button
+                                                                                onClick={() => openImagePicker((url) => updateNested(['rehabChatConfig', 'introConfig', 'mediaUrl'], url))}
+                                                                                className="flex-1 bg-white border border-gray-300 rounded p-2 text-xs hover:bg-gray-100 flex items-center justify-center gap-1 text-gray-600"
+                                                                            >
+                                                                                <Upload className="w-3 h-3" /> 업로드
+                                                                            </button>
+                                                                            {config.rehabChatConfig?.introConfig?.mediaUrl && (
+                                                                                <button
+                                                                                    onClick={() => updateNested(['rehabChatConfig', 'introConfig', 'mediaUrl'], '')}
+                                                                                    className="px-2 py-2 border border-red-300 text-red-500 rounded hover:bg-red-50"
+                                                                                >
+                                                                                    <X className="w-3 h-3" />
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                        {config.rehabChatConfig?.introConfig?.mediaUrl && (
+                                                                            <div className="mt-1 w-full h-24 rounded bg-gray-100 overflow-hidden relative border">
+                                                                                <img src={config.rehabChatConfig.introConfig.mediaUrl} className="w-full h-full object-cover" alt="인트로" />
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="space-y-1">
+                                                                        <label className="text-[10px] text-gray-500 block">유튜브/비디오 URL</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            className="w-full border rounded p-2 text-xs"
+                                                                            placeholder="https://youtu.be/..."
+                                                                            value={config.rehabChatConfig?.introConfig?.mediaUrl || ''}
+                                                                            onChange={(e) => updateNested(['rehabChatConfig', 'introConfig', 'mediaUrl'], e.target.value)}
+                                                                        />
+                                                                        <p className="text-[10px] text-gray-400">유튜브 링크 또는 mp4 파일 URL을 입력하세요.</p>
+                                                                    </div>
+                                                                )}
+
+                                                                <div className="space-y-1">
+                                                                    <label className="text-[10px] text-gray-500 block">인트로 메시지 (선택)</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        className="w-full border rounded p-2 text-xs"
+                                                                        placeholder="예: AI 변제금 진단을 시작합니다."
+                                                                        value={config.rehabChatConfig?.introConfig?.message || ''}
+                                                                        onChange={(e) => updateNested(['rehabChatConfig', 'introConfig', 'message'], e.target.value)}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
 
                                                     {/* 🆕 버튼 배경 이미지 */}

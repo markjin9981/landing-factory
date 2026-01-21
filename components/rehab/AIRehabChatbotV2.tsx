@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Bot, Check, AlertCircle } from 'lucide-react';
 import { calculateRepayment, RehabUserInput, RehabCalculationResult, formatCurrency } from '../../services/calculationService';
 import { DEFAULT_POLICY_CONFIG_2026 } from '../../config/PolicyConfig';
+import { RehabChatConfig } from '../../types';
 import RehabResultReport from './RehabResultReport';
 import ChatbotRenderer from './templates/ChatbotRenderer';
 import { ChatbotTemplateId, ThemeMode, ChatbotColorPalette, getTemplateById, DEFAULT_DARK_PALETTE, DEFAULT_LIGHT_PALETTE, CHATBOT_TEMPLATES, InteractiveBlockConfig, InteractiveBlockState } from './templates/ChatbotTemplateConfig';
@@ -106,6 +107,9 @@ interface AIRehabChatbotV2Props {
         useDatePicker?: boolean;
         useMultiSelect?: boolean;
     };
+    // NEW: Intro & Standalone
+    introConfig?: RehabChatConfig['introConfig'];
+    isStandalone?: boolean;
 }
 
 const ASSET_LABELS: Record<AssetType, string> = {
@@ -129,7 +133,9 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     chatFontFamily,
     enableFormBlocks = false,
     interactiveBlockPreset = 'none',
-    interactiveBlockConfig
+    interactiveBlockConfig,
+    introConfig, // NEW prop
+    isStandalone = false // NEW prop from RehabChatButton
 }) => {
     // 템플릿 색상 계산
     const templateInfo = getTemplateById(templateId);
@@ -163,6 +169,10 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
             default: return false;
         }
     }, [enableFormBlocks, interactiveBlockPreset, interactiveBlockConfig]);
+
+    // Intro State
+    const [showIntro, setShowIntro] = useState(!!introConfig?.useIntro && !!introConfig?.mediaUrl);
+
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [currentStep, setCurrentStep] = useState<ChatStep>('intro');
     const [userInput, setUserInput] = useState<Partial<RehabUserInput>>({
@@ -1278,6 +1288,108 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     />
                 </motion.div>
             </motion.div>
+
+            {/* Intro Overlay */}
+            {showIntro && introConfig && (
+                <div className="absolute inset-0 z-50 bg-white flex flex-col animate-fade-in">
+                    <div className="flex-1 relative bg-gray-900 flex items-center justify-center overflow-hidden">
+                        {introConfig.mediaType === 'image' ? (
+                            <img
+                                src={introConfig.mediaUrl}
+                                alt="Intro"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full">
+                                {/* YouTube or Video Embed */}
+                                {introConfig.mediaUrl.includes('youtu') ? (
+                                    <iframe
+                                        src={`https://www.youtube.com/embed/${introConfig.mediaUrl.split('/').pop()?.replace('watch?v=', '')}?autoplay=1&controls=0&modestbranding=1&rel=0`}
+                                        className="w-full h-full"
+                                        allow="autoplay; encrypted-media"
+                                        allowFullScreen
+                                    />
+                                ) : (
+                                    <video
+                                        src={introConfig.mediaUrl}
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                        className="w-full h-full object-cover"
+                                    />
+                                )}
+                            </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+                        <div className="absolute bottom-10 left-0 w-full px-6 text-center pb-20">
+                            {introConfig.message && (
+                                <h2 className="text-white text-xl font-bold mb-6 drop-shadow-lg animate-slide-up">
+                                    {introConfig.message}
+                                </h2>
+                            )}
+                            <button
+                                onClick={() => setShowIntro(false)}
+                                className="w-full py-4 bg-purple-600 text-white font-bold rounded-xl shadow-xl active:scale-95 transition-all text-lg animate-bounce-subtle"
+                            >
+                                상담 시작하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Intro Overlay */}
+            {showIntro && introConfig && (
+                <div className="absolute inset-0 z-50 bg-white flex flex-col animate-fade-in">
+                    <div className="flex-1 relative bg-gray-900 flex items-center justify-center overflow-hidden">
+                        {introConfig.mediaType === 'image' ? (
+                            <img
+                                src={introConfig.mediaUrl}
+                                alt="Intro"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full">
+                                {/* YouTube or Video Embed */}
+                                {introConfig.mediaUrl.includes('youtu') ? (
+                                    <iframe
+                                        src={`https://www.youtube.com/embed/${introConfig.mediaUrl.split('/').pop()?.replace('watch?v=', '')}?autoplay=1&controls=0&modestbranding=1&rel=0`}
+                                        className="w-full h-full"
+                                        allow="autoplay; encrypted-media"
+                                        allowFullScreen
+                                    />
+                                ) : (
+                                    <video
+                                        src={introConfig.mediaUrl}
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                        className="w-full h-full object-cover"
+                                    />
+                                )}
+                            </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+                        <div className="absolute bottom-10 left-0 w-full px-6 text-center pb-20">
+                            {introConfig.message && (
+                                <h2 className="text-white text-xl font-bold mb-6 drop-shadow-lg animate-slide-up">
+                                    {introConfig.message}
+                                </h2>
+                            )}
+                            <button
+                                onClick={() => setShowIntro(false)}
+                                className="w-full py-4 bg-purple-600 text-white font-bold rounded-xl shadow-xl active:scale-95 transition-all text-lg animate-bounce-subtle"
+                            >
+                                상담 시작하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Result Modal */}
             {showResult && result && (

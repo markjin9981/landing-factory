@@ -23,6 +23,9 @@ interface RehabChatButtonProps {
     isOpen?: boolean;
     onClose?: () => void;
     onOpen?: () => void; // Parent trigger
+
+    // NEW: Standalone Mode
+    isStandalone?: boolean;
 }
 
 const DEFAULT_CONFIG: RehabChatConfig = {
@@ -42,7 +45,8 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
     forceMode,
     isOpen: propIsOpen,
     onClose: propOnClose,
-    onOpen: propOnOpen
+    onOpen: propOnOpen,
+    isStandalone = false
 }) => {
     const [internalIsOpen, setInternalIsOpen] = useState(false);
 
@@ -144,9 +148,11 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                             themeMode={config.themeMode || 'dark'}
                             customColors={config.customColors}
                             chatFontFamily={config.chatFontFamily}
-                            enableFormBlocks={config.enableFormBlocks}
+                            enableFormBlocks={config.interactiveBlockConfig?.useContactForm || config.interactiveBlockConfig?.useMultiSelect}
                             interactiveBlockPreset={config.interactiveBlockPreset}
                             interactiveBlockConfig={config.interactiveBlockConfig}
+                            introConfig={config.introConfig} // Forward Intro Config
+                            isStandalone={isStandalone} // Forward Standalone state
                         />
                     )}
                 </AnimatePresence>
@@ -197,9 +203,11 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                         themeMode={config.themeMode || 'dark'}
                         customColors={config.customColors}
                         chatFontFamily={config.chatFontFamily}
-                        enableFormBlocks={config.enableFormBlocks}
+                        enableFormBlocks={config.interactiveBlockConfig?.useContactForm || config.interactiveBlockConfig?.useMultiSelect}
                         interactiveBlockPreset={config.interactiveBlockPreset}
                         interactiveBlockConfig={config.interactiveBlockConfig}
+                        introConfig={config.introConfig} // Forward Intro Config
+                        isStandalone={isStandalone} // Forward Standalone state
                     />
                 )}
             </AnimatePresence>

@@ -263,6 +263,22 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
     );
   }
 
+  // NEW: Chatbot Standalone Mode
+  if (config.template === 'chatbot') {
+    return (
+      <div className="w-full h-screen bg-white">
+        <PixelTracker config={config.pixelConfig} />
+        <RehabChatButton
+          config={config.rehabChatConfig || { isEnabled: true, displayMode: 'embedded', buttonText: '상담 시작' }}
+          isOpen={true} // Always open
+          onOpen={() => { }}
+          onClose={() => { }}
+          isStandalone={true} // New Prop to enforce full screen / no close button
+        />
+      </div>
+    );
+  }
+
   const { hero, formConfig, theme, detailContent, banners, footer,
     layoutMode = 'mobile', navigation, gallery, board, snsConfig, location, features
   } = config;

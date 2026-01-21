@@ -643,6 +643,14 @@ export interface RehabChatConfig {
     useMultiSelect?: boolean;   // 재산 선택 등에 다중 선택 UI
   };
 
+  // NEW: 인트로 설정
+  introConfig?: {
+    useIntro: boolean;
+    mediaType: 'image' | 'youtube';
+    mediaUrl: string;
+    message?: string;
+  };
+
   // NEW: 버튼 스타일링
   buttonStyle?: {
     backgroundColor?: string;
@@ -776,7 +784,7 @@ export interface LandingConfig {
   footer?: FooterSection; // New Footer Section
 
   // --- NEW FEATURES (Website Mode) ---
-  template?: 'standard' | 'dynamic_step'; // New: Template Selection
+  template?: 'standard' | 'dynamic_step' | 'chatbot'; // New: Template Selection
   steps?: DynamicStepItem[]; // New: Step Builder Configuration
   layoutMode?: 'mobile' | 'full'; // Default 'mobile'
 
