@@ -217,6 +217,28 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
         if (isOpen && !hasInitialized.current && messages.length === 0) {
             hasInitialized.current = true;
             setTimeout(() => {
+                // [PREVIEW MODE] 에디터에서 Interactive Block이 활성화된 경우 즉시 보여줌
+                if (disablePortal && shouldUseBlock('form')) {
+                    addBotMessage(
+                        `[미리보기 모드] \n설정하신 '폼-혼합형' 블록입니다.\n\n* 실제 사용 시에는 대화 마지막 단계에서, 상담원이 정보를 요청할 때 표시됩니다.`,
+                        undefined,
+                        'text',
+                        undefined,
+                        {
+                            type: 'contact_input',
+                            title: '연락처 입력',
+                            description: '정확한 분석 결과를 위해 성함과 연락처를 입력해주세요.',
+                            contactType: 'phone',
+                            includeName: true,
+                            placeholder: '010-0000-0000',
+                            buttonLabel: '결과 확인하기',
+                            required: true
+                        }
+                    );
+                    return;
+                }
+
+                // [DEFAULT] 기본 인트로 메시지
                 addBotMessage(
                     `안녕하세요! 저는 AI 법률비서 '${characterName}'입니다. 🤖\n\n3분 만에 당신의 빚이 얼마나 줄어들 수 있는지 계산해 드릴게요.\n\n비밀은 100% 보장되니 안심하세요!`,
                     [{ label: '시작하기', value: 'start' }],
@@ -224,7 +246,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 );
             }, 500);
         }
-    }, [isOpen, characterName, messages.length]);
+    }, [isOpen, characterName, messages.length, disablePortal, shouldUseBlock]);
 
     // 설정 변경 시 채팅 초기화 (Preview 모드에서 즉시 반영 확인용)
     useEffect(() => {
