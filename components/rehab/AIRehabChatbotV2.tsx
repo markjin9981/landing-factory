@@ -18,7 +18,7 @@ import { calculateRepayment, RehabUserInput, RehabCalculationResult, formatCurre
 import { DEFAULT_POLICY_CONFIG_2026 } from '../../config/PolicyConfig';
 import RehabResultReport from './RehabResultReport';
 import ChatbotRenderer from './templates/ChatbotRenderer';
-import { ChatbotTemplateId, ThemeMode, ChatbotColorPalette, getTemplateById, DEFAULT_DARK_PALETTE, DEFAULT_LIGHT_PALETTE, CHATBOT_TEMPLATES } from './templates/ChatbotTemplateConfig';
+import { ChatbotTemplateId, ThemeMode, ChatbotColorPalette, getTemplateById, DEFAULT_DARK_PALETTE, DEFAULT_LIGHT_PALETTE, CHATBOT_TEMPLATES, InteractiveBlockConfig, InteractiveBlockState } from './templates/ChatbotTemplateConfig';
 
 // 대화 메시지 타입
 interface ChatMessage {
@@ -29,6 +29,9 @@ interface ChatMessage {
     options?: ChatOption[];
     inputType?: InputType;
     multiSelect?: boolean;
+    // Interactive Block (폼-혼합형)
+    interactiveBlock?: InteractiveBlockConfig;
+    blockState?: InteractiveBlockState;
 }
 
 interface ChatOption {
@@ -175,12 +178,13 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
         }
     }, [isOpen, characterName, messages.length]);
 
-    // 봇 메시지 추가
+    // 봇 메시지 추가 (Interactive Block 지원)
     const addBotMessage = useCallback((
         content: string,
         options?: ChatOption[],
         inputType?: InputType,
-        multiSelect?: boolean
+        multiSelect?: boolean,
+        interactiveBlock?: InteractiveBlockConfig
     ) => {
         setIsTyping(true);
         setTimeout(() => {
@@ -191,7 +195,9 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 timestamp: new Date(),
                 options,
                 inputType,
-                multiSelect
+                multiSelect,
+                interactiveBlock,
+                blockState: interactiveBlock ? { status: 'active' } : undefined
             };
             setMessages(prev => [...prev, newMessage]);
             setIsTyping(false);
