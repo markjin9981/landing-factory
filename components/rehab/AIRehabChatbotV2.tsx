@@ -1146,7 +1146,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 calculateResult({ ...userInput, phone: value as string } as RehabUserInput);
                 break;
         }
-    }, [userInput, addBotMessage, selectedAssets, currentAssetIndex, assetValues, spouseSelectedAssets, currentSpouseAssetIndex, spouseAssetValues]);
+    }, [userInput, addBotMessage, selectedAssets, currentAssetIndex, assetValues, spouseSelectedAssets, currentSpouseAssetIndex, spouseAssetValues, shouldUseBlock]);
 
     // 결과 계산
     const calculateResult = useCallback((input: RehabUserInput) => {
