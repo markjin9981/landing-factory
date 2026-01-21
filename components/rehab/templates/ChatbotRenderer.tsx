@@ -557,7 +557,7 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                                     )}
 
                                     {/* Interactive Block (폼-혼합형) */}
-                                    {layout?.hasFormBlocks && msg.interactiveBlock && msg.blockState && onBlockSubmit && (
+                                    {(layout?.hasFormBlocks || enableFormBlocks) && msg.interactiveBlock && msg.blockState && onBlockSubmit && (
                                         <div className="mt-3">
                                             <InteractiveBlock
                                                 config={msg.interactiveBlock}

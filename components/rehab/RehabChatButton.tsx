@@ -145,6 +145,8 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                             customColors={config.customColors}
                             chatFontFamily={config.chatFontFamily}
                             enableFormBlocks={config.enableFormBlocks}
+                            interactiveBlockPreset={config.interactiveBlockPreset}
+                            interactiveBlockConfig={config.interactiveBlockConfig}
                         />
                     )}
                 </AnimatePresence>
@@ -196,6 +198,8 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                         customColors={config.customColors}
                         chatFontFamily={config.chatFontFamily}
                         enableFormBlocks={config.enableFormBlocks}
+                        interactiveBlockPreset={config.interactiveBlockPreset}
+                        interactiveBlockConfig={config.interactiveBlockConfig}
                     />
                 )}
             </AnimatePresence>

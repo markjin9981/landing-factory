@@ -10,7 +10,7 @@
  * - 입력값 확인 단계
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Bot, Check, AlertCircle } from 'lucide-react';
@@ -100,6 +100,12 @@ interface AIRehabChatbotV2Props {
     customColors?: Partial<ChatbotColorPalette>;
     chatFontFamily?: string;
     enableFormBlocks?: boolean; // NEW: 모든 템플릿에서 Interactive Block 활성화
+    interactiveBlockPreset?: 'none' | 'basic' | 'advanced' | 'custom';
+    interactiveBlockConfig?: {
+        useContactForm?: boolean;
+        useDatePicker?: boolean;
+        useMultiSelect?: boolean;
+    };
 }
 
 const ASSET_LABELS: Record<AssetType, string> = {
@@ -121,14 +127,42 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     themeMode = 'dark',
     customColors,
     chatFontFamily,
-    enableFormBlocks = false
+    enableFormBlocks = false,
+    interactiveBlockPreset = 'none',
+    interactiveBlockConfig
 }) => {
     // 템플릿 색상 계산
     const templateInfo = getTemplateById(templateId);
     const baseColors = themeMode === 'dark'
         ? (templateInfo?.previewColors.dark || DEFAULT_DARK_PALETTE)
         : (templateInfo?.previewColors.light || DEFAULT_LIGHT_PALETTE);
-    const colors: ChatbotColorPalette = { ...baseColors, ...customColors };
+
+    const colors = useMemo(() => {
+        if (customColors) {
+            return {
+                ...baseColors,
+                ...customColors
+            };
+        }
+        return baseColors;
+    }, [baseColors, customColors]);
+
+    // Interactive Block 사용 여부 확인
+    const shouldUseBlock = useCallback((blockType: 'form' | 'multiSelect' | 'datePicker') => {
+        if (!enableFormBlocks) return false;
+
+        switch (interactiveBlockPreset) {
+            case 'none': return false;
+            case 'basic': return blockType === 'form';
+            case 'advanced': return true;
+            case 'custom':
+                if (blockType === 'form') return interactiveBlockConfig?.useContactForm ?? false;
+                if (blockType === 'multiSelect') return interactiveBlockConfig?.useMultiSelect ?? false;
+                if (blockType === 'datePicker') return interactiveBlockConfig?.useDatePicker ?? false;
+                return false;
+            default: return false;
+        }
+    }, [enableFormBlocks, interactiveBlockPreset, interactiveBlockConfig]);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [currentStep, setCurrentStep] = useState<ChatStep>('intro');
     const [userInput, setUserInput] = useState<Partial<RehabUserInput>>({
@@ -717,7 +751,22 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                             { label: '없어요', value: 'none' }
                         ],
                         'buttons',
-                        true
+                        true,
+                        shouldUseBlock('multiSelect') ? {
+                            type: 'multi_select',
+                            title: '보유 재산 선택',
+                            description: '해당하는 항목을 모두 선택해주세요.',
+                            options: [
+                                { label: '자동차', value: 'car', icon: '🚗' },
+                                { label: '부동산', value: 'realEstate', icon: '🏠' },
+                                { label: '토지', value: 'land', icon: 'im' },
+                                { label: '예금/적금', value: 'savings', icon: '💰' },
+                                { label: '보험', value: 'insurance', icon: '🛡️' },
+                                { label: '주식/코인', value: 'stocks', icon: '📈' }
+                            ],
+                            buttonLabel: '선택 완료',
+                            required: false
+                        } : undefined
                     );
                 }
                 break;
@@ -740,7 +789,22 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         { label: '없어요', value: 'none' }
                     ],
                     'buttons',
-                    true
+                    true,
+                    shouldUseBlock('multiSelect') ? {
+                        type: 'multi_select',
+                        title: '보유 재산 선택',
+                        description: '해당하는 항목을 모두 선택해주세요.',
+                        options: [
+                            { label: '자동차', value: 'car', icon: '🚗' },
+                            { label: '부동산', value: 'realEstate', icon: '🏠' },
+                            { label: '토지', value: 'land', icon: 'im' },
+                            { label: '예금/적금', value: 'savings', icon: '💰' },
+                            { label: '보험', value: 'insurance', icon: '🛡️' },
+                            { label: '주식/코인', value: 'stocks', icon: '📈' }
+                        ],
+                        buttonLabel: '선택 완료',
+                        required: false
+                    } : undefined
                 );
                 break;
 
@@ -924,9 +988,22 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 if (value === 'none' || value === 'fresh_start') {
                     setCurrentStep('contact_name');
                     addBotMessage(
-                        '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
+                        shouldUseBlock('form')
+                            ? '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 정보를 입력해주세요.'
+                            : '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
                         undefined,
-                        'text'
+                        'text',
+                        undefined,
+                        shouldUseBlock('form') ? {
+                            type: 'contact_input',
+                            title: '연락처 입력',
+                            description: '정확한 분석 결과를 위해 성함과 연락처를 입력해주세요.',
+                            contactType: 'phone',
+                            includeName: true,
+                            placeholder: '010-0000-0000',
+                            buttonLabel: '결과 확인하기',
+                            required: true
+                        } : undefined
                     );
                 } else if (value === 'rehab' || value === 'bankruptcy') {
                     setCurrentStep('prior_rehab_detail');
@@ -952,9 +1029,22 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 // 면책 년월 저장 (문자열로)
                 setCurrentStep('contact_name');
                 addBotMessage(
-                    '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
+                    shouldUseBlock('form')
+                        ? '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 정보를 입력해주세요.'
+                        : '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
                     undefined,
-                    'text'
+                    'text',
+                    undefined,
+                    shouldUseBlock('form') ? {
+                        type: 'contact_input',
+                        title: '연락처 입력',
+                        description: '정확한 분석 결과를 위해 성함과 연락처를 입력해주세요.',
+                        contactType: 'phone',
+                        includeName: true,
+                        placeholder: '010-0000-0000',
+                        buttonLabel: '결과 확인하기',
+                        required: true
+                    } : undefined
                 );
                 break;
 
@@ -969,9 +1059,22 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 } else {
                     setCurrentStep('contact_name');
                     addBotMessage(
-                        '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
+                        shouldUseBlock('form')
+                            ? '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 정보를 입력해주세요.'
+                            : '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
                         undefined,
-                        'text'
+                        'text',
+                        undefined,
+                        shouldUseBlock('form') ? {
+                            type: 'contact_input',
+                            title: '연락처 입력',
+                            description: '정확한 분석 결과를 위해 성함과 연락처를 입력해주세요.',
+                            contactType: 'phone',
+                            includeName: true,
+                            placeholder: '010-0000-0000',
+                            buttonLabel: '결과 확인하기',
+                            required: true
+                        } : undefined
                     );
                 }
                 break;
@@ -1076,6 +1179,47 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
         return stepOrder[currentStep] || 0;
     }, [currentStep]);
 
+    // Interactive Block 제출 핸들러
+    const handleBlockSubmit = useCallback((messageId: string, value: string | string[] | Date) => {
+        // 메시지 상태 업데이트
+        setMessages(prev => prev.map(msg =>
+            msg.id === messageId ? { ...msg, blockState: { status: 'completed', value, summary: '입력 완료' } } : msg
+        ));
+
+        // Contact Form 처리 (이름+전화번호)
+        if (currentStep === 'contact_name') {
+            try {
+                const data = typeof value === 'string' ? JSON.parse(value) : value;
+                const nextInput = { ...userInput };
+
+                if (data.name) nextInput.name = data.name;
+                if (data.phone) nextInput.phone = data.phone;
+
+                setUserInput(nextInput);
+
+                // 이름과 전화번호가 모두 있으면 완료 처리
+                if (nextInput.name && nextInput.phone) {
+                    calculateResult(nextInput as RehabUserInput);
+                } else if (nextInput.name) {
+                    // 전화번호만 없는 경우 (거의 없겠지만)
+                    setCurrentStep('contact_phone');
+                    addBotMessage('전화번호를 입력해주세요.', undefined, 'text');
+                }
+            } catch (e) {
+                console.error('Contact data parse error', e);
+            }
+            return;
+        }
+
+        // Multi Select 처리 (자산)
+        if (currentStep === 'assets_select') {
+            const selectedValues = Array.isArray(value) ? value : [value as string];
+            // 기존 로직 재사용을 위해 processStep 호출
+            processStep('assets_select', selectedValues.length > 0 ? selectedValues : 'none');
+            return;
+        }
+    }, [currentStep, userInput, processStep]); // calculateResult는 useEffect 내에 정의된게 아니라 컴포넌트 내 함수여야 함 (확인 필요)
+
     if (!isOpen) return null;
 
     const isDark = themeMode === 'dark';
@@ -1124,6 +1268,13 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         onClose={onClose}
                         messagesEndRef={messagesEndRef}
                         inputRef={inputRef}
+                        enableFormBlocks={enableFormBlocks}
+                        onBlockSubmit={handleBlockSubmit}
+                        onBlockCancel={(id) => {
+                            setMessages(prev => prev.map(msg =>
+                                msg.id === id ? { ...msg, blockState: { ...msg.blockState, status: 'pending' } as any } : msg
+                            ));
+                        }}
                     />
                 </motion.div>
             </motion.div>

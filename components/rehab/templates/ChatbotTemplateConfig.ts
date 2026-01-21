@@ -94,6 +94,7 @@ export interface InteractiveBlockConfig {
     maxDate?: Date;                         // 날짜 선택 최대값
     validationPattern?: string;             // 검증 패턴 (정규식)
     validationMessage?: string;             // 검증 실패 메시지
+    includeName?: boolean;                  // 이름 입력 포함 여부 (contact_input)
 }
 
 // 블록 상태

@@ -19,7 +19,8 @@ import {
     Mail,
     ChevronRight,
     AlertCircle,
-    CheckCircle2
+    CheckCircle2,
+    User
 } from 'lucide-react';
 import {
     InteractiveBlockConfig,
@@ -49,6 +50,7 @@ const InteractiveBlock: React.FC<InteractiveBlockProps> = ({
         state.value || null
     );
     const [inputValue, setInputValue] = useState<string>('');
+    const [nameValue, setNameValue] = useState<string>('');
     const [phoneValue, setPhoneValue] = useState<string>('');
     const [emailValue, setEmailValue] = useState<string>('');
     const [error, setError] = useState<string | null>(state.error || null);
@@ -83,6 +85,10 @@ const InteractiveBlock: React.FC<InteractiveBlockProps> = ({
                 return false;
             }
             if (config.type === 'contact_input') {
+                if (config.includeName && !nameValue) {
+                    setError('이름을 입력해주세요.');
+                    return false;
+                }
                 if (config.contactType === 'phone' && !phoneValue) {
                     setError('전화번호를 입력해주세요.');
                     return false;
@@ -134,12 +140,29 @@ const InteractiveBlock: React.FC<InteractiveBlockProps> = ({
                 value = selectedValue!;
                 break;
             case 'contact_input':
+                const contactData: any = {};
+                if (config.includeName) {
+                    contactData.name = nameValue;
+                }
+
                 if (config.contactType === 'both') {
-                    value = JSON.stringify({ phone: phoneValue, email: emailValue });
+                    contactData.phone = phoneValue;
+                    contactData.email = emailValue;
+                    value = JSON.stringify(contactData);
                 } else if (config.contactType === 'email') {
-                    value = emailValue;
+                    if (config.includeName) {
+                        contactData.email = emailValue;
+                        value = JSON.stringify(contactData);
+                    } else {
+                        value = emailValue;
+                    }
                 } else {
-                    value = phoneValue;
+                    if (config.includeName) {
+                        contactData.phone = phoneValue;
+                        value = JSON.stringify(contactData);
+                    } else {
+                        value = phoneValue;
+                    }
                 }
                 break;
             case 'cta_button':
@@ -318,6 +341,26 @@ const InteractiveBlock: React.FC<InteractiveBlockProps> = ({
     // 연락처 입력 렌더링
     const renderContactInput = () => (
         <div className="p-4 space-y-3">
+            {config.includeName && (
+                <div className="relative">
+                    <User
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5"
+                        style={{ color: isDark ? '#64748b' : '#94a3b8' }}
+                    />
+                    <input
+                        type="text"
+                        value={nameValue}
+                        onChange={(e) => setNameValue(e.target.value)}
+                        placeholder="이름"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border outline-none focus:ring-2 transition-all"
+                        style={{
+                            backgroundColor: isDark ? '#334155' : '#f8fafc',
+                            borderColor: isDark ? '#475569' : '#e2e8f0',
+                            color: isDark ? '#e2e8f0' : '#1e293b'
+                        }}
+                    />
+                </div>
+            )}
             {(config.contactType === 'phone' || config.contactType === 'both') && (
                 <div className="relative">
                     <Phone
