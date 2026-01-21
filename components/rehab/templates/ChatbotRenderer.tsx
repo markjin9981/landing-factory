@@ -486,22 +486,14 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                                 {/* 타임레일 노드 */}
                                 {hasTimeline && msg.isFirst && (
                                     <div
-                                        className="absolute flex flex-col items-center"
+                                        className="absolute flex items-center justify-center"
                                         style={{
-                                            left: '-44px',
-                                            top: '0px',
-                                            width: '40px'
+                                            left: '-20px',
+                                            top: '8px',
+                                            width: '12px',
+                                            height: '12px'
                                         }}
                                     >
-                                        <span
-                                            className="text-xs whitespace-nowrap mb-1"
-                                            style={{
-                                                color: isDark ? '#94a3b8' : '#64748b',
-                                                fontSize: '10px'
-                                            }}
-                                        >
-                                            {new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
                                         <div
                                             className="w-2.5 h-2.5 rounded-full border-2"
                                             style={{
