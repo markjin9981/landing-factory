@@ -4,7 +4,7 @@ import LANDING_CONFIGS_JSON from '../data/landingConfigs.json';
 import { LandingConfig, FloatingBanner, HeroSection, DetailContent as DetailContentType } from '../types';
 import LeadForm from '../components/LeadForm';
 import { Check, Star, Shield, Clock, ThumbsUp, ArrowRight } from 'lucide-react';
-import { logVisit, fetchLandingConfigById, fetchGlobalSettings } from '../services/googleSheetService';
+import { logVisit, fetchLandingConfigById, fetchGlobalSettings, submitLead } from '../services/googleSheetService';
 import PixelTracker from '../components/utils/PixelTracker';
 import KakaoMap from '../components/KakaoMap';
 import BannerBlock from '../components/inline/BannerBlock';
@@ -21,6 +21,7 @@ import { generateGoogleFontUrl, GOOGLE_FONTS_LIST } from '../utils/fontUtils';
 import RehabChatButton from '../components/rehab/RehabChatButton';
 import StickyBottomForm from '../components/StickyBottomForm';
 import AnimatedHeadline from '../components/AnimatedHeadline';
+import { RehabUserInput, RehabCalculationResult, formatCurrency } from '../services/calculationService';
 
 const LANDING_CONFIGS = LANDING_CONFIGS_JSON as unknown as Record<string, LandingConfig>;
 
@@ -721,8 +722,48 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           config={config.rehabChatConfig}
           // Lifting State for shared control
           isOpen={isRehabChatOpen}
-          onOpen={() => setIsRehabChatOpen(true)}
           onClose={() => setIsRehabChatOpen(false)}
+          onComplete={async (result: RehabCalculationResult, userInput: RehabUserInput) => {
+            // 1. Format Extra Info
+            const extraInfo = `
+[AI 진단 결과]
+- 상태: ${result.status} (${result.statusReason})
+- 예상 변제금: ${formatCurrency(result.monthlyPayment)} / 월
+- 변제 기간: ${result.repaymentMonths}개월
+- 탕감율: ${result.debtReductionRate}%
+
+[상세 입력 정보]
+- 거주지: ${userInput.address}
+- 나이: ${userInput.age}세 (${2026 - (userInput.age || 0)}년생)
+- 고용형태: ${userInput.employmentType}
+- 월 소득: ${formatCurrency(userInput.monthlyIncome)}
+- 총 채무: ${formatCurrency(userInput.totalDebt)}
+- 재산: ${formatCurrency(userInput.myAssets)}
+`.trim();
+
+            const submitData = {
+              timestamp: new Date().toLocaleString('ko-KR'),
+              landing_id: id || config.id, // Fallback to config ID
+              name: userInput.name || 'AI_User',
+              phone: userInput.phone || '000-0000-0000',
+              extra_info: extraInfo,
+              user_agent: navigator.userAgent,
+              referrer: document.referrer,
+              ...utmParams
+            };
+
+            if (!isPreview && id) {
+              try {
+                await submitLead(submitData);
+                // Optional: Alert or Toast
+              } catch (e) {
+                console.error("Chatbot submission failed", e);
+              }
+            } else {
+              console.log("[Preview] Chatbot Submit:", submitData);
+              alert('DB 저장 시뮬레이션 성공!\n(실제 저장은 라이브에서만 동작합니다)');
+            }
+          }}
         />
       )}
 
