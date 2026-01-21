@@ -1249,7 +1249,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 onClick={(e) => e.target === e.currentTarget && onClose()}
             >
                 <motion.div
-                    className="w-full max-w-md h-[85vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden"
+                    className={`${disablePortal ? 'w-full h-full rounded-none shadow-none' : 'w-full max-w-md h-[85vh] rounded-2xl shadow-2xl'} flex flex-col overflow-hidden`}
                     style={{
                         borderWidth: '1px',
                         borderColor: isDark ? '#374151' : '#e5e7eb',
