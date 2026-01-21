@@ -17,7 +17,8 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Bot, MessageCircle, User, Sparkles, Zap, Building2, ChevronDown, Search, Paperclip, Smile, Image, Clock, Users } from 'lucide-react';
-import { ChatbotTemplateId, ChatbotColorPalette, ThemeMode, getTemplateById, TemplateLayoutConfig } from './ChatbotTemplateConfig';
+import { ChatbotTemplateId, ChatbotColorPalette, ThemeMode, getTemplateById, TemplateLayoutConfig, InteractiveBlockConfig, InteractiveBlockState } from './ChatbotTemplateConfig';
+import InteractiveBlock from './InteractiveBlock';
 
 // 메시지 타입
 export interface ChatMessage {
@@ -28,6 +29,9 @@ export interface ChatMessage {
     inputType?: string;
     multiSelect?: boolean;
     timestamp?: Date;
+    // Interactive Block (폼-혼합형)
+    interactiveBlock?: InteractiveBlockConfig;
+    blockState?: InteractiveBlockState;
 }
 
 // 렌더러 Props
@@ -46,6 +50,10 @@ interface ChatbotRendererProps {
     onClose: () => void;
     messagesEndRef: React.RefObject<HTMLDivElement>;
     inputRef: React.RefObject<HTMLInputElement>;
+    // Interactive Block (폼-혼합형)
+    isComposerLocked?: boolean;
+    onBlockSubmit?: (messageId: string, value: string | string[] | Date) => void;
+    onBlockCancel?: (messageId: string) => void;
 }
 
 const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
@@ -62,7 +70,10 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
     onOptionSelect,
     onClose,
     messagesEndRef,
-    inputRef
+    inputRef,
+    isComposerLocked,
+    onBlockSubmit,
+    onBlockCancel
 }) => {
     const isDark = mode === 'dark';
     const template = getTemplateById(templateId);
@@ -544,6 +555,20 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                                         </div>
                                     )}
 
+                                    {/* Interactive Block (폼-혼합형) */}
+                                    {layout?.hasFormBlocks && msg.interactiveBlock && msg.blockState && onBlockSubmit && (
+                                        <div className="mt-3">
+                                            <InteractiveBlock
+                                                config={msg.interactiveBlock}
+                                                state={msg.blockState}
+                                                colors={colors}
+                                                isDark={isDark}
+                                                onSubmit={(value) => onBlockSubmit(msg.id, value)}
+                                                onCancel={onBlockCancel ? () => onBlockCancel(msg.id) : undefined}
+                                            />
+                                        </div>
+                                    )}
+
                                     {/* 타임스탬프 (aside 위치) */}
                                     {layout?.timeStampPosition === 'aside' && msg.isLast && (
                                         <span
@@ -713,31 +738,49 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                     borderColor: isDark ? '#374151' : '#e5e7eb'
                 }}
             >
+                {/* Composer 잠금 알림 (폼-혼합형) */}
+                {isComposerLocked && layout?.hasFormBlocks && (
+                    <div
+                        className="mb-2 px-3 py-2 rounded-lg text-sm text-center"
+                        style={{
+                            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)',
+                            color: isDark ? '#a5b4fc' : '#6366f1'
+                        }}
+                    >
+                        위 블록에서 입력을 완료해주세요
+                    </div>
+                )}
                 <div className="flex items-center gap-2">
                     <input
                         ref={inputRef}
                         type="text"
                         value={inputValue}
                         onChange={(e) => onInputChange(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && onSubmit()}
-                        placeholder="입력해주세요..."
+                        onKeyDown={(e) => e.key === 'Enter' && !isComposerLocked && onSubmit()}
+                        placeholder={isComposerLocked ? "블록 입력 대기 중..." : "입력해주세요..."}
+                        disabled={isComposerLocked}
                         className="flex-1 px-4 py-3 border outline-none focus:ring-2 transition-all"
                         style={{
                             backgroundColor: isDark ? '#334155' : '#f8fafc',
                             color: isDark ? '#f1f5f9' : '#1e293b',
                             borderColor: isDark ? '#475569' : '#e2e8f0',
-                            borderRadius: `${inputRadius}px`
+                            borderRadius: `${inputRadius}px`,
+                            opacity: isComposerLocked ? 0.6 : 1,
+                            cursor: isComposerLocked ? 'not-allowed' : 'text'
                         }}
                     />
                     <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={isComposerLocked ? {} : { scale: 1.05 }}
+                        whileTap={isComposerLocked ? {} : { scale: 0.95 }}
                         onClick={onSubmit}
+                        disabled={isComposerLocked}
                         className="p-3 transition-all"
                         style={{
                             backgroundColor: colors.primary,
                             color: colors.headerText,
-                            borderRadius: `${inputRadius}px`
+                            borderRadius: `${inputRadius}px`,
+                            opacity: isComposerLocked ? 0.6 : 1,
+                            cursor: isComposerLocked ? 'not-allowed' : 'pointer'
                         }}
                     >
                         <Send className="w-5 h-5" />

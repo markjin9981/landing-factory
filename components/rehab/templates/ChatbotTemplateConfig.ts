@@ -59,6 +59,56 @@ export interface TemplateLayoutConfig {
     hasFormBlocks?: boolean;        // 10. 폼-혼합형
 }
 
+// ==================== Interactive Block 타입 (폼-혼합형) ====================
+
+// Interactive Block 타입
+export type InteractiveBlockType =
+    | 'single_select'   // 단일 선택 (라디오)
+    | 'multi_select'    // 다중 선택 (체크)
+    | 'date_picker'     // 날짜 선택
+    | 'contact_input'   // 연락처 입력 (전화/이메일)
+    | 'cta_button';     // CTA 버튼
+
+// Interactive Block 옵션
+export interface InteractiveBlockOption {
+    label: string;
+    value: string | number;
+    icon?: string;  // 아이콘 이모지 또는 아이콘 이름
+}
+
+// 연락처 입력 타입
+export type ContactInputType = 'phone' | 'email' | 'both';
+
+// Interactive Block 설정
+export interface InteractiveBlockConfig {
+    type: InteractiveBlockType;
+    title: string;                          // 상단 안내 문구
+    description?: string;                   // 부가 설명
+    options?: InteractiveBlockOption[];     // 선택지 (single_select, multi_select)
+    placeholder?: string;                   // 입력 필드 플레이스홀더
+    buttonLabel?: string;                   // CTA/확인 버튼 텍스트
+    cancelLabel?: string;                   // 취소 버튼 텍스트
+    required?: boolean;                     // 필수 입력 여부
+    contactType?: ContactInputType;         // 연락처 입력 타입
+    minDate?: Date;                         // 날짜 선택 최소값
+    maxDate?: Date;                         // 날짜 선택 최대값
+    validationPattern?: string;             // 검증 패턴 (정규식)
+    validationMessage?: string;             // 검증 실패 메시지
+}
+
+// 블록 상태
+export type InteractiveBlockStatus = 'pending' | 'active' | 'completed' | 'error';
+
+export interface InteractiveBlockState {
+    status: InteractiveBlockStatus;
+    value?: string | string[] | Date;
+    error?: string;
+    submittedAt?: Date;
+    summary?: string;  // 완료 시 요약 텍스트
+}
+
+// ==================== 테마 ====================
+
 // 테마 모드
 export type ThemeMode = 'light' | 'dark';
 
