@@ -1037,7 +1037,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 setUserInput(prev => ({ ...prev, riskFactor: value as RehabUserInput['riskFactor'] }));
                 setCurrentStep('prior_rehab');
                 addBotMessage(
-                    '기존에 개인회생, 파산, 신용회복, 새출발기금을 진행 중이거나 진행하신 적 있으신가요?',
+                    '기존에 개인회생, 파산, 신용회복, 새출발기금을 진행 중이거나 진행하신 적 있으신가요? (26년형)',
                     [
                         { label: '없어요', value: 'none' },
                         { label: '개인회생', value: 'rehab' },

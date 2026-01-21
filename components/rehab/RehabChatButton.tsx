@@ -152,7 +152,11 @@ const RehabChatButton: React.FC<RehabChatButtonProps> = ({
                             themeMode={config.themeMode || 'dark'}
                             customColors={config.customColors}
                             chatFontFamily={config.chatFontFamily}
-                            enableFormBlocks={config.interactiveBlockConfig?.useContactForm || config.interactiveBlockConfig?.useMultiSelect}
+                            enableFormBlocks={
+                                (config.interactiveBlockPreset && config.interactiveBlockPreset !== 'none') ||
+                                config.interactiveBlockConfig?.useContactForm ||
+                                config.interactiveBlockConfig?.useMultiSelect
+                            }
                             interactiveBlockPreset={config.interactiveBlockPreset}
                             interactiveBlockConfig={config.interactiveBlockConfig}
                             introConfig={config.introConfig} // Forward Intro Config
