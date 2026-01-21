@@ -43,6 +43,7 @@ interface ChatbotRendererProps {
     inputValue: string;
     isTyping: boolean;
     characterName: string;
+    characterImage?: string; // NEW: Custom Character Image
     progress: number;
     onInputChange: (value: string) => void;
     onSubmit: () => void;
@@ -65,6 +66,7 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
     inputValue,
     isTyping,
     characterName,
+    characterImage,
     progress,
     onInputChange,
     onSubmit,
@@ -128,8 +130,12 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                         }}
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                <Sparkles className="w-5 h-5" style={{ color: colors.headerText }} />
+                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+                                {characterImage ? (
+                                    <img src={characterImage} alt={characterName} className="w-full h-full object-cover" />
+                                ) : (
+                                    <Sparkles className="w-5 h-5" style={{ color: colors.headerText }} />
+                                )}
                             </div>
                             <span style={{ color: colors.headerText }} className="font-bold">{characterName}</span>
                         </div>
@@ -172,8 +178,12 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                     }}
                 >
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                            <Bot className="w-7 h-7" style={{ color: colors.headerText }} />
+                        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center overflow-hidden">
+                            {characterImage ? (
+                                <img src={characterImage} alt={characterName} className="w-full h-full object-cover" />
+                            ) : (
+                                <Bot className="w-7 h-7" style={{ color: colors.headerText }} />
+                            )}
                         </div>
                         <div>
                             <p style={{ color: colors.headerText }} className="font-bold text-lg">{characterName}</p>
@@ -508,10 +518,14 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
 
                                 {/* 아바타 (봇 메시지) */}
                                 {showAvatar && msg.type === 'bot' && msg.isFirst && (
-                                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-2 flex-shrink-0"
-                                        style={{ backgroundColor: colors.primary }}
+                                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-2 flex-shrink-0 overflow-hidden"
+                                        style={{ backgroundColor: characterImage ? 'transparent' : colors.primary }}
                                     >
-                                        <Bot className="w-4 h-4" style={{ color: colors.headerText }} />
+                                        {characterImage ? (
+                                            <img src={characterImage} alt="Bot" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <Bot className="w-4 h-4" style={{ color: colors.headerText }} />
+                                        )}
                                     </div>
                                 )}
                                 {showAvatar && msg.type === 'bot' && !msg.isFirst && (
@@ -592,10 +606,14 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                             className="flex justify-start"
                         >
                             {showAvatar && (
-                                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2 flex-shrink-0"
-                                    style={{ backgroundColor: colors.primary }}
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2 flex-shrink-0 overflow-hidden"
+                                    style={{ backgroundColor: characterImage ? 'transparent' : colors.primary }}
                                 >
-                                    <Bot className="w-4 h-4" style={{ color: colors.headerText }} />
+                                    {characterImage ? (
+                                        <img src={characterImage} alt="Bot" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Bot className="w-4 h-4" style={{ color: colors.headerText }} />
+                                    )}
                                 </div>
                             )}
                             <div

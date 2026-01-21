@@ -1274,6 +1274,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         inputValue={inputValue}
                         isTyping={isTyping}
                         characterName={characterName}
+                        characterImage={characterImage} // Pass Image
                         progress={getProgress()}
                         onInputChange={setInputValue}
                         onSubmit={handleSubmit}

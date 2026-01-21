@@ -179,6 +179,7 @@ const DEFAULT_CONFIG: LandingConfig = {
         buttonPosition: 'bottom-left',
         buttonColor: '#8B5CF6',
         characterName: '로이',
+        characterImage: '', // NEW: Custom Character Image
         placement: {
             showAsFloating: true,
             showInHero: false,
@@ -7368,6 +7369,50 @@ const LandingEditor: React.FC = () => {
                                                                     </select>
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* NEW: 캐릭터 설정 */}
+                                                    <div className="bg-white border rounded p-3 space-y-3">
+                                                        <h4 className="text-xs font-bold text-gray-900 flex items-center gap-1">
+                                                            <MessageCircle className="w-3 h-3 text-purple-600" /> 캐릭터 설정
+                                                        </h4>
+
+                                                        {/* 캐릭터 이름 */}
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 mb-1 block">캐릭터 이름</label>
+                                                            <input type="text" className="w-full border rounded p-2 text-sm"
+                                                                value={config.rehabChatConfig?.characterName || '로이'}
+                                                                onChange={(e) => updateNested(['rehabChatConfig', 'characterName'], e.target.value)}
+                                                                placeholder="예: 로이"
+                                                            />
+                                                        </div>
+
+                                                        {/* 캐릭터 이미지 */}
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 mb-1 block">캐릭터 아바타 (이미지)</label>
+                                                            <div className="flex gap-2 items-center">
+                                                                <button
+                                                                    onClick={() => openImagePicker((url) => updateNested(['rehabChatConfig', 'characterImage'], url))}
+                                                                    className="flex-1 bg-white border border-gray-300 rounded p-2 text-xs hover:bg-gray-100 flex items-center justify-center gap-1 text-gray-600"
+                                                                >
+                                                                    <Upload className="w-3 h-3" /> 이미지 업로드
+                                                                </button>
+                                                                {config.rehabChatConfig?.characterImage && (
+                                                                    <div className="relative w-8 h-8 rounded overflow-hidden border group">
+                                                                        <img src={config.rehabChatConfig.characterImage} alt="Avatar" className="w-full h-full object-cover" />
+                                                                        <button
+                                                                            onClick={() => updateNested(['rehabChatConfig', 'characterImage'], '')}
+                                                                            className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                        >
+                                                                            <X className="w-2 h-2" />
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-[10px] text-gray-400 mt-1">
+                                                                * 이미지를 설정하지 않으면 기본 아이콘이 표시됩니다.
+                                                            </p>
                                                         </div>
                                                     </div>
 
