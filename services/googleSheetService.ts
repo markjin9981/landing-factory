@@ -711,14 +711,24 @@ export const verifyGoogleToken = async (idToken: string): Promise<{ valid: boole
 
 // --- Global Settings (Fonts) ---
 export const fetchGlobalSettings = async (): Promise<GlobalSettings | null> => {
+    // 1. Check Cache
+    const cached = getCache('system_global_v1');
+    if (cached) return cached;
+
     if (!isUrlConfigured()) return null;
     const res = await fetch(`${GOOGLE_SCRIPT_URL}?type=config&id=system_global_v1`);
     const data = await res.json();
     if (data.error) return null;
+
+    // 2. Set Cache
+    setCache('system_global_v1', data);
     return data;
 }
 
 export const saveGlobalSettings = async (settings: GlobalSettings): Promise<boolean> => {
+    // 1. Save to Cache immediately (Optimistic UI & Persistence)
+    setCache('system_global_v1', settings);
+
     if (!isUrlConfigured()) {
         alert("Mock Mode: Global Settings Saved");
         return true;

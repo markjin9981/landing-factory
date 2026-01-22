@@ -189,7 +189,7 @@ export function calculateRepayment(
     }
 
     // 4. 청산가치(재산) 계산
-    const depositRule = config.depositExemptions[regionGroup] || config.depositExemptions['Others'];
+    const depositRule = config.depositExemptions[regionGroup] || config.depositExemptions['그외'];
     let exemptDeposit = 0;
 
     if (input.deposit <= depositRule.limit) {

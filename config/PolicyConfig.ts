@@ -63,12 +63,12 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         6: 5133571,     // 6인 가구
     } as Record<number, number>,
 
-    // 지역별 보증금 공제 기준 (2026년 확정)
+    // 지역별 보증금 공제 기준 (2026년 확정) - 그룹명 변경
     depositExemptions: {
-        'Seoul': { limit: 165000000, deduct: 55000000 },         // 서울: 1억 6500만원 이하 / 5500만원 공제
-        'Overcrowded': { limit: 145000000, deduct: 48000000 },   // 과밀억제권역: 1억 4500만원 이하 / 4800만원 공제
-        'Metro': { limit: 85000000, deduct: 28000000 },          // 광역시: 8500만원 이하 / 2800만원 공제
-        'Others': { limit: 75000000, deduct: 25000000 }          // 그 외: 7500만원 이하 / 2500만원 공제
+        '서울특별시': { limit: 165000000, deduct: 55000000 },       // 서울: 1억 6500만원 이하 / 5500만원 공제
+        '과밀억제권역': { limit: 145000000, deduct: 48000000 },     // 과밀억제권역: 1억 4500만원 이하 / 4800만원 공제
+        '광역시기준': { limit: 85000000, deduct: 28000000 },        // 광역시: 8500만원 이하 / 2800만원 공제
+        '그외': { limit: 75000000, deduct: 25000000 }               // 그 외: 7500만원 이하 / 2500만원 공제
     },
 
     // 생계비 인정률
@@ -76,10 +76,10 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
 
     // 지역별 추가 주거비 인정 한도 (신규 - 2026년 서울회생법원 기준)
     housingAllowance: {
-        'Seoul': { limit: 589208, included: 273861 },         // 서울
-        'Overcrowded': { limit: 430122, included: 273861 },   // 과밀억제권역/세종/용인/화성
-        'Metro': { limit: 229791, included: 273861 },         // 광역시/안산/김포/광주/파주
-        'Others': { limit: 176762, included: 273861 }         // 그 밖의 지역
+        '서울특별시': { limit: 589208, included: 273861 },       // 서울
+        '과밀억제권역': { limit: 430122, included: 273861 },     // 과밀억제권역
+        '광역시기준': { limit: 229791, included: 273861 },       // 광역시
+        '그외': { limit: 176762, included: 273861 }              // 그 밖의 지역
     },
 
     // 법원별 성향
@@ -220,28 +220,28 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
     // 지역 -> 그룹 매핑 (보증금 공제용)
     regionToGroupMap: {
         // 서울
-        '서울': 'Seoul',
-        '서울특별시': 'Seoul',
+        '서울': '서울특별시',
+        '서울특별시': '서울특별시',
         // 과밀억제권역 (수도권 일부)
-        '고양': 'Overcrowded',
-        '성남': 'Overcrowded',
-        '부천': 'Overcrowded',
-        '안양': 'Overcrowded',
-        '수원': 'Overcrowded',
-        '의정부': 'Overcrowded',
-        '남양주': 'Overcrowded',
-        '구리': 'Overcrowded',
-        '하남': 'Overcrowded',
-        '인천': 'Overcrowded',
+        '고양': '과밀억제권역',
+        '성남': '과밀억제권역',
+        '부천': '과밀억제권역',
+        '안양': '과밀억제권역',
+        '수원': '과밀억제권역',
+        '의정부': '과밀억제권역',
+        '남양주': '과밀억제권역',
+        '구리': '과밀억제권역',
+        '하남': '과밀억제권역',
+        '인천': '과밀억제권역',
         // 광역시
-        '부산': 'Metro',
-        '대구': 'Metro',
-        '인천광역시': 'Metro',
-        '광주': 'Metro',
-        '광주광역시': 'Metro',
-        '대전': 'Metro',
-        '울산': 'Metro',
-        '세종': 'Metro',
+        '부산': '광역시기준',
+        '대구': '광역시기준',
+        '인천광역시': '광역시기준',
+        '광주': '광역시기준',
+        '광주광역시': '광역시기준',
+        '대전': '광역시기준',
+        '울산': '광역시기준',
+        '세종': '광역시기준',
     }
 };
 
@@ -286,7 +286,7 @@ export function getCourtForRegion(region: string, config: RehabPolicyConfig): st
  * 지역에서 보증금 그룹 가져오기
  */
 export function getRegionGroup(region: string, config: RehabPolicyConfig): string {
-    return config.regionToGroupMap[region] || 'Others';
+    return config.regionToGroupMap[region] || '그외';
 }
 
 /**
