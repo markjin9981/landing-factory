@@ -94,30 +94,30 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         '수원회생법원': {
             name: '수원회생법원',
             allow24Months: false,
-            spousePropertyRate: 0.5,
+            spousePropertyRate: 0.0,
             investLossInclude: true,
-            description: '배우자 재산 50% 반영, 투기손실 반영'
+            description: '배우자 재산 미반영, 투기손실 반영'
         },
         '인천회생법원': {
             name: '인천회생법원',
             allow24Months: false,
-            spousePropertyRate: 0.5,
+            spousePropertyRate: 0.0,
             investLossInclude: true,
-            description: '배우자 재산 50% 반영, 투기손실 반영'
+            description: '배우자 재산 미반영, 투기손실 반영'
         },
         '대전회생법원': {
             name: '대전회생법원',
             allow24Months: false,
-            spousePropertyRate: 0.5,
+            spousePropertyRate: 0.0,
             investLossInclude: false,
-            description: '배우자 재산 50% 반영, 투기손실 미반영 예상 (2026년 개원)'
+            description: '배우자 재산 미반영 (2026년 개원)'
         },
         '대구회생법원': {
             name: '대구회생법원',
             allow24Months: false,
-            spousePropertyRate: 0.5,
+            spousePropertyRate: 0.0,
             investLossInclude: false,
-            description: '배우자 재산 50% 반영, 투기손실 미반영 예상 (2026년 개원)'
+            description: '배우자 재산 미반영 (2026년 개원)'
         },
         '부산회생법원': {
             name: '부산회생법원',
@@ -129,9 +129,9 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         '광주회생법원': {
             name: '광주회생법원',
             allow24Months: false,
-            spousePropertyRate: 0.5,
+            spousePropertyRate: 0.0,
             investLossInclude: false,
-            description: '배우자 재산 50% 반영, 투기손실 미반영 예상 (2026년 개원)'
+            description: '배우자 재산 미반영 (2026년 개원)'
         },
         'Default': {
             name: '기타 법원',

@@ -122,34 +122,70 @@ export function calculateRepayment(
     const regionGroup = getRegionGroup(region, config);
     const courtTrait = config.courtTraits[courtName] || config.courtTraits['Default'];
 
-    // 2. 인정 생계비 산출 (소수점 가구원수 지원)
-    const recognizedLivingCost = getRecognizedLivingCost(input.familySize, config);
+    // 상태 변수 초기화
+    let status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE' = 'POSSIBLE';
+    let statusReason = '';
+    const aiAdvice: string[] = [];
+    const riskWarnings: string[] = [];
 
-    // 3. 월 가용소득 (변제금) 계산
+    // 3. 월 가용소득 (변제금) 계산 및 생계비 자동 조정
+    let recognizedLivingCost = getRecognizedLivingCost(input.familySize, config);
     let availableIncome = input.monthlyIncome - recognizedLivingCost;
+    let baseLivingCost = recognizedLivingCost; // 초기 인정 생계비 저장
+    const minAvailableIncome = 100000; // 최소 보장 가용소득 (10만원)
 
-    // 소득이 생계비보다 적으면 개인회생 어려움
-    if (availableIncome < 0) {
-        return {
-            status: 'IMPOSSIBLE',
-            statusReason: '월 소득이 법정 생계비보다 적어 변제 능력이 부족합니다.',
-            monthlyPayment: 0,
-            repaymentMonths: 0,
-            totalRepayment: 0,
-            totalDebtReduction: 0,
-            debtReductionRate: 0,
-            baseLivingCost: recognizedLivingCost,
-            additionalLivingCost: 0,
-            recognizedLivingCost,
-            availableIncome: 0,
-            liquidationValue: 0,
-            exemptDeposit: 0,
-            courtName,
-            regionGroup,
-            courtDescription: courtTrait.description || '',
-            aiAdvice: ['소득 증대 방안을 먼저 검토해보세요.'],
-            riskWarnings: ['현재 소득으로는 개인회생 신청이 어렵습니다.'],
-        };
+    // 소득이 생계비보다 적거나 가용소득이 너무 적은 경우 (10만원 미만)
+    if (availableIncome < minAvailableIncome) {
+        // 1단계: 부양가족 제외 (본인 1인 기준으로 재계산)
+        if (input.familySize > 1) {
+            const singleLivingCost = getRecognizedLivingCost(1, config);
+            if (input.monthlyIncome - singleLivingCost >= minAvailableIncome) {
+                recognizedLivingCost = singleLivingCost;
+                availableIncome = input.monthlyIncome - recognizedLivingCost;
+                aiAdvice.push(`⚠️ 소득 부족으로 부양가족을 제외하고 **본인 1인 생계비**(${formatCurrency(recognizedLivingCost)})로 조정하여 계산했습니다.`);
+            } else {
+                // 부양가족 제외해도 부족한 경우 -> 1인 생계비 기준으로 2단계 진입
+                recognizedLivingCost = singleLivingCost;
+                availableIncome = input.monthlyIncome - recognizedLivingCost;
+            }
+        }
+
+        // 2단계: 생계비 추가 삭감 (최대 20%까지)
+        if (availableIncome < minAvailableIncome) {
+            // 목표 가용소득(10만원)을 맞추기 위한 필요 생계비
+            const targetLivingCost = input.monthlyIncome - minAvailableIncome;
+            const minAllowedLivingCost = Math.floor(baseLivingCost * 0.8); // 최대 20% 삭감 한도
+
+            if (targetLivingCost >= minAllowedLivingCost) {
+                // 20% 범위 내에서 조정 가능
+                const reductionRate = Math.round(((baseLivingCost - targetLivingCost) / baseLivingCost) * 100);
+                recognizedLivingCost = targetLivingCost;
+                availableIncome = minAvailableIncome; // 10만원으로 맞춤
+                aiAdvice.push(`⚠️ 가용소득 확보를 위해 생계비를 **${reductionRate}%** 추가 조정하여 최저 가용소득(10만원)을 맞췄습니다.`);
+            } else {
+                // 삭감해도 10만원 확보 불가 -> 신청 불가
+                return {
+                    status: 'IMPOSSIBLE',
+                    statusReason: '생계비를 최대 20%까지 줄여도 월 소득이 너무 적어 진행이 불가능합니다.',
+                    monthlyPayment: 0,
+                    repaymentMonths: 0,
+                    totalRepayment: 0,
+                    totalDebtReduction: 0,
+                    debtReductionRate: 0,
+                    baseLivingCost,
+                    additionalLivingCost: 0,
+                    recognizedLivingCost,
+                    availableIncome: 0,
+                    liquidationValue: 0,
+                    exemptDeposit: 0,
+                    courtName,
+                    regionGroup,
+                    courtDescription: courtTrait.description || '',
+                    aiAdvice: ['배우자 소득 합산이나 파산 절차를 고려해보세요.', '아르바이트 등으로 소득을 조금 더 늘리시는 것을 추천합니다.'],
+                    riskWarnings: ['현재 소득으로는 사실상 개인회생 진행이 어렵습니다.'],
+                };
+            }
+        }
     }
 
     // 4. 청산가치(재산) 계산
@@ -169,11 +205,7 @@ export function calculateRepayment(
         liquidationValue += Math.round(input.spouseAssets * courtTrait.spousePropertyRate);
     }
 
-    // 상태 변수 초기화
-    let status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE' = 'POSSIBLE';
-    let statusReason = '';
-    const aiAdvice: string[] = [];
-    const riskWarnings: string[] = [];
+
 
     // 5. 변제 기간 산정 (기본 36개월)
     let repaymentMonths = 36;
