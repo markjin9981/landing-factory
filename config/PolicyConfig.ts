@@ -10,6 +10,8 @@ export interface RehabPolicyConfig {
     medianIncome: Record<number, number>;
     // 5인 이상 시 1인당 추가금액
     medianIncomeIncrement: number;
+    // 2026년 확정 인정 생계비 (1.5/2.5인 포함)
+    recognizedLivingCost: Record<number, number>;
     // 지역별 보증금 공제 기준
     depositExemptions: Record<string, { limit: number; deduct: number }>;
     // 지역별 추가 주거비 인정 한도 (신규)
@@ -39,16 +41,28 @@ export interface CourtTrait {
 export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
     baseYear: 2026,
 
-    // 2026년 기준 중위소득 (예상치 - 2025년 대비 약 3% 인상)
+    // 2026년 기준 중위소득 60% (인정 생계비) - 2026년 확정치
     medianIncome: {
-        1: 2465689,   // 1인 가구
-        2: 4053668,   // 2인 가구
-        3: 5176114,   // 3인 가구
-        4: 6280706,   // 4인 가구
-        5: 7232037,   // 5인 가구
-        6: 8183368,   // 6인 가구
+        1: 2564238,   // 1인 가구 중위소득 (60% = 1,538,543)
+        2: 4199292,   // 2인 가구 중위소득 (60% = 2,519,575)
+        3: 5359037,   // 3인 가구 중위소득 (60% = 3,215,422)
+        4: 6494738,   // 4인 가구 중위소득 (60% = 3,896,843)
+        5: 7479740,   // 5인 가구
+        6: 8464742,   // 6인 가구
     },
-    medianIncomeIncrement: 951331, // 6인 초과 시 1인당 추가분
+    medianIncomeIncrement: 985002, // 6인 초과 시 1인당 추가분
+
+    // 2026년 확정 인정 생계비 (중위소득 60%, 1.5/2.5인 포함)
+    recognizedLivingCost: {
+        1: 1538543,     // 1인
+        1.5: 2029059,   // 1.5인 (이혼 1인 + 양육미성년)
+        2: 2519575,     // 2인
+        2.5: 2867498,   // 2.5인 (기혼 배우자 미합가)
+        3: 3215422,     // 3인
+        4: 3896843,     // 4인
+        5: 4492318,     // 5인 (추정)
+        6: 5087793,     // 6인 (추정)
+    } as Record<number, number>,
 
     // 지역별 보증금 공제 기준 (주택임대차보호법 기준 예상)
     depositExemptions: {

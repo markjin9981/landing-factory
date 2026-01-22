@@ -169,10 +169,12 @@ export function calculateRepayment(
         liquidationValue += Math.round(input.spouseAssets * courtTrait.spousePropertyRate);
     }
 
-    // 5. 변제 기간 산정
+    // 5. 변제 기간 산정 (기본 36개월)
     let repaymentMonths = 36;
+
+    // Case 3: 서울 청년 특례 (만 30세 미만)
     if (courtTrait.allow24Months && input.age && input.age < 30) {
-        repaymentMonths = 24; // 서울 청년 특례
+        repaymentMonths = 24;
     }
 
     // 6. 월 변제금 결정
@@ -181,10 +183,20 @@ export function calculateRepayment(
     // 청산가치 보장 원칙: 총 변제액 >= 청산가치
     let totalRepayment = monthlyPayment * repaymentMonths;
 
+    // Case 2: 재산 과다형 - 청산가치가 총 변제액보다 큰 경우
     if (totalRepayment < liquidationValue) {
-        // 변제금 상향 조정
-        monthlyPayment = Math.ceil(liquidationValue / repaymentMonths);
-        totalRepayment = monthlyPayment * repaymentMonths;
+        // 1단계: 기간 연장 시도 (최대 60개월)
+        if (availableIncome * 60 >= liquidationValue) {
+            // 기간만 늘려서 청산가치 충족 가능
+            repaymentMonths = Math.ceil(liquidationValue / availableIncome);
+            if (repaymentMonths > 60) repaymentMonths = 60;
+            totalRepayment = monthlyPayment * repaymentMonths;
+        } else {
+            // 2단계: 변제금 상향 (60개월 고정)
+            repaymentMonths = 60;
+            monthlyPayment = Math.ceil(liquidationValue / 60);
+            totalRepayment = monthlyPayment * 60;
+        }
     }
 
     // 7. 탕감액/탕감률 계산
