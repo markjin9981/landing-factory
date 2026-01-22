@@ -7709,6 +7709,66 @@ const LandingEditor: React.FC = () => {
                                                         </div>
                                                     </div>
 
+                                                    {/* Interactive Block (폼-혼합형) 설정 */}
+                                                    <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg space-y-4">
+                                                        <h4 className="text-sm font-bold text-amber-800 flex items-center gap-2">
+                                                            📝 Interactive Block (폼-혼합형)
+                                                        </h4>
+                                                        <p className="text-xs text-amber-700">
+                                                            대화 중 연락처 입력, 날짜 선택 등의 폼 UI를 블록으로 표시합니다.
+                                                        </p>
+
+                                                        {/* 프리셋 선택 */}
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-600 mb-2 block">프리셋 선택</label>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                {[
+                                                                    { value: 'none', label: '사용 안함', desc: '비활성화' },
+                                                                    { value: 'basic', label: '기본', desc: '연락처 블록만' },
+                                                                    { value: 'advanced', label: '고급', desc: '모든 블록' },
+                                                                    { value: 'custom', label: '사용자 정의', desc: '직접 설정' }
+                                                                ].map((preset) => (
+                                                                    <button
+                                                                        key={preset.value}
+                                                                        onClick={() => updateNested(['rehabChatConfig', 'interactiveBlockPreset'], preset.value)}
+                                                                        className={`p-2 border rounded-lg text-xs transition-all ${(config.rehabChatConfig?.interactiveBlockPreset || 'none') === preset.value
+                                                                            ? 'border-amber-500 bg-amber-100 text-amber-800 font-bold ring-1 ring-amber-500'
+                                                                            : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                                                            }`}
+                                                                    >
+                                                                        <div className="font-bold">{preset.label}</div>
+                                                                        <div className="text-[10px] opacity-70">{preset.desc}</div>
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* 사용자 정의 옵션 (custom 선택 시 표시) */}
+                                                        {config.rehabChatConfig?.interactiveBlockPreset === 'custom' && (
+                                                            <div className="p-3 bg-white/50 rounded-lg border border-amber-100 space-y-2">
+                                                                <label className="text-xs font-bold text-gray-600 block">개별 블록 설정</label>
+                                                                {[
+                                                                    { key: 'useContactForm', label: '연락처 입력 블록', desc: '이름/전화번호 폼 블록' },
+                                                                    { key: 'useDatePicker', label: '날짜 선택 블록', desc: '날짜 선택 UI' },
+                                                                    { key: 'useMultiSelect', label: '다중 선택 블록', desc: '재산/부채 선택 UI' }
+                                                                ].map((option) => (
+                                                                    <label key={option.key} className="flex items-center gap-2 p-2 bg-white rounded border hover:bg-gray-50 cursor-pointer">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={config.rehabChatConfig?.interactiveBlockConfig?.[option.key as keyof typeof config.rehabChatConfig.interactiveBlockConfig] || false}
+                                                                            onChange={(e) => updateNested(['rehabChatConfig', 'interactiveBlockConfig', option.key], e.target.checked)}
+                                                                            className="rounded text-amber-600"
+                                                                        />
+                                                                        <div>
+                                                                            <div className="text-xs font-bold">{option.label}</div>
+                                                                            <div className="text-[10px] text-gray-500">{option.desc}</div>
+                                                                        </div>
+                                                                    </label>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+
 
                                                 </div>
                                             )}
