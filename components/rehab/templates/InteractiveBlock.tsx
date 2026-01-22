@@ -338,6 +338,21 @@ const InteractiveBlock: React.FC<InteractiveBlockProps> = ({
         </div>
     );
 
+    // 전화번호 포맷팅
+    const formatPhoneNumber = (value: string) => {
+        const numbers = value.replace(/[^0-9]/g, '');
+        if (numbers.length <= 3) return numbers;
+        if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+    };
+
+    // 초기 010 설정
+    React.useEffect(() => {
+        if ((config.contactType === 'phone' || config.contactType === 'both') && !phoneValue && !state.value) {
+            setPhoneValue('010-');
+        }
+    }, []);
+
     // 연락처 입력 렌더링
     const renderContactInput = () => (
         <div className="p-4 space-y-3">
@@ -370,7 +385,7 @@ const InteractiveBlock: React.FC<InteractiveBlockProps> = ({
                     <input
                         type="tel"
                         value={phoneValue}
-                        onChange={(e) => setPhoneValue(e.target.value)}
+                        onChange={(e) => setPhoneValue(formatPhoneNumber(e.target.value))}
                         placeholder={config.placeholder || '010-0000-0000'}
                         className="w-full pl-10 pr-4 py-3 rounded-xl border outline-none focus:ring-2 transition-all"
                         style={{

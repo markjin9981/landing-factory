@@ -447,7 +447,10 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                             { label: '📋 이혼', value: 'divorced' },
                             { label: '❓ 기타', value: 'other' }
                         ],
-                        'buttons'
+                        'buttons',
+                        undefined,
+                        undefined,
+                        'marital_status'
                     );
                 } else {
                     // 직장인/사업자/프리랜서: 근무지역 질문으로 이동
@@ -547,7 +550,10 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                             { label: '📋 이혼', value: 'divorced' },
                             { label: '❓ 기타', value: 'other' }
                         ],
-                        'buttons'
+                        'buttons',
+                        undefined,
+                        undefined,
+                        'marital_status'
                     );
                 }
                 break;
@@ -1216,7 +1222,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         placeholder: '010-0000-0000',
                         buttonLabel: '결과 확인하기',
                         required: true
-                    } : undefined
+                    } : undefined,
+                    'contact_name'
                 );
                 break;
 
@@ -1239,7 +1246,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         placeholder: '010-0000-0000',
                         buttonLabel: '결과 확인하기',
                         required: true
-                    } : undefined
+                    } : undefined,
+                    'contact_name'
                 );
                 break;
 
@@ -1269,7 +1277,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                             placeholder: '010-0000-0000',
                             buttonLabel: '결과 확인하기',
                             required: true
-                        } : undefined
+                        } : undefined,
+                        'contact_name'
                     );
                 }
                 break;
@@ -1293,7 +1302,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         placeholder: '010-0000-0000',
                         buttonLabel: '결과 확인하기',
                         required: true
-                    } : undefined
+                    } : undefined,
+                    'contact_name'
                 );
                 break;
 
