@@ -55,6 +55,13 @@ const InteractiveBlock: React.FC<InteractiveBlockProps> = ({
     const [emailValue, setEmailValue] = useState<string>('');
     const [error, setError] = useState<string | null>(state.error || null);
 
+    // 초기 010 설정
+    React.useEffect(() => {
+        if ((config.contactType === 'phone' || config.contactType === 'both') && !phoneValue && !state.value) {
+            setPhoneValue('010-');
+        }
+    }, []);
+
     // 카드 스타일
     const cardStyle = {
         backgroundColor: isDark ? '#1e293b' : '#ffffff',
@@ -347,11 +354,7 @@ const InteractiveBlock: React.FC<InteractiveBlockProps> = ({
     };
 
     // 초기 010 설정
-    React.useEffect(() => {
-        if ((config.contactType === 'phone' || config.contactType === 'both') && !phoneValue && !state.value) {
-            setPhoneValue('010-');
-        }
-    }, []);
+
 
     // 연락처 입력 렌더링
     const renderContactInput = () => (
