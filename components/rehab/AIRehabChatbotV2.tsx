@@ -617,7 +617,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     ],
                     'buttons',
                     true,
-                    {
+                    interactiveBlockPreset !== 'none' ? {
                         type: 'multi_select',
                         title: '보유 재산 선택',
                         description: '해당하는 항목을 모두 선택해주세요.',
@@ -627,7 +627,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         ],
                         buttonLabel: '선택 완료',
                         required: false
-                    }
+                    } : undefined
                 );
                 break;
 
@@ -932,14 +932,14 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         ],
                         'buttons',
                         true,
-                        {
+                        interactiveBlockPreset !== 'none' ? {
                             type: 'multi_select',
                             title: '보유 재산 선택',
                             description: '해당하는 항목을 모두 선택해주세요.',
                             options: ASSET_BLOCK_OPTIONS,
                             buttonLabel: '선택 완료',
                             required: false
-                        }
+                        } : undefined
                     );
                 }
                 break;
@@ -964,14 +964,14 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     ],
                     'buttons',
                     true,
-                    {
+                    interactiveBlockPreset !== 'none' ? {
                         type: 'multi_select',
                         title: '보유 재산 선택',
                         description: '해당하는 항목을 모두 선택해주세요.',
                         options: ASSET_BLOCK_OPTIONS,
                         buttonLabel: '선택 완료',
                         required: false
-                    }
+                    } : undefined
                 );
                 break;
 
