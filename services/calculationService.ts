@@ -281,3 +281,18 @@ export function formatCurrency(amount: number): string {
 export function formatMonthlyPayment(amount: number): string {
     return `월 ${formatCurrency(amount)}`;
 }
+
+/**
+ * 만원 단위 숫자를 한국어 포맷으로 변환 (입력 프리뷰용)
+ * 예: 12000 -> 1억 2,000만원
+ */
+export function formatTenThousandWon(amount: number): string {
+    if (amount === 0) return '0원';
+    const eok = Math.floor(amount / 10000);
+    const man = amount % 10000;
+
+    let result = '';
+    if (eok > 0) result += `${eok}억 `;
+    if (man > 0) result += `${man.toLocaleString()}만 `;
+    return result.trim() + '원';
+}
