@@ -130,6 +130,15 @@ const ASSET_LABELS: Record<AssetType, string> = {
     stocks: '주식/코인'
 };
 
+const ASSET_BLOCK_OPTIONS = [
+    { label: '자동차', value: 'car', icon: '🚗' },
+    { label: '부동산', value: 'realEstate', icon: '🏠' },
+    { label: '토지', value: 'land', icon: '🏞️' },
+    { label: '예금/적금', value: 'savings', icon: '💰' },
+    { label: '보험', value: 'insurance', icon: '🛡️' },
+    { label: '주식/코인', value: 'stocks', icon: '📈' }
+];
+
 const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     isOpen,
     onClose,
@@ -601,7 +610,18 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         { label: '❌ 없어요', value: 'none' }
                     ],
                     'buttons',
-                    true
+                    true,
+                    {
+                        type: 'multi_select',
+                        title: '보유 재산 선택',
+                        description: '해당하는 항목을 모두 선택해주세요.',
+                        options: [
+                            ...ASSET_BLOCK_OPTIONS,
+                            { label: '사업재산', value: 'businessAssets', icon: '🏢' }
+                        ],
+                        buttonLabel: '선택 완료',
+                        required: false
+                    }
                 );
                 break;
 
@@ -906,21 +926,14 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         ],
                         'buttons',
                         true,
-                        shouldUseBlock('multiSelect') ? {
+                        {
                             type: 'multi_select',
                             title: '보유 재산 선택',
                             description: '해당하는 항목을 모두 선택해주세요.',
-                            options: [
-                                { label: '자동차', value: 'car', icon: '🚗' },
-                                { label: '부동산', value: 'realEstate', icon: '🏠' },
-                                { label: '토지', value: 'land', icon: '🏞️' },
-                                { label: '예금/적금', value: 'savings', icon: '💰' },
-                                { label: '보험', value: 'insurance', icon: '🛡️' },
-                                { label: '주식/코인', value: 'stocks', icon: '📈' }
-                            ],
+                            options: ASSET_BLOCK_OPTIONS,
                             buttonLabel: '선택 완료',
                             required: false
-                        } : undefined
+                        }
                     );
                 }
                 break;
@@ -945,21 +958,14 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     ],
                     'buttons',
                     true,
-                    shouldUseBlock('multiSelect') ? {
+                    {
                         type: 'multi_select',
                         title: '보유 재산 선택',
                         description: '해당하는 항목을 모두 선택해주세요.',
-                        options: [
-                            { label: '자동차', value: 'car', icon: '🚗' },
-                            { label: '부동산', value: 'realEstate', icon: '🏠' },
-                            { label: '토지', value: 'land', icon: '🏞️' },
-                            { label: '예금/적금', value: 'savings', icon: '💰' },
-                            { label: '보험', value: 'insurance', icon: '🛡️' },
-                            { label: '주식/코인', value: 'stocks', icon: '📈' }
-                        ],
+                        options: ASSET_BLOCK_OPTIONS,
                         buttonLabel: '선택 완료',
                         required: false
-                    } : undefined
+                    }
                 );
                 break;
 
@@ -1480,10 +1486,10 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
         }
 
         // Multi Select 처리 (자산)
-        if (currentStep === 'assets_select') {
+        if (currentStep === 'assets_select' || currentStep === 'spouse_assets_select') {
             const selectedValues = Array.isArray(value) ? value : [value as string];
             // 기존 로직 재사용을 위해 processStep 호출
-            processStep('assets_select', selectedValues.length > 0 ? selectedValues : 'none');
+            processStep(currentStep, selectedValues.length > 0 ? selectedValues : 'none');
             return;
         }
     }, [currentStep, userInput, processStep]); // calculateResult는 useEffect 내에 정의된게 아니라 컴포넌트 내 함수여야 함 (확인 필요)
