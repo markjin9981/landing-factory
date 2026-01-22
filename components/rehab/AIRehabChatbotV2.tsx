@@ -85,6 +85,7 @@ type ChatStep =
     | 'prior_credit_recovery' // 신용회복 상세
     | 'prior_credit_recovery_amount' // 신용회복 잔액 (NEW)
     | 'risk'
+    | 'special_24_months'    // 24개월 특례 적용 여부 (기초수급자, 장애 등)
     | 'contact_name'
     | 'contact_phone'
     | 'result';
@@ -388,11 +389,11 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 addBotMessage(
                     '현재 어떤 형태로 소득을 얻고 계신가요?',
                     [
-                        { label: '급여소득자(직장인)', value: 'salary' },
-                        { label: '영업소득자(자영업)', value: 'business' },
-                        { label: '프리랜서', value: 'freelancer' },
-                        { label: '직장인 + 사업자 겸업', value: 'both' },
-                        { label: '무직/구직 중', value: 'none' }
+                        { label: '💼 급여소득자(직장인)', value: 'salary' },
+                        { label: '🏪 영업소득자(자영업)', value: 'business' },
+                        { label: '💻 프리랜서', value: 'freelancer' },
+                        { label: '🔄 직장인 + 사업자 겸업', value: 'both' },
+                        { label: '🔍 무직/구직 중', value: 'none' }
                     ],
                     'buttons'
                 );
@@ -409,10 +410,10 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     addBotMessage(
                         '현재 결혼 상태는 어떻게 되시나요?',
                         [
-                            { label: '미혼', value: 'single' },
-                            { label: '기혼', value: 'married' },
-                            { label: '이혼', value: 'divorced' },
-                            { label: '사별', value: 'widowed' }
+                            { label: '👤 미혼', value: 'single' },
+                            { label: '💑 기혼', value: 'married' },
+                            { label: '📋 이혼', value: 'divorced' },
+                            { label: '❓ 기타', value: 'other' }
                         ],
                         'buttons'
                     );
@@ -492,10 +493,10 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     addBotMessage(
                         '현재 결혼 상태는 어떻게 되시나요?',
                         [
-                            { label: '미혼', value: 'single' },
-                            { label: '기혼', value: 'married' },
-                            { label: '이혼', value: 'divorced' },
-                            { label: '사별', value: 'widowed' }
+                            { label: '👤 미혼', value: 'single' },
+                            { label: '💑 기혼', value: 'married' },
+                            { label: '📋 이혼', value: 'divorced' },
+                            { label: '❓ 기타', value: 'other' }
                         ],
                         'buttons'
                     );
@@ -503,7 +504,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 break;
 
             case 'marital_status':
-                const maritalStatus = value as 'single' | 'married' | 'divorced' | 'widowed';
+                const maritalStatus = value as 'single' | 'married' | 'divorced' | 'other';
                 const isMarried = maritalStatus === 'married';
                 setUserInput(prev => ({ ...prev, maritalStatus, isMarried }));
 
@@ -519,22 +520,24 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     addBotMessage(
                         '미성년 자녀를 양육하고 계신가요?',
                         [
-                            { label: '예, 양육 중이에요', value: 'yes' },
-                            { label: '아니요, 전 배우자가 양육해요', value: 'no' }
+                            { label: '✅ 예, 양육 중이에요', value: 'yes' },
+                            { label: '❌ 아니요, 전 배우자가 양육해요', value: 'no' }
                         ],
                         'buttons'
                     );
                 } else {
-                    // 미혼/사별
+                    // 미혼/기타
                     setUserInput(prev => ({ ...prev, spouseAssets: 0 }));
                     setCurrentStep('minor_children');
                     addBotMessage(
                         '함께 살고 있는 만 19세 미만 자녀가 몇 명인가요?\n\n(부양가족 인정 기준이 까다로워서 미성년 자녀만 여쭤볼게요)',
                         [
-                            { label: '없어요', value: 0 },
-                            { label: '1명', value: 1 },
-                            { label: '2명', value: 2 },
-                            { label: '3명 이상', value: 3 }
+                            { label: '0️⃣ 없어요', value: 0 },
+                            { label: '1️⃣ 1명', value: 1 },
+                            { label: '2️⃣ 2명', value: 2 },
+                            { label: '3️⃣ 3명', value: 3 },
+                            { label: '4️⃣ 4명', value: 4 },
+                            { label: '5️⃣ 5명 이상', value: 5 }
                         ],
                         'buttons'
                     );
@@ -568,10 +571,12 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     addBotMessage(
                         '함께 살고 있는 만 19세 미만 자녀가 몇 명인가요?',
                         [
-                            { label: '없어요', value: 0 },
-                            { label: '1명', value: 1 },
-                            { label: '2명', value: 2 },
-                            { label: '3명 이상', value: 3 }
+                            { label: '0️⃣ 없어요', value: 0 },
+                            { label: '1️⃣ 1명', value: 1 },
+                            { label: '2️⃣ 2명', value: 2 },
+                            { label: '3️⃣ 3명', value: 3 },
+                            { label: '4️⃣ 4명', value: 4 },
+                            { label: '5️⃣ 5명 이상', value: 5 }
                         ],
                         'buttons'
                     );
@@ -608,10 +613,12 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     addBotMessage(
                         '함께 살고 있는 만 19세 미만 자녀가 몇 명인가요?',
                         [
-                            { label: '없어요', value: 0 },
-                            { label: '1명', value: 1 },
-                            { label: '2명', value: 2 },
-                            { label: '3명 이상', value: 3 }
+                            { label: '0️⃣ 없어요', value: 0 },
+                            { label: '1️⃣ 1명', value: 1 },
+                            { label: '2️⃣ 2명', value: 2 },
+                            { label: '3️⃣ 3명', value: 3 },
+                            { label: '4️⃣ 4명', value: 4 },
+                            { label: '5️⃣ 5명 이상', value: 5 }
                         ],
                         'buttons'
                     );
@@ -649,10 +656,12 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 addBotMessage(
                     '함께 살고 있는 만 19세 미만 자녀가 몇 명인가요?',
                     [
-                        { label: '없어요', value: 0 },
-                        { label: '1명', value: 1 },
-                        { label: '2명', value: 2 },
-                        { label: '3명 이상', value: 3 }
+                        { label: '0️⃣ 없어요', value: 0 },
+                        { label: '1️⃣ 1명', value: 1 },
+                        { label: '2️⃣ 2명', value: 2 },
+                        { label: '3️⃣ 3명', value: 3 },
+                        { label: '4️⃣ 4명', value: 4 },
+                        { label: '5️⃣ 5명 이상', value: 5 }
                     ],
                     'buttons'
                 );
@@ -668,10 +677,12 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 addBotMessage(
                     '함께 살고 있는 만 19세 미만 자녀가 몇 명인가요?',
                     [
-                        { label: '없어요', value: 0 },
-                        { label: '1명', value: 1 },
-                        { label: '2명', value: 2 },
-                        { label: '3명 이상', value: 3 }
+                        { label: '0️⃣ 없어요', value: 0 },
+                        { label: '1️⃣ 1명', value: 1 },
+                        { label: '2️⃣ 2명', value: 2 },
+                        { label: '3️⃣ 3명', value: 3 },
+                        { label: '4️⃣ 4명', value: 4 },
+                        { label: '5️⃣ 5명 이상', value: 5 }
                     ],
                     'buttons'
                 );
@@ -689,10 +700,10 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 addBotMessage(
                     '현재 거주 형태는 무엇인가요?',
                     [
-                        { label: '월세', value: 'rent' },
-                        { label: '전세', value: 'jeonse' },
-                        { label: '자가(내 집)', value: 'owned' },
-                        { label: '무상거주(친가 등)', value: 'free' }
+                        { label: '🏠 월세', value: 'rent' },
+                        { label: '🏢 전세', value: 'jeonse' },
+                        { label: '🏡 자가(내 집)', value: 'owned' },
+                        { label: '👨‍👩‍👧 무상거주(친가 등)', value: 'free' }
                     ],
                     'buttons'
                 );
@@ -1066,24 +1077,17 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
 
             case 'prior_rehab':
                 if (value === 'none' || value === 'fresh_start') {
-                    setCurrentStep('contact_name');
+                    // 24개월 특례 적용 가능 여부 확인으로 이동
+                    setCurrentStep('special_24_months');
                     addBotMessage(
-                        shouldUseBlock('form')
-                            ? '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 정보를 입력해주세요.'
-                            : '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
-                        undefined,
-                        'text',
-                        undefined,
-                        shouldUseBlock('form') ? {
-                            type: 'contact_input',
-                            title: '연락처 입력',
-                            description: '정확한 분석 결과를 위해 성함과 연락처를 입력해주세요.',
-                            contactType: 'phone',
-                            includeName: true,
-                            placeholder: '010-0000-0000',
-                            buttonLabel: '결과 확인하기',
-                            required: true
-                        } : undefined
+                        '24개월 단기 변제 특례 적용 가능 여부를 확인합니다.\n\n다음 중 해당하는 항목이 있으신가요?',
+                        [
+                            { label: '🔘 해당 없음', value: 'none' },
+                            { label: '📋 기초생활수급자', value: 'basic_recipient' },
+                            { label: '♿ 심한 장애(1~3급)', value: 'severe_disability' },
+                            { label: '👴 만 70세 이상', value: 'elderly' }
+                        ],
+                        'buttons'
                     );
                 } else if (value === 'rehab' || value === 'bankruptcy') {
                     setCurrentStep('prior_rehab_detail');
@@ -1103,6 +1107,30 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         'buttons'
                     );
                 }
+                break;
+
+            case 'special_24_months':
+                // 24개월 특례 조건 저장
+                setUserInput(prev => ({ ...prev, specialCondition: value as any }));
+                setCurrentStep('contact_name');
+                addBotMessage(
+                    shouldUseBlock('form')
+                        ? '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 정보를 입력해주세요.'
+                        : '분석이 거의 끝났습니다! 🎉\n\n정확한 진단 결과를 받으실 **성함**을 입력해주세요.',
+                    undefined,
+                    'text',
+                    undefined,
+                    shouldUseBlock('form') ? {
+                        type: 'contact_input',
+                        title: '연락처 입력',
+                        description: '정확한 분석 결과를 위해 성함과 연락처를 입력해주세요.',
+                        contactType: 'phone',
+                        includeName: true,
+                        placeholder: '010-0000-0000',
+                        buttonLabel: '결과 확인하기',
+                        required: true
+                    } : undefined
+                );
                 break;
 
             case 'prior_rehab_detail':
@@ -1276,7 +1304,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
             'credit_card': 75, 'credit_card_amount': 78,
             'other_debt': 82, 'debt_confirm': 85, 'priority_debt': 88,
             'priority_debt_amount': 90, 'prior_rehab': 91, 'prior_rehab_detail': 92,
-            'prior_credit_recovery': 93, 'prior_credit_recovery_amount': 94, 'risk': 95, 'contact_name': 96,
+            'prior_credit_recovery': 93, 'prior_credit_recovery_amount': 94, 'risk': 95,
+            'special_24_months': 95.5, 'contact_name': 96,
             'contact_phone': 98, 'result': 100
         };
         return stepOrder[currentStep] || 0;

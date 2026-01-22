@@ -28,7 +28,7 @@ export interface RehabUserInput {
     businessIncome?: number;   // 사업 소득 (겸업 시)
 
     // 가족 정보
-    maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed'; // 혼인 상태
+    maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed' | 'other'; // 혼인 상태
     isMarried: boolean;        // 기혼 여부 (호환성)
     minorChildren?: number;    // 미성년 자녀 수
     familySize: number;        // 가구원 수 (본인 포함)
@@ -63,6 +63,9 @@ export interface RehabUserInput {
     // 투기성 손실
     speculativeLoss?: number;  // 주식/코인 손실금
     riskFactor?: 'none' | 'recent_loan' | 'investment' | 'gambling'; // 채무 유형
+
+    // 24개월 특례 조건
+    specialCondition?: 'none' | 'basic_recipient' | 'severe_disability' | 'elderly';
 
     // 연락처
     name?: string;             // 고객명
