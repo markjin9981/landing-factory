@@ -54,6 +54,7 @@ type ChatStep =
     | 'address'
     | 'age'
     | 'employment'
+    | 'work_location'           // NEW: 근무지역/사업지역 (관할 법원용)
     | 'income_salary'
     | 'income_business'
     | 'income_confirm'
@@ -422,11 +423,11 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 break;
 
             case 'employment':
-                const employmentType = value as 'salary' | 'business' | 'both' | 'none';
+                const employmentType = value as 'salary' | 'business' | 'freelancer' | 'both' | 'none';
                 setUserInput(prev => ({ ...prev, employmentType }));
 
                 if (employmentType === 'none') {
-                    // 무직: 200만원 기준으로 자동 설정
+                    // 무직: 200만원 기준으로 자동 설정, 근무지역 질문 스킵
                     setUserInput(prev => ({ ...prev, monthlyIncome: 2000000 }));
                     setCurrentStep('marital_status');
                     addBotMessage(
@@ -439,7 +440,24 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         ],
                         'buttons'
                     );
-                } else if (employmentType === 'both') {
+                } else {
+                    // 직장인/사업자/프리랜서: 근무지역 질문으로 이동
+                    setCurrentStep('work_location');
+                    const locationQuestion = employmentType === 'business'
+                        ? '사업장이 위치한 지역(구/시)을 입력해주세요.\n\n(예: 서울 강남구, 부산 해운대구)'
+                        : employmentType === 'freelancer'
+                            ? '주로 근무하시는 지역(구/시)을 입력해주세요.\n\n(예: 서울 마포구, 대전 유성구)'
+                            : '직장이 위치한 지역(구/시)을 입력해주세요.\n\n(예: 서울 강남구, 경기 수원시)';
+                    addBotMessage(locationQuestion, undefined, 'text');
+                }
+                break;
+
+            case 'work_location':
+                // 근무지역 저장
+                setUserInput(prev => ({ ...prev, workLocation: value as string }));
+                const empType = userInput.employmentType;
+
+                if (empType === 'both') {
                     setCurrentStep('income_salary');
                     addBotMessage(
                         '먼저, 직장에서 받는 월 실수령액은 얼마인가요?\n\n(만원 단위)',
@@ -449,7 +467,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 } else {
                     setCurrentStep('income_salary');
                     addBotMessage(
-                        employmentType === 'salary'
+                        empType === 'salary'
                             ? '세금과 4대보험을 제외한 월 평균 실수령액은 얼마인가요?\n\n(만원 단위)'
                             : '매달 순수익(매출-비용)은 대략 얼마인가요?\n\n(만원 단위)',
                         undefined,
@@ -1400,6 +1418,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     const getProgress = useCallback(() => {
         const stepOrder: Record<ChatStep, number> = {
             'intro': 0, 'address': 5, 'age': 10, 'employment': 15,
+            'work_location': 17,
             'income_salary': 20, 'income_business': 22, 'income_confirm': 25,
             'marital_status': 30, 'spouse_income': 35, 'spouse_assets_select': 38,
             'spouse_asset_detail': 40, 'custody': 35, 'child_support_receive': 38,

@@ -551,8 +551,8 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                                         <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.content}</p>
                                     </div>
 
-                                    {/* 옵션 버튼 */}
-                                    {msg.options && msg.type === 'bot' && (
+                                    {/* 옵션 버튼 - Interactive Block이 없는 경우에만 표시 */}
+                                    {msg.options && msg.type === 'bot' && !msg.interactiveBlock && (
                                         <div className="mt-2 flex flex-wrap gap-2">
                                             {msg.options.map((opt, optIdx) => (
                                                 <motion.button
@@ -791,6 +791,53 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                         위 블록에서 입력을 완료해주세요
                     </div>
                 )}
+
+                {/* 숫자 입력 도우미 버튼 (inputType이 number일 때만 표시) */}
+                {(() => {
+                    const lastBotMsg = [...messages].reverse().find(m => m.type === 'bot');
+                    if (lastBotMsg?.inputType === 'number' && !isComposerLocked) {
+                        const addAmount = (amount: number) => {
+                            const currentVal = parseInt(inputValue.replace(/,/g, '')) || 0;
+                            const newVal = currentVal + amount;
+                            onInputChange(newVal.toString());
+                        };
+
+                        const resetAmount = () => onInputChange('');
+
+                        return (
+                            <div className="mb-2 flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
+                                {[
+                                    { label: '+1억', value: 10000 },
+                                    { label: '+5천만', value: 5000 },
+                                    { label: '+1천만', value: 1000 },
+                                    { label: '+100만', value: 100 },
+                                    { label: '+10만', value: 10 },
+                                ].map((btn, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => addAmount(btn.value)}
+                                        className="px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors border"
+                                        style={{
+                                            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                                            borderColor: isDark ? '#475569' : '#e2e8f0',
+                                            color: isDark ? '#e2e8f0' : '#475569'
+                                        }}
+                                    >
+                                        {btn.label}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={resetAmount}
+                                    className="px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors border bg-red-50 text-red-600 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30"
+                                >
+                                    초기화
+                                </button>
+                            </div>
+                        );
+                    }
+                    return null;
+                })()}
+
                 <div className="flex items-center gap-2">
                     <input
                         ref={inputRef}

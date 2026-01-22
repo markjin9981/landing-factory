@@ -19,10 +19,11 @@ import {
 export interface RehabUserInput {
     // 기본 정보
     address: string;           // 거주지 주소
+    workLocation?: string;     // 근무지/사업장 지역 (관할 법원용)
     age?: number;              // 나이 (24개월 특례 확인용)
 
     // 소득 정보
-    employmentType?: 'salary' | 'business' | 'both' | 'none'; // 고용 형태
+    employmentType?: 'salary' | 'business' | 'freelancer' | 'both' | 'none'; // 고용 형태
     monthlyIncome: number;     // 월 실수령 소득 (세후)
     salaryIncome?: number;     // 급여 소득 (겸업 시)
     businessIncome?: number;   // 사업 소득 (겸업 시)
