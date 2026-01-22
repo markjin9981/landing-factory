@@ -564,11 +564,34 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 setUserInput(prev => ({ ...prev, maritalStatus, isMarried }));
 
                 if (maritalStatus === 'married') {
-                    setCurrentStep('spouse_income');
+                    // 배우자 소득은 변제금에 영향 없음 - 바로 배우자 재산 질문으로
+                    setCurrentStep('spouse_assets_select');
                     addBotMessage(
-                        '배우자분의 월 평균 소득은 대략 얼마인가요?\n\n(만원 단위, 없으면 0)',
-                        undefined,
-                        'money'
+                        '배우자 명의로 가지고 있는 재산이 있나요?\n\n(해당하는 항목을 모두 선택하고 "선택완료"를 눌러주세요)',
+                        [
+                            { label: '🚗 자동차', value: 'car' },
+                            { label: '🏠 부동산', value: 'realEstate' },
+                            { label: '🏞️ 토지', value: 'land' },
+                            { label: '💰 예금/적금', value: 'savings' },
+                            { label: '🛡️ 보험', value: 'insurance' },
+                            { label: '📈 주식/코인', value: 'stocks' },
+                            { label: '🏢 사업재산', value: 'businessAssets' },
+                            { label: '✅ 선택완료', value: 'done' },
+                            { label: '❌ 없어요', value: 'none' }
+                        ],
+                        'buttons',
+                        true,
+                        interactiveBlockPreset !== 'none' ? {
+                            type: 'multi_select',
+                            title: '보유 재산 선택',
+                            description: '해당하는 항목을 모두 선택해주세요.',
+                            options: [
+                                ...ASSET_BLOCK_OPTIONS,
+                                { label: '사업재산', value: 'businessAssets', icon: '🏢' }
+                            ],
+                            buttonLabel: '선택 완료',
+                            required: false
+                        } : undefined
                     );
                 } else if (maritalStatus === 'divorced') {
                     setCurrentStep('custody');
@@ -597,38 +620,6 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         'buttons'
                     );
                 }
-                break;
-
-            case 'spouse_income':
-                setUserInput(prev => ({ ...prev, spouseIncome: (value as number) * 10000 }));
-                setCurrentStep('spouse_assets_select');
-                addBotMessage(
-                    '배우자 명의로 가지고 있는 재산이 있나요?\n\n(해당하는 항목을 모두 선택하고 "선택완료"를 눌러주세요)',
-                    [
-                        { label: '🚗 자동차', value: 'car' },
-                        { label: '🏠 부동산', value: 'realEstate' },
-                        { label: '🏞️ 토지', value: 'land' },
-                        { label: '💰 예금/적금', value: 'savings' },
-                        { label: '🛡️ 보험', value: 'insurance' },
-                        { label: '📈 주식/코인', value: 'stocks' },
-                        { label: '🏢 사업재산', value: 'businessAssets' },
-                        { label: '✅ 선택완료', value: 'done' },
-                        { label: '❌ 없어요', value: 'none' }
-                    ],
-                    'buttons',
-                    true,
-                    interactiveBlockPreset !== 'none' ? {
-                        type: 'multi_select',
-                        title: '보유 재산 선택',
-                        description: '해당하는 항목을 모두 선택해주세요.',
-                        options: [
-                            ...ASSET_BLOCK_OPTIONS,
-                            { label: '사업재산', value: 'businessAssets', icon: '🏢' }
-                        ],
-                        buttonLabel: '선택 완료',
-                        required: false
-                    } : undefined
-                );
                 break;
 
             case 'spouse_assets_select':

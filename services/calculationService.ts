@@ -11,6 +11,7 @@ import {
     getCourtForRegion,
     getRegionGroup,
     getMedianIncome,
+    getRecognizedLivingCost,
 } from '../config/PolicyConfig';
 
 /**
@@ -121,9 +122,8 @@ export function calculateRepayment(
     const regionGroup = getRegionGroup(region, config);
     const courtTrait = config.courtTraits[courtName] || config.courtTraits['Default'];
 
-    // 2. 인정 생계비 산출
-    const medianIncome = getMedianIncome(input.familySize, config);
-    const recognizedLivingCost = Math.round(medianIncome * config.livingCostRate);
+    // 2. 인정 생계비 산출 (소수점 가구원수 지원)
+    const recognizedLivingCost = getRecognizedLivingCost(input.familySize, config);
 
     // 3. 월 가용소득 (변제금) 계산
     let availableIncome = input.monthlyIncome - recognizedLivingCost;
@@ -169,12 +169,20 @@ export function calculateRepayment(
         liquidationValue += Math.round(input.spouseAssets * courtTrait.spousePropertyRate);
     }
 
+    // 상태 변수 초기화
+    let status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE' = 'POSSIBLE';
+    let statusReason = '';
+    const aiAdvice: string[] = [];
+    const riskWarnings: string[] = [];
+
     // 5. 변제 기간 산정 (기본 36개월)
     let repaymentMonths = 36;
+    let isYouthSpecial = false;
 
     // Case 3: 서울 청년 특례 (만 30세 미만)
     if (courtTrait.allow24Months && input.age && input.age < 30) {
         repaymentMonths = 24;
+        isYouthSpecial = true;
     }
 
     // 6. 월 변제금 결정
@@ -183,7 +191,36 @@ export function calculateRepayment(
     // 청산가치 보장 원칙: 총 변제액 >= 청산가치
     let totalRepayment = monthlyPayment * repaymentMonths;
 
-    // Case 2: 재산 과다형 - 청산가치가 총 변제액보다 큰 경우
+    // 시나리오별 처리
+    if (isYouthSpecial && totalRepayment < liquidationValue) {
+        // 청년 특례인데 청산가치 미충족 시 -> 두 가지 옵션 제안
+        // Option A: 기간 연장 (36개월)
+        const optionAMonths = 36;
+        const optionAPayment = availableIncome;
+        const optionATotal = optionAPayment * optionAMonths;
+
+        // Option B: 변제금 상향 (24개월 유지)
+        const optionBMonths = 24;
+        const optionBPayment = Math.ceil(liquidationValue / 24);
+
+        // 더 유리한 쪽(변제금 적은 쪽)을 기본으로 하되, 조언에 포함
+        if (optionATotal >= liquidationValue) {
+            // 36개월로 늘리면 해결되는 경우 -> 기본값은 36개월로 변경 (안전하게)
+            repaymentMonths = 36;
+            monthlyPayment = availableIncome;
+            totalRepayment = totalRepayment * (36 / 24);
+            statusReason = '청산가치 보장을 위해 기간이 36개월로 조정되었습니다. (청년 특례 24개월 유지 시 월 변제금 상향 필요)';
+
+            aiAdvice.push(`💡 **청년 특례 옵션**: 기간을 24개월로 유지하려면 월 변제금을 약 ${formatCurrency(optionBPayment)}으로 상향해야 합니다.`);
+        } else {
+            // 36개월로도 부족한 경우 -> Case 2 로직으로 넘어감
+            repaymentMonths = 36; // 일단 36개월로 설정하고 아래 로직 태움
+        }
+    }
+
+    // Case 2: 재산 과다형 - 청산가치가 총 변제액보다 큰 경우 (청년 특례 조정 후에도 부족하거나, 일반인 경우)
+    totalRepayment = monthlyPayment * repaymentMonths; // 재계산
+
     if (totalRepayment < liquidationValue) {
         // 1단계: 기간 연장 시도 (최대 60개월)
         if (availableIncome * 60 >= liquidationValue) {
@@ -204,33 +241,36 @@ export function calculateRepayment(
     const debtReductionRate = Math.round((totalDebtReduction / input.totalDebt) * 100);
 
     // 8. 상태 판단
-    let status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE' = 'POSSIBLE';
-    let statusReason = '';
-
     if (liquidationValue >= input.totalDebt) {
         status = 'IMPOSSIBLE';
         statusReason = '재산 가치가 채무보다 많아 개인회생 신청이 어렵습니다.';
     } else if (monthlyPayment > input.monthlyIncome * 0.8) {
         status = 'DIFFICULT';
         statusReason = '변제금이 소득의 80%를 초과하여 생활이 어려울 수 있습니다.';
-    } else if (debtReductionRate < 50) {
+    } else if (debtReductionRate < 0) { // 탕감액 마이너스인 경우
+        status = 'IMPOSSIBLE';
+        statusReason = '총 변제액이 원금을 초과합니다. (이자율에 따라 유불리 판단 필요)';
+    } else if (debtReductionRate < 30) {
         status = 'DIFFICULT';
-        statusReason = '탕감율이 50% 미만으로 파산을 검토해볼 수 있습니다.';
+        statusReason = '탕감율이 낮아 실익이 적을 수 있습니다.';
     } else {
         status = 'POSSIBLE';
         statusReason = '개인회생 신청이 가능합니다.';
     }
 
-    // 9. AI 조언 생성
-    const aiAdvice: string[] = [];
-    const riskWarnings: string[] = [];
-
+    // 9. AI 조언 생성 (업데이트)
     // 법원 관련 조언
-    if (courtTrait.allow24Months && input.age && input.age < 30) {
-        aiAdvice.push(`${courtName} 관할로 24개월 단축 변제가 가능할 수 있습니다.`);
+    if (isYouthSpecial) {
+        if (repaymentMonths === 24) {
+            aiAdvice.push(`${courtName} 관할 청년 특례로 24개월 단축 변제가 적용되었습니다.`);
+        } else if (repaymentMonths > 24 && repaymentMonths <= 36) {
+            // 위에서 이미 추가됨
+        }
+    } else if (courtTrait.allow24Months && input.age && input.age < 30) {
+        // 서울인데 청년 특례 미적용 (나이 등)
     }
 
-    if (courtTrait.spousePropertyRate === 0) {
+    if (courtTrait.spousePropertyRate === 0 && input.isMarried) {
         aiAdvice.push('이 법원은 배우자 재산을 반영하지 않아 유리합니다.');
     }
 

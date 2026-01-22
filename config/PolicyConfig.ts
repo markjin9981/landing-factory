@@ -22,7 +22,7 @@ export interface RehabPolicyConfig {
     courtTraits: Record<string, CourtTrait>;
     // 지역->법원 매핑
     regionToCourtMap: Record<string, string>;
-    // 지역->그룹 매핑 (Seoul, Overcrowded, Metro, Others)
+    // 지역별 그룹 (Seoul, Overcrowded, Metro, Others)
     regionToGroupMap: Record<string, string>;
 }
 
@@ -51,25 +51,24 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         6: 8464742,   // 6인 가구
     },
     medianIncomeIncrement: 985002, // 6인 초과 시 1인당 추가분
-
-    // 2026년 확정 인정 생계비 (중위소득 60%, 1.5/2.5인 포함)
+    // 2026년 확정 인정 생계비 (중위소득 60%)
+    // - 미성년 자녀 1인당 0.5인 가산 (예: 1인+자녀1 = 1.5인)
+    // - 소수점 가구원수는 getRecognizedLivingCost 함수에서 중간값으로 계산됨
     recognizedLivingCost: {
-        1: 1538543,     // 1인
-        1.5: 2029059,   // 1.5인 (이혼 1인 + 양육미성년)
-        2: 2519575,     // 2인
-        2.5: 2867498,   // 2.5인 (기혼 배우자 미합가)
-        3: 3215422,     // 3인
-        4: 3896843,     // 4인
-        5: 4492318,     // 5인 (추정)
-        6: 5087793,     // 6인 (추정)
+        1: 1538543,     // 1인 가구
+        2: 2519575,     // 2인 가구
+        3: 3215422,     // 3인 가구
+        4: 3896843,     // 4인 가구
+        5: 4534031,     // 5인 가구
+        6: 5133571,     // 6인 가구
     } as Record<number, number>,
 
-    // 지역별 보증금 공제 기준 (주택임대차보호법 기준 예상)
+    // 지역별 보증금 공제 기준 (2026년 확정)
     depositExemptions: {
-        'Seoul': { limit: 170000000, deduct: 57000000 },         // 서울
-        'Overcrowded': { limit: 150000000, deduct: 50000000 },   // 과밀억제권역
-        'Metro': { limit: 88000000, deduct: 29000000 },          // 광역시
-        'Others': { limit: 78000000, deduct: 26000000 }          // 그 외
+        'Seoul': { limit: 165000000, deduct: 55000000 },         // 서울: 1억 6500만원 이하 / 5500만원 공제
+        'Overcrowded': { limit: 145000000, deduct: 48000000 },   // 과밀억제권역: 1억 4500만원 이하 / 4800만원 공제
+        'Metro': { limit: 85000000, deduct: 28000000 },          // 광역시: 8500만원 이하 / 2800만원 공제
+        'Others': { limit: 75000000, deduct: 25000000 }          // 그 외: 7500만원 이하 / 2500만원 공제
     },
 
     // 생계비 인정률
@@ -299,4 +298,26 @@ export function getMedianIncome(familySize: number, config: RehabPolicyConfig): 
     }
     // 6인 초과
     return config.medianIncome[6] + (familySize - 6) * config.medianIncomeIncrement;
+}
+
+/**
+ * 가구원수에 따른 인정 생계비 계산 (소수점 지원)
+ * 미성년 자녀 1인당 0.5 추가, 소수점은 양쪽 값의 중간값 적용
+ */
+export function getRecognizedLivingCost(familySize: number, config: RehabPolicyConfig): number {
+    // 정수인 경우 바로 반환
+    if (Number.isInteger(familySize) && config.recognizedLivingCost[familySize]) {
+        return config.recognizedLivingCost[familySize];
+    }
+
+    // 소수점인 경우 양쪽 값의 중간값 계산
+    const lower = Math.floor(familySize);
+    const upper = Math.ceil(familySize);
+    const fraction = familySize - lower;
+
+    const lowerCost = config.recognizedLivingCost[lower] || config.recognizedLivingCost[1];
+    const upperCost = config.recognizedLivingCost[upper] || config.recognizedLivingCost[6];
+
+    // 선형 보간 (예: 1.5인 = 1인 생계비 + (2인 생계비 - 1인 생계비) * 0.5)
+    return Math.round(lowerCost + (upperCost - lowerCost) * fraction);
 }
