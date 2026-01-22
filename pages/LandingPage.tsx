@@ -722,6 +722,7 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
           config={config.rehabChatConfig}
           // Lifting State for shared control
           isOpen={isRehabChatOpen}
+          onOpen={() => setIsRehabChatOpen(true)}
           onClose={() => setIsRehabChatOpen(false)}
           onComplete={async (result: RehabCalculationResult, userInput: RehabUserInput) => {
             // 1. Format Extra Info
