@@ -35,6 +35,9 @@ interface ChatMessage {
     // Interactive Block (폼-혼합형)
     interactiveBlock?: InteractiveBlockConfig;
     blockState?: InteractiveBlockState;
+    // 롤백을 위한 단계 추적
+    stepId?: ChatStep;
+    isAnswered?: boolean; // 이미 답변된 메시지인지 표시
 }
 
 interface ChatOption {
@@ -202,6 +205,14 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
     const [showResult, setShowResult] = useState(false);
     const [policyConfig, setPolicyConfig] = useState<RehabPolicyConfig | undefined>(undefined);
 
+    // 롤백 확인 상태
+    const [rollbackConfirm, setRollbackConfirm] = useState<{
+        isOpen: boolean;
+        targetStep: ChatStep | null;
+        targetMessageId: string | null;
+        newValue: string | number | null;
+    }>({ isOpen: false, targetStep: null, targetMessageId: null, newValue: null });
+
     // Fetch Global Policy
     useEffect(() => {
         const loadPolicy = async () => {
@@ -295,28 +306,39 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
         }
     }, [interactiveBlockPreset, interactiveBlockConfig, disablePortal]);
 
-    // 봇 메시지 추가 (Interactive Block 지원)
+    // 봇 메시지 추가 (Interactive Block 지원 + stepId 추적)
     const addBotMessage = useCallback((
         content: string,
         options?: ChatOption[],
         inputType?: InputType,
         multiSelect?: boolean,
-        interactiveBlock?: InteractiveBlockConfig
+        interactiveBlock?: InteractiveBlockConfig,
+        stepId?: ChatStep
     ) => {
         setIsTyping(true);
         setTimeout(() => {
-            const newMessage: ChatMessage = {
-                id: Date.now().toString(),
-                type: 'bot',
-                content,
-                timestamp: new Date(),
-                options,
-                inputType,
-                multiSelect,
-                interactiveBlock,
-                blockState: interactiveBlock ? { status: 'active' } : undefined
-            };
-            setMessages(prev => [...prev, newMessage]);
+            // 이전 봇 메시지를 "답변됨"으로 표시
+            setMessages(prev => {
+                const updated = prev.map(msg =>
+                    msg.type === 'bot' && msg.options && !msg.isAnswered
+                        ? { ...msg, isAnswered: true }
+                        : msg
+                );
+                const newMessage: ChatMessage = {
+                    id: Date.now().toString(),
+                    type: 'bot',
+                    content,
+                    timestamp: new Date(),
+                    options,
+                    inputType,
+                    multiSelect,
+                    interactiveBlock,
+                    blockState: interactiveBlock ? { status: 'active' } : undefined,
+                    stepId: stepId,
+                    isAnswered: false
+                };
+                return [...updated, newMessage];
+            });
             setIsTyping(false);
             if (inputType === 'number' || inputType === 'text' || inputType === 'address') {
                 setTimeout(() => inputRef.current?.focus(), 100);
@@ -1276,18 +1298,62 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
         }, 300);
     }, [inputValue, messages, addUserMessage, processStep, currentStep]);
 
-    // 옵션 선택 처리
-    const handleOptionSelect = useCallback((option: ChatOption) => {
+    // 롤백 실행 함수
+    const executeRollback = useCallback((targetStep: ChatStep, targetMessageId: string, newValue: string | number) => {
+        // 해당 메시지 이후의 모든 메시지 삭제
+        setMessages(prev => {
+            const targetIndex = prev.findIndex(msg => msg.id === targetMessageId);
+            if (targetIndex === -1) return prev;
+            // 해당 메시지까지만 유지하고, 그 이후 모두 삭제
+            const kept = prev.slice(0, targetIndex + 1);
+            // 해당 메시지의 isAnswered를 false로 변경
+            return kept.map((msg, idx) =>
+                idx === targetIndex ? { ...msg, isAnswered: false } : msg
+            );
+        });
+
+        // 해당 단계로 currentStep 설정
+        setCurrentStep(targetStep);
+
+        // userInput 초기화 (해당 단계 이후의 값들)
+        // 간소화: 전체 초기화 대신 해당 단계부터 다시 시작
+        // 사용자 메시지 추가 및 단계 진행
+        const targetMessage = messages.find(msg => msg.id === targetMessageId);
+        const selectedOption = targetMessage?.options?.find(opt => opt.value === newValue);
+        if (selectedOption) {
+            addUserMessage(selectedOption.label);
+            setTimeout(() => processStep(targetStep, newValue), 300);
+        }
+
+        setRollbackConfirm({ isOpen: false, targetStep: null, targetMessageId: null, newValue: null });
+    }, [messages, addUserMessage, processStep]);
+
+    // 옵션 선택 처리 (롤백 지원)
+    const handleOptionSelect = useCallback((option: ChatOption, messageId?: string) => {
         // 시작하기 버튼은 사용자 메시지 표시 안 함
         if (option.value === 'start') {
             setTimeout(() => processStep('intro'), 300);
         } else if (option.value === 'show_result') {
             setShowResult(true);
         } else {
-            addUserMessage(option.label);
-            setTimeout(() => processStep(currentStep, option.value), 300);
+            // 해당 메시지가 이미 답변된 것인지 확인
+            const clickedMessage = messageId ? messages.find(msg => msg.id === messageId) : null;
+
+            if (clickedMessage?.isAnswered && clickedMessage.stepId) {
+                // 롤백 확인 모달 표시
+                setRollbackConfirm({
+                    isOpen: true,
+                    targetStep: clickedMessage.stepId,
+                    targetMessageId: messageId || null,
+                    newValue: option.value as string | number
+                });
+            } else {
+                // 일반 진행
+                addUserMessage(option.label);
+                setTimeout(() => processStep(currentStep, option.value), 300);
+            }
         }
-    }, [addUserMessage, processStep, currentStep]);
+    }, [addUserMessage, processStep, currentStep, messages]);
 
     // 진행률 계산
     const getProgress = useCallback(() => {
@@ -1391,7 +1457,9 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                             multiSelect: msg.multiSelect,
                             timestamp: msg.timestamp,
                             interactiveBlock: msg.interactiveBlock,
-                            blockState: msg.blockState
+                            blockState: msg.blockState,
+                            isAnswered: msg.isAnswered,
+                            stepId: msg.stepId
                         }))}
                         inputValue={inputValue}
                         isTyping={isTyping}
@@ -1400,7 +1468,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         progress={getProgress()}
                         onInputChange={setInputValue}
                         onSubmit={handleSubmit}
-                        onOptionSelect={(opt) => handleOptionSelect({ label: opt.label, value: opt.value })}
+                        onOptionSelect={(opt, msgId) => handleOptionSelect({ label: opt.label, value: opt.value }, msgId)}
                         onClose={onClose}
                         messagesEndRef={messagesEndRef}
                         inputRef={inputRef}
@@ -1515,6 +1583,56 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Rollback Confirmation Modal */}
+            {rollbackConfirm.isOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 z-60 bg-black/50 flex items-center justify-center p-6"
+                    onClick={() => setRollbackConfirm({ isOpen: false, targetStep: null, targetMessageId: null, newValue: null })}
+                >
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                                <AlertCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                답변을 변경하시겠습니까?
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                                이 질문 이후의 답변들이 삭제되고,<br />
+                                새로운 답변으로 다시 진행됩니다.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setRollbackConfirm({ isOpen: false, targetStep: null, targetMessageId: null, newValue: null })}
+                                    className="flex-1 py-3 px-4 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (rollbackConfirm.targetStep && rollbackConfirm.targetMessageId && rollbackConfirm.newValue !== null) {
+                                            executeRollback(rollbackConfirm.targetStep, rollbackConfirm.targetMessageId, rollbackConfirm.newValue);
+                                        }
+                                    }}
+                                    className="flex-1 py-3 px-4 rounded-xl text-white font-medium transition-colors"
+                                    style={{ backgroundColor: colors.primary }}
+                                >
+                                    변경하기
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </motion.div>
             )}
 
             {/* Result Modal */}

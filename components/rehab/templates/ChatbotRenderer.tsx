@@ -32,6 +32,9 @@ export interface ChatMessage {
     // Interactive Block (폼-혼합형)
     interactiveBlock?: InteractiveBlockConfig;
     blockState?: InteractiveBlockState;
+    // 롤백을 위한 단계 추적
+    stepId?: string;
+    isAnswered?: boolean;
 }
 
 // 렌더러 Props
@@ -47,7 +50,7 @@ interface ChatbotRendererProps {
     progress: number;
     onInputChange: (value: string) => void;
     onSubmit: () => void;
-    onOptionSelect: (option: { label: string; value: string }) => void;
+    onOptionSelect: (option: { label: string; value: string }, messageId?: string) => void;
     onClose: () => void;
     messagesEndRef: React.RefObject<HTMLDivElement>;
     inputRef: React.RefObject<HTMLInputElement>;
@@ -556,7 +559,7 @@ const ChatbotRenderer: React.FC<ChatbotRendererProps> = ({
                                                     key={optIdx}
                                                     whileHover={{ scale: 1.02 }}
                                                     whileTap={{ scale: 0.98 }}
-                                                    onClick={() => onOptionSelect(opt)}
+                                                    onClick={() => onOptionSelect(opt, msg.id)}
                                                     className="px-4 py-2 text-sm font-medium transition-all"
                                                     style={{
                                                         backgroundColor: colors.accent,
