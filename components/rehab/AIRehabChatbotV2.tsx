@@ -570,16 +570,17 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 setUserInput(prev => ({ ...prev, spouseIncome: (value as number) * 10000 }));
                 setCurrentStep('spouse_assets_select');
                 addBotMessage(
-                    '배우자 명의로 가지고 있는 재산이 있나요?\n\n(해당하는 항목을 모두 선택해주세요)',
+                    '배우자 명의로 가지고 있는 재산이 있나요?\n\n(해당하는 항목을 모두 선택하고 "선택완료"를 눌러주세요)',
                     [
-                        { label: '자동차', value: 'car' },
-                        { label: '부동산', value: 'realEstate' },
-                        { label: '토지', value: 'land' },
-                        { label: '예금/적금', value: 'savings' },
-                        { label: '보험', value: 'insurance' },
-                        { label: '주식/코인', value: 'stocks' },
-                        { label: '사업재산', value: 'businessAssets' },
-                        { label: '없어요', value: 'none' }
+                        { label: '🚗 자동차', value: 'car' },
+                        { label: '🏠 부동산', value: 'realEstate' },
+                        { label: '🏞️ 토지', value: 'land' },
+                        { label: '💰 예금/적금', value: 'savings' },
+                        { label: '🛡️ 보험', value: 'insurance' },
+                        { label: '📈 주식/코인', value: 'stocks' },
+                        { label: '🏢 사업재산', value: 'businessAssets' },
+                        { label: '✅ 선택완료', value: 'done' },
+                        { label: '❌ 없어요', value: 'none' }
                     ],
                     'buttons',
                     true
@@ -603,15 +604,36 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         'buttons'
                     );
                 } else {
-                    const assets = (Array.isArray(value) ? value : [value]) as AssetType[];
-                    setSpouseSelectedAssets(assets);
-                    setCurrentSpouseAssetIndex(0);
-                    setCurrentStep('spouse_asset_detail');
-                    addBotMessage(
-                        `배우자의 ${ASSET_LABELS[assets[0]]} 가치는 대략 얼마인가요?\n\n(만원 단위)`,
-                        undefined,
-                        'number'
-                    );
+                    // 'done'과 'none'을 제외한 실제 자산만 필터링
+                    const rawAssets = Array.isArray(value) ? value : [value];
+                    const assets = rawAssets.filter(v => v !== 'done' && v !== 'none') as AssetType[];
+
+                    if (assets.length === 0) {
+                        // 자산을 선택하지 않고 완료만 누른 경우
+                        setUserInput(prev => ({ ...prev, spouseAssets: 0 }));
+                        setCurrentStep('minor_children');
+                        addBotMessage(
+                            '함께 살고 있는 만 19세 미만 자녀가 몇 명인가요?',
+                            [
+                                { label: '0️⃣ 없어요', value: 0 },
+                                { label: '1️⃣ 1명', value: 1 },
+                                { label: '2️⃣ 2명', value: 2 },
+                                { label: '3️⃣ 3명', value: 3 },
+                                { label: '4️⃣ 4명', value: 4 },
+                                { label: '5️⃣ 5명 이상', value: 5 }
+                            ],
+                            'buttons'
+                        );
+                    } else {
+                        setSpouseSelectedAssets(assets);
+                        setCurrentSpouseAssetIndex(0);
+                        setCurrentStep('spouse_asset_detail');
+                        addBotMessage(
+                            `배우자의 ${ASSET_LABELS[assets[0]]} 가치는 대략 얼마인가요?\n\n(만원 단위)`,
+                            undefined,
+                            'number'
+                        );
+                    }
                 }
                 break;
 
@@ -853,15 +875,16 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     setUserInput(prev => ({ ...prev, medicalCost: 0, educationCost: 0 }));
                     setCurrentStep('assets_select');
                     addBotMessage(
-                        '현재 본인 명의로 가지고 있는 재산이 있으신가요?\n\n(해당하는 항목을 모두 선택해주세요)',
+                        '현재 본인 명의로 가지고 있는 재산이 있으신가요?\n\n(해당하는 항목을 모두 선택하고 "선택완료"를 눌러주세요)',
                         [
-                            { label: '자동차', value: 'car' },
-                            { label: '부동산', value: 'realEstate' },
-                            { label: '토지', value: 'land' },
-                            { label: '예금/적금', value: 'savings' },
-                            { label: '보험', value: 'insurance' },
-                            { label: '주식/코인', value: 'stocks' },
-                            { label: '없어요', value: 'none' }
+                            { label: '🚗 자동차', value: 'car' },
+                            { label: '🏠 부동산', value: 'realEstate' },
+                            { label: '🏞️ 토지', value: 'land' },
+                            { label: '💰 예금/적금', value: 'savings' },
+                            { label: '🛡️ 보험', value: 'insurance' },
+                            { label: '📈 주식/코인', value: 'stocks' },
+                            { label: '✅ 선택완료', value: 'done' },
+                            { label: '❌ 없어요', value: 'none' }
                         ],
                         'buttons',
                         true,
@@ -872,7 +895,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                             options: [
                                 { label: '자동차', value: 'car', icon: '🚗' },
                                 { label: '부동산', value: 'realEstate', icon: '🏠' },
-                                { label: '토지', value: 'land', icon: 'im' },
+                                { label: '토지', value: 'land', icon: '🏞️' },
                                 { label: '예금/적금', value: 'savings', icon: '💰' },
                                 { label: '보험', value: 'insurance', icon: '🛡️' },
                                 { label: '주식/코인', value: 'stocks', icon: '📈' }
@@ -891,15 +914,16 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 }));
                 setCurrentStep('assets_select');
                 addBotMessage(
-                    '현재 본인 명의로 가지고 있는 재산이 있으신가요?\n\n(해당하는 항목을 모두 선택해주세요)',
+                    '현재 본인 명의로 가지고 있는 재산이 있으신가요?\n\n(해당하는 항목을 모두 선택하고 "선택완료"를 눌러주세요)',
                     [
-                        { label: '자동차', value: 'car' },
-                        { label: '부동산', value: 'realEstate' },
-                        { label: '토지', value: 'land' },
-                        { label: '예금/적금', value: 'savings' },
-                        { label: '보험', value: 'insurance' },
-                        { label: '주식/코인', value: 'stocks' },
-                        { label: '없어요', value: 'none' }
+                        { label: '🚗 자동차', value: 'car' },
+                        { label: '🏠 부동산', value: 'realEstate' },
+                        { label: '🏞️ 토지', value: 'land' },
+                        { label: '💰 예금/적금', value: 'savings' },
+                        { label: '🛡️ 보험', value: 'insurance' },
+                        { label: '📈 주식/코인', value: 'stocks' },
+                        { label: '✅ 선택완료', value: 'done' },
+                        { label: '❌ 없어요', value: 'none' }
                     ],
                     'buttons',
                     true,
@@ -910,7 +934,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         options: [
                             { label: '자동차', value: 'car', icon: '🚗' },
                             { label: '부동산', value: 'realEstate', icon: '🏠' },
-                            { label: '토지', value: 'land', icon: 'im' },
+                            { label: '토지', value: 'land', icon: '🏞️' },
                             { label: '예금/적금', value: 'savings', icon: '💰' },
                             { label: '보험', value: 'insurance', icon: '🛡️' },
                             { label: '주식/코인', value: 'stocks', icon: '📈' }
@@ -934,15 +958,32 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         'buttons'
                     );
                 } else {
-                    const assets = (Array.isArray(value) ? value : [value]) as AssetType[];
-                    setSelectedAssets(assets);
-                    setCurrentAssetIndex(0);
-                    setCurrentStep('asset_detail');
-                    addBotMessage(
-                        `${ASSET_LABELS[assets[0]]}의 현재 가치는 대략 얼마인가요?\n\n(만원 단위)`,
-                        undefined,
-                        'number'
-                    );
+                    // 'done'과 'none'을 제외한 실제 자산만 필터링
+                    const rawAssets = Array.isArray(value) ? value : [value];
+                    const assets = rawAssets.filter(v => v !== 'done' && v !== 'none') as AssetType[];
+
+                    if (assets.length === 0) {
+                        // 자산을 선택하지 않고 완료만 누른 경우
+                        setUserInput(prev => ({ ...prev, myAssets: 0 }));
+                        setCurrentStep('credit_card');
+                        addBotMessage(
+                            '현재 신용카드를 사용하고 계신가요?\n\n(카드 사용금액도 채무에 포함됩니다)',
+                            [
+                                { label: '사용 중이에요', value: 'yes' },
+                                { label: '사용 안 해요', value: 'no' }
+                            ],
+                            'buttons'
+                        );
+                    } else {
+                        setSelectedAssets(assets);
+                        setCurrentAssetIndex(0);
+                        setCurrentStep('asset_detail');
+                        addBotMessage(
+                            `${ASSET_LABELS[assets[0]]}의 현재 가치는 대략 얼마인가요?\n\n(만원 단위)`,
+                            undefined,
+                            'number'
+                        );
+                    }
                 }
                 break;
 
