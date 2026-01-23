@@ -357,6 +357,16 @@ const PolicyManager: React.FC = () => {
                                             <option value={1.0}>100% (전체)</option>
                                         </select>
                                     </div>
+                                    <div className="flex items-center gap-2">
+                                        <label className="text-xs font-bold text-gray-600">개시 소요기간(월):</label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={newCourt.processingMonths || 5.0}
+                                            onChange={e => setNewCourt({ ...newCourt, processingMonths: Number(e.target.value) })}
+                                            className="w-16 p-1 border rounded bg-white text-sm"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="flex justify-end gap-2">
                                     <button
@@ -383,6 +393,7 @@ const PolicyManager: React.FC = () => {
                                         <th className="p-3">24개월</th>
                                         <th className="p-3">배우자재산</th>
                                         <th className="p-3">투기손실</th>
+                                        <th className="p-3">소요기간</th>
                                         <th className="p-3">설명</th>
                                         <th className="p-3 text-right">관리</th>
                                     </tr>
@@ -399,6 +410,9 @@ const PolicyManager: React.FC = () => {
                                             </td>
                                             <td className="p-3">
                                                 {trait.investLossInclude ? <span className="text-red-500 font-bold">반영</span> : <span className="text-gray-400">미반영</span>}
+                                            </td>
+                                            <td className="p-3">
+                                                {trait.processingMonths || '-'}개월
                                             </td>
                                             <td className="p-3 text-gray-500 text-xs">{trait.description}</td>
                                             <td className="p-3 text-right flex justify-end gap-1">
