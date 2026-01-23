@@ -38,6 +38,7 @@ export interface CourtTrait {
  * 2026년 기준 정책 설정 (기본값)
  * 실제 값은 정부 발표 후 업데이트 필요
  */
+// 2026년 기준 정책 설정 (기본값)
 export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
     baseYear: 2026,
 
@@ -52,8 +53,6 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
     },
     medianIncomeIncrement: 999233, // 6인 초과 시 1인당 추가분 (6인 - 5인 차액)
     // 2026년 확정 인정 생계비 (중위소득 60%)
-    // - 미성년 자녀 1인당 0.5인 가산 (예: 1인+자녀1 = 1.5인)
-    // - 소수점 가구원수는 getRecognizedLivingCost 함수에서 중간값으로 계산됨
     recognizedLivingCost: {
         1: 1538543,     // 1인 가구
         2: 2519575,     // 2인 가구
@@ -244,6 +243,47 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         '세종': '광역시기준',
     }
 };
+
+/**
+ * 연도별 정책 설정 (2026 ~ 2035)
+ * 기본적으로 2026년 설정을 복사하여 초기화
+ */
+export const POLICY_CONFIG_BY_YEAR: Record<number, RehabPolicyConfig> = {
+    2026: DEFAULT_POLICY_CONFIG_2026
+};
+
+// 2027년부터 2035년까지 기본값 생성 (2026년 복사)
+for (let year = 2027; year <= 2035; year++) {
+    POLICY_CONFIG_BY_YEAR[year] = {
+        ...DEFAULT_POLICY_CONFIG_2026,
+        baseYear: year
+    };
+}
+
+/**
+ * 특정 연도의 정책 가져오기
+ */
+export function getPolicyForYear(year: number): RehabPolicyConfig {
+    return POLICY_CONFIG_BY_YEAR[year] || POLICY_CONFIG_BY_YEAR[2026];
+}
+
+/**
+ * 날짜 기준 정책 가져오기 (자동 스위칭)
+ * - 2026-12-31까지: 2026년 정책
+ * - 2027-01-01부터: 해당 연도 정책
+ */
+export function getPolicyForDate(date: Date = new Date()): RehabPolicyConfig {
+    const year = date.getFullYear();
+
+    // 2026년 이하는 2026년 정책 사용
+    if (year <= 2026) {
+        return POLICY_CONFIG_BY_YEAR[2026];
+    }
+
+    // 2027년 이상은 해당 연도 사용 (없으면 2035 or 2026 fallback)
+    return POLICY_CONFIG_BY_YEAR[year] || POLICY_CONFIG_BY_YEAR[2035] || POLICY_CONFIG_BY_YEAR[2026];
+}
+
 
 /**
  * 주소에서 지역명 추출

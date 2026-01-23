@@ -9,7 +9,8 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, User, Bot, ArrowRight, Check, ChevronDown } from 'lucide-react';
 import { calculateRepayment, RehabUserInput, RehabCalculationResult, formatCurrency } from '../../services/calculationService';
-import { DEFAULT_POLICY_CONFIG_2026 } from '../../config/PolicyConfig';
+import { DEFAULT_POLICY_CONFIG_2026, getPolicyForDate, RehabPolicyConfig } from '../../config/PolicyConfig';
+import { fetchGlobalSettings } from '../../services/googleSheetService';
 import RehabResultReport from './RehabResultReport';
 
 // 대화 메시지 타입
@@ -67,6 +68,7 @@ const AIRehabChatbot: React.FC<AIRehabChatbotProps> = ({
     const [isTyping, setIsTyping] = useState(false);
     const [result, setResult] = useState<RehabCalculationResult | null>(null);
     const [showResult, setShowResult] = useState(false);
+    const [policyConfigs, setPolicyConfigs] = useState<Record<number, RehabPolicyConfig> | null>(null);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -75,6 +77,17 @@ const AIRehabChatbot: React.FC<AIRehabChatbotProps> = ({
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
+    // 설정 로드
+    useEffect(() => {
+        const loadSettings = async () => {
+            const settings = await fetchGlobalSettings();
+            if (settings?.rehabPolicyConfigs) {
+                setPolicyConfigs(settings.rehabPolicyConfigs);
+            }
+        };
+        loadSettings();
+    }, []);
 
     // 초기 메시지
     useEffect(() => {
@@ -265,7 +278,27 @@ const AIRehabChatbot: React.FC<AIRehabChatbotProps> = ({
         setIsTyping(true);
 
         setTimeout(() => {
-            const calculationResult = calculateRepayment(input, DEFAULT_POLICY_CONFIG_2026);
+            // Determine effective config
+            // 1. Get date-based default config
+            const today = new Date();
+            const year = today.getFullYear();
+            let config = getPolicyForDate(today);
+
+            // 2. Override with global settings if available for that year
+            if (policyConfigs && policyConfigs[year]) {
+                config = policyConfigs[year];
+            } else if (policyConfigs && year > 2026 && policyConfigs[2026]) {
+                // Fallback to 2026 if future year not found in settings? 
+                // Currently getPolicyForDate handles fallback, but if we have custom settings, we might want to use custom 2026 as base.
+                // For now, let's trust getPolicyForDate basic logic unless there is an explicit override.
+            }
+
+            // If year is <= 2026 and we have a custom config for 2026, use it.
+            if (year <= 2026 && policyConfigs && policyConfigs[2026]) {
+                config = policyConfigs[2026];
+            }
+
+            const calculationResult = calculateRepayment(input, config);
             setResult(calculationResult);
 
             const statusEmoji = calculationResult.status === 'POSSIBLE' ? '🟢' :

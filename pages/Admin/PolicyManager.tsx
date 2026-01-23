@@ -1,15 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { GlobalSettings } from '../../types';
 import { fetchGlobalSettings, saveGlobalSettings } from '../../services/googleSheetService';
-import { RehabPolicyConfig, DEFAULT_POLICY_CONFIG_2026, CourtTrait } from '../../config/PolicyConfig';
-import { Save, Upload, Download, RefreshCw, FileText, Plus, Trash2, Edit2, X, Check } from 'lucide-react';
+import { RehabPolicyConfig, DEFAULT_POLICY_CONFIG_2026, POLICY_CONFIG_BY_YEAR, /* getPolicyForYear, */ CourtTrait } from '../../config/PolicyConfig';
+import { Save, Upload, Download, RefreshCw, FileText, Plus, Trash2, Edit2, X, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const PolicyManager: React.FC = () => {
     const [globalSettings, setGlobalSettings] = useState<GlobalSettings | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [previewConfig, setPreviewConfig] = useState<RehabPolicyConfig | null>(null);
+
+    // Year Selection
+    const [selectedYear, setSelectedYear] = useState<number>(2026);
+    const [yearConfigs, setYearConfigs] = useState<Record<number, RehabPolicyConfig>>(POLICY_CONFIG_BY_YEAR);
+
+    // Helper to get current config
+    const previewConfig = yearConfigs[selectedYear] || POLICY_CONFIG_BY_YEAR[selectedYear];
+
+    // Config Updater
+    const setPreviewConfig = (newConfig: RehabPolicyConfig) => {
+        setYearConfigs(prev => ({
+            ...prev,
+            [selectedYear]: newConfig
+        }));
+    };
 
     // Court Edit State
     const [isEditingCourt, setIsEditingCourt] = useState(false);
@@ -30,13 +44,22 @@ const PolicyManager: React.FC = () => {
         const settings = await fetchGlobalSettings();
         if (settings) {
             setGlobalSettings(settings);
-            // 만약 저장된 정책이 있으면 그것을 프리뷰로, 없으면 기본값
-            // Deep copy needed to avoid mutation issues
-            const config = settings.policyConfig || DEFAULT_POLICY_CONFIG_2026;
-            setPreviewConfig(JSON.parse(JSON.stringify(config)));
-        } else {
-            // 초기 설정이 없는 경우
-            setPreviewConfig(JSON.parse(JSON.stringify(DEFAULT_POLICY_CONFIG_2026)));
+
+            // Load saved configs if available
+            if (settings.rehabPolicyConfigs) {
+                // Merge saved configs with default configs to ensure all years exist
+                setYearConfigs({
+                    ...POLICY_CONFIG_BY_YEAR,
+                    ...settings.rehabPolicyConfigs
+                });
+            } else if (settings.policyConfig) {
+                // Migrate old single config to 2026 (or baseYear)
+                const oldConfig = settings.policyConfig as unknown as RehabPolicyConfig;
+                setYearConfigs({
+                    ...POLICY_CONFIG_BY_YEAR,
+                    [oldConfig.baseYear || 2026]: oldConfig
+                });
+            }
         }
         setIsLoading(false);
     };
@@ -134,12 +157,12 @@ const PolicyManager: React.FC = () => {
     };
 
     const handleSave = async () => {
-        if (!globalSettings || !previewConfig) return;
+        if (!globalSettings) return;
         setIsSaving(true);
 
         const newSettings: GlobalSettings = {
             ...globalSettings,
-            policyConfig: previewConfig
+            rehabPolicyConfigs: yearConfigs
         };
 
         const success = await saveGlobalSettings(newSettings);
@@ -215,8 +238,30 @@ const PolicyManager: React.FC = () => {
 
     return (
         <div className="p-6 max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">2026 개인회생 정책 관리</h1>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div className="flex items-center gap-4">
+                    <h1 className="text-2xl font-bold text-gray-800">개인회생 정책 관리</h1>
+
+                    {/* Year Selector */}
+                    <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+                        <button
+                            onClick={() => setSelectedYear(prev => Math.max(2026, prev - 1))}
+                            disabled={selectedYear <= 2026}
+                            className="p-1 hover:bg-gray-100 rounded disabled:opacity-30"
+                        >
+                            <ChevronLeft className="w-5 h-5 text-gray-600" />
+                        </button>
+                        <span className="mx-3 font-bold text-lg text-blue-600 min-w-[3rem] text-center">{selectedYear}년</span>
+                        <button
+                            onClick={() => setSelectedYear(prev => Math.min(2035, prev + 1))}
+                            disabled={selectedYear >= 2035}
+                            className="p-1 hover:bg-gray-100 rounded disabled:opacity-30"
+                        >
+                            <ChevronRight className="w-5 h-5 text-gray-600" />
+                        </button>
+                    </div>
+                </div>
+
                 <div className="flex gap-2">
                     <button onClick={downloadTemplate} className="px-4 py-2 border rounded bg-white hover:bg-gray-50 flex items-center gap-2 text-sm">
                         <Download className="w-4 h-4" /> 템플릿
@@ -421,7 +466,7 @@ const PolicyManager: React.FC = () => {
                 {/* RIGHT COLUMN: Deposits & Basic Info */}
                 <div className="space-y-6">
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 className="font-bold text-gray-700 mb-4">보증금 공제 기준 (2026)</h3>
+                        <h3 className="font-bold text-gray-700 mb-4">보증금 공제 기준 ({selectedYear})</h3>
                         <table className="w-full text-sm">
                             <thead className="bg-gray-100 text-gray-600">
                                 <tr>

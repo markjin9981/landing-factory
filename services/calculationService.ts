@@ -7,6 +7,7 @@
 import {
     RehabPolicyConfig,
     DEFAULT_POLICY_CONFIG_2026,
+    getPolicyForDate, // Added
     extractRegionFromAddress,
     getCourtForRegion,
     getRegionGroup,
@@ -14,113 +15,23 @@ import {
     getRecognizedLivingCost,
 } from '../config/PolicyConfig';
 
-/**
- * 사용자 입력 데이터 (2026년 고도화)
- */
-export interface RehabUserInput {
-    // 기본 정보
-    address: string;           // 거주지 주소
-    workLocation?: string;     // 근무지/사업장 지역 (관할 법원용)
-    age?: number;              // 나이 (24개월 특례 확인용)
-
-    // 소득 정보
-    employmentType?: 'salary' | 'business' | 'freelancer' | 'both' | 'none'; // 고용 형태
-    monthlyIncome: number;     // 월 실수령 소득 (세후)
-    salaryIncome?: number;     // 급여 소득 (겸업 시)
-    businessIncome?: number;   // 사업 소득 (겸업 시)
-
-    // 가족 정보
-    maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed' | 'other'; // 혼인 상태
-    isMarried: boolean;        // 기혼 여부 (호환성)
-    minorChildren?: number;    // 미성년 자녀 수
-    familySize: number;        // 가구원 수 (본인 포함)
-
-    // 배우자 정보 (기혼 시)
-    spouseIncome?: number;     // 배우자 월 소득
-    spouseAssets: number;      // 배우자 재산 총액
-
-    // 양육비 (이혼 시)
-    isCustodialParent?: boolean;   // 양육권자 여부
-    childSupportReceived?: number; // 양육비 수령액
-    childSupportPaid?: number;     // 양육비 지급액
-
-    // 주거 정보
-    housingType?: 'rent' | 'jeonse' | 'owned' | 'free'; // 거주 형태
-    rentCost?: number;         // 월세
-    deposit: number;           // 보증금/전세금
-    depositLoan?: number;      // 보증금 대출금
-
-    // 추가 생계비
-    medicalCost?: number;      // 월 의료비
-    educationCost?: number;    // 월 교육비
-
-    // 본인 재산
-    myAssets: number;          // 본인 재산 총액
-
-    // 채무 정보
-    creditCardDebt?: number;   // 신용카드 채무
-    totalDebt: number;         // 총 채무
-    priorityDebt?: number;     // 우선변제채권 (세금 체납 등)
-
-    // 투기성 손실
-    speculativeLoss?: number;  // 주식/코인 손실금
-    riskFactor?: 'none' | 'recent_loan' | 'investment' | 'gambling'; // 채무 유형
-
-    // 24개월 특례 조건
-    specialCondition?: 'none' | 'basic_recipient' | 'severe_disability' | 'elderly';
-
-    // 연락처
-    name?: string;             // 고객명
-    phone?: string;            // 연락처
-}
-
-/**
- * 계산 결과 (2026년 고도화)
- */
-export interface RehabCalculationResult {
-    status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE';
-    statusReason: string;
-
-    // 핵심 수치
-    monthlyPayment: number;      // 월 변제금
-    repaymentMonths: number;     // 변제 기간 (개월)
-    totalRepayment: number;      // 총 변제액
-    totalDebtReduction: number;  // 총 탕감액
-    debtReductionRate: number;   // 탕감율 (%)
-
-    // 계산 상세
-    baseLivingCost: number;       // 기본 생계비
-    additionalLivingCost: number; // 추가 생계비 (주거/의료/교육/양육)
-    recognizedLivingCost: number; // 총 인정 생계비
-    availableIncome: number;      // 가용 소득 (소득 - 생계비)
-    liquidationValue: number;     // 청산가치
-    exemptDeposit: number;        // 면제 보증금
-
-    // 법원 정보
-    courtName: string;
-    regionGroup: string;
-    courtDescription: string;
-
-    // AI 조언
-    aiAdvice: string[];
-    riskWarnings: string[];
-
-    // 무직자 안내 (신규)
-    unemployedNotice?: string;
-}
+// ... (existing code)
 
 /**
  * 메인 계산 함수
  */
 export function calculateRepayment(
     input: RehabUserInput,
-    config: RehabPolicyConfig = DEFAULT_POLICY_CONFIG_2026
+    config?: RehabPolicyConfig // Optional, defaults to date-based
 ): RehabCalculationResult {
+    // config가 없으면 현재 날짜 기준으로 자동 선택
+    const effectiveConfig = config || getPolicyForDate(new Date());
+
     // 1. 지역/법원 판별
     const region = extractRegionFromAddress(input.address);
-    const courtName = getCourtForRegion(region, config);
-    const regionGroup = getRegionGroup(region, config);
-    const courtTrait = config.courtTraits[courtName] || config.courtTraits['Default'];
+    const courtName = getCourtForRegion(region, effectiveConfig);
+    const regionGroup = getRegionGroup(region, effectiveConfig);
+    const courtTrait = effectiveConfig.courtTraits[courtName] || effectiveConfig.courtTraits['Default'];
 
     // 상태 변수 초기화
     let status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE' = 'POSSIBLE';
@@ -129,7 +40,7 @@ export function calculateRepayment(
     const riskWarnings: string[] = [];
 
     // 3. 월 가용소득 (변제금) 계산 및 생계비 자동 조정
-    let recognizedLivingCost = getRecognizedLivingCost(input.familySize, config);
+    let recognizedLivingCost = getRecognizedLivingCost(input.familySize, effectiveConfig);
     let availableIncome = input.monthlyIncome - recognizedLivingCost;
     let baseLivingCost = recognizedLivingCost; // 초기 인정 생계비 저장
     const minAvailableIncome = 100000; // 최소 보장 가용소득 (10만원)
@@ -138,7 +49,7 @@ export function calculateRepayment(
     if (availableIncome < minAvailableIncome) {
         // 1단계: 부양가족 제외 (본인 1인 기준으로 재계산)
         if (input.familySize > 1) {
-            const singleLivingCost = getRecognizedLivingCost(1, config);
+            const singleLivingCost = getRecognizedLivingCost(1, effectiveConfig);
             if (input.monthlyIncome - singleLivingCost >= minAvailableIncome) {
                 recognizedLivingCost = singleLivingCost;
                 availableIncome = input.monthlyIncome - recognizedLivingCost;
@@ -189,7 +100,7 @@ export function calculateRepayment(
     }
 
     // 4. 청산가치(재산) 계산
-    const depositRule = config.depositExemptions[regionGroup] || config.depositExemptions['그외'];
+    const depositRule = effectiveConfig.depositExemptions[regionGroup] || effectiveConfig.depositExemptions['그외'];
     let exemptDeposit = 0;
 
     if (input.deposit <= depositRule.limit) {
