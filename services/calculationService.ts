@@ -197,6 +197,7 @@ export function calculateRepayment(
 
     // --- [NEW] 고소득자(기타생계비) 로직 적용 ---
     const highIncomeConfig = effectiveConfig.highIncomeConfig || DEFAULT_POLICY_CONFIG_2026.highIncomeConfig;
+    const medianIncome = getMedianIncome(input.familySize, effectiveConfig); // 중위소득 정의 (Fix: missing var)
     const isHighIncome = input.monthlyIncome > (medianIncome * highIncomeConfig.thresholdRate);
     let highIncomeAdjustmentMsg = '';
 
@@ -211,7 +212,7 @@ export function calculateRepayment(
         let cappedLivingCost = Math.min(currentTotalLivingCost, maxAllowedLivingCost);
 
         // B. 최소 변제율(40%) 체크
-        const totalDebt = (input.priorityDebtAmount || 0) + (input.otherDebtAmount || 0);
+        const totalDebt = input.totalDebt; // Fix: correct field name
         // 채무가 0이면 계산 불가하므로 패스
         if (totalDebt > 0) {
             const minRepaymentTotal = totalDebt * highIncomeConfig.minRepaymentRate;
