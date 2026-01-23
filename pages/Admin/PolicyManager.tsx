@@ -491,19 +491,102 @@ const PolicyManager: React.FC = () => {
                     </div>
 
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 className="font-bold text-gray-700 mb-4">기본 정책 설정</h3>
-                        <div className="space-y-3 text-sm">
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">기준 연도</span>
-                                <span className="font-medium">{previewConfig?.baseYear}</span>
+                        <h3 className="font-bold text-gray-700 mb-4">기본 정책 설정 (기준 중위소득 및 생계비)</h3>
+
+                        {/* 1-6 Person Household Table */}
+                        <div className="overflow-x-auto mb-6">
+                            <table className="w-full text-sm text-left border-collapse">
+                                <thead className="bg-gray-100 text-gray-600">
+                                    <tr>
+                                        <th className="p-2 border font-medium text-center">가구원</th>
+                                        <th className="p-2 border font-medium text-center">기준 중위소득</th>
+                                        <th className="p-2 border font-medium text-center">인정 생계비(60%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {[1, 2, 3, 4, 5, 6].map(size => (
+                                        <tr key={size} className="hover:bg-gray-50">
+                                            <td className="p-2 border text-center font-medium">{size}인</td>
+                                            <td className="p-2 border text-center">
+                                                <input
+                                                    type="number"
+                                                    value={previewConfig?.medianIncome[size] || 0}
+                                                    onChange={e => {
+                                                        if (!previewConfig) return;
+                                                        const newVal = Number(e.target.value);
+                                                        setPreviewConfig({
+                                                            ...previewConfig,
+                                                            medianIncome: {
+                                                                ...previewConfig.medianIncome,
+                                                                [size]: newVal
+                                                            }
+                                                        });
+                                                    }}
+                                                    className="w-full text-right p-1 border rounded"
+                                                />
+                                            </td>
+                                            <td className="p-2 border text-center">
+                                                <input
+                                                    type="number"
+                                                    value={previewConfig?.recognizedLivingCost[size] || 0}
+                                                    onChange={e => {
+                                                        if (!previewConfig) return;
+                                                        const newVal = Number(e.target.value);
+                                                        setPreviewConfig({
+                                                            ...previewConfig,
+                                                            recognizedLivingCost: {
+                                                                ...previewConfig.recognizedLivingCost,
+                                                                [size]: newVal
+                                                            }
+                                                        });
+                                                    }}
+                                                    className="w-full text-right p-1 border rounded font-bold text-blue-600"
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Additional Settings */}
+                        <div className="space-y-4 pt-4 border-t">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 mb-1">6인 초과시 1인당 추가액</label>
+                                    <input
+                                        type="number"
+                                        value={previewConfig?.medianIncomeIncrement || 0}
+                                        onChange={e => previewConfig && setPreviewConfig({
+                                            ...previewConfig,
+                                            medianIncomeIncrement: Number(e.target.value)
+                                        })}
+                                        className="w-full p-2 border rounded bg-gray-50 text-right"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 mb-1">생계비 인정률 (기본)</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={previewConfig?.livingCostRate || 0.6}
+                                            onChange={e => previewConfig && setPreviewConfig({
+                                                ...previewConfig,
+                                                livingCostRate: Number(e.target.value)
+                                            })}
+                                            className="w-full p-2 border rounded bg-white text-right"
+                                        />
+                                        <span className="text-gray-500 text-sm w-8">
+                                            {Math.round((previewConfig?.livingCostRate || 0) * 100)}%
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">생계비 인정률</span>
-                                <span className="font-medium">{(previewConfig?.livingCostRate || 0) * 100}%</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">중위 소득 (1인)</span>
-                                <span className="font-medium">{previewConfig?.medianIncome[1].toLocaleString()}원</span>
+
+                            <div className="flex justify-between border-t pt-2 mt-2">
+                                <span className="text-gray-500 text-sm">기준 연도</span>
+                                <span className="font-bold text-blue-600">{previewConfig?.baseYear}년</span>
                             </div>
                         </div>
                     </div>
