@@ -674,6 +674,104 @@ const PolicyManager: React.FC = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* 4. Medical & Education Cost (New) */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                            <span className="text-red-500">🏥</span>
+                            추가 의료비/교육비 인정 기준
+                        </h3>
+
+                        {/* Medical Cost */}
+                        <div className="mb-6 border-b pb-6">
+                            <h4 className="text-sm font-bold text-gray-600 mb-3">의료비 공제 기준 (중위소득 60% 포함분)</h4>
+                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                {[1, 2, 3, 4, 5, 6].map(size => (
+                                    <div key={size} className="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                                        <span className="text-xs text-gray-500 font-bold">{size}인 가구</span>
+                                        <input
+                                            type="number"
+                                            value={previewConfig?.medicalCostIncluded?.[size] || 0}
+                                            onChange={e => {
+                                                if (!previewConfig) return;
+                                                const newVal = Number(e.target.value);
+                                                setPreviewConfig({
+                                                    ...previewConfig,
+                                                    medicalCostIncluded: {
+                                                        ...(previewConfig.medicalCostIncluded || DEFAULT_POLICY_CONFIG_2026.medicalCostIncluded),
+                                                        [size]: newVal
+                                                    }
+                                                });
+                                            }}
+                                            className="w-24 text-right bg-transparent outline-none font-bold text-gray-700"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-400 mt-2">* 해당 금액을 초과하는 의료비만 추가 생계비로 인정됩니다.</p>
+                        </div>
+
+                        {/* Education Cost */}
+                        <div>
+                            <h4 className="text-sm font-bold text-gray-600 mb-3">교육비 추가 인정 기준 (1인당)</h4>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                                    <span className="text-xs text-gray-500 font-bold">기본 포함분 (생계비 내)</span>
+                                    <input
+                                        type="number"
+                                        value={previewConfig?.educationCostCriteria?.included || 0}
+                                        onChange={e => {
+                                            if (!previewConfig) return;
+                                            setPreviewConfig({
+                                                ...previewConfig,
+                                                educationCostCriteria: {
+                                                    ...(previewConfig.educationCostCriteria || DEFAULT_POLICY_CONFIG_2026.educationCostCriteria),
+                                                    included: Number(e.target.value)
+                                                }
+                                            });
+                                        }}
+                                        className="w-24 text-right bg-transparent outline-none font-bold text-gray-700"
+                                    />
+                                </div>
+                                <div className="flex justify-between items-center bg-blue-50 p-2 rounded border border-blue-100">
+                                    <span className="text-xs text-blue-600 font-bold">일반 교육비 한도</span>
+                                    <input
+                                        type="number"
+                                        value={previewConfig?.educationCostCriteria?.limit || 0}
+                                        onChange={e => {
+                                            if (!previewConfig) return;
+                                            setPreviewConfig({
+                                                ...previewConfig,
+                                                educationCostCriteria: {
+                                                    ...(previewConfig.educationCostCriteria || DEFAULT_POLICY_CONFIG_2026.educationCostCriteria),
+                                                    limit: Number(e.target.value)
+                                                }
+                                            });
+                                        }}
+                                        className="w-24 text-right bg-transparent outline-none font-bold text-blue-700"
+                                    />
+                                </div>
+                                <div className="flex justify-between items-center bg-purple-50 p-2 rounded border border-purple-100">
+                                    <span className="text-xs text-purple-600 font-bold">특수 교육비 한도</span>
+                                    <input
+                                        type="number"
+                                        value={previewConfig?.educationCostCriteria?.specialLimit || 0}
+                                        onChange={e => {
+                                            if (!previewConfig) return;
+                                            setPreviewConfig({
+                                                ...previewConfig,
+                                                educationCostCriteria: {
+                                                    ...(previewConfig.educationCostCriteria || DEFAULT_POLICY_CONFIG_2026.educationCostCriteria),
+                                                    specialLimit: Number(e.target.value)
+                                                }
+                                            });
+                                        }}
+                                        className="w-24 text-right bg-transparent outline-none font-bold text-purple-700"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
