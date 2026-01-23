@@ -72,8 +72,11 @@ type ChatStep =
     | 'deposit_loan'
     | 'owned_value'          // 자가 시세
     | 'owned_mortgage'       // 자가 담보대출
-    | 'medical_edu'
-    | 'medical_edu_amount'
+    | 'owned_mortgage'       // 자가 담보대출
+    | 'medical_check'        // 의료비 여부 (NEW)
+    | 'medical_amount'       // 의료비 금액
+    | 'education_check'      // 교육비 여부 (NEW)
+    | 'education_amount'     // 교육비 금액
     | 'assets_select'
     | 'asset_detail'
     | 'business_assets_deposit' // 사업장 보증금
@@ -815,9 +818,9 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                     );
                 } else {
                     setUserInput(prev => ({ ...prev, deposit: 0, rentCost: 0 }));
-                    setCurrentStep('medical_edu');
+                    setCurrentStep('medical_check');
                     addBotMessage(
-                        '본인이나 가족의 병원비, 미성년 자녀 교육비로 매달 고정 지출이 있나요?\n\n(증빙 가능한 금액)',
+                        '본인이나 가족의 **의료비**로 매달 고정적으로 지출하는 비용이 있나요?',
                         [
                             { label: '없어요', value: 'no' },
                             { label: '있어요', value: 'yes' }
@@ -857,13 +860,13 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         undefined,
                         'money'
                     );
-                    // 다음 입력 후 medical_edu로 이동
-                    setCurrentStep('medical_edu');
+                    // 다음 입력 후 medical_check로 이동
+                    setCurrentStep('medical_check');
                 } else {
                     setUserInput(prev => ({ ...prev, depositLoan: 0 }));
-                    setCurrentStep('medical_edu');
+                    setCurrentStep('medical_check');
                     addBotMessage(
-                        '본인이나 가족의 병원비, 미성년 자녀 교육비로 매달 고정 지출이 있나요?',
+                        '본인이나 가족의 **의료비**로 매달 고정적으로 지출하는 비용이 있나요?',
                         [
                             { label: '없어요', value: 'no' },
                             { label: '있어요', value: 'yes' }
@@ -887,9 +890,9 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 // 담보대출은 자산에서 차감
                 const mortgageAmount = (value as number) * 10000;
                 setUserInput(prev => ({ ...prev, myAssets: Math.max(0, (prev.myAssets || 0) - mortgageAmount) }));
-                setCurrentStep('medical_edu');
+                setCurrentStep('medical_check');
                 addBotMessage(
-                    '본인이나 가족의 병원비, 미성년 자녀 교육비로 매달 고정 지출이 있나요?\n\n(증빙 가능한 금액)',
+                    '본인이나 가족의 **의료비**로 매달 고정적으로 지출하는 비용이 있나요?',
                     [
                         { label: '없어요', value: 'no' },
                         { label: '있어요', value: 'yes' }
@@ -898,16 +901,51 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 );
                 break;
 
-            case 'medical_edu':
+            case 'medical_check':
                 if (value === 'yes') {
-                    setCurrentStep('medical_edu_amount');
+                    setCurrentStep('medical_amount');
                     addBotMessage(
-                        '월 의료비/교육비는 대략 얼마인가요?\n\n(만원 단위)',
+                        '월 의료비 지출액은 대략 얼마인가요?\n\n(만원 단위, 증빙 가능한 금액)',
                         undefined,
                         'money'
                     );
                 } else {
-                    setUserInput(prev => ({ ...prev, medicalCost: 0, educationCost: 0 }));
+                    setUserInput(prev => ({ ...prev, medicalCost: 0 }));
+                    setCurrentStep('education_check');
+                    addBotMessage(
+                        '미성년 자녀의 **교육비**로 매달 고정적으로 지출하는 비용이 있나요?',
+                        [
+                            { label: '없어요', value: 'no' },
+                            { label: '있어요', value: 'yes' }
+                        ],
+                        'buttons'
+                    );
+                }
+                break;
+
+            case 'medical_amount':
+                setUserInput(prev => ({ ...prev, medicalCost: (value as number) * 10000 }));
+                setCurrentStep('education_check');
+                addBotMessage(
+                    '미성년 자녀의 **교육비**로 매달 고정적으로 지출하는 비용이 있나요?',
+                    [
+                        { label: '없어요', value: 'no' },
+                        { label: '있어요', value: 'yes' }
+                    ],
+                    'buttons'
+                );
+                break;
+
+            case 'education_check':
+                if (value === 'yes') {
+                    setCurrentStep('education_amount');
+                    addBotMessage(
+                        '월 교육비 지출액은 대략 얼마인가요?\n\n(만원 단위, 증빙 가능한 금액)',
+                        undefined,
+                        'money'
+                    );
+                } else {
+                    setUserInput(prev => ({ ...prev, educationCost: 0 }));
                     setCurrentStep('assets_select');
                     addBotMessage(
                         '현재 본인 명의로 가지고 있는 재산이 있으신가요?\n\n(해당하는 항목을 모두 선택하고 "선택완료"를 눌러주세요)',
@@ -935,11 +973,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 }
                 break;
 
-            case 'medical_edu_amount':
-                setUserInput(prev => ({
-                    ...prev,
-                    medicalCost: (value as number) * 10000
-                }));
+            case 'education_amount':
+                setUserInput(prev => ({ ...prev, educationCost: (value as number) * 10000 }));
                 setCurrentStep('assets_select');
                 addBotMessage(
                     '현재 본인 명의로 가지고 있는 재산이 있으신가요?\n\n(해당하는 항목을 모두 선택하고 "선택완료"를 눌러주세요)',
@@ -1442,7 +1477,10 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
             'child_support_pay': 38, 'minor_children': 42, 'housing_type': 48,
             'rent_cost': 50, 'deposit_amount': 52, 'deposit_loan': 54,
             'owned_value': 53, 'owned_mortgage': 55,
-            'medical_edu': 58, 'medical_edu_amount': 60, 'assets_select': 65,
+            'owned_value': 53, 'owned_mortgage': 55,
+            'medical_check': 57, 'medical_amount': 59,
+            'education_check': 61, 'education_amount': 63,
+            'assets_select': 65,
             'asset_detail': 70, 'business_assets_deposit': 72, 'business_assets_facility': 74,
             'credit_card': 75, 'credit_card_amount': 78,
             'other_debt': 82, 'debt_confirm': 85, 'priority_debt': 88,
