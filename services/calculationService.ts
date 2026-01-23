@@ -103,6 +103,7 @@ export interface RehabCalculationResult {
     courtName: string;
     regionGroup: string;
     courtDescription: string;
+    processingMonths: number;    // 개시결정까지 소요기간 (개월)
 
     // AI 조언
     aiAdvice: string[];

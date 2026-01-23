@@ -38,6 +38,7 @@ export interface CourtTrait {
     allow24Months: boolean;      // 24개월 단축 가능 여부
     spousePropertyRate: number;  // 배우자 재산 반영률 (0.0 ~ 1.0)
     investLossInclude: boolean;  // 투기성 손실금 청산가치 반영 여부 (신규)
+    processingMonths: number;    // 개시결정까지 소요기간 (개월) - 2025년 상반기 기준
     description?: string;        // 법원 성향 설명
 }
 
@@ -141,6 +142,7 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
             allow24Months: true,
             spousePropertyRate: 0.0,
             investLossInclude: false,
+            processingMonths: 5.0,
             description: '24개월 단축 변제 가능, 배우자 재산 미반영, 투기손실 미반영'
         },
         '수원회생법원': {
@@ -148,6 +150,7 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
             allow24Months: false,
             spousePropertyRate: 0.0,
             investLossInclude: true,
+            processingMonths: 4.8,
             description: '배우자 재산 미반영, 투기손실 반영'
         },
         '인천회생법원': {
@@ -155,6 +158,7 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
             allow24Months: false,
             spousePropertyRate: 0.0,
             investLossInclude: true,
+            processingMonths: 3.3,
             description: '배우자 재산 미반영, 투기손실 반영'
         },
         '대전회생법원': {
@@ -162,6 +166,7 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
             allow24Months: false,
             spousePropertyRate: 0.0,
             investLossInclude: false,
+            processingMonths: 6.3,
             description: '배우자 재산 미반영 (2026년 개원)'
         },
         '대구회생법원': {
@@ -169,6 +174,7 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
             allow24Months: false,
             spousePropertyRate: 0.0,
             investLossInclude: false,
+            processingMonths: 5.5,
             description: '배우자 재산 미반영 (2026년 개원)'
         },
         '부산회생법원': {
@@ -176,6 +182,7 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
             allow24Months: false,
             spousePropertyRate: 0.0,
             investLossInclude: false,
+            processingMonths: 5.4,
             description: '배우자 재산 미반영, 투기손실 미반영'
         },
         '광주회생법원': {
@@ -183,13 +190,79 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
             allow24Months: false,
             spousePropertyRate: 0.0,
             investLossInclude: false,
+            processingMonths: 4.5,
             description: '배우자 재산 미반영 (2026년 개원)'
+        },
+        '춘천지방법원': {
+            name: '춘천지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: false,
+            processingMonths: 3.0,
+            description: '지방법원 (개시결정 빠름)'
+        },
+        '울산지방법원': {
+            name: '울산지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: false,
+            processingMonths: 4.8,
+            description: '지방법원'
+        },
+        '청주지방법원': {
+            name: '청주지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: false,
+            processingMonths: 5.7,
+            description: '지방법원'
+        },
+        '창원지방법원': {
+            name: '창원지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: false,
+            processingMonths: 5.7,
+            description: '지방법원'
+        },
+        '전주지방법원': {
+            name: '전주지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: false,
+            processingMonths: 6.7,
+            description: '지방법원'
+        },
+        '강릉지방법원': {
+            name: '강릉지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: false,
+            processingMonths: 6.0,
+            description: '지방법원'
+        },
+        '제주지방법원': {
+            name: '제주지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: false,
+            processingMonths: 6.0,
+            description: '지방법원'
+        },
+        '의정부지방법원': {
+            name: '의정부지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: false,
+            processingMonths: 7.0,
+            description: '지방법원 (개시결정 소요기간 가장 김)'
         },
         'Default': {
             name: '기타 법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
             investLossInclude: true,
+            processingMonths: 5.5,
             description: '36개월 변제 기준, 보수적 접근'
         }
     },

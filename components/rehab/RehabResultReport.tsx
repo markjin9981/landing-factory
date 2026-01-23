@@ -193,6 +193,10 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                                             <span className="text-slate-400">지역 그룹</span>
                                             <span className="text-slate-200 font-medium">{result.regionGroup}</span>
                                         </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-slate-400">개시결정 소요기간</span>
+                                            <span className="text-cyan-400 font-medium">약 {result.processingMonths}개월</span>
+                                        </div>
                                         {result.courtDescription && (
                                             <p className="text-xs text-slate-400 mt-2 pt-2 border-t border-slate-700">
                                                 {result.courtDescription}
