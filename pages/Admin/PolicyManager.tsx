@@ -50,6 +50,14 @@ const PolicyManager: React.FC = () => {
             const bstr = evt.target?.result;
             const wb = XLSX.read(bstr, { type: 'binary' });
 
+            // 0. 영문 -> 한글 그룹명 매핑
+            const ENGLISH_TO_KOREAN_GROUP: Record<string, string> = {
+                'Seoul': '서울특별시',
+                'Overcrowded': '과밀억제권역',
+                'Metro': '광역시기준',
+                'Others': '그외'
+            };
+
             // 1. 관할 법원 매핑 (첫번째 시트 가정)
             const wsName = wb.SheetNames[0];
             const ws = wb.Sheets[wsName];
@@ -64,7 +72,12 @@ const PolicyManager: React.FC = () => {
             data.forEach(row => {
                 const region = row['지역명'] || row['Region'];
                 const court = row['관할법원'] || row['Court'];
-                const group = row['지역그룹'] || row['Group'];
+                let group = row['지역그룹'] || row['Group'];
+
+                // 영문 그룹명 -> 한글로 변환
+                if (group && ENGLISH_TO_KOREAN_GROUP[group]) {
+                    group = ENGLISH_TO_KOREAN_GROUP[group];
+                }
 
                 if (region && court) {
                     regionToCourtMap[region] = court;
@@ -85,7 +98,12 @@ const PolicyManager: React.FC = () => {
 
                 // 예상 컬럼: 그룹명, 공제한도, 공제액
                 exemptData.forEach(row => {
-                    const group = row['지역그룹'] || row['Group'];
+                    let group = row['지역그룹'] || row['Group'];
+                    // 영문 그룹명 -> 한글로 변환
+                    if (group && ENGLISH_TO_KOREAN_GROUP[group]) {
+                        group = ENGLISH_TO_KOREAN_GROUP[group];
+                    }
+
                     const limit = row['보증금상한'] || row['Limit'];
                     const deduct = row['공제금액'] || row['Deduct'];
 
@@ -94,6 +112,11 @@ const PolicyManager: React.FC = () => {
                     }
                 });
             }
+
+            // Clean up any remaining English keys (just in case)
+            Object.keys(ENGLISH_TO_KOREAN_GROUP).forEach(engKey => {
+                delete depositExemptions[engKey];
+            });
 
             // 새로운 Config 생성 (preserve court traits)
             if (previewConfig) {
@@ -408,13 +431,15 @@ const PolicyManager: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {previewConfig && Object.entries(previewConfig.depositExemptions).map(([key, val]) => (
-                                    <tr key={key} className="border-b">
-                                        <td className="p-2 font-medium text-xs">{key}</td>
-                                        <td className="p-2 text-right text-xs">{(val.limit / 10000).toLocaleString()}만</td>
-                                        <td className="p-2 text-right font-bold text-blue-600">{(val.deduct / 10000).toLocaleString()}만</td>
-                                    </tr>
-                                ))}
+                                {previewConfig && Object.entries(previewConfig.depositExemptions)
+                                    .filter(([key]) => !['Seoul', 'Overcrowded', 'Metro', 'Others'].includes(key))
+                                    .map(([key, val]) => (
+                                        <tr key={key} className="border-b">
+                                            <td className="p-2 font-medium text-xs">{key}</td>
+                                            <td className="p-2 text-right text-xs">{(val.limit / 10000).toLocaleString()}만</td>
+                                            <td className="p-2 text-right font-bold text-blue-600">{(val.deduct / 10000).toLocaleString()}만</td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                         <p className="text-xs text-gray-400 mt-2">* 단위: 만원</p>
