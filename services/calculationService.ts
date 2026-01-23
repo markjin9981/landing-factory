@@ -297,6 +297,7 @@ export function calculateRepayment(
                     courtName,
                     regionGroup,
                     courtDescription: courtTrait.description || '',
+                    processingMonths: courtTrait.processingMonths,
                     aiAdvice: ['배우자 소득 합산이나 파산 절차를 고려해보세요.', '아르바이트 등으로 소득을 조금 더 늘리시는 것을 추천합니다.'],
                     riskWarnings: ['현재 소득으로는 사실상 개인회생 진행이 어렵습니다.'],
                 };
@@ -456,6 +457,7 @@ export function calculateRepayment(
         courtName,
         regionGroup,
         courtDescription: courtTrait.description || '',
+        processingMonths: courtTrait.processingMonths,
         aiAdvice,
         riskWarnings,
     };
