@@ -166,23 +166,176 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                         </div>
                     </motion.div>
 
-                    {/* Court Info */}
+                    {/* Detailed Breakdown Sections */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="p-4 rounded-xl bg-slate-800/50 border border-slate-700"
+                        className="space-y-3"
                     >
-                        <div className="flex items-start gap-3">
-                            <div className="p-2 bg-blue-500/20 rounded-lg">
-                                <Building2 className="w-5 h-5 text-blue-400" />
+                        {/* Court & Jurisdiction */}
+                        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+                            <div className="flex items-start gap-3">
+                                <div className="p-2 bg-blue-500/20 rounded-lg">
+                                    <Building2 className="w-5 h-5 text-blue-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-sm font-bold text-white mb-2">관할 법원 및 지역</h4>
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-slate-400">관할 법원</span>
+                                            <span className="text-slate-200 font-medium">{result.courtName}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-slate-400">지역 그룹</span>
+                                            <span className="text-slate-200 font-medium">{result.regionGroup}</span>
+                                        </div>
+                                        {result.courtDescription && (
+                                            <p className="text-xs text-slate-400 mt-2 pt-2 border-t border-slate-700">
+                                                {result.courtDescription}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex-1">
-                                <h4 className="text-sm font-bold text-white mb-1">관할 법원 분석</h4>
-                                <p className="text-sm text-slate-300">{result.courtName}</p>
-                                {result.courtDescription && (
-                                    <p className="text-xs text-slate-400 mt-1">{result.courtDescription}</p>
+                        </div>
+
+                        {/* Asset Composition */}
+                        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+                            <h4 className="text-sm font-bold text-white mb-3">자산 구성</h4>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-400">본인 재산</span>
+                                    <span className="text-slate-200 font-medium">{formatCurrency(userInput.myAssets)}</span>
+                                </div>
+                                {userInput.isMarried && (
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-slate-400">배우자 재산 (반영분)</span>
+                                        <span className="text-slate-200 font-medium">{formatCurrency(userInput.spouseAssets)}</span>
+                                    </div>
                                 )}
+                                <div className="flex justify-between text-xs pt-2 border-t border-slate-700">
+                                    <span className="text-slate-400">보증금/전세금</span>
+                                    <span className="text-slate-200 font-medium">{formatCurrency(userInput.deposit)}</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-400">면제 보증금</span>
+                                    <span className="text-green-400 font-medium">-{formatCurrency(result.exemptDeposit)}</span>
+                                </div>
+                                <div className="flex justify-between text-xs pt-2 border-t border-slate-700 font-bold">
+                                    <span className="text-white">청산가치 (총 자산)</span>
+                                    <span className="text-cyan-400">{formatCurrency(result.liquidationValue)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Family & Dependents */}
+                        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+                            <h4 className="text-sm font-bold text-white mb-3">부양가족 구성</h4>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-400">총 가구원 수</span>
+                                    <span className="text-slate-200 font-medium">{userInput.familySize}인</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-400">혼인 상태</span>
+                                    <span className="text-slate-200 font-medium">
+                                        {userInput.isMarried ? '기혼' : '미혼/이혼/사별'}
+                                    </span>
+                                </div>
+                                {userInput.minorChildren !== undefined && userInput.minorChildren > 0 && (
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-slate-400">미성년 자녀</span>
+                                        <span className="text-slate-200 font-medium">{userInput.minorChildren}명</span>
+                                    </div>
+                                )}
+                                <p className="text-xs text-slate-400 mt-2 pt-2 border-t border-slate-700">
+                                    가구원 수에 따라 기본 생계비가 결정됩니다
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Living Cost Breakdown */}
+                        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+                            <h4 className="text-sm font-bold text-white mb-3">생계비 상세 내역</h4>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-400">기본 생계비 ({userInput.familySize}인 가구)</span>
+                                    <span className="text-slate-200 font-medium">{formatCurrency(result.baseLivingCost)}</span>
+                                </div>
+
+                                {result.additionalLivingCost > 0 && (
+                                    <>
+                                        <div className="text-xs text-slate-400 mt-2 mb-1">추가 생계비 항목:</div>
+                                        {userInput.rentCost && userInput.rentCost > 0 && (
+                                            <div className="flex justify-between text-xs pl-3">
+                                                <span className="text-slate-400">• 월세</span>
+                                                <span className="text-slate-200">{formatCurrency(userInput.rentCost)}</span>
+                                            </div>
+                                        )}
+                                        {userInput.medicalCost && userInput.medicalCost > 0 && (
+                                            <div className="flex justify-between text-xs pl-3">
+                                                <span className="text-slate-400">• 의료비</span>
+                                                <span className="text-slate-200">{formatCurrency(userInput.medicalCost)}</span>
+                                            </div>
+                                        )}
+                                        {userInput.educationCost && userInput.educationCost > 0 && (
+                                            <div className="flex justify-between text-xs pl-3">
+                                                <span className="text-slate-400">• 교육비</span>
+                                                <span className="text-slate-200">{formatCurrency(userInput.educationCost)}</span>
+                                            </div>
+                                        )}
+                                        {userInput.childSupportPaid && userInput.childSupportPaid > 0 && (
+                                            <div className="flex justify-between text-xs pl-3">
+                                                <span className="text-slate-400">• 양육비 지급</span>
+                                                <span className="text-slate-200">{formatCurrency(userInput.childSupportPaid)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between text-xs pt-2 border-t border-slate-700">
+                                            <span className="text-slate-400">추가 생계비 합계</span>
+                                            <span className="text-slate-200 font-medium">{formatCurrency(result.additionalLivingCost)}</span>
+                                        </div>
+                                    </>
+                                )}
+
+                                <div className="flex justify-between text-xs pt-2 border-t border-slate-700 font-bold">
+                                    <span className="text-white">총 인정 생계비</span>
+                                    <span className="text-cyan-400">{formatCurrency(result.recognizedLivingCost)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Available Income Calculation */}
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/30">
+                            <h4 className="text-sm font-bold text-white mb-3">가용 소득 계산</h4>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-300">월 소득</span>
+                                    <span className="text-slate-200 font-medium">{formatCurrency(userInput.monthlyIncome)}</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-300">총 인정 생계비</span>
+                                    <span className="text-red-400 font-medium">-{formatCurrency(result.recognizedLivingCost)}</span>
+                                </div>
+                                <div className="flex justify-between text-xs pt-2 border-t border-cyan-500/30 font-bold">
+                                    <span className="text-white">가용 소득 (변제 가능액)</span>
+                                    <span className="text-cyan-400">{formatCurrency(result.availableIncome)}</span>
+                                </div>
+                                <p className="text-xs text-cyan-300/70 mt-2 pt-2 border-t border-cyan-500/20">
+                                    월 변제금은 가용 소득과 청산가치를 고려하여 결정됩니다
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Repayment Calculation Summary */}
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-600/10 border border-purple-500/30">
+                            <h4 className="text-sm font-bold text-white mb-3">변제금 산출 방식</h4>
+                            <div className="space-y-2 text-xs text-slate-300">
+                                <p>• <span className="text-purple-300 font-medium">청산가치 기준</span>: {formatCurrency(result.liquidationValue)} ÷ {result.repaymentMonths}개월 = {formatCurrency(Math.floor(result.liquidationValue / result.repaymentMonths))}/월</p>
+                                <p>• <span className="text-purple-300 font-medium">가용소득 기준</span>: {formatCurrency(result.availableIncome)}/월</p>
+                                <p className="pt-2 border-t border-purple-500/20 text-purple-200 font-medium">
+                                    → 두 금액 중 <span className="text-purple-300">큰 금액</span>이 월 변제금으로 결정됩니다
+                                </p>
                             </div>
                         </div>
                     </motion.div>
