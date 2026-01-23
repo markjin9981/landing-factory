@@ -17,6 +17,10 @@ export interface RehabPolicyConfig {
     // 지역별 추가 주거비 인정 한도 (신규)
     // 지역별 추가 주거비 인정 한도 (신규 - 가구원수별 상세)
     additionalHousingCosts: Record<string, Record<number, { limit: number; included: number }>>;
+    // 의료비 중위소득 60% 포함분 (가구원수별)
+    medicalCostIncluded: Record<number, number>;
+    // 교육비 기준 (1인당)
+    educationCostCriteria: { included: number; limit: number; specialLimit: number };
     // 생계비 인정률 (기본 60%)
     livingCostRate: number;
     // 법원별 성향
@@ -103,6 +107,23 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
             4: { limit: 453237, included: 693638 },
         }
     } as Record<string, Record<number, { limit: number; included: number }>>,
+
+    // 의료비 공제 기준 (2026년 - 중위소득 60% 포함분)
+    medicalCostIncluded: {
+        1: 64619,
+        2: 105822,
+        3: 135048,
+        4: 163667,
+        5: 192286, // 추정치 (4인 + diff average)
+        6: 220905, // 추정치
+    },
+
+    // 교육비 공제 기준 (2026년 - 자녀 1인당)
+    educationCostCriteria: {
+        included: 89627,      // 중위소득 60% 포함분
+        limit: 200000,        // 일반 교육비 추가 인정 한도
+        specialLimit: 500000, // 특수 교육비 추가 인정 한도
+    },
 
     // 법원별 성향
     courtTraits: {

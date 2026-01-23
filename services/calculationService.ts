@@ -157,8 +157,42 @@ export function calculateRepayment(
         }
     }
 
-    // 총 인정 생계비 = 기본 생계비 + 추가 주거비 + (의료비/교육비 등 추후 확장)
-    recognizedLivingCost += additionalHousingCost;
+    // 추가 의료비 계산 (2026년)
+    let additionalMedicalCost = 0;
+    if (input.medicalCost && input.medicalCost > 0) {
+        // 가구원수별 기본 포함금액 가져오기 (없으면 1인 기준 fallback)
+        const medIncluded = effectiveConfig.medicalCostIncluded?.[input.familySize] ||
+            effectiveConfig.medicalCostIncluded?.[4] || 64619;
+
+        // 포함분 초과 금액 전액 인정 (한도 언급 없음)
+        if (input.medicalCost > medIncluded) {
+            additionalMedicalCost = input.medicalCost - medIncluded;
+            aiAdvice.push(`🏥 **의료비 추가 인정**: 월 의료비 중 기본 포함분(${formatCurrency(medIncluded)})을 초과하는 ${formatCurrency(additionalMedicalCost)}이 추가 인정되었습니다.`);
+        }
+    }
+
+    // 추가 교육비 계산 (2026년)
+    let additionalEducationCost = 0;
+    if (input.educationCost && input.educationCost > 0 && input.minorChildren && input.minorChildren > 0) {
+        const eduCriteria = effectiveConfig.educationCostCriteria || { included: 89627, limit: 200000, specialLimit: 500000 };
+
+        // 자녀 1인당 평균 교육비 산출
+        const perChildCost = input.educationCost / input.minorChildren;
+
+        if (perChildCost > eduCriteria.included) {
+            // 1인당 추가 인정액 (일반 한도 적용)
+            const perChildAdditional = Math.min(perChildCost - eduCriteria.included, eduCriteria.limit);
+
+            additionalEducationCost = perChildAdditional * input.minorChildren;
+
+            if (additionalEducationCost > 0) {
+                aiAdvice.push(`🎓 **교육비 추가 인정**: 자녀 1인당 최대 ${formatCurrency(eduCriteria.limit)} 한도 내에서 총 ${formatCurrency(additionalEducationCost)}이 추가 인정되었습니다.`);
+            }
+        }
+    }
+
+    // 총 인정 생계비 = 기본 생계비 + 추가 주거비 + 의료비 + 교육비
+    recognizedLivingCost += additionalHousingCost + additionalMedicalCost + additionalEducationCost;
 
     let availableIncome = input.monthlyIncome - recognizedLivingCost;
     let baseLivingCost = recognizedLivingCost; // 초기 인정 생계비 (조정 전)
@@ -362,7 +396,7 @@ export function calculateRepayment(
         totalDebtReduction,
         debtReductionRate,
         baseLivingCost: baseLivingCostRaw,
-        additionalLivingCost: additionalHousingCost,
+        additionalLivingCost: additionalHousingCost + additionalMedicalCost + additionalEducationCost,
         recognizedLivingCost,
         availableIncome,
         liquidationValue,
