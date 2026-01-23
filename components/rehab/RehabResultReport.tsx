@@ -6,8 +6,11 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Check, AlertTriangle, TrendingDown, Building2, Shield, ArrowRight, Download, Share2 } from 'lucide-react';
+import { X, Check, AlertTriangle, TrendingDown, Building2, Shield, ArrowRight, Download, Share2, Users, DollarSign, Percent, BarChart3 } from 'lucide-react';
 import { RehabCalculationResult, RehabUserInput, formatCurrency } from '../../services/calculationService';
+import { StatComparisonCard, DistributionBar, PercentileBadge } from './StatisticalComparison';
+import { calculateIncomePercentile, calculateDebtPercentile, calculateReductionRatePercentile, getAgeComparison, getFamilySizeComparison, generateStatisticalInsights } from '../../utils/statisticsUtils';
+import { REHAB_STATISTICS_2025, AVERAGE_VALUES } from '../../config/rehabStatistics2025';
 
 interface RehabResultReportProps {
     result: RehabCalculationResult;
@@ -336,6 +339,109 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                                 <p className="pt-2 border-t border-purple-500/20 text-purple-200 font-medium">
                                     → 두 금액 중 <span className="text-purple-300">큰 금액</span>이 월 변제금으로 결정됩니다
                                 </p>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Statistical Comparison Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                        className="space-y-3"
+                    >
+                        <div className="flex items-center gap-2 mb-4">
+                            <BarChart3 className="w-5 h-5 text-cyan-400" />
+                            <h3 className="text-lg font-bold text-white">통계 비교 분석</h3>
+                            <span className="text-xs text-slate-400">(2025년 상반기 기준)</span>
+                        </div>
+
+                        {/* Key Percentile Cards */}
+                        <div className="grid grid-cols-1 gap-3">
+                            <StatComparisonCard
+                                title="월 소득"
+                                userValue={userInput.monthlyIncome}
+                                averageValue={AVERAGE_VALUES.monthlyIncome}
+                                percentile={calculateIncomePercentile(userInput.monthlyIncome)}
+                                icon={<DollarSign className="w-4 h-4" />}
+                            />
+
+                            <StatComparisonCard
+                                title="예상 탕감률"
+                                userValue={`${result.debtReductionRate}%`}
+                                averageValue={`${AVERAGE_VALUES.debtReductionRate}%`}
+                                percentile={calculateReductionRatePercentile(result.debtReductionRate)}
+                                icon={<Percent className="w-4 h-4" />}
+                            />
+
+                            <StatComparisonCard
+                                title="총 채무"
+                                userValue={userInput.totalDebt}
+                                averageValue={AVERAGE_VALUES.totalDebt}
+                                percentile={calculateDebtPercentile(userInput.totalDebt)}
+                                icon={<TrendingDown className="w-4 h-4" />}
+                            />
+                        </div>
+
+                        {/* Distribution Comparison */}
+                        <DistributionBar
+                            title="변제율"
+                            userValue={result.debtReductionRate}
+                            distribution={REHAB_STATISTICS_2025.debtReductionRateDistribution}
+                            highlightRange={REHAB_STATISTICS_2025.debtReductionRateDistribution.find(d => {
+                                const numbers = d.range.match(/\d+/g);
+                                if (!numbers) return false;
+                                const min = parseInt(numbers[0]);
+                                const max = numbers[1] ? parseInt(numbers[1]) : 100;
+                                return result.debtReductionRate >= min && result.debtReductionRate < max;
+                            })?.range || ''}
+                        />
+
+                        {/* Statistical Insights */}
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/30">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Users className="w-4 h-4 text-cyan-400" />
+                                <h4 className="text-sm font-bold text-white">통계 인사이트</h4>
+                            </div>
+                            <div className="space-y-2">
+                                {generateStatisticalInsights({
+                                    monthlyIncome: userInput.monthlyIncome,
+                                    totalDebt: userInput.totalDebt,
+                                    debtReductionRate: result.debtReductionRate,
+                                    age: userInput.age,
+                                    familySize: userInput.familySize
+                                }).map((insight, idx) => (
+                                    <motion.div
+                                        key={idx}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.9 + idx * 0.1 }}
+                                        className="flex items-start gap-2"
+                                    >
+                                        <Check className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                                        <p className="text-sm text-slate-300">{insight}</p>
+                                    </motion.div>
+                                ))}
+                                {userInput.age && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 1.2 }}
+                                        className="flex items-start gap-2"
+                                    >
+                                        <Check className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                                        <p className="text-sm text-slate-300">{getAgeComparison(userInput.age)}</p>
+                                    </motion.div>
+                                )}
+                                <motion.div
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 1.3 }}
+                                    className="flex items-start gap-2"
+                                >
+                                    <Check className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                                    <p className="text-sm text-slate-300">{getFamilySizeComparison(userInput.familySize)}</p>
+                                </motion.div>
                             </div>
                         </div>
                     </motion.div>
