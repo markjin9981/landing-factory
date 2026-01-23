@@ -772,6 +772,86 @@ const PolicyManager: React.FC = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* 5. High Income Policy (New) */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                            <span className="text-yellow-500">💰</span>
+                            고소득자(기타생계비) 적용 기준
+                        </h3>
+                        <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200 text-sm">
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="flex justify-between items-center border-b border-yellow-200 pb-3">
+                                    <div>
+                                        <div className="font-bold text-gray-800">적용 소득 기준</div>
+                                        <div className="text-xs text-gray-500">기준 중위소득의 N배 초과 시 적용</div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={previewConfig?.highIncomeConfig?.thresholdRate || 1.5}
+                                            onChange={e => previewConfig && setPreviewConfig({
+                                                ...previewConfig,
+                                                highIncomeConfig: {
+                                                    ...(previewConfig.highIncomeConfig || DEFAULT_POLICY_CONFIG_2026.highIncomeConfig),
+                                                    thresholdRate: Number(e.target.value)
+                                                }
+                                            })}
+                                            className="w-16 text-right p-1 border rounded bg-white font-bold"
+                                        />
+                                        <span className="text-gray-600 font-bold">배 ({(previewConfig?.highIncomeConfig?.thresholdRate || 1.5) * 100}%)</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center border-b border-yellow-200 pb-3">
+                                    <div>
+                                        <div className="font-bold text-gray-800">총 생계비 인정 한도</div>
+                                        <div className="text-xs text-gray-500">기준 중위소득의 N배까지만 인정</div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={previewConfig?.highIncomeConfig?.maxLivingCostRate || 1.0}
+                                            onChange={e => previewConfig && setPreviewConfig({
+                                                ...previewConfig,
+                                                highIncomeConfig: {
+                                                    ...(previewConfig.highIncomeConfig || DEFAULT_POLICY_CONFIG_2026.highIncomeConfig),
+                                                    maxLivingCostRate: Number(e.target.value)
+                                                }
+                                            })}
+                                            className="w-16 text-right p-1 border rounded bg-white font-bold"
+                                        />
+                                        <span className="text-gray-600 font-bold">배 ({(previewConfig?.highIncomeConfig?.maxLivingCostRate || 1.0) * 100}%)</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <div className="font-bold text-gray-800">최소 변제율 제한</div>
+                                        <div className="text-xs text-gray-500">변제금이 원금의 N% 이상이어야 함</div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={previewConfig?.highIncomeConfig?.minRepaymentRate || 0.4}
+                                            onChange={e => previewConfig && setPreviewConfig({
+                                                ...previewConfig,
+                                                highIncomeConfig: {
+                                                    ...(previewConfig.highIncomeConfig || DEFAULT_POLICY_CONFIG_2026.highIncomeConfig),
+                                                    minRepaymentRate: Number(e.target.value)
+                                                }
+                                            })}
+                                            className="w-16 text-right p-1 border rounded bg-white font-bold"
+                                        />
+                                        <span className="text-gray-600 font-bold">배 ({(previewConfig?.highIncomeConfig?.minRepaymentRate || 0.4) * 100}%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
