@@ -220,6 +220,7 @@ const PolicyManager: React.FC = () => {
             allow24Months: newCourt.allow24Months || false,
             spousePropertyRate: newCourt.spousePropertyRate || 0,
             investLossInclude: newCourt.investLossInclude || false,
+            processingMonths: newCourt.processingMonths || 5.0,
             description: newCourt.description || ''
         };
 
