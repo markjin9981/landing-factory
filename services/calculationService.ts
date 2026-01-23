@@ -191,8 +191,58 @@ export function calculateRepayment(
         }
     }
 
-    // 총 인정 생계비 = 기본 생계비 + 추가 주거비 + 의료비 + 교육비
-    recognizedLivingCost += additionalHousingCost + additionalMedicalCost + additionalEducationCost;
+    // 4. 총 추가 인정 생계비 합산 (기존)
+    let totalAdditionalCost = additionalHousingCost + additionalMedicalCost + additionalEducationCost;
+    const standardLivingCost = recognizedLivingCost; // 현재 시점(추가비용 합산 전)이 기본 생계비
+
+    // --- [NEW] 고소득자(기타생계비) 로직 적용 ---
+    const highIncomeConfig = effectiveConfig.highIncomeConfig || DEFAULT_POLICY_CONFIG_2026.highIncomeConfig;
+    const isHighIncome = input.monthlyIncome > (medianIncome * highIncomeConfig.thresholdRate);
+    let highIncomeAdjustmentMsg = '';
+
+    if (isHighIncome) {
+        // 고소득자 기준: 중위소득 150% 초과
+
+        // A. 총 생계비 한도 체크 (중위소득 100% 이내)
+        const currentTotalLivingCost = standardLivingCost + totalAdditionalCost;
+        const maxAllowedLivingCost = medianIncome * highIncomeConfig.maxLivingCostRate;
+
+        // 생계비 한도 적용
+        let cappedLivingCost = Math.min(currentTotalLivingCost, maxAllowedLivingCost);
+
+        // B. 최소 변제율(40%) 체크
+        const totalDebt = (input.priorityDebtAmount || 0) + (input.otherDebtAmount || 0);
+        // 채무가 0이면 계산 불가하므로 패스
+        if (totalDebt > 0) {
+            const minRepaymentTotal = totalDebt * highIncomeConfig.minRepaymentRate;
+            const minRepaymentMonthly = minRepaymentTotal / 36; // 기본 36개월 기준 계산
+            const maxLivingCostByRepayment = input.monthlyIncome - minRepaymentMonthly;
+
+            if (cappedLivingCost > maxLivingCostByRepayment) {
+                cappedLivingCost = Math.max(0, maxLivingCostByRepayment); // 음수 방지
+                highIncomeAdjustmentMsg = `\n\n[고소득자 특례 적용]\n고소득자(중위소득 ${highIncomeConfig.thresholdRate * 100}% 초과)에 해당하여, 최소 변제율(${highIncomeConfig.minRepaymentRate * 100}%) 준수를 위해 생계비가 일부 조정되었습니다.`;
+            } else if (currentTotalLivingCost > maxAllowedLivingCost) {
+                highIncomeAdjustmentMsg = `\n\n[고소득자 특례 적용]\n고소득자(중위소득 ${highIncomeConfig.thresholdRate * 100}% 초과)에 해당하여, 총 생계비가 중위소득의 ${highIncomeConfig.maxLivingCostRate * 100}% 이내로 제한되었습니다.`;
+            }
+        }
+
+        // 최종 조정된 추가 생계비 (역산)
+        const adjustedAdditionalCost = Math.max(0, cappedLivingCost - standardLivingCost);
+
+        // 조정된 값이 기존 합산보다 작을 경우에만 적용
+        if (adjustedAdditionalCost < totalAdditionalCost) {
+            totalAdditionalCost = adjustedAdditionalCost;
+        }
+    }
+
+    // 5. 최종 인정 생계비
+    recognizedLivingCost += totalAdditionalCost;
+
+    // AI 조언 업데이트 (High Income Msg 추가)
+    if (highIncomeAdjustmentMsg) {
+        // AI 조언 배열에 접근해야 함. (current scope assumes aiAdvice is available)
+        aiAdvice.push(highIncomeAdjustmentMsg);
+    }
 
     let availableIncome = input.monthlyIncome - recognizedLivingCost;
     let baseLivingCost = recognizedLivingCost; // 초기 인정 생계비 (조정 전)
