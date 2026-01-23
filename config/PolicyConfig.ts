@@ -21,6 +21,8 @@ export interface RehabPolicyConfig {
     medicalCostIncluded: Record<number, number>;
     // 교육비 기준 (1인당)
     educationCostCriteria: { included: number; limit: number; specialLimit: number };
+    // 고소득자(기타생계비) 설정
+    highIncomeConfig: { thresholdRate: number; maxLivingCostRate: number; minRepaymentRate: number };
     // 생계비 인정률 (기본 60%)
     livingCostRate: number;
     // 법원별 성향
@@ -123,6 +125,13 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         included: 89627,      // 중위소득 60% 포함분
         limit: 200000,        // 일반 교육비 추가 인정 한도
         specialLimit: 500000, // 특수 교육비 추가 인정 한도
+    },
+
+    // 고소득자(기타생계비) 적용 기준 (2026년 제도 개편)
+    highIncomeConfig: {
+        thresholdRate: 1.5,      // 중위소득 150% 초과 시 적용
+        maxLivingCostRate: 1.0,  // 총 생계비 공제 한도 (중위소득 100% 이하)
+        minRepaymentRate: 0.4,   // 최소 변제율 40% 이상 (미충족 시 생계비 감액)
     },
 
     // 법원별 성향
