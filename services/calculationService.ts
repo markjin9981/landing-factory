@@ -135,9 +135,33 @@ export function calculateRepayment(
     const riskWarnings: string[] = [];
 
     // 3. 월 가용소득 (변제금) 계산 및 생계비 자동 조정
-    let recognizedLivingCost = getRecognizedLivingCost(input.familySize, effectiveConfig);
+    const baseLivingCostRaw = getRecognizedLivingCost(input.familySize, effectiveConfig);
+    let recognizedLivingCost = baseLivingCostRaw;
+
+    // 추가 주거비 계산 (2026년 신규 로직)
+    let additionalHousingCost = 0;
+    if (input.rentCost && input.rentCost > 0) {
+        // 해당 지역 및 가구원수의 기준 가져오기
+        const housingCriteria = effectiveConfig.additionalHousingCosts?.[regionGroup]?.[input.familySize] ||
+            effectiveConfig.additionalHousingCosts?.['그외']?.[input.familySize];
+
+        if (housingCriteria) {
+            // 공식: 인정액 = Min(월세 - 기본포함분, 한도)
+            // 단, 월세가 기본포함분보다 적으면 0
+            const deductibleRent = Math.max(0, input.rentCost - housingCriteria.included);
+            additionalHousingCost = Math.min(deductibleRent, housingCriteria.limit);
+
+            if (additionalHousingCost > 0) {
+                aiAdvice.push(`🏠 **주거비 추가 인정**: 월세 중 ${formatCurrency(additionalHousingCost)}이 추가 생계비로 인정되었습니다.`);
+            }
+        }
+    }
+
+    // 총 인정 생계비 = 기본 생계비 + 추가 주거비 + (의료비/교육비 등 추후 확장)
+    recognizedLivingCost += additionalHousingCost;
+
     let availableIncome = input.monthlyIncome - recognizedLivingCost;
-    let baseLivingCost = recognizedLivingCost; // 초기 인정 생계비 저장
+    let baseLivingCost = recognizedLivingCost; // 초기 인정 생계비 (조정 전)
     const minAvailableIncome = 100000; // 최소 보장 가용소득 (10만원)
 
     // 소득이 생계비보다 적거나 가용소득이 너무 적은 경우 (10만원 미만)
@@ -337,8 +361,8 @@ export function calculateRepayment(
         totalRepayment,
         totalDebtReduction,
         debtReductionRate,
-        baseLivingCost: recognizedLivingCost,
-        additionalLivingCost: 0,
+        baseLivingCost: baseLivingCostRaw,
+        additionalLivingCost: additionalHousingCost,
         recognizedLivingCost,
         availableIncome,
         liquidationValue,

@@ -413,6 +413,90 @@ const PolicyManager: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* 2. Additional Housing Cost Config (New) */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <span className="text-blue-600">🏠</span>
+                            추가 주거비 인정 기준 (최대 한도)
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {['서울특별시', '과밀억제권역', '광역시기준', '그외'].map(group => (
+                                <div key={group} className="border rounded-lg p-3 bg-gray-50">
+                                    <h3 className="font-bold text-gray-700 mb-2 border-b pb-1 text-sm">{group}</h3>
+                                    <table className="w-full text-xs text-center">
+                                        <thead className="text-gray-500 font-normal">
+                                            <tr>
+                                                <th className="p-1 font-normal">가구</th>
+                                                <th className="p-1 font-normal">인정한도</th>
+                                                <th className="p-1 font-normal">기본포함</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {[1, 2, 3, 4, 5, 6].map(size => {
+                                                // Safety: Fallback to defaults if missing in loaded config
+                                                const costConfig = previewConfig?.additionalHousingCosts?.[group]?.[size] ||
+                                                    DEFAULT_POLICY_CONFIG_2026.additionalHousingCosts[group as keyof typeof DEFAULT_POLICY_CONFIG_2026.additionalHousingCosts]?.[size] ||
+                                                    { limit: 0, included: 0 };
+
+                                                return (
+                                                    <tr key={size} className="border-t border-gray-200">
+                                                        <td className="p-1.5 font-medium">{size}인</td>
+                                                        <td className="p-1">
+                                                            <input
+                                                                type="number"
+                                                                value={costConfig.limit}
+                                                                onChange={e => {
+                                                                    if (!previewConfig) return;
+                                                                    const val = Number(e.target.value);
+                                                                    const currentGroup = previewConfig.additionalHousingCosts?.[group] || {};
+
+                                                                    setPreviewConfig({
+                                                                        ...previewConfig,
+                                                                        additionalHousingCosts: {
+                                                                            ...(previewConfig.additionalHousingCosts || DEFAULT_POLICY_CONFIG_2026.additionalHousingCosts),
+                                                                            [group]: {
+                                                                                ...currentGroup,
+                                                                                [size]: { ...costConfig, limit: val }
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full text-right p-1 border rounded bg-white"
+                                                            />
+                                                        </td>
+                                                        <td className="p-1">
+                                                            <input
+                                                                type="number"
+                                                                value={costConfig.included}
+                                                                onChange={e => {
+                                                                    if (!previewConfig) return;
+                                                                    const val = Number(e.target.value);
+                                                                    const currentGroup = previewConfig.additionalHousingCosts?.[group] || {};
+
+                                                                    setPreviewConfig({
+                                                                        ...previewConfig,
+                                                                        additionalHousingCosts: {
+                                                                            ...(previewConfig.additionalHousingCosts || DEFAULT_POLICY_CONFIG_2026.additionalHousingCosts),
+                                                                            [group]: {
+                                                                                ...currentGroup,
+                                                                                [size]: { ...costConfig, included: val }
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full text-right p-1 border rounded bg-gray-100 text-gray-500"
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* 2. Excel Upload (Region Map) */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <h2 className="text-lg font-bold mb-4 flex items-center gap-2">

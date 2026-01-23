@@ -15,7 +15,8 @@ export interface RehabPolicyConfig {
     // 지역별 보증금 공제 기준
     depositExemptions: Record<string, { limit: number; deduct: number }>;
     // 지역별 추가 주거비 인정 한도 (신규)
-    housingAllowance: Record<string, { limit: number; included: number }>;
+    // 지역별 추가 주거비 인정 한도 (신규 - 가구원수별 상세)
+    additionalHousingCosts: Record<string, Record<number, { limit: number; included: number }>>;
     // 생계비 인정률 (기본 60%)
     livingCostRate: number;
     // 법원별 성향
@@ -74,12 +75,34 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
     livingCostRate: 0.6,
 
     // 지역별 추가 주거비 인정 한도 (신규 - 2026년 서울회생법원 기준)
-    housingAllowance: {
-        '서울특별시': { limit: 589208, included: 273861 },       // 서울
-        '과밀억제권역': { limit: 430122, included: 273861 },     // 과밀억제권역
-        '광역시기준': { limit: 229791, included: 273861 },       // 광역시
-        '그외': { limit: 176762, included: 273861 }              // 그 밖의 지역
-    },
+    // 지역별 추가 주거비 인정 한도 (2026년 기준)
+    // 구조: 지역그룹 -> 가구원수 -> { 한도(limit), 기본포함분(included) }
+    additionalHousingCosts: {
+        '서울특별시': {
+            1: { limit: 589208, included: 273861 },
+            2: { limit: 982013, included: 448484 },
+            3: { limit: 1253955, included: 572345 },
+            4: { limit: 1510789, included: 693638 },
+        },
+        '과밀억제권역': {
+            1: { limit: 430122, included: 273861 },
+            2: { limit: 716869, included: 448484 },
+            3: { limit: 915387, included: 572345 },
+            4: { limit: 1102876, included: 693638 },
+        },
+        '광역시기준': {
+            1: { limit: 229791, included: 273861 },
+            2: { limit: 382985, included: 448484 },
+            3: { limit: 489042, included: 572345 },
+            4: { limit: 589208, included: 693638 },
+        },
+        '그외': {
+            1: { limit: 176762, included: 273861 },
+            2: { limit: 294604, included: 448484 },
+            3: { limit: 376186, included: 572345 },
+            4: { limit: 453237, included: 693638 },
+        }
+    } as Record<string, Record<number, { limit: number; included: number }>>,
 
     // 법원별 성향
     courtTraits: {
