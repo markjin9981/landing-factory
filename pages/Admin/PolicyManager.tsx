@@ -213,7 +213,7 @@ const PolicyManager: React.FC = () => {
 
     const handleAddCourt = () => {
         if (!previewConfig || !newCourt.name) return alert('법원명을 입력해주세요.');
-        if (previewConfig.courtTraits[newCourt.name]) return alert('이미 존재하는 법원명입니다.');
+        // if (previewConfig.courtTraits[newCourt.name]) return alert('이미 존재하는 법원명입니다.'); // Remove strictly blocking check
 
         const trait: CourtTrait = {
             name: newCourt.name,
@@ -232,6 +232,11 @@ const PolicyManager: React.FC = () => {
         });
         setIsEditingCourt(false);
         setNewCourt({ name: '', allow24Months: false, spousePropertyRate: 0.5, investLossInclude: false, description: '' });
+    };
+
+    const handleEditCourt = (trait: CourtTrait) => {
+        setNewCourt({ ...trait });
+        setIsEditingCourt(true);
     };
 
     if (isLoading) return <div className="p-8 text-center flex justify-center"><RefreshCw className="animate-spin" /></div>;
@@ -395,8 +400,15 @@ const PolicyManager: React.FC = () => {
                                                 {trait.investLossInclude ? <span className="text-red-500 font-bold">반영</span> : <span className="text-gray-400">미반영</span>}
                                             </td>
                                             <td className="p-3 text-gray-500 text-xs">{trait.description}</td>
-                                            <td className="p-3 text-right">
-                                                {key !== 'Default' ? (
+                                            <td className="p-3 text-right flex justify-end gap-1">
+                                                <button
+                                                    onClick={() => handleEditCourt(trait)}
+                                                    className="text-blue-400 hover:text-blue-600 p-1 bg-blue-50 rounded"
+                                                    title="수정"
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </button>
+                                                {key !== 'Default' && (
                                                     <button
                                                         onClick={() => handleDeleteCourt(key)}
                                                         className="text-red-400 hover:text-red-600 p-1 bg-red-50 rounded"
@@ -404,7 +416,7 @@ const PolicyManager: React.FC = () => {
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
-                                                ) : <span className="text-xs text-gray-300">기본</span>}
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -555,8 +567,8 @@ const PolicyManager: React.FC = () => {
                             <thead className="bg-gray-100 text-gray-600">
                                 <tr>
                                     <th className="p-2 border-b text-left">그룹</th>
-                                    <th className="p-2 border-b text-right">상한</th>
-                                    <th className="p-2 border-b text-right">공제</th>
+                                    <th className="p-2 border-b text-right">상한(만원)</th>
+                                    <th className="p-2 border-b text-right">공제(만원)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -565,13 +577,35 @@ const PolicyManager: React.FC = () => {
                                     .map(([key, val]) => (
                                         <tr key={key} className="border-b">
                                             <td className="p-2 font-medium text-xs">{key}</td>
-                                            <td className="p-2 text-right text-xs">{(val.limit / 10000).toLocaleString()}만</td>
-                                            <td className="p-2 text-right font-bold text-blue-600">{(val.deduct / 10000).toLocaleString()}만</td>
+                                            <td className="p-2 text-right">
+                                                <input
+                                                    type="number"
+                                                    value={val.limit / 10000}
+                                                    onChange={(e) => {
+                                                        const newExemptions = { ...previewConfig.depositExemptions };
+                                                        newExemptions[key] = { ...val, limit: Number(e.target.value) * 10000 };
+                                                        setPreviewConfig({ ...previewConfig, depositExemptions: newExemptions });
+                                                    }}
+                                                    className="w-20 text-right p-1 border rounded bg-white text-xs"
+                                                />
+                                            </td>
+                                            <td className="p-2 text-right">
+                                                <input
+                                                    type="number"
+                                                    value={val.deduct / 10000}
+                                                    onChange={(e) => {
+                                                        const newExemptions = { ...previewConfig.depositExemptions };
+                                                        newExemptions[key] = { ...val, deduct: Number(e.target.value) * 10000 };
+                                                        setPreviewConfig({ ...previewConfig, depositExemptions: newExemptions });
+                                                    }}
+                                                    className="w-20 text-right p-1 border rounded bg-white font-bold text-blue-600 text-xs"
+                                                />
+                                            </td>
                                         </tr>
                                     ))}
                             </tbody>
                         </table>
-                        <p className="text-xs text-gray-400 mt-2">* 단위: 만원</p>
+                        <p className="text-xs text-gray-400 mt-2">* 값 입력시 '만원' 단위로 입력해주세요.</p>
                     </div>
 
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
