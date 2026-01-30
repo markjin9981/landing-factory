@@ -17,6 +17,7 @@ import { StatComparisonCard, DistributionBar, PercentileBadge } from './Statisti
 import { calculateIncomePercentile, calculateDebtPercentile, calculateReductionRatePercentile, getAgeComparison, getFamilySizeComparison, generateStatisticalInsights } from '../../utils/statisticsUtils';
 import { REHAB_STATISTICS_2025, AVERAGE_VALUES } from '../../config/rehabStatistics2025';
 import { CountUp, GlowingCard, AnimatedProgress, DonutChart, PulsingBadge, GradientButton, StaggerContainer, StaggerItem } from './animations/ReportAnimations';
+import { ProcedureTimeline } from './ProcedureTimeline';
 
 interface RehabResultReportProps {
     result: RehabCalculationResult;
@@ -385,6 +386,17 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                                         </div>
                                     ) : null;
                                 })()}
+                            </GlowingCard>
+                        </motion.div>
+
+                        {/* ===== PROCEDURE TIMELINE SECTION ===== */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 1.0 }}
+                        >
+                            <GlowingCard glowColor="purple" className="p-5">
+                                <ProcedureTimeline processingMonths={result.processingMonths} />
                             </GlowingCard>
                         </motion.div>
 
