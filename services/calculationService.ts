@@ -75,6 +75,11 @@ export interface RehabUserInput {
     // 연락처
     name?: string;             // 고객명
     phone?: string;            // 연락처
+
+    // 부양가족 산정 결과 (UI 표시용)
+    recognizedChildDependents?: number;  // 인정된 자녀 부양가족 수
+    elderlyParentDependents?: number;    // 인정된 고령 부모 부양가족 수
+    dependentReason?: string;            // 부양가족 산정 근거
 }
 
 /**

@@ -241,8 +241,8 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                             <h4 className="text-sm font-bold text-white mb-3">부양가족 구성</h4>
                             <div className="space-y-2">
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-slate-400">총 가구원 수</span>
-                                    <span className="text-slate-200 font-medium">{userInput.familySize}인</span>
+                                    <span className="text-slate-400">적용 가구원 수</span>
+                                    <span className="text-cyan-400 font-bold">{userInput.familySize}인</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
                                     <span className="text-slate-400">혼인 상태</span>
@@ -251,14 +251,46 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                                     </span>
                                 </div>
                                 {userInput.minorChildren !== undefined && userInput.minorChildren > 0 && (
+                                    <>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-slate-400">미성년 자녀</span>
+                                            <span className="text-slate-200 font-medium">{userInput.minorChildren}명</span>
+                                        </div>
+                                        {userInput.recognizedChildDependents !== undefined && (
+                                            <div className="flex justify-between text-xs">
+                                                <span className="text-slate-400">인정 부양가족</span>
+                                                <span className="text-cyan-400 font-medium">
+                                                    {userInput.recognizedChildDependents === Math.floor(userInput.recognizedChildDependents)
+                                                        ? `${userInput.recognizedChildDependents}명`
+                                                        : `${userInput.recognizedChildDependents}명 (중간값 적용)`}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                                {/* 고령 부모님 부양가족 */}
+                                {userInput.elderlyParentDependents !== undefined && userInput.elderlyParentDependents > 0 && (
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-slate-400">미성년 자녀</span>
-                                        <span className="text-slate-200 font-medium">{userInput.minorChildren}명</span>
+                                        <span className="text-slate-400">고령 부모님</span>
+                                        <span className="text-cyan-400 font-medium">{userInput.elderlyParentDependents}분</span>
                                     </div>
                                 )}
+                                {/* 부양가족 산정 근거 */}
+                                {userInput.dependentReason && (
+                                    <p className="text-xs text-cyan-300/80 mt-2 pt-2 border-t border-slate-700">
+                                        💡 {userInput.dependentReason}
+                                    </p>
+                                )}
+                                {/* 기본 안내 문구 */}
                                 <p className="text-xs text-slate-400 mt-2 pt-2 border-t border-slate-700">
                                     가구원 수에 따라 기본 생계비가 결정됩니다
                                 </p>
+                                {/* 배우자 부양가족 가능성 안내 */}
+                                {userInput.isMarried && (
+                                    <p className="text-xs text-yellow-300/70 mt-1">
+                                        ※ 배우자가 미성년 자녀 양육, 장애, 질병 등으로 경제활동이 불가능한 경우 추가 부양가족 인정이 가능할 수 있습니다. 전문 상담을 통해 확인하세요.
+                                    </p>
+                                )}
                             </div>
                         </div>
 

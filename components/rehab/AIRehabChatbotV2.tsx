@@ -93,6 +93,8 @@ type ChatStep =
     | 'prior_credit_recovery_amount' // 신용회복 잔액 (NEW)
     | 'risk'
     | 'special_24_months'    // 24개월 특례 적용 여부 (기초수급자, 장애 등)
+    | 'elderly_parent_check'  // 고령 부모님 부양가족 확인
+    | 'elderly_parent_count'  // 고령 부모님 인원수
     | 'contact_name'
     | 'contact_phone'
     | 'result';
@@ -771,13 +773,15 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                 break;
 
             case 'minor_children':
-                const minorChildren = value as number;
-                // 가구원 수 계산: 본인(1) + 미성년자녀 + 무소득 배우자(기혼 시 1)
-                let familySize = 1 + minorChildren;
-                if (userInput.isMarried && (!userInput.spouseIncome || userInput.spouseIncome === 0)) {
-                    familySize += 1;
-                }
-                setUserInput(prev => ({ ...prev, minorChildren, familySize }));
+                // 문자열 연결 버그 수정: 명시적으로 숫자로 변환
+                const minorChildren = typeof value === 'number' ? value : parseInt(String(value), 10);
+                const safeMinorChildren = isNaN(minorChildren) ? 0 : minorChildren;
+
+                // 가구원 수는 나중에 배우자 소득 기반으로 최종 계산됨
+                // 여기서는 일단 본인(1) + 미성년 자녀로 임시 설정 (미혼인 경우 최종값)
+                let familySize = 1 + safeMinorChildren;
+
+                setUserInput(prev => ({ ...prev, minorChildren: safeMinorChildren, familySize }));
                 setCurrentStep('housing_type');
                 addBotMessage(
                     '현재 거주 형태는 무엇인가요?',
@@ -1127,6 +1131,99 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         'buttons'
                     );
                 } else {
+                    // 기혼이고 미성년 자녀가 있는 경우 배우자 소득 질문
+                    if (userInput.isMarried && userInput.minorChildren && userInput.minorChildren > 0) {
+                        setCurrentStep('spouse_income');
+                        addBotMessage(
+                            '배우자의 월 소득은 대략 얼마인가요?\n\n(자녀 부양가족 산정에 필요합니다)',
+                            [
+                                { label: '💼 무소득', value: 0 },
+                                { label: '💵 100만원 미만', value: 50 },
+                                { label: '💵 100~200만원', value: 150 },
+                                { label: '💵 200~300만원', value: 250 },
+                                { label: '💵 300~400만원', value: 350 },
+                                { label: '💵 400만원 이상', value: 450 }
+                            ],
+                            'buttons'
+                        );
+                    } else {
+                        // 기혼+자녀 없는 경우 또는 미혼인 경우, 고령 부모님 부양가족 확인으로 이동
+                        setCurrentStep('elderly_parent_check');
+                        addBotMessage(
+                            '아래 조건에 **모두 부합하는** 부모님이 계신가요?\n\n• 친부모\n• 만 65세 이상\n• 소득이 없거나 기초수급 혹은 장애\n• 20만원 이상 생활비를 매달 드리는 중',
+                            [
+                                { label: '✅ 예, 해당됩니다', value: 'yes' },
+                                { label: '❌ 아니요', value: 'no' }
+                            ],
+                            'buttons'
+                        );
+                    }
+                }
+                break;
+
+            case 'spouse_income':
+                // 배우자 소득 저장 및 가구원 수 재계산
+                const spouseIncome = (typeof value === 'number' ? value : parseInt(String(value), 10)) * 10000;
+                const myIncome = userInput.monthlyIncome || 0;
+                const children = userInput.minorChildren || 0;
+
+                // 배우자 소득 비율 계산
+                const spouseIncomeRatio = myIncome > 0 ? spouseIncome / myIncome : 0;
+
+                let recognizedDependents = 0;
+                let dependentReason = '';
+
+                if (spouseIncomeRatio < 0.7) {
+                    // 배우자 소득 < 70%: 자녀 전원 인정
+                    recognizedDependents = children;
+                    dependentReason = '배우자 소득이 본인의 70% 미만으로, 미성년 자녀 전원이 부양가족으로 인정됩니다.';
+                } else if (spouseIncomeRatio <= 1.3) {
+                    // 배우자 소득 70~130%: 자녀 0.5명씩 산정
+                    recognizedDependents = children * 0.5;
+                    dependentReason = '부부 소득이 비슷하여(70~130%), 미성년 자녀는 공동 부양으로 0.5명씩 산정됩니다.';
+                } else {
+                    // 배우자 소득 > 130%: 자녀 미인정
+                    recognizedDependents = 0;
+                    dependentReason = '배우자 소득이 본인의 130% 초과로, 자녀는 배우자의 부양가족으로 간주됩니다.';
+                }
+
+                // 최종 가구원 수 = 본인(1) + 인정된 자녀 부양가족 (소수점 올림)
+                const updatedFamilySize = 1 + Math.ceil(recognizedDependents);
+
+                setUserInput(prev => ({
+                    ...prev,
+                    spouseIncome,
+                    familySize: updatedFamilySize,
+                    recognizedChildDependents: recognizedDependents,
+                    dependentReason
+                }));
+
+                // 고령 부모님 부양가족 확인으로 이동
+                setCurrentStep('elderly_parent_check');
+                addBotMessage(
+                    '아래 조건에 **모두 부합하는** 부모님이 계신가요?\n\n• 친부모\n• 만 65세 이상\n• 소득이 없거나 기초수급 혹은 장애\n• 20만원 이상 생활비를 매달 드리는 중',
+                    [
+                        { label: '✅ 예, 해당됩니다', value: 'yes' },
+                        { label: '❌ 아니요', value: 'no' }
+                    ],
+                    'buttons'
+                );
+                break;
+
+            case 'elderly_parent_check':
+                if (value === 'yes') {
+                    setCurrentStep('elderly_parent_count');
+                    addBotMessage(
+                        '해당 조건에 부합하는 부모님이 몇 분이신가요?',
+                        [
+                            { label: '👤 1분', value: 1 },
+                            { label: '👫 2분 (부모님 모두)', value: 2 }
+                        ],
+                        'buttons'
+                    );
+                } else {
+                    // 고령 부모님 부양가족 없음
+                    setUserInput(prev => ({ ...prev, elderlyParentDependents: 0 }));
                     setCurrentStep('priority_debt');
                     addBotMessage(
                         '세금, 건강보험료 등 미납된 공과금이 있으신가요?',
@@ -1137,6 +1234,35 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
                         'buttons'
                     );
                 }
+                break;
+
+            case 'elderly_parent_count':
+                const elderlyParentCount = typeof value === 'number' ? value : parseInt(String(value), 10);
+                const safeElderlyCount = isNaN(elderlyParentCount) ? 0 : elderlyParentCount;
+
+                // 가구원 수에 고령 부모님 추가
+                setUserInput(prev => {
+                    const newFamilySize = (prev.familySize || 1) + safeElderlyCount;
+                    const updatedReason = prev.dependentReason
+                        ? `${prev.dependentReason} 고령 부모님 ${safeElderlyCount}분이 추가로 인정됩니다.`
+                        : `고령 부모님 ${safeElderlyCount}분이 부양가족으로 인정됩니다.`;
+                    return {
+                        ...prev,
+                        elderlyParentDependents: safeElderlyCount,
+                        familySize: newFamilySize,
+                        dependentReason: updatedReason
+                    };
+                });
+
+                setCurrentStep('priority_debt');
+                addBotMessage(
+                    '세금, 건강보험료 등 미납된 공과금이 있으신가요?',
+                    [
+                        { label: '없어요', value: 'no' },
+                        { label: '있어요', value: 'yes' }
+                    ],
+                    'buttons'
+                );
                 break;
 
             case 'priority_debt':
@@ -1485,7 +1611,8 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
             'other_debt': 82, 'debt_confirm': 85, 'priority_debt': 88,
             'priority_debt_amount': 90, 'prior_rehab': 91, 'prior_rehab_detail': 92,
             'prior_credit_recovery': 93, 'prior_credit_recovery_amount': 94, 'risk': 95,
-            'special_24_months': 95.5, 'contact_name': 96,
+            'special_24_months': 95.5, 'elderly_parent_check': 86, 'elderly_parent_count': 87,
+            'contact_name': 96,
             'contact_phone': 98, 'result': 100
         };
         return stepOrder[currentStep] || 0;
