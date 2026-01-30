@@ -300,6 +300,94 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                             </div>
                         </GlowingCard>
 
+                        {/* ===== STATISTICS COMPARISON SECTION ===== */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.9 }}
+                        >
+                            <GlowingCard glowColor="cyan" className="p-5">
+                                <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                    <BarChart3 className="w-4 h-4 text-cyan-400" />
+                                    2025년 개인회생 신청자 통계 비교
+                                    <span className="text-[10px] text-slate-500 font-normal ml-auto">서울회생법원 기준</span>
+                                </h4>
+
+                                {/* Percentile Comparison Cards */}
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <StatComparisonCard
+                                        title="월 소득"
+                                        userValue={userInput.monthlyIncome}
+                                        averageValue={AVERAGE_VALUES.monthlyIncome}
+                                        percentile={calculateIncomePercentile(userInput.monthlyIncome)}
+                                        icon={<DollarSign className="w-4 h-4" />}
+                                    />
+                                    <StatComparisonCard
+                                        title="총 채무"
+                                        userValue={userInput.totalDebt}
+                                        averageValue={AVERAGE_VALUES.totalDebt}
+                                        percentile={calculateDebtPercentile(userInput.totalDebt)}
+                                        icon={<CreditCard className="w-4 h-4" />}
+                                    />
+                                </div>
+
+                                {/* Reduction Rate Comparison */}
+                                <div className="mb-4">
+                                    <StatComparisonCard
+                                        title="예상 탕감률"
+                                        userValue={`${result.debtReductionRate}%`}
+                                        averageValue={`${AVERAGE_VALUES.debtReductionRate}%`}
+                                        percentile={calculateReductionRatePercentile(result.debtReductionRate)}
+                                        icon={<Percent className="w-4 h-4" />}
+                                    />
+                                </div>
+
+                                {/* Distribution Chart */}
+                                <DistributionBar
+                                    title="채무 총액"
+                                    userValue={userInput.totalDebt}
+                                    distribution={REHAB_STATISTICS_2025.debtAmountDistribution}
+                                    highlightRange={
+                                        userInput.totalDebt <= 50000000 ? '5천만원 이하' :
+                                            userInput.totalDebt <= 100000000 ? '5천만원 초과 1억 이하' :
+                                                userInput.totalDebt <= 200000000 ? '1억 초과 2억 이하' :
+                                                    userInput.totalDebt <= 300000000 ? '2억 초과 3억 이하' :
+                                                        userInput.totalDebt <= 400000000 ? '3억 초과 4억 이하' : '4억 초과'
+                                    }
+                                />
+
+                                {/* Statistical Insights */}
+                                {(() => {
+                                    const insights = generateStatisticalInsights({
+                                        monthlyIncome: userInput.monthlyIncome,
+                                        totalDebt: userInput.totalDebt,
+                                        debtReductionRate: result.debtReductionRate,
+                                        familySize: userInput.familySize,
+                                    });
+
+                                    return insights.length > 0 ? (
+                                        <div className="mt-4 pt-4 border-t border-white/5">
+                                            <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">AI 통계 인사이트</p>
+                                            <div className="space-y-1.5">
+                                                {insights.map((insight, idx) => (
+                                                    <motion.p
+                                                        key={idx}
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: 1.2 + idx * 0.1 }}
+                                                        className="text-xs text-cyan-300/80 flex items-start gap-1.5"
+                                                    >
+                                                        <Sparkles className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                                        {insight}
+                                                    </motion.p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : null;
+                                })()}
+                            </GlowingCard>
+                        </motion.div>
+
                         {/* ===== DETAILED INFO SECTIONS ===== */}
                         <StaggerContainer staggerDelay={0.1} className="space-y-3">
 
