@@ -552,15 +552,37 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                                                     </div>
                                                 )}
                                                 {userInput.medicalCost && userInput.medicalCost > 0 && (
-                                                    <div className="flex justify-between pl-2">
-                                                        <span className="text-slate-500">• 의료비</span>
-                                                        <span className="text-slate-300">{formatCurrency(userInput.medicalCost)}</span>
+                                                    <div className="pl-2">
+                                                        <div className="flex justify-between">
+                                                            <span className="text-slate-500">• 의료비</span>
+                                                            <span className="text-slate-300">
+                                                                {result.medicalCostBreakdown
+                                                                    ? formatCurrency(result.medicalCostBreakdown.recognized)
+                                                                    : formatCurrency(userInput.medicalCost)}
+                                                            </span>
+                                                        </div>
+                                                        {result.medicalCostBreakdown && (
+                                                            <p className="text-[9px] text-cyan-400/70 mt-0.5 pl-2">
+                                                                💡 {result.medicalCostBreakdown.explanation}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 )}
                                                 {userInput.educationCost && userInput.educationCost > 0 && (
-                                                    <div className="flex justify-between pl-2">
-                                                        <span className="text-slate-500">• 교육비</span>
-                                                        <span className="text-slate-300">{formatCurrency(userInput.educationCost)}</span>
+                                                    <div className="pl-2">
+                                                        <div className="flex justify-between">
+                                                            <span className="text-slate-500">• 교육비</span>
+                                                            <span className="text-slate-300">
+                                                                {result.educationCostBreakdown
+                                                                    ? formatCurrency(result.educationCostBreakdown.recognized)
+                                                                    : formatCurrency(userInput.educationCost)}
+                                                            </span>
+                                                        </div>
+                                                        {result.educationCostBreakdown && (
+                                                            <p className="text-[9px] text-cyan-400/70 mt-0.5 pl-2">
+                                                                💡 {result.educationCostBreakdown.explanation}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 )}
                                             </>

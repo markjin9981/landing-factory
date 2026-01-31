@@ -126,6 +126,27 @@ export interface RehabCalculationResult {
         recognized: number;        // 인정 금액
         explanation: string;       // 계산 설명
     };
+
+    // 추가 교육비 상세 내역 (신규)
+    educationCostBreakdown?: {
+        totalCost: number;         // 총 교육비
+        childCount: number;        // 자녀 수
+        perChildCost: number;      // 1인당 교육비
+        applicableLimit: number;   // 적용 한도
+        included: number;          // 기본 포함분
+        perChildAdditional: number; // 1인당 추가 인정액
+        recognized: number;        // 총 추가 인정액
+        isSpecialEducation: boolean; // 특수교육 여부
+        explanation: string;       // 계산 설명
+    };
+
+    // 추가 의료비 상세 내역 (신규)
+    medicalCostBreakdown?: {
+        totalCost: number;         // 총 의료비
+        included: number;          // 기본 포함분 (가구원수별)
+        recognized: number;        // 추가 인정액
+        explanation: string;       // 계산 설명
+    };
 }
 
 /**
@@ -196,20 +217,57 @@ export function calculateRepayment(
 
     // 추가 의료비 계산 (2026년)
     let additionalMedicalCost = 0;
+    let medicalCostBreakdown: {
+        totalCost: number;
+        included: number;
+        recognized: number;
+        explanation: string;
+    } | undefined;
+
     if (input.medicalCost && input.medicalCost > 0) {
         // 가구원수별 기본 포함금액 가져오기 (없으면 1인 기준 fallback)
         const medIncluded = effectiveConfig.medicalCostIncluded?.[input.familySize] ||
             effectiveConfig.medicalCostIncluded?.[4] || 64619;
 
-        // 포함분 초과 금액 전액 인정 (한도 언급 없음)
+        // 포함분 초과 금액 전액 인정 (한도 없음)
         if (input.medicalCost > medIncluded) {
             additionalMedicalCost = input.medicalCost - medIncluded;
+        }
+
+        // 설명 생성
+        let explanation = '';
+        if (input.medicalCost <= medIncluded) {
+            explanation = `월 의료비(${formatCurrency(input.medicalCost)})가 기본 포함분(${formatCurrency(medIncluded)}) 이하이므로 추가 인정액 없음`;
+        } else {
+            explanation = `의료비 계산: ${formatCurrency(input.medicalCost)} - 기본포함 ${formatCurrency(medIncluded)} = ${formatCurrency(additionalMedicalCost)} 추가 인정`;
+        }
+
+        medicalCostBreakdown = {
+            totalCost: input.medicalCost,
+            included: medIncluded,
+            recognized: additionalMedicalCost,
+            explanation
+        };
+
+        if (additionalMedicalCost > 0) {
             aiAdvice.push(`🏥 **의료비 추가 인정**: 월 의료비 중 기본 포함분(${formatCurrency(medIncluded)})을 초과하는 ${formatCurrency(additionalMedicalCost)}이 추가 인정되었습니다.`);
         }
     }
 
-    // 추가 교육비 계산 (2026년)
+    // 추가 교육비 계산 (2026년) - 수정된 로직: Min(지출액, 한도) - 포함분
     let additionalEducationCost = 0;
+    let educationCostBreakdown: {
+        totalCost: number;
+        childCount: number;
+        perChildCost: number;
+        applicableLimit: number;
+        included: number;
+        perChildAdditional: number;
+        recognized: number;
+        isSpecialEducation: boolean;
+        explanation: string;
+    } | undefined;
+
     if (input.educationCost && input.educationCost > 0 && input.minorChildren && input.minorChildren > 0) {
         const eduCriteria = effectiveConfig.educationCostCriteria || { included: 89627, limit: 200000, specialLimit: 500000 };
 
@@ -219,16 +277,38 @@ export function calculateRepayment(
         // 자녀 1인당 평균 교육비 산출
         const perChildCost = input.educationCost / input.minorChildren;
 
-        if (perChildCost > eduCriteria.included) {
-            // 1인당 추가 인정액 (한도 적용)
-            const perChildAdditional = Math.min(perChildCost - eduCriteria.included, applicableLimit);
+        // [수정된 로직] Min(지출액, 한도) - 포함분
+        const cappedCost = Math.min(perChildCost, applicableLimit);
+        const perChildAdditional = Math.max(0, cappedCost - eduCriteria.included);
 
-            additionalEducationCost = perChildAdditional * input.minorChildren;
+        additionalEducationCost = perChildAdditional * input.minorChildren;
 
-            if (additionalEducationCost > 0) {
-                const eduType = input.hasSpecialEducation ? '특수교육비' : '일반교육비';
-                aiAdvice.push(`🎓 **${eduType} 추가 인정**: 자녀 1인당 최대 ${formatCurrency(applicableLimit)} 한도 내에서 총 ${formatCurrency(additionalEducationCost)}이 추가 인정되었습니다.`);
-            }
+        // 설명 생성
+        const eduType = input.hasSpecialEducation ? '특수교육비' : '일반교육비';
+        let explanation = '';
+
+        if (perChildCost <= eduCriteria.included) {
+            explanation = `1인당 교육비(${formatCurrency(perChildCost)})가 기본 포함분(${formatCurrency(eduCriteria.included)}) 이하이므로 추가 인정액 없음`;
+        } else if (perChildCost <= applicableLimit) {
+            explanation = `${eduType} 계산: 1인당 ${formatCurrency(perChildCost)} - 기본포함 ${formatCurrency(eduCriteria.included)} = ${formatCurrency(perChildAdditional)} × ${input.minorChildren}명 = ${formatCurrency(additionalEducationCost)} 추가 인정`;
+        } else {
+            explanation = `${eduType} 계산: Min(${formatCurrency(perChildCost)}, 한도 ${formatCurrency(applicableLimit)}) - 기본포함 ${formatCurrency(eduCriteria.included)} = ${formatCurrency(perChildAdditional)} × ${input.minorChildren}명 = ${formatCurrency(additionalEducationCost)} 추가 인정`;
+        }
+
+        educationCostBreakdown = {
+            totalCost: input.educationCost,
+            childCount: input.minorChildren,
+            perChildCost,
+            applicableLimit,
+            included: eduCriteria.included,
+            perChildAdditional,
+            recognized: additionalEducationCost,
+            isSpecialEducation: input.hasSpecialEducation || false,
+            explanation
+        };
+
+        if (additionalEducationCost > 0) {
+            aiAdvice.push(`🎓 **${eduType} 추가 인정**: Min(1인당 지출액, 한도) - 기본포함분 방식으로 총 ${formatCurrency(additionalEducationCost)}이 추가 인정되었습니다.`);
         }
     }
 
@@ -501,6 +581,8 @@ export function calculateRepayment(
         aiAdvice,
         riskWarnings,
         housingCostBreakdown,
+        educationCostBreakdown,
+        medicalCostBreakdown,
     };
 }
 
