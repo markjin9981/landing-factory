@@ -16,7 +16,7 @@ export interface RehabPolicyConfig {
     depositExemptions: Record<string, { limit: number; deduct: number }>;
     // 지역별 추가 주거비 인정 한도 (신규)
     // 지역별 추가 주거비 인정 한도 (신규 - 가구원수별 상세)
-    additionalHousingCosts: Record<string, Record<number, { limit: number; included: number }>>;
+    additionalHousingCosts: Record<string, Record<number, { limit: number; included: number; totalLimit: number }>>;
     // 의료비 중위소득 60% 포함분 (가구원수별)
     medicalCostIncluded: Record<number, number>;
     // 교육비 기준 (1인당)
@@ -86,30 +86,30 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
     // 구조: 지역그룹 -> 가구원수 -> { 한도(limit), 기본포함분(included) }
     additionalHousingCosts: {
         '서울특별시': {
-            1: { limit: 589208, included: 273861 },
-            2: { limit: 982013, included: 448484 },
-            3: { limit: 1253955, included: 572345 },
-            4: { limit: 1510789, included: 693638 },
+            1: { limit: 589208, included: 273861, totalLimit: 863069 },
+            2: { limit: 982013, included: 448484, totalLimit: 1430497 },
+            3: { limit: 1253955, included: 572345, totalLimit: 1826300 },
+            4: { limit: 1510789, included: 693638, totalLimit: 2204427 },
         },
         '과밀억제권역': {
-            1: { limit: 430122, included: 273861 },
-            2: { limit: 716869, included: 448484 },
-            3: { limit: 915387, included: 572345 },
-            4: { limit: 1102876, included: 693638 },
+            1: { limit: 430122, included: 273861, totalLimit: 703983 },
+            2: { limit: 716869, included: 448484, totalLimit: 1165353 },
+            3: { limit: 915387, included: 572345, totalLimit: 1487732 },
+            4: { limit: 1102876, included: 693638, totalLimit: 1796514 },
         },
         '광역시기준': {
-            1: { limit: 229791, included: 273861 },
-            2: { limit: 382985, included: 448484 },
-            3: { limit: 489042, included: 572345 },
-            4: { limit: 589208, included: 693638 },
+            1: { limit: 229791, included: 273861, totalLimit: 503652 },
+            2: { limit: 382985, included: 448484, totalLimit: 831469 },
+            3: { limit: 489042, included: 572345, totalLimit: 1061387 },
+            4: { limit: 589208, included: 693638, totalLimit: 1282846 },
         },
         '그외': {
-            1: { limit: 176762, included: 273861 },
-            2: { limit: 294604, included: 448484 },
-            3: { limit: 376186, included: 572345 },
-            4: { limit: 453237, included: 693638 },
+            1: { limit: 176762, included: 273861, totalLimit: 450623 },
+            2: { limit: 294604, included: 448484, totalLimit: 743088 },
+            3: { limit: 376186, included: 572345, totalLimit: 948531 },
+            4: { limit: 453237, included: 693638, totalLimit: 1146875 },
         }
-    } as Record<string, Record<number, { limit: number; included: number }>>,
+    },
 
     // 의료비 공제 기준 (2026년 - 중위소득 60% 포함분)
     medicalCostIncluded: {

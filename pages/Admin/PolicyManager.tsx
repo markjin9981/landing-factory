@@ -456,6 +456,7 @@ const PolicyManager: React.FC = () => {
                                                 <th className="p-1 font-normal">가구</th>
                                                 <th className="p-1 font-normal">인정한도</th>
                                                 <th className="p-1 font-normal">기본포함</th>
+                                                <th className="p-1 font-normal">총 인정한도</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -463,7 +464,7 @@ const PolicyManager: React.FC = () => {
                                                 // Safety: Fallback to defaults if missing in loaded config
                                                 const costConfig = previewConfig?.additionalHousingCosts?.[group]?.[size] ||
                                                     DEFAULT_POLICY_CONFIG_2026.additionalHousingCosts[group as keyof typeof DEFAULT_POLICY_CONFIG_2026.additionalHousingCosts]?.[size] ||
-                                                    { limit: 0, included: 0 };
+                                                    { limit: 0, included: 0, totalLimit: 0 };
 
                                                 return (
                                                     <tr key={size} className="border-t border-gray-200">
@@ -512,6 +513,29 @@ const PolicyManager: React.FC = () => {
                                                                     });
                                                                 }}
                                                                 className="w-full text-right p-1 border rounded bg-gray-100 text-gray-500"
+                                                            />
+                                                        </td>
+                                                        <td className="p-1">
+                                                            <input
+                                                                type="number"
+                                                                value={costConfig.totalLimit || 0}
+                                                                onChange={e => {
+                                                                    if (!previewConfig) return;
+                                                                    const val = Number(e.target.value);
+                                                                    const currentGroup = previewConfig.additionalHousingCosts?.[group] || {};
+
+                                                                    setPreviewConfig({
+                                                                        ...previewConfig,
+                                                                        additionalHousingCosts: {
+                                                                            ...(previewConfig.additionalHousingCosts || DEFAULT_POLICY_CONFIG_2026.additionalHousingCosts),
+                                                                            [group]: {
+                                                                                ...currentGroup,
+                                                                                [size]: { ...costConfig, totalLimit: val }
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full text-right p-1 border rounded bg-blue-50 text-blue-600 font-bold"
                                                             />
                                                         </td>
                                                     </tr>
