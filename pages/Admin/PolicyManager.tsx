@@ -75,9 +75,9 @@ const PolicyManager: React.FC = () => {
                         const hasLegacyData = Object.values(newConfig.courtTraits || {}).some(t => t.processingMonths === undefined);
 
                         if (hasLegacyData) {
-                            // 구형 데이터 감지됨 -> 2026년 최신 기본값으로 업데이트
+                            // 구형 데이터 감지됨 -> 2026년 최신 기본값으로 업데이트 (Traits만)
                             newConfig.courtTraits = defaultConfig.courtTraits;
-                            newConfig.regionToCourtMap = defaultConfig.regionToCourtMap;
+                            // RegionMap은 사용자가 커스텀했을 수 있으므로 덮어쓰지 않음
                         } else {
                             // 구형은 아니지만 새로운 법원이 추가되었을 수 있으므로 누락된 법원 추가
                             const newTraits = { ...(newConfig.courtTraits || {}) };
