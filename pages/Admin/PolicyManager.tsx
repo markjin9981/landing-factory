@@ -824,6 +824,12 @@ const PolicyManager: React.FC = () => {
                                         className="w-24 text-right bg-transparent outline-none font-bold text-blue-700"
                                     />
                                 </div>
+                                <div className="flex justify-between items-center bg-blue-100/50 p-2 rounded border border-blue-200">
+                                    <span className="text-xs text-blue-700 font-bold">→ 일반 교육비 총 인정한도</span>
+                                    <span className="text-sm font-bold text-blue-800">
+                                        {((previewConfig?.educationCostCriteria?.included || 0) + (previewConfig?.educationCostCriteria?.limit || 0)).toLocaleString()}원
+                                    </span>
+                                </div>
                                 <div className="flex justify-between items-center bg-purple-50 p-2 rounded border border-purple-100">
                                     <span className="text-xs text-purple-600 font-bold">특수 교육비 한도</span>
                                     <input
@@ -841,6 +847,12 @@ const PolicyManager: React.FC = () => {
                                         }}
                                         className="w-24 text-right bg-transparent outline-none font-bold text-purple-700"
                                     />
+                                </div>
+                                <div className="flex justify-between items-center bg-purple-100/50 p-2 rounded border border-purple-200">
+                                    <span className="text-xs text-purple-700 font-bold">→ 특수 교육비 총 인정한도</span>
+                                    <span className="text-sm font-bold text-purple-800">
+                                        {((previewConfig?.educationCostCriteria?.included || 0) + (previewConfig?.educationCostCriteria?.specialLimit || 0)).toLocaleString()}원
+                                    </span>
                                 </div>
                             </div>
                         </div>
