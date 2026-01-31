@@ -60,11 +60,46 @@ const PolicyManager: React.FC = () => {
 
             // Load saved configs if available
             if (settings.rehabPolicyConfigs) {
-                // Merge saved configs with default configs to ensure all years exist
-                setYearConfigs({
-                    ...POLICY_CONFIG_BY_YEAR,
-                    ...settings.rehabPolicyConfigs
+                // Merge saved configs with default configs but force update for legacy data
+                const mergedConfigs = { ...POLICY_CONFIG_BY_YEAR };
+
+                Object.entries(settings.rehabPolicyConfigs).forEach(([yearStr, savedConfig]) => {
+                    const year = Number(yearStr);
+                    const defaultConfig = POLICY_CONFIG_BY_YEAR[year] || DEFAULT_POLICY_CONFIG_2026;
+
+                    let newConfig = { ...savedConfig };
+
+                    // 2026년 데이터 마이그레이션: 필수 필드(processingMonths) 누락 시 기본값으로 덮어쓰기
+                    // 또는 법원 데이터가 구형일 경우 최신 데이터 병합
+                    if (year === 2026) {
+                        const hasLegacyData = Object.values(newConfig.courtTraits || {}).some(t => t.processingMonths === undefined);
+
+                        if (hasLegacyData) {
+                            // 구형 데이터 감지됨 -> 2026년 최신 기본값으로 업데이트
+                            newConfig.courtTraits = defaultConfig.courtTraits;
+                            newConfig.regionToCourtMap = defaultConfig.regionToCourtMap;
+                        } else {
+                            // 구형은 아니지만 새로운 법원이 추가되었을 수 있으므로 누락된 법원 추가
+                            const newTraits = { ...(newConfig.courtTraits || {}) };
+                            let updated = false;
+
+                            Object.entries(defaultConfig.courtTraits).forEach(([courtName, defaultTrait]) => {
+                                if (!newTraits[courtName]) {
+                                    newTraits[courtName] = defaultTrait;
+                                    updated = true;
+                                }
+                            });
+
+                            if (updated) {
+                                newConfig.courtTraits = newTraits;
+                            }
+                        }
+                    }
+
+                    mergedConfigs[year] = newConfig;
                 });
+
+                setYearConfigs(mergedConfigs);
             } else if (settings.policyConfig) {
                 // Migrate old single config to 2026 (or baseYear)
                 const oldConfig = settings.policyConfig as unknown as RehabPolicyConfig;
