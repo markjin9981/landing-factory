@@ -5,6 +5,19 @@ import { RehabPolicyConfig, DEFAULT_POLICY_CONFIG_2026, POLICY_CONFIG_BY_YEAR, /
 import { Save, Upload, Download, RefreshCw, FileText, Plus, Trash2, Edit2, X, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
+// 숫자 포맷팅 유틸리티 (천 단위 쉼표)
+const formatNumber = (num: number | undefined | null): string => {
+    if (num === undefined || num === null || isNaN(num)) return '0';
+    return num.toLocaleString();
+};
+
+// 쉼표 제거 후 숫자 변환
+const parseNumber = (str: string): number => {
+    const cleaned = str.replace(/,/g, '').replace(/[^0-9.-]/g, '');
+    const num = Number(cleaned);
+    return isNaN(num) ? 0 : num;
+};
+
 const PolicyManager: React.FC = () => {
     const [globalSettings, setGlobalSettings] = useState<GlobalSettings | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -471,11 +484,11 @@ const PolicyManager: React.FC = () => {
                                                         <td className="p-1.5 font-medium">{size}인</td>
                                                         <td className="p-1">
                                                             <input
-                                                                type="number"
-                                                                value={costConfig.limit}
+                                                                type="text"
+                                                                value={formatNumber(costConfig.limit)}
                                                                 onChange={e => {
                                                                     if (!previewConfig) return;
-                                                                    const val = Number(e.target.value);
+                                                                    const val = parseNumber(e.target.value);
                                                                     const currentGroup = previewConfig.additionalHousingCosts?.[group] || {};
 
                                                                     setPreviewConfig({
@@ -494,11 +507,11 @@ const PolicyManager: React.FC = () => {
                                                         </td>
                                                         <td className="p-1">
                                                             <input
-                                                                type="number"
-                                                                value={costConfig.included}
+                                                                type="text"
+                                                                value={formatNumber(costConfig.included)}
                                                                 onChange={e => {
                                                                     if (!previewConfig) return;
-                                                                    const val = Number(e.target.value);
+                                                                    const val = parseNumber(e.target.value);
                                                                     const currentGroup = previewConfig.additionalHousingCosts?.[group] || {};
 
                                                                     setPreviewConfig({
@@ -517,11 +530,11 @@ const PolicyManager: React.FC = () => {
                                                         </td>
                                                         <td className="p-1">
                                                             <input
-                                                                type="number"
-                                                                value={costConfig.totalLimit || 0}
+                                                                type="text"
+                                                                value={formatNumber(costConfig.totalLimit || 0)}
                                                                 onChange={e => {
                                                                     if (!previewConfig) return;
-                                                                    const val = Number(e.target.value);
+                                                                    const val = parseNumber(e.target.value);
                                                                     const currentGroup = previewConfig.additionalHousingCosts?.[group] || {};
 
                                                                     setPreviewConfig({
@@ -618,11 +631,11 @@ const PolicyManager: React.FC = () => {
                                             <td className="p-2 font-medium text-xs">{key}</td>
                                             <td className="p-2 text-right">
                                                 <input
-                                                    type="number"
-                                                    value={val.limit / 10000}
+                                                    type="text"
+                                                    value={formatNumber(val.limit / 10000)}
                                                     onChange={(e) => {
                                                         const newExemptions = { ...previewConfig.depositExemptions };
-                                                        newExemptions[key] = { ...val, limit: Number(e.target.value) * 10000 };
+                                                        newExemptions[key] = { ...val, limit: parseNumber(e.target.value) * 10000 };
                                                         setPreviewConfig({ ...previewConfig, depositExemptions: newExemptions });
                                                     }}
                                                     className="w-20 text-right p-1 border rounded bg-white text-xs"
@@ -630,11 +643,11 @@ const PolicyManager: React.FC = () => {
                                             </td>
                                             <td className="p-2 text-right">
                                                 <input
-                                                    type="number"
-                                                    value={val.deduct / 10000}
+                                                    type="text"
+                                                    value={formatNumber(val.deduct / 10000)}
                                                     onChange={(e) => {
                                                         const newExemptions = { ...previewConfig.depositExemptions };
-                                                        newExemptions[key] = { ...val, deduct: Number(e.target.value) * 10000 };
+                                                        newExemptions[key] = { ...val, deduct: parseNumber(e.target.value) * 10000 };
                                                         setPreviewConfig({ ...previewConfig, depositExemptions: newExemptions });
                                                     }}
                                                     className="w-20 text-right p-1 border rounded bg-white font-bold text-blue-600 text-xs"
@@ -684,11 +697,11 @@ const PolicyManager: React.FC = () => {
                                             </td>
                                             <td className="p-2 border text-center">
                                                 <input
-                                                    type="number"
-                                                    value={previewConfig?.recognizedLivingCost[size] || 0}
+                                                    type="text"
+                                                    value={formatNumber(previewConfig?.recognizedLivingCost[size] || 0)}
                                                     onChange={e => {
                                                         if (!previewConfig) return;
-                                                        const newVal = Number(e.target.value);
+                                                        const newVal = parseNumber(e.target.value);
                                                         setPreviewConfig({
                                                             ...previewConfig,
                                                             recognizedLivingCost: {
@@ -712,11 +725,11 @@ const PolicyManager: React.FC = () => {
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 mb-1">6인 초과시 1인당 추가액</label>
                                     <input
-                                        type="number"
-                                        value={previewConfig?.medianIncomeIncrement || 0}
+                                        type="text"
+                                        value={formatNumber(previewConfig?.medianIncomeIncrement || 0)}
                                         onChange={e => previewConfig && setPreviewConfig({
                                             ...previewConfig,
-                                            medianIncomeIncrement: Number(e.target.value)
+                                            medianIncomeIncrement: parseNumber(e.target.value)
                                         })}
                                         className="w-full p-2 border rounded bg-gray-50 text-right"
                                     />
@@ -763,11 +776,11 @@ const PolicyManager: React.FC = () => {
                                     <div key={size} className="flex justify-between items-center bg-gray-50 p-2 rounded border">
                                         <span className="text-xs text-gray-500 font-bold">{size}인 가구</span>
                                         <input
-                                            type="number"
-                                            value={previewConfig?.medicalCostIncluded?.[size] || 0}
+                                            type="text"
+                                            value={formatNumber(previewConfig?.medicalCostIncluded?.[size] || 0)}
                                             onChange={e => {
                                                 if (!previewConfig) return;
-                                                const newVal = Number(e.target.value);
+                                                const newVal = parseNumber(e.target.value);
                                                 setPreviewConfig({
                                                     ...previewConfig,
                                                     medicalCostIncluded: {
@@ -791,15 +804,15 @@ const PolicyManager: React.FC = () => {
                                 <div className="flex justify-between items-center bg-gray-50 p-2 rounded border">
                                     <span className="text-xs text-gray-500 font-bold">기본 포함분 (생계비 내)</span>
                                     <input
-                                        type="number"
-                                        value={previewConfig?.educationCostCriteria?.included || 0}
+                                        type="text"
+                                        value={formatNumber(previewConfig?.educationCostCriteria?.included || 0)}
                                         onChange={e => {
                                             if (!previewConfig) return;
                                             setPreviewConfig({
                                                 ...previewConfig,
                                                 educationCostCriteria: {
                                                     ...(previewConfig.educationCostCriteria || DEFAULT_POLICY_CONFIG_2026.educationCostCriteria),
-                                                    included: Number(e.target.value)
+                                                    included: parseNumber(e.target.value)
                                                 }
                                             });
                                         }}
@@ -809,15 +822,15 @@ const PolicyManager: React.FC = () => {
                                 <div className="flex justify-between items-center bg-blue-50 p-2 rounded border border-blue-100">
                                     <span className="text-xs text-blue-600 font-bold">일반 교육비 한도</span>
                                     <input
-                                        type="number"
-                                        value={previewConfig?.educationCostCriteria?.limit || 0}
+                                        type="text"
+                                        value={formatNumber(previewConfig?.educationCostCriteria?.limit || 0)}
                                         onChange={e => {
                                             if (!previewConfig) return;
                                             setPreviewConfig({
                                                 ...previewConfig,
                                                 educationCostCriteria: {
                                                     ...(previewConfig.educationCostCriteria || DEFAULT_POLICY_CONFIG_2026.educationCostCriteria),
-                                                    limit: Number(e.target.value)
+                                                    limit: parseNumber(e.target.value)
                                                 }
                                             });
                                         }}
@@ -833,15 +846,15 @@ const PolicyManager: React.FC = () => {
                                 <div className="flex justify-between items-center bg-purple-50 p-2 rounded border border-purple-100">
                                     <span className="text-xs text-purple-600 font-bold">특수 교육비 한도</span>
                                     <input
-                                        type="number"
-                                        value={previewConfig?.educationCostCriteria?.specialLimit || 0}
+                                        type="text"
+                                        value={formatNumber(previewConfig?.educationCostCriteria?.specialLimit || 0)}
                                         onChange={e => {
                                             if (!previewConfig) return;
                                             setPreviewConfig({
                                                 ...previewConfig,
                                                 educationCostCriteria: {
                                                     ...(previewConfig.educationCostCriteria || DEFAULT_POLICY_CONFIG_2026.educationCostCriteria),
-                                                    specialLimit: Number(e.target.value)
+                                                    specialLimit: parseNumber(e.target.value)
                                                 }
                                             });
                                         }}
