@@ -56,6 +56,7 @@ export interface RehabUserInput {
     // 추가 생계비
     medicalCost?: number;      // 월 의료비
     educationCost?: number;    // 월 교육비
+    hasSpecialEducation?: boolean; // 특수교육 (장애 등) 여부
 
     // 본인 재산
     myAssets: number;          // 본인 재산 총액
@@ -212,17 +213,21 @@ export function calculateRepayment(
     if (input.educationCost && input.educationCost > 0 && input.minorChildren && input.minorChildren > 0) {
         const eduCriteria = effectiveConfig.educationCostCriteria || { included: 89627, limit: 200000, specialLimit: 500000 };
 
+        // 특수교육 여부에 따라 한도 적용
+        const applicableLimit = input.hasSpecialEducation ? eduCriteria.specialLimit : eduCriteria.limit;
+
         // 자녀 1인당 평균 교육비 산출
         const perChildCost = input.educationCost / input.minorChildren;
 
         if (perChildCost > eduCriteria.included) {
-            // 1인당 추가 인정액 (일반 한도 적용)
-            const perChildAdditional = Math.min(perChildCost - eduCriteria.included, eduCriteria.limit);
+            // 1인당 추가 인정액 (한도 적용)
+            const perChildAdditional = Math.min(perChildCost - eduCriteria.included, applicableLimit);
 
             additionalEducationCost = perChildAdditional * input.minorChildren;
 
             if (additionalEducationCost > 0) {
-                aiAdvice.push(`🎓 **교육비 추가 인정**: 자녀 1인당 최대 ${formatCurrency(eduCriteria.limit)} 한도 내에서 총 ${formatCurrency(additionalEducationCost)}이 추가 인정되었습니다.`);
+                const eduType = input.hasSpecialEducation ? '특수교육비' : '일반교육비';
+                aiAdvice.push(`🎓 **${eduType} 추가 인정**: 자녀 1인당 최대 ${formatCurrency(applicableLimit)} 한도 내에서 총 ${formatCurrency(additionalEducationCost)}이 추가 인정되었습니다.`);
             }
         }
     }

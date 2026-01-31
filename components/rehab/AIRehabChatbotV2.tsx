@@ -77,6 +77,7 @@ type ChatStep =
     | 'medical_amount'       // 의료비 금액
     | 'education_check'      // 교육비 여부 (NEW)
     | 'education_amount'     // 교육비 금액
+    | 'special_education'    // 특수교육 여부 (NEW)
     | 'assets_select'
     | 'asset_detail'
     | 'business_assets_deposit' // 사업장 보증금
@@ -979,6 +980,19 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
 
             case 'education_amount':
                 setUserInput(prev => ({ ...prev, educationCost: (value as number) * 10000 }));
+                setCurrentStep('special_education');
+                addBotMessage(
+                    '자녀 중 장애 등으로 인해 **특수교육**이 필요한 경우가 있나요?\n\n(특수교육비는 인정 한도가 더 높습니다)',
+                    [
+                        { label: '아니요, 일반 교육이에요', value: 'no' },
+                        { label: '네, 특수교육이 필요해요', value: 'yes' }
+                    ],
+                    'buttons'
+                );
+                break;
+
+            case 'special_education':
+                setUserInput(prev => ({ ...prev, hasSpecialEducation: value === 'yes' }));
                 setCurrentStep('assets_select');
                 addBotMessage(
                     '현재 본인 명의로 가지고 있는 재산이 있으신가요?\n\n(해당하는 항목을 모두 선택하고 "선택완료"를 눌러주세요)',
@@ -1604,7 +1618,7 @@ const AIRehabChatbotV2: React.FC<AIRehabChatbotV2Props> = ({
             'rent_cost': 50, 'deposit_amount': 52, 'deposit_loan': 54,
             'owned_value': 53, 'owned_mortgage': 55,
             'medical_check': 57, 'medical_amount': 59,
-            'education_check': 61, 'education_amount': 63,
+            'education_check': 61, 'education_amount': 63, 'special_education': 64,
             'assets_select': 65,
             'asset_detail': 70, 'business_assets_deposit': 72, 'business_assets_facility': 74,
             'credit_card': 75, 'credit_card_amount': 78,
