@@ -67,7 +67,9 @@ const PolicyManager: React.FC = () => {
                     const year = Number(yearStr);
                     const defaultConfig = POLICY_CONFIG_BY_YEAR[year] || DEFAULT_POLICY_CONFIG_2026;
 
-                    let newConfig = { ...savedConfig };
+                    // 기본값 위에 저장된 설정을 덮어쓰기 (Deep Merge가 아니므로 1depth만 병합됨을 주의, 하지만 RehabPolicyConfig 구조상 1depth가 메인)
+                    // courtTraits 같은 중첩 객체는 아래에서 별도 처리
+                    let newConfig = { ...defaultConfig, ...savedConfig };
 
                     // 2026년 데이터 마이그레이션: 필수 필드(processingMonths) 누락 시 기본값으로 덮어쓰기
                     // 또는 법원 데이터가 구형일 경우 최신 데이터 병합
