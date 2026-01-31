@@ -535,9 +535,20 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                                             <>
                                                 <div className="text-[10px] text-slate-500 pt-1">추가 생계비:</div>
                                                 {userInput.rentCost && userInput.rentCost > 0 && (
-                                                    <div className="flex justify-between pl-2">
-                                                        <span className="text-slate-500">• 월세</span>
-                                                        <span className="text-slate-300">{formatCurrency(userInput.rentCost)}</span>
+                                                    <div className="pl-2">
+                                                        <div className="flex justify-between">
+                                                            <span className="text-slate-500">• 월세</span>
+                                                            <span className="text-slate-300">
+                                                                {result.housingCostBreakdown
+                                                                    ? formatCurrency(result.housingCostBreakdown.recognized)
+                                                                    : formatCurrency(userInput.rentCost)}
+                                                            </span>
+                                                        </div>
+                                                        {result.housingCostBreakdown && (
+                                                            <p className="text-[9px] text-cyan-400/70 mt-0.5 pl-2">
+                                                                💡 {result.housingCostBreakdown.explanation}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 )}
                                                 {userInput.medicalCost && userInput.medicalCost > 0 && (

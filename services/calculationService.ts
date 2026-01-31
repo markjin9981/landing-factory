@@ -116,6 +116,15 @@ export interface RehabCalculationResult {
 
     // 무직자 안내 (신규)
     unemployedNotice?: string;
+
+    // 추가 주거비 상세 내역 (신규)
+    housingCostBreakdown?: {
+        rent: number;              // 월세
+        included: number;          // 기본 포함분
+        limit: number;             // 인정 한도
+        recognized: number;        // 인정 금액
+        explanation: string;       // 계산 설명
+    };
 }
 
 /**
@@ -146,6 +155,8 @@ export function calculateRepayment(
 
     // 추가 주거비 계산 (2026년 신규 로직)
     let additionalHousingCost = 0;
+    let housingCostBreakdown: RehabCalculationResult['housingCostBreakdown'] = undefined;
+
     if (input.rentCost && input.rentCost > 0) {
         // 해당 지역 및 가구원수의 기준 가져오기
         const housingCriteria = effectiveConfig.additionalHousingCosts?.[regionGroup]?.[input.familySize] ||
@@ -156,6 +167,25 @@ export function calculateRepayment(
             // 단, 월세가 기본포함분보다 적으면 0
             const deductibleRent = Math.max(0, input.rentCost - housingCriteria.included);
             additionalHousingCost = Math.min(deductibleRent, housingCriteria.limit);
+
+            // 상세 설명 생성
+            let explanation = '';
+            if (input.rentCost <= housingCriteria.included) {
+                explanation = `월세(${formatCurrency(input.rentCost)})가 기본 포함분(${formatCurrency(housingCriteria.included)}) 이하이므로 추가 인정액 없음`;
+            } else if (deductibleRent <= housingCriteria.limit) {
+                explanation = `월세 ${formatCurrency(input.rentCost)} - 기본포함 ${formatCurrency(housingCriteria.included)} = ${formatCurrency(additionalHousingCost)} 인정`;
+            } else {
+                explanation = `월세 ${formatCurrency(input.rentCost)} - 기본포함 ${formatCurrency(housingCriteria.included)} = ${formatCurrency(deductibleRent)} → 한도 ${formatCurrency(housingCriteria.limit)} 적용`;
+            }
+
+            // 상세 내역 저장
+            housingCostBreakdown = {
+                rent: input.rentCost,
+                included: housingCriteria.included,
+                limit: housingCriteria.limit,
+                recognized: additionalHousingCost,
+                explanation
+            };
 
             if (additionalHousingCost > 0) {
                 aiAdvice.push(`🏠 **주거비 추가 인정**: 월세 중 ${formatCurrency(additionalHousingCost)}이 추가 생계비로 인정되었습니다.`);
@@ -465,6 +495,7 @@ export function calculateRepayment(
         processingMonths: courtTrait.processingMonths,
         aiAdvice,
         riskWarnings,
+        housingCostBreakdown,
     };
 }
 
