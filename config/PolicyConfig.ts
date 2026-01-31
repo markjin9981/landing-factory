@@ -135,144 +135,136 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         minRepaymentRate: 0.4,   // 최소 변제율 40% 이상 (미충족 시 생계비 감액)
     },
 
-    // 법원별 성향
+    // 법원별 성향 (2026년 2월 기준 14개 법원)
     courtTraits: {
         '서울회생법원': {
             name: '서울회생법원',
             allow24Months: true,
             spousePropertyRate: 0.0,
             investLossInclude: false,
-            processingMonths: 5.0,
-            description: '24개월 단축 변제 가능, 배우자 재산 미반영, 투기손실 미반영'
+            processingMonths: 5.1,
+            description: '전국 가장 선진적 기준, 채무자 친화적'
         },
         '수원회생법원': {
             name: '수원회생법원',
-            allow24Months: false,
-            spousePropertyRate: 0.0,
-            investLossInclude: true,
-            processingMonths: 4.8,
-            description: '배우자 재산 미반영, 투기손실 반영'
-        },
-        '인천회생법원': {
-            name: '인천회생법원',
-            allow24Months: false,
-            spousePropertyRate: 0.0,
-            investLossInclude: true,
-            processingMonths: 3.3,
-            description: '배우자 재산 미반영, 투기손실 반영'
-        },
-        '대전회생법원': {
-            name: '대전회생법원',
-            allow24Months: false,
+            allow24Months: true,
             spousePropertyRate: 0.0,
             investLossInclude: false,
-            processingMonths: 6.3,
-            description: '배우자 재산 미반영 (2026년 개원)'
-        },
-        '대구회생법원': {
-            name: '대구회생법원',
-            allow24Months: false,
-            spousePropertyRate: 0.0,
-            investLossInclude: false,
-            processingMonths: 5.5,
-            description: '배우자 재산 미반영 (2026년 개원)'
+            processingMonths: 4.4,
+            description: '신설법원, 빠른 처리, 서울과 동일 기준'
         },
         '부산회생법원': {
             name: '부산회생법원',
-            allow24Months: false,
+            allow24Months: true,
             spousePropertyRate: 0.0,
             investLossInclude: false,
-            processingMonths: 5.4,
-            description: '배우자 재산 미반영, 투기손실 미반영'
+            processingMonths: 7.8,
+            description: '신설법원, 업무 과부하 있으나 기준은 서울 동일'
         },
-        '광주회생법원': {
-            name: '광주회생법원',
-            allow24Months: false,
-            spousePropertyRate: 0.0,
-            investLossInclude: false,
-            processingMonths: 4.5,
-            description: '배우자 재산 미반영 (2026년 개원)'
-        },
-        '춘천지방법원': {
-            name: '춘천지방법원',
+        '인천지방법원': {
+            name: '인천지방법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
-            investLossInclude: false,
-            processingMonths: 3.0,
-            description: '지방법원 (개시결정 빠름)'
-        },
-        '울산지방법원': {
-            name: '울산지방법원',
-            allow24Months: false,
-            spousePropertyRate: 0.5,
-            investLossInclude: false,
-            processingMonths: 4.8,
-            description: '지방법원'
-        },
-        '청주지방법원': {
-            name: '청주지방법원',
-            allow24Months: false,
-            spousePropertyRate: 0.5,
-            investLossInclude: false,
-            processingMonths: 5.7,
-            description: '지방법원'
-        },
-        '창원지방법원': {
-            name: '창원지방법원',
-            allow24Months: false,
-            spousePropertyRate: 0.5,
-            investLossInclude: false,
-            processingMonths: 5.7,
-            description: '지방법원'
-        },
-        '전주지방법원': {
-            name: '전주지방법원',
-            allow24Months: false,
-            spousePropertyRate: 0.5,
-            investLossInclude: false,
-            processingMonths: 6.7,
-            description: '지방법원'
-        },
-        '강릉지방법원': {
-            name: '강릉지방법원',
-            allow24Months: false,
-            spousePropertyRate: 0.5,
-            investLossInclude: false,
-            processingMonths: 6.0,
-            description: '지방법원'
-        },
-        '제주지방법원': {
-            name: '제주지방법원',
-            allow24Months: false,
-            spousePropertyRate: 0.5,
-            investLossInclude: false,
-            processingMonths: 6.0,
-            description: '지방법원'
+            investLossInclude: true,
+            processingMonths: 3.3,
+            description: '가장 빠른 처리(3.3개월), 채무자 친화적'
         },
         '의정부지방법원': {
             name: '의정부지방법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
-            investLossInclude: false,
+            investLossInclude: true,
+            processingMonths: 12.0,
+            description: '전국 가장 느린 처리(~12개월), 회피 권고'
+        },
+        '춘천지방법원': {
+            name: '춘천지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
+            processingMonths: 2.2,
+            description: '매우 빠름 (강릉지원은 9.4개월로 편차 큼)'
+        },
+        '청주지방법원': {
+            name: '청주지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
+            processingMonths: 5.7,
+            description: '보통 처리 속도, 기준 보수적'
+        },
+        '대전지방법원': {
+            name: '대전지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
+            processingMonths: 7.3,
+            description: '2026년 3월 회생법원 개원 예정 (신설 후 3~4개월 단축)'
+        },
+        '대구지방법원': {
+            name: '대구지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
+            processingMonths: 12.0,
+            description: '현재 매우 느림(~1년), 2026년 3월 회생법원 개원 후 개선 예상'
+        },
+        '광주지방법원': {
+            name: '광주지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
+            processingMonths: 4.5,
+            description: '빠른 처리, 2026년 3월 회생법원 개원 예정'
+        },
+        '전주지방법원': {
+            name: '전주지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
             processingMonths: 7.0,
-            description: '지방법원 (개시결정 소요기간 가장 김)'
+            description: '보통 처리 속도 (6~7.7개월)'
+        },
+        '제주지방법원': {
+            name: '제주지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
+            processingMonths: 9.3,
+            description: '처리가 느린 편 (6~9.3개월)'
+        },
+        '울산지방법원': {
+            name: '울산지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
+            processingMonths: 4.8,
+            description: '높은 인가율(81.7%), 부산회생법원 관할 권고'
+        },
+        '창원지방법원': {
+            name: '창원지방법원',
+            allow24Months: false,
+            spousePropertyRate: 0.5,
+            investLossInclude: true,
+            processingMonths: 6.7,
+            description: '보통 속도, 부산회생법원 관할 권고'
         },
         'Default': {
             name: '기타 법원',
             allow24Months: false,
             spousePropertyRate: 0.5,
             investLossInclude: true,
-            processingMonths: 5.5,
-            description: '36개월 변제 기준, 보수적 접근'
+            processingMonths: 6.0,
+            description: '일반 지방법원 기준 적용'
         }
     },
 
-    // 지역 -> 관할 법원 매핑
+    // 지역 -> 관할 법원 매핑 (2026년 2월 기준)
     regionToCourtMap: {
         // 서울
         '서울': '서울회생법원',
         '서울특별시': '서울회생법원',
-        // 경기
+        // 경기 남부
         '수원': '수원회생법원',
         '성남': '수원회생법원',
         '용인': '수원회생법원',
@@ -281,65 +273,76 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         '안산': '수원회생법원',
         '평택': '수원회생법원',
         '시흥': '수원회생법원',
-        '김포': '수원회생법원',
-        '광주시': '수원회생법원', // 경기 광주
         '광명': '수원회생법원',
         '군포': '수원회생법원',
         '오산': '수원회생법원',
         '이천': '수원회생법원',
         '안성': '수원회생법원',
-        '하남': '수원회생법원',
         '의왕': '수원회생법원',
         '여주': '수원회생법원',
         '양평': '수원회생법원',
         '과천': '수원회생법원',
-        // 고양/의정부 권역
-        '고양': '서울회생법원',
-        '의정부': '서울회생법원',
-        '남양주': '서울회생법원',
-        '파주': '서울회생법원',
-        '구리': '서울회생법원',
-        '양주': '서울회생법원',
-        '포천': '서울회생법원',
-        '동두천': '서울회생법원',
-        '가평': '서울회생법원',
-        '연천': '서울회생법원',
-        // 인천
-        '인천': '인천회생법원',
-        '인천광역시': '인천회생법원',
-        '부천': '인천회생법원',
-        // 대전/충청
-        '대전': '대전회생법원',
-        '세종': '대전회생법원',
-        '천안': '대전회생법원',
-        '청주': '대전회생법원',
-        '충주': '대전회생법원',
-        '제천': '대전회생법원',
+        '광주': '수원회생법원', // 경기 광주
+        // 경기 북부 (의정부)
+        '의정부': '의정부지방법원',
+        '고양': '의정부지방법원',
+        '남양주': '의정부지방법원',
+        '파주': '의정부지방법원',
+        '구리': '의정부지방법원',
+        '양주': '의정부지방법원',
+        '포천': '의정부지방법원',
+        '동두천': '의정부지방법원',
+        '가평': '의정부지방법원',
+        '연천': '의정부지방법원',
+        // 인천/부천
+        '인천': '인천지방법원',
+        '인천광역시': '인천지방법원',
+        '부천': '인천지방법원',
+        '김포': '인천지방법원',
+        // 강원
+        '춘천': '춘천지방법원',
+        '강릉': '춘천지방법원',
+        '원주': '춘천지방법원',
+        '속초': '춘천지방법원',
+        // 대전/세종/충청
+        '대전': '대전지방법원',
+        '세종': '대전지방법원',
+        '천안': '대전지방법원',
+        '공주': '대전지방법원',
+        '논산': '대전지방법원',
+        '보령': '대전지방법원',
+        '서산': '대전지방법원',
+        '청주': '청주지방법원',
+        '충주': '청주지방법원',
+        '제천': '청주지방법원',
         // 대구/경북
-        '대구': '대구회생법원',
-        '경산': '대구회생법원',
-        '포항': '대구회생법원',
-        '구미': '대구회생법원',
-        '경주': '대구회생법원',
-        '안동': '대구회생법원',
+        '대구': '대구지방법원',
+        '경산': '대구지방법원',
+        '포항': '대구지방법원',
+        '구미': '대구지방법원',
+        '경주': '대구지방법원',
+        '안동': '대구지방법원',
+        '김천': '대구지방법원',
         // 부산/울산/경남
         '부산': '부산회생법원',
-        '울산': '부산회생법원',
-        '창원': '부산회생법원',
-        '김해': '부산회생법원',
-        '양산': '부산회생법원',
-        '진주': '부산회생법원',
-        '거제': '부산회생법원',
-        '통영': '부산회생법원',
-        // 광주/전라
-        '광주': '광주회생법원',
-        '광주광역시': '광주회생법원',
-        '전주': '광주회생법원',
-        '익산': '광주회생법원',
-        '군산': '광주회생법원',
-        '목포': '광주회생법원',
-        '여수': '광주회생법원',
-        '순천': '광주회생법원',
+        '울산': '울산지방법원', // 2026 파일 기준 울산지방법원 별도 표기
+        '창원': '창원지방법원',
+        '김해': '창원지방법원',
+        '진주': '창원지방법원',
+        '양산': '울산지방법원', // 양산은 울산지법 관할
+        '거제': '창원지방법원',
+        '통영': '창원지방법원',
+        // 광주/전라/제주
+        '광주광역시': '광주지방법원',
+        '목포': '광주지방법원',
+        '순천': '광주지방법원',
+        '여수': '광주지방법원',
+        '전주': '전주지방법원',
+        '익산': '전주지방법원',
+        '군산': '전주지방법원',
+        '정읍': '전주지방법원',
+        '남원': '전주지방법원',
+        '제주': '제주지방법원',
     },
 
     // 지역 -> 그룹 매핑 (보증금 공제용)
@@ -358,11 +361,14 @@ export const DEFAULT_POLICY_CONFIG_2026: RehabPolicyConfig = {
         '구리': '과밀억제권역',
         '하남': '과밀억제권역',
         '인천': '과밀억제권역',
+        '시흥': '과밀억제권역',
+        '광명': '과밀억제권역',
+        '군포': '과밀억제권역',
+        '의왕': '과밀억제권역',
         // 광역시
         '부산': '광역시기준',
         '대구': '광역시기준',
         '인천광역시': '광역시기준',
-        '광주': '광역시기준',
         '광주광역시': '광역시기준',
         '대전': '광역시기준',
         '울산': '광역시기준',

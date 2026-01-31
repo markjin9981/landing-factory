@@ -215,7 +215,7 @@ const PolicyManager: React.FC = () => {
         if (!previewConfig) return;
         if (!confirm(`정말 '${courtName}' 설정을 삭제하시겠습니까?`)) return;
 
-        const newTraits = { ...previewConfig.courtTraits };
+        const newTraits = { ...(previewConfig.courtTraits || {}) };
         delete newTraits[courtName];
 
         setPreviewConfig({
@@ -240,7 +240,7 @@ const PolicyManager: React.FC = () => {
         setPreviewConfig({
             ...previewConfig,
             courtTraits: {
-                ...previewConfig.courtTraits,
+                ...(previewConfig.courtTraits || {}),
                 [trait.name]: trait
             }
         });
