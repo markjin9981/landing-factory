@@ -12,26 +12,32 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if already logged in OR returning from OAuth callback
-    const checkAuth = async () => {
-      // First, check if we have a Supabase session (could be from OAuth callback)
-      const session = await authService.getSession();
+    // Subscribe to auth state changes - this catches OAuth callback!
+    const { data: { subscription } } = authService.onAuthStateChange((event, session) => {
+      console.log('[Login] Auth state changed:', event);
 
-      if (session) {
-        // Set legacy key for sync access (important for OAuth callback!)
+      if (event === 'SIGNED_IN' && session) {
+        // OAuth login successful - set legacy keys and redirect
         sessionStorage.setItem('admin_auth', 'true');
         sessionStorage.setItem('admin_email_address', session.user?.email || '');
         navigate('/admin', { replace: true });
-        return;
       }
+    });
 
-      // Fallback: validate existing session
-      const isValid = await authService.validateSession();
-      if (isValid) {
+    // Also check if already logged in (for page refresh)
+    const checkExistingAuth = async () => {
+      const session = await authService.getSession();
+      if (session) {
+        sessionStorage.setItem('admin_auth', 'true');
+        sessionStorage.setItem('admin_email_address', session.user?.email || '');
         navigate('/admin', { replace: true });
       }
     };
-    checkAuth();
+    checkExistingAuth();
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, [navigate]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
