@@ -17,7 +17,7 @@ export const supabase = createClient(
     {
         auth: {
             detectSessionInUrl: true, // Required for OAuth callback
-            flowType: 'pkce', // More secure flow
+            flowType: 'implicit', // Use implicit flow for GitHub Pages compatibility
             autoRefreshToken: true,
             persistSession: true,
             storageKey: 'landing-factory-auth',
