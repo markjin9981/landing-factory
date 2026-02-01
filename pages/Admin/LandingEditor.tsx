@@ -243,7 +243,7 @@ const LandingEditor: React.FC = () => {
         loadGlobalSettings();
 
         if (id) {
-            // ... Existing logic ...
+            // 1. Try localStorage first (fastest)
             const stored = localStorage.getItem('landing_drafts');
             if (stored) {
                 const drafts = JSON.parse(stored);
@@ -270,7 +270,35 @@ const LandingEditor: React.FC = () => {
                 }
             }
 
-            // 2. If no draft, fetch from Google Sheet
+            // 2. Try Supabase draft (cross-device access)
+            const loadFromSupabaseDraft = async () => {
+                try {
+                    const { fetchDraft } = await import('../../services/supabaseService');
+                    const supabaseDraft = await fetchDraft(id);
+                    if (supabaseDraft) {
+                        console.log('[LandingEditor] Loaded draft from Supabase:', id);
+                        // Apply migrations
+                        if (!supabaseDraft.banners) supabaseDraft.banners = [];
+                        if (!supabaseDraft.footer) supabaseDraft.footer = JSON.parse(JSON.stringify(DEFAULT_CONFIG.footer));
+                        if (!supabaseDraft.hero) supabaseDraft.hero = JSON.parse(JSON.stringify(DEFAULT_CONFIG.hero));
+                        if (!supabaseDraft.formConfig) supabaseDraft.formConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.formConfig));
+
+                        // Also save to localStorage for faster access next time
+                        const stored = localStorage.getItem('landing_drafts');
+                        const drafts = stored ? JSON.parse(stored) : {};
+                        drafts[id] = supabaseDraft;
+                        localStorage.setItem('landing_drafts', JSON.stringify(drafts));
+
+                        setConfig(supabaseDraft);
+                        return true;
+                    }
+                } catch (e) {
+                    console.warn('[LandingEditor] Supabase draft fetch failed:', e);
+                }
+                return false;
+            };
+
+            // 3. If no draft, fetch from Google Sheet
             const loadFromSheet = async () => {
                 const sheetConfig = await fetchLandingConfigById(id);
                 if (sheetConfig) {
@@ -319,7 +347,15 @@ const LandingEditor: React.FC = () => {
                     // Keep default
                 }
             };
-            loadFromSheet();
+
+            // Execute loading: Supabase draft first, then Sheet
+            const loadData = async () => {
+                const foundInSupabase = await loadFromSupabaseDraft();
+                if (!foundInSupabase) {
+                    await loadFromSheet();
+                }
+            };
+            loadData();
 
         } else {
             // New Page: ID generation moved to saving or keep simplified
