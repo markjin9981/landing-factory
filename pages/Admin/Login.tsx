@@ -14,9 +14,10 @@ const Login: React.FC = () => {
   useEffect(() => {
     // Subscribe to auth state changes - this catches OAuth callback!
     const { data: { subscription } } = authService.onAuthStateChange((event, session) => {
-      console.log('[Login] Auth state changed:', event);
+      console.log('[Login] Auth state changed:', event, session ? 'with session' : 'no session');
 
-      if (event === 'SIGNED_IN' && session) {
+      // Handle both SIGNED_IN (from email login) and INITIAL_SESSION (from OAuth callback)
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
         // OAuth login successful - set legacy keys and redirect
         sessionStorage.setItem('admin_auth', 'true');
         sessionStorage.setItem('admin_email_address', session.user?.email || '');
