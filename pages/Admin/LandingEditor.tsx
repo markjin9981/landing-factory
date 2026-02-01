@@ -380,13 +380,25 @@ const LandingEditor: React.FC = () => {
         }
     }, [globalSettings.customFonts]);
 
-    const saveToLocal = () => {
+    const saveToLocal = async () => {
+        // 1. Save to localStorage (fast, local access)
         const stored = localStorage.getItem('landing_drafts');
         const drafts = stored ? JSON.parse(stored) : {};
         drafts[config.id] = config;
         localStorage.setItem('landing_drafts', JSON.stringify(drafts));
-        if (typeof window !== 'undefined') {
-            alert('브라우저 임시 저장소에 저장되었습니다.');
+
+        // 2. Save to Supabase (cross-device access)
+        try {
+            const { saveDraft } = await import('../../services/supabaseService');
+            await saveDraft(config.id, config);
+            if (typeof window !== 'undefined') {
+                alert('임시저장 완료! (브라우저 + 서버 모두 저장됨)');
+            }
+        } catch (e) {
+            console.warn('[saveToLocal] Supabase draft save failed:', e);
+            if (typeof window !== 'undefined') {
+                alert('브라우저에 임시 저장되었습니다.\n(서버 저장 실패 - 다른 기기에서 이어가기 불가)');
+            }
         }
     };
 

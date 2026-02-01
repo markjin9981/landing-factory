@@ -1,4 +1,5 @@
 import { LandingConfig, FormField, VisitData, LeadData, GlobalSettings } from '../types';
+import * as supabaseService from './supabaseService';
 
 /**
  * --------------------------------------------------------------------------
@@ -35,10 +36,18 @@ const MOCK_LEAD_DATA = [
  * 고객 DB를 구글 시트에 전송합니다.
  */
 /**
- * 고객 DB를 구글 시트에 전송합니다.
+ * 고객 DB를 Supabase에 저장하고, GAS로 이메일/CRM 알림을 발송합니다.
+ * HYBRID: Supabase (Primary DB) + GAS (Email/CRM Notifications)
  */
 export const submitLead = async (data: LeadData): Promise<boolean> => {
-    return submitLeadToSheet(data);
+    // Import is at line 713-714, use it here
+    try {
+        // supabaseService handles both Supabase insert and GAS fire-and-forget
+        return await supabaseService.submitLead(data);
+    } catch (e) {
+        console.warn('[Supabase] Lead submit failed, falling back to GAS only:', e);
+        return submitLeadToSheet(data);
+    }
 };
 
 export const submitLeadToSheet = async (data: LeadData): Promise<boolean> => {
@@ -141,9 +150,9 @@ export const deleteLeads = async (leads: LeadData[]): Promise<{ result: string, 
         return { result: 'error', message: String(error) };
     }
 };
-
 /**
- * AI 변제금 진단 결과를 구글 시트에 저장합니다.
+ * AI 변제금 진단 결과를 저장합니다.
+ * HYBRID: Supabase (Primary) + GAS (Backup, Fire-and-forget)
  */
 export interface RehabDiagnosisData {
     name: string;
@@ -158,69 +167,84 @@ export interface RehabDiagnosisData {
     debtReductionRate: number;
     courtName: string;
     status: 'POSSIBLE' | 'DIFFICULT' | 'IMPOSSIBLE';
+    landing_id?: string;
     timestamp?: string;
 }
 
 export const submitRehabDiagnosis = async (data: RehabDiagnosisData): Promise<boolean> => {
-    if (!isUrlConfigured()) {
-        console.log("📊 Mock Rehab Diagnosis Submit:", data);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return true;
-    }
+    let supabaseSuccess = false;
 
+    // 1. Save to Supabase (Primary)
     try {
-        const formData = new FormData();
-        formData.append('type', 'rehab_diagnosis');
-        formData.append('Timestamp', data.timestamp || new Date().toLocaleString('ko-KR'));
-        formData.append('고객명', data.name);
-        formData.append('연락처', data.phone);
-        formData.append('거주지', data.address);
-        formData.append('소득', String(data.monthlyIncome));
-        formData.append('부양가족', String(data.familySize));
-        formData.append('총채무', String(data.totalDebt));
-        formData.append('재산', String(data.assets));
-        formData.append('배우자재산', String(data.spouseAssets || 0));
-        formData.append('예상월변제금', String(data.monthlyPayment));
-        formData.append('탕감률', String(data.debtReductionRate));
-        formData.append('관할법원', data.courtName);
-        formData.append('상태', data.status);
-
-        await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            body: formData,
-            mode: "no-cors",
-        });
-
-        return true;
-    } catch (error) {
-        console.error("Error submitting rehab diagnosis:", error);
-        return false;
+        supabaseSuccess = await supabaseService.submitRehabDiagnosis(data);
+        if (supabaseSuccess) {
+            console.log('[submitRehabDiagnosis] Saved to Supabase');
+        }
+    } catch (e) {
+        console.warn('[submitRehabDiagnosis] Supabase failed:', e);
     }
+
+    // 2. Fire-and-forget to GAS for backup
+    if (isUrlConfigured()) {
+        try {
+            const formData = new FormData();
+            formData.append('type', 'rehab_diagnosis');
+            formData.append('Timestamp', data.timestamp || new Date().toLocaleString('ko-KR'));
+            formData.append('고객명', data.name);
+            formData.append('연락처', data.phone);
+            formData.append('거주지', data.address);
+            formData.append('소득', String(data.monthlyIncome));
+            formData.append('부양가족', String(data.familySize));
+            formData.append('총채무', String(data.totalDebt));
+            formData.append('재산', String(data.assets));
+            formData.append('배우자재산', String(data.spouseAssets || 0));
+            formData.append('예상월변제금', String(data.monthlyPayment));
+            formData.append('탕감률', String(data.debtReductionRate));
+            formData.append('관할법원', data.courtName);
+            formData.append('상태', data.status);
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: formData,
+                mode: "no-cors",
+            }).catch(() => { /* ignore */ });
+        } catch (error) {
+            // Ignore GAS errors
+        }
+    }
+
+    return supabaseSuccess || isUrlConfigured();
 };
 
 /**
  * 방문자 로그를 기록합니다.
+ * HYBRID: Supabase (Primary) + GAS (Backup, Fire-and-forget)
  */
 export const logVisit = async (visit: { landing_id: string, ip: string, device: string, os: string, browser: string, referrer: string, utm_source?: string, utm_medium?: string, utm_campaign?: string, utm_term?: string, utm_content?: string }): Promise<void> => {
-    if (!isUrlConfigured()) {
-        console.log(" Mock Visit Log:", visit);
-        return;
+    // 1. Try Supabase first
+    try {
+        await supabaseService.logVisit(visit as any);
+    } catch (e) {
+        console.warn('[logVisit] Supabase failed, falling back to GAS:', e);
     }
 
-    try {
-        const formData = new FormData();
-        formData.append('type', 'visit');
-        Object.keys(visit).forEach(key => {
-            formData.append(key, String((visit as any)[key]));
-        });
+    // 2. Fire-and-forget to GAS for backup
+    if (isUrlConfigured()) {
+        try {
+            const formData = new FormData();
+            formData.append('type', 'visit');
+            Object.keys(visit).forEach(key => {
+                formData.append(key, String((visit as any)[key]));
+            });
 
-        await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            body: formData,
-            mode: "no-cors",
-        });
-    } catch (error) {
-        console.error("Error logging visit", error);
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: formData,
+                mode: "no-cors",
+            }).catch(() => { /* ignore */ });
+        } catch (error) {
+            // Ignore GAS errors
+        }
     }
 };
 
@@ -253,9 +277,22 @@ export const sendAdminNotification = async (email: string, subject: string, mess
 };
 
 /**
- * 구글 시트에서 모든 고객 DB를 가져옵니다.
+ * 고객 DB를 가져옵니다.
+ * HYBRID: Supabase (Primary) + GAS (Fallback)
  */
 export const fetchLeads = async (): Promise<any[]> => {
+    // 1. Try Supabase first
+    try {
+        const supabaseData = await supabaseService.fetchLeads();
+        if (supabaseData && supabaseData.length > 0) {
+            console.log('[fetchLeads] Loaded from Supabase:', supabaseData.length, 'leads');
+            return supabaseData;
+        }
+    } catch (e) {
+        console.warn('[fetchLeads] Supabase failed, falling back to GAS:', e);
+    }
+
+    // 2. Fallback to GAS
     if (!isUrlConfigured()) {
         console.warn(`Using mock lead data because GOOGLE_SCRIPT_URL is not configured.`);
         return MOCK_LEAD_DATA;
@@ -264,9 +301,22 @@ export const fetchLeads = async (): Promise<any[]> => {
 }
 
 /**
- * 구글 시트에서 모든 방문 기록을 가져옵니다.
+ * 방문 기록을 가져옵니다.
+ * HYBRID: Supabase (Primary) + GAS (Fallback)
  */
 export const fetchVisits = async (): Promise<VisitData[]> => {
+    // 1. Try Supabase first
+    try {
+        const supabaseData = await supabaseService.fetchVisits();
+        if (supabaseData && supabaseData.length > 0) {
+            console.log('[fetchVisits] Loaded from Supabase:', supabaseData.length, 'visits');
+            return supabaseData;
+        }
+    } catch (e) {
+        console.warn('[fetchVisits] Supabase failed, falling back to GAS:', e);
+    }
+
+    // 2. Fallback to GAS
     if (!isUrlConfigured()) {
         console.warn(`Using mock visit data because GOOGLE_SCRIPT_URL is not configured.`);
         return [];
@@ -305,41 +355,46 @@ const fetchData = async (type: 'leads' | 'visits' | 'config' | 'configs' | 'admi
 }
 
 /**
- * 랜딩페이지 설정을 구글 시트에 저장합니다.
+ * 랜딩페이지 설정을 저장합니다.
+ * HYBRID: Supabase (Primary) + GAS (Backup, Fire-and-forget)
  */
 export const saveLandingConfig = async (config: LandingConfig): Promise<boolean> => {
-    if (!isUrlConfigured()) {
-        console.log(" Mock Config Save:", config);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return true;
-    }
+    let supabaseSuccess = false;
 
+    // 1. Save to Supabase (Primary)
     try {
-        // 이미지가 너무 크면 전송 실패할 수 있으므로 주의 (필요시 압축 로직 추가)
-        const configJson = JSON.stringify(config);
-
-        // POST 요청 (Form Data)
-        // 주의: Google Apps Script의 doPost는 단순 키-값 쌍을 받습니다.
-        const formData = new FormData();
-        formData.append('type', 'config_save');
-        formData.append('id', config.id);
-        formData.append('config_data', configJson);
-
-        await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            body: formData,
-            mode: "no-cors",
-        });
-
-        // CLEAR CACHE: Ensure the next fetch gets the latest data
-        localStorage.removeItem(`landing_config_${config.id}`);
-        console.log(`[Cache Cleared] landing_config_${config.id}`);
-
-        return true;
-    } catch (error) {
-        console.error("Error saving config:", error);
-        return false;
+        supabaseSuccess = await supabaseService.saveLandingConfig(config);
+        if (supabaseSuccess) {
+            console.log(`[saveLandingConfig] Saved to Supabase: ${config.id}`);
+        }
+    } catch (e) {
+        console.warn('[saveLandingConfig] Supabase save failed:', e);
     }
+
+    // 2. Fire-and-forget to GAS for backup
+    if (isUrlConfigured()) {
+        try {
+            const configJson = JSON.stringify(config);
+            const formData = new FormData();
+            formData.append('type', 'config_save');
+            formData.append('id', config.id);
+            formData.append('config_data', configJson);
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: formData,
+                mode: "no-cors",
+            }).catch(() => { /* ignore */ });
+        } catch (error) {
+            // Ignore GAS errors
+        }
+    }
+
+    // CLEAR CACHE: Ensure the next fetch gets the latest data
+    localStorage.removeItem(`landing_config_${config.id}`);
+    console.log(`[Cache Cleared] landing_config_${config.id}`);
+
+    return supabaseSuccess || isUrlConfigured();
 };
 
 // --------------------------------------------------------------------------
@@ -380,6 +435,7 @@ const setCache = (key: string, data: any) => {
 
 /**
  * 특정 ID의 랜딩페이지 설정을 가져옵니다. (With Caching)
+ * HYBRID: Cache -> Supabase -> GAS (Fallback)
  */
 export const fetchLandingConfigById = async (id: string): Promise<LandingConfig | null> => {
     // 1. Check Cache
@@ -389,19 +445,28 @@ export const fetchLandingConfigById = async (id: string): Promise<LandingConfig 
         return cached;
     }
 
+    // 2. Try Supabase first
+    try {
+        const supabaseData = await supabaseService.fetchLandingConfig(id);
+        if (supabaseData) {
+            console.log(`[fetchLandingConfigById] Loaded from Supabase: ${id}`);
+            setCache(`landing_config_${id}`, supabaseData);
+            return supabaseData;
+        }
+    } catch (e) {
+        console.warn('[fetchLandingConfigById] Supabase failed, falling back to GAS:', e);
+    }
+
+    // 3. Fallback to GAS
     if (!isUrlConfigured()) {
         console.warn(`Using mock config fetch because GOOGLE_SCRIPT_URL is not configured.`);
         return null;
     }
 
-    // 2. Fetch from Network
     const data = await fetchData('config', id);
-
-    // 3. Save to Cache if valid
     if (data) {
         setCache(`landing_config_${id}`, data);
     }
-
     return data;
 };
 
@@ -513,25 +578,40 @@ export const uploadImageToDrive = async (file: File, folderName: string = "landi
 
 /**
  * 랜딩페이지 설정을 삭제합니다.
+ * HYBRID: Supabase (Primary) + GAS (Backup)
  */
 export const deleteLandingConfig = async (id: string): Promise<boolean> => {
-    if (!isUrlConfigured()) {
-        console.log(" Mock Config Delete:", id);
-        return true;
+    let supabaseSuccess = false;
+
+    // 1. Delete from Supabase (Primary)
+    try {
+        supabaseSuccess = await supabaseService.deleteLandingConfig(id);
+        if (supabaseSuccess) {
+            console.log(`[deleteLandingConfig] Deleted from Supabase: ${id}`);
+        }
+    } catch (e) {
+        console.warn('[deleteLandingConfig] Supabase delete failed:', e);
     }
 
+    // 2. Fire-and-forget to GAS for backup
+    if (isUrlConfigured()) {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('type', 'config_delete');
+            formData.append('id', id);
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: formData,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }).catch(() => { /* ignore */ });
+        } catch (error) {
+            // Ignore GAS errors
+        }
+    }
+
+    // Also delete from local storage
     try {
-        const formData = new URLSearchParams();
-        formData.append('type', 'config_delete');
-        formData.append('id', id);
-
-        await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            body: formData,
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-
-        // Also delete from local storage
         const stored = localStorage.getItem('landing_drafts');
         if (stored) {
             const drafts = JSON.parse(stored);
@@ -540,12 +620,14 @@ export const deleteLandingConfig = async (id: string): Promise<boolean> => {
                 localStorage.setItem('landing_drafts', JSON.stringify(drafts));
             }
         }
-
-        return true;
-    } catch (error) {
-        console.error("Error deleting config:", error);
-        return false;
+    } catch (e) {
+        // Ignore local storage errors
     }
+
+    // Clear cache
+    localStorage.removeItem(`landing_config_${id}`);
+
+    return supabaseSuccess || isUrlConfigured();
 };
 
 /**
@@ -710,17 +792,31 @@ export const verifyGoogleToken = async (idToken: string): Promise<{ valid: boole
 };
 
 // --- Global Settings (Fonts) ---
+// HYBRID: Try Supabase first, fallback to GAS
+
 export const fetchGlobalSettings = async (): Promise<GlobalSettings | null> => {
     // 1. Check Cache
     const cached = getCache('system_global_v1');
     if (cached) return cached;
 
+    // 2. Try Supabase first (Fast)
+    try {
+        const supabaseResult = await supabaseService.fetchGlobalSettings();
+        if (supabaseResult) {
+            setCache('system_global_v1', supabaseResult);
+            return supabaseResult;
+        }
+    } catch (e) {
+        console.warn('[Supabase] Fetch failed, falling back to GAS:', e);
+    }
+
+    // 3. Fallback to GAS
     if (!isUrlConfigured()) return null;
     const res = await fetch(`${GOOGLE_SCRIPT_URL}?type=config&id=system_global_v1`);
     const data = await res.json();
     if (data.error) return null;
 
-    // 2. Set Cache
+    // 4. Set Cache
     setCache('system_global_v1', data);
     return data;
 }
@@ -729,8 +825,15 @@ export const saveGlobalSettings = async (settings: GlobalSettings): Promise<bool
     // 1. Save to Cache immediately (Optimistic UI & Persistence)
     setCache('system_global_v1', settings);
 
+    // 2. Save to Supabase (Primary)
+    try {
+        await supabaseService.saveGlobalSettings(settings);
+    } catch (e) {
+        console.warn('[Supabase] Save failed:', e);
+    }
+
+    // 3. Also save to GAS (Backup & Email/CRM triggers)
     if (!isUrlConfigured()) {
-        alert("Mock Mode: Global Settings Saved");
         return true;
     }
     const formData = new FormData();
@@ -739,11 +842,11 @@ export const saveGlobalSettings = async (settings: GlobalSettings): Promise<bool
     formData.append('config_data', JSON.stringify(settings));
 
     try {
-        await fetch(GOOGLE_SCRIPT_URL, {
+        fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
             body: formData,
             mode: "no-cors",
-        });
+        }); // Fire-and-forget (no await)
         return true;
     } catch (e) {
         console.error(e);

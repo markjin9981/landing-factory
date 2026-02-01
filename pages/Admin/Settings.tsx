@@ -227,6 +227,20 @@ const Settings: React.FC = () => {
                     </button>
                     <h1 className="text-xl font-bold">마이페이지 (설정)</h1>
                 </div>
+                <button
+                    onClick={async () => {
+                        if (confirm('로그아웃 하시겠습니까?')) {
+                            const { signOut } = await import('../../services/supabaseService');
+                            await signOut();
+                            sessionStorage.removeItem('admin_auth');
+                            navigate('/admin/login');
+                        }
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-colors text-sm font-bold"
+                >
+                    <LogOut className="w-4 h-4" />
+                    로그아웃
+                </button>
             </header>
 
             <main className="max-w-2xl mx-auto p-8 space-y-8">
