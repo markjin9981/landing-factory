@@ -49,15 +49,50 @@ const LeadStats: React.FC = () => {
     const [deleteStep, setDeleteStep] = useState(0); // 0: None, 1: Confirm, 2: Final
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Cache keys for faster subsequent loads
+    const CACHE_KEY_LEADS = 'leadstats_leads_cache';
+    const CACHE_KEY_CONFIGS = 'leadstats_configs_cache';
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
     const loadData = async () => {
+        // 1. Try to show cached data immediately (optimistic)
+        try {
+            const cachedLeads = localStorage.getItem(CACHE_KEY_LEADS);
+            const cachedConfigs = localStorage.getItem(CACHE_KEY_CONFIGS);
+
+            if (cachedLeads && cachedConfigs) {
+                const { data: leadsData, timestamp: leadsTs } = JSON.parse(cachedLeads);
+                const { data: configsData, timestamp: configsTs } = JSON.parse(cachedConfigs);
+
+                // Show cached data immediately
+                setLeads(leadsData);
+                setConfigs(configsData);
+
+                // If cache is still fresh, don't show loading
+                const now = Date.now();
+                if (now - leadsTs < CACHE_DURATION && now - configsTs < CACHE_DURATION) {
+                    setLoading(false);
+                }
+            }
+        } catch (e) {
+            // Ignore cache errors
+        }
+
+        // 2. Fetch fresh data from API
         setLoading(true);
         try {
             const [leadsData, configsData] = await Promise.all([
                 fetchLeads(),
                 fetchLandingConfigs()
             ]);
+
+            // Update state
             setLeads(leadsData);
             setConfigs(configsData);
+
+            // Update cache
+            localStorage.setItem(CACHE_KEY_LEADS, JSON.stringify({ data: leadsData, timestamp: Date.now() }));
+            localStorage.setItem(CACHE_KEY_CONFIGS, JSON.stringify({ data: configsData, timestamp: Date.now() }));
         } catch (err) {
             console.error(err);
         } finally {
@@ -226,10 +261,57 @@ const LeadStats: React.FC = () => {
         return { columns, extraKeys: Array.from(extraKeys) };
     };
 
-    if (loading) {
+    // Skeleton UI for better perceived loading
+    if (loading && leads.length === 0) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+            <div className="min-h-screen bg-gray-50 pb-20 font-sans animate-pulse">
+                {/* Header Skeleton */}
+                <header className="bg-white border-b border-gray-200 px-4 py-4 md:px-8 md:py-5 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                        <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                    </div>
+                    <div className="flex gap-2">
+                        <div className="h-10 w-24 bg-gray-200 rounded-lg"></div>
+                        <div className="h-10 w-24 bg-gray-200 rounded-lg"></div>
+                    </div>
+                </header>
+
+                <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
+                    {/* Stats Cards Skeleton */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="bg-white rounded-xl p-5 shadow-sm">
+                                <div className="h-4 w-20 bg-gray-200 rounded mb-3"></div>
+                                <div className="h-8 w-16 bg-gray-200 rounded mb-2"></div>
+                                <div className="h-3 w-24 bg-gray-100 rounded"></div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Landing Pages Skeleton */}
+                    <div className="space-y-4">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <div className="h-5 w-40 bg-gray-200 rounded"></div>
+                                    <div className="h-6 w-16 bg-blue-100 rounded-full"></div>
+                                </div>
+                                <div className="h-4 w-24 bg-gray-100 rounded"></div>
+                                <div className="space-y-2">
+                                    <div className="h-4 w-full bg-gray-100 rounded"></div>
+                                    <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Loading indicator */}
+                    <div className="text-center py-4">
+                        <Loader2 className="w-6 h-6 text-blue-600 animate-spin mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">데이터를 불러오는 중...</p>
+                    </div>
+                </main>
             </div>
         );
     }
