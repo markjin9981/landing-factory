@@ -7,6 +7,14 @@ export default defineConfig({
 
   // 성능 최적화: 빌드 설정
   build: {
+    // Minification 최적화
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -16,22 +24,34 @@ export default defineConfig({
           'charts': ['recharts'],
           // 애니메이션 라이브러리 분리 (DynamicStep, Rehab에서만 사용)
           'animation': ['framer-motion'],
+          // Supabase 분리 (인증/DB 기능)
+          'supabase': ['@supabase/supabase-js'],
+          // 엑셀 라이브러리 분리 (내보내기 시에만 사용)
+          'xlsx': ['xlsx'],
         }
       }
     },
     // 청크 사이즈 경고 조정
     chunkSizeWarningLimit: 500,
+    // 소스맵 비활성화 (프로덕션 빌드 크기 감소)
+    sourcemap: false,
+  },
+
+  // 개발 서버 최적화
+  server: {
+    // HMR 최적화
+    hmr: {
+      overlay: false,
+    },
+  },
+
+  // 의존성 최적화
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'lucide-react'],
   },
 
   // --------------------------------------------------------------------------
   // [매우 중요] GitHub Pages 배포 설정입니다.
-  // --------------------------------------------------------------------------
-  // 아래 '/landing-page-factory/' 부분에서 'landing-page-factory'를
-  // 고객님의 실제 GitHub 저장소(Repository) 이름으로 반드시 변경해주세요.
-  //
-  // 예시: GitHub 저장소 이름이 'my-landing-page' 라면
-  // base: '/my-landing-page/',
-  // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
   base: '/',
 })

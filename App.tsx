@@ -1,6 +1,5 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import LANDING_CONFIGS_JSON from './data/landingConfigs.json';
 import { LandingConfig } from './types';
@@ -8,7 +7,8 @@ import { FileText, ArrowRight, Settings as SettingsIcon, Loader2 } from 'lucide-
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GOOGLE_CLIENT_ID } from './authConfig';
 
-// Lazy Load Admin Pages
+// Lazy Load ALL Pages for better initial bundle
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
 const LandingEditor = lazy(() => import('./pages/Admin/LandingEditor'));
 const LeadStats = lazy(() => import('./pages/Admin/LeadStats'));
