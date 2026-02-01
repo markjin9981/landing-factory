@@ -13,7 +13,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(
     supabaseUrl || 'https://placeholder.supabase.co',
-    supabaseAnonKey || 'placeholder-key'
+    supabaseAnonKey || 'placeholder-key',
+    {
+        auth: {
+            detectSessionInUrl: true, // Required for OAuth callback
+            flowType: 'pkce', // More secure flow
+            autoRefreshToken: true,
+            persistSession: true,
+            storageKey: 'landing-factory-auth',
+        }
+    }
 );
 
 /**
