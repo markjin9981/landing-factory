@@ -210,6 +210,7 @@ const LandingEditor: React.FC = () => {
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [inputGithubToken, setInputGithubToken] = useState('');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // NEW: Loading state
     const [isAdditionalDbEditing, setIsAdditionalDbEditing] = useState(false);
 
     // Global Settings
@@ -266,6 +267,7 @@ const LandingEditor: React.FC = () => {
                     if (!loadedConfig.formConfig) loadedConfig.formConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG.formConfig));
 
                     setConfig(loadedConfig);
+                    setIsLoading(false);
                     return; // Loaded from draft, stop.
                 }
             }
@@ -290,6 +292,7 @@ const LandingEditor: React.FC = () => {
                         localStorage.setItem('landing_drafts', JSON.stringify(drafts));
 
                         setConfig(supabaseDraft);
+                        setIsLoading(false);
                         return true;
                     }
                 } catch (e) {
@@ -354,6 +357,7 @@ const LandingEditor: React.FC = () => {
                 if (!foundInSupabase) {
                     await loadFromSheet();
                 }
+                setIsLoading(false);
             };
             loadData();
 
@@ -361,6 +365,7 @@ const LandingEditor: React.FC = () => {
             // New Page: ID generation moved to saving or keep simplified
             const newId = String(Date.now()).slice(-6);
             setConfig({ ...DEFAULT_CONFIG, id: newId });
+            setIsLoading(false);
         }
     }, [id]);
 
@@ -1069,6 +1074,18 @@ const LandingEditor: React.FC = () => {
             return { ...prev, footer: { ...prev.footer!, images: newImgs } };
         });
     };
+
+    // Loading screen while data is being fetched
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600 font-medium">랜딩페이지 불러오는 중...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <>
