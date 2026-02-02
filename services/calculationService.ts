@@ -452,14 +452,22 @@ export function calculateRepayment(
     // 4. 청산가치(재산) 계산
     const depositRule = effectiveConfig.depositExemptions[regionGroup] || effectiveConfig.depositExemptions['그외'];
     let exemptDeposit = 0;
+    const depositLoan = input.depositLoan || 0;
 
+    // Step 1: 보증금(원본) 기준으로 면제 여부 판단
     if (input.deposit <= depositRule.limit) {
         exemptDeposit = Math.min(input.deposit, depositRule.deduct);
     }
 
-    // 본인 재산 (보증금 면제분 제외)
-    let liquidationValue = input.myAssets - exemptDeposit;
-    if (liquidationValue < 0) liquidationValue = 0;
+    // Step 2: 면제 후 잔여 보증금 = 보증금 - 면제보증금
+    const remainingDeposit = Math.max(0, input.deposit - exemptDeposit);
+
+    // Step 3: 잔여 보증금에서 대출금 차감 = 보증금 기여분
+    // 대출금은 잔여 보증금에서만 차감 (면제 재산에는 영향 없음)
+    const depositContribution = Math.max(0, remainingDeposit - depositLoan);
+
+    // 청산가치 계산: 본인재산 + 보증금기여분 + 배우자재산 반영분
+    let liquidationValue = input.myAssets + depositContribution;
 
     // 배우자 재산 반영 (법원 성향에 따라)
     if (input.isMarried && input.spouseAssets > 0) {
