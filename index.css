@@ -1,3 +1,6 @@
+/* ===== Report Design Tokens ===== */
+@import './styles/reportTokens.css';
+
 /* ===== Global Styles ===== */
 html {
   scroll-behavior: smooth;
