@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, AlertCircle, Shield, Smartphone, Monitor, Globe, LogOut, Plus, Trash2, User, UserPlus, Key, Eye, EyeOff, Save, CheckCircle, Cloud } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, AlertCircle, Shield, Smartphone, Monitor, Globe, LogOut, Plus, Trash2, User, UserPlus, Key, Eye, EyeOff, Save, CheckCircle, Cloud, Rocket, Loader2 } from 'lucide-react';
 import { fetchAdminSessions, revokeSession, fetchAdminUsers, addAdminUser, removeAdminUser, fetchGlobalSettings, saveGlobalSettings } from '../../services/googleSheetService';
 import { authService } from '../../services/authService';
+import { triggerDeployWorkflow, getGithubToken } from '../../services/githubService';
 import { GlobalSettings } from '../../types';
 
 const Settings: React.FC = () => {
@@ -49,6 +50,7 @@ const Settings: React.FC = () => {
     const [isEditingCloudinary, setIsEditingCloudinary] = useState(false);
     const [isEditingKakao, setIsEditingKakao] = useState(false);
     const [isEditingGemini, setIsEditingGemini] = useState(false);
+    const [deploying, setDeploying] = useState(false);
 
     // Track if values have been modified from saved state
     const hasImgbbChanges = globalSettings?.imgbbApiKey !== imgbbApiKey;
@@ -696,6 +698,60 @@ const Settings: React.FC = () => {
 
 
                 </div>
+
+                {/* System Management Section - Deploy */}
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+                    <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
+                        <Rocket className="w-5 h-5 text-emerald-600" />
+                        시스템 관리
+                    </h2>
+
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-6 text-sm text-emerald-800">
+                        <strong className="block mb-1">GitHub Pages 배포</strong>
+                        랜딩 페이지의 SEO 메타태그(카카오톡 미리보기 등)를 즉시 업데이트합니다.<br />
+                        자동 배포는 1시간 간격으로 실행됩니다.
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={async () => {
+                                if (!getGithubToken()) {
+                                    alert('GitHub Token이 설정되지 않았습니다.\n위의 이미지 호스팅 설정에서 GitHub Token을 먼저 입력해주세요.');
+                                    return;
+                                }
+                                if (!confirm('지금 바로 GitHub Pages에 배포하시겠습니까?\n\n랜딩 페이지 변경사항이 즉시 반영됩니다.\n(약 1분 소요)')) return;
+
+                                setDeploying(true);
+                                const result = await triggerDeployWorkflow();
+                                setDeploying(false);
+                                alert(result.message || (result.success ? '배포 시작!' : '배포 실패'));
+                            }}
+                            disabled={deploying}
+                            className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-bold hover:from-emerald-600 hover:to-teal-700 transition-all disabled:opacity-60 disabled:cursor-wait flex items-center gap-2 shadow-md"
+                        >
+                            {deploying ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    배포 중...
+                                </>
+                            ) : (
+                                <>
+                                    <Rocket className="w-5 h-5" />
+                                    지금 배포하기
+                                </>
+                            )}
+                        </button>
+                        <a
+                            href="https://github.com/markjin9981/landing-factory/actions"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-gray-500 hover:text-emerald-600 underline"
+                        >
+                            GitHub Actions에서 상태 확인 →
+                        </a>
+                    </div>
+                </div>
+
                 {
                     currentUserEmail === 'beanhull@gmail.com' ? (
                         <>

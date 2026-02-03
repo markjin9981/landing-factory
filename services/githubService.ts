@@ -291,3 +291,45 @@ export const deleteGithubImage = async (path: string, sha: string): Promise<bool
         return false;
     }
 };
+
+/**
+ * Triggers GitHub Actions workflow (Deploy to GitHub Pages)
+ * Uses workflow_dispatch event
+ */
+export const triggerDeployWorkflow = async (): Promise<{ success: boolean, message?: string }> => {
+    const token = getGithubToken();
+    if (!token) return { success: false, message: 'GitHub Token이 설정되지 않았습니다. 설정 메뉴에서 토큰을 입력해주세요.' };
+
+    const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/deploy.yml/dispatches`;
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ref: BRANCH })
+        });
+
+        if (response.status === 204) {
+            return { success: true, message: '✅ 배포가 시작되었습니다! GitHub Actions에서 진행 상황을 확인하세요. (약 1분 소요)' };
+        }
+
+        if (response.status === 404) {
+            return { success: false, message: '워크플로우를 찾을 수 없습니다. deploy.yml 파일이 있는지 확인하세요.' };
+        }
+
+        if (response.status === 403) {
+            return { success: false, message: '권한이 없습니다. GitHub Token에 workflow 권한이 있는지 확인하세요.' };
+        }
+
+        const err = await response.json();
+        throw new Error(err.message || `HTTP ${response.status}`);
+
+    } catch (error: any) {
+        console.error('GitHub Deploy Trigger Error:', error);
+        return { success: false, message: error.message };
+    }
+};

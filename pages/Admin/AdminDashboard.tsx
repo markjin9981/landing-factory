@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import LANDING_CONFIGS_JSON from '../../data/landingConfigs.json';
 import { LandingConfig } from '../../types';
 import { fetchLandingConfigs, fetchLeads } from '../../services/googleSheetService';
-import { deleteConfigFromGithub } from '../../services/githubService';
-import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2, Copy, FileText } from 'lucide-react';
+import { deleteConfigFromGithub, triggerDeployWorkflow, getGithubToken } from '../../services/githubService';
+import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2, Copy, FileText, Rocket } from 'lucide-react';
 
 import OgStatusBadge from '../../components/OgStatusBadge';
 
@@ -15,6 +15,7 @@ const AdminDashboard: React.FC = () => {
     const [leads, setLeads] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'lead_count_desc' | 'last_lead_desc'>('newest');
+    const [deploying, setDeploying] = useState(false);
 
     // Helper: Parse Date
     const parseDate = (dateStr: string) => {
@@ -258,6 +259,32 @@ const AdminDashboard: React.FC = () => {
                             <p className="text-xs text-gray-500">2026 개정법 및 관할 법원 설정</p>
                         </div>
                     </Link>
+
+                    {/* Deploy Button */}
+                    <button
+                        onClick={async () => {
+                            if (!getGithubToken()) {
+                                alert('GitHub Token이 설정되지 않았습니다.\n설정 > 이미지 호스팅 설정에서 GitHub Token을 먼저 입력해주세요.');
+                                return;
+                            }
+                            if (!confirm('지금 바로 GitHub Pages에 배포하시겠습니까?\n\n랜딩 페이지 변경사항이 즉시 반영됩니다.\n(약 1분 소요)')) return;
+
+                            setDeploying(true);
+                            const result = await triggerDeployWorkflow();
+                            setDeploying(false);
+                            alert(result.message || (result.success ? '배포 시작!' : '배포 실패'));
+                        }}
+                        disabled={deploying}
+                        className="bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-xl border border-emerald-400 shadow-sm hover:from-emerald-600 hover:to-teal-700 transition-all flex items-center gap-4 group disabled:opacity-60 disabled:cursor-wait text-left"
+                    >
+                        <div className="p-3 bg-white/20 text-white rounded-lg group-hover:bg-white/30 transition-colors">
+                            {deploying ? <Loader2 className="w-6 h-6 animate-spin" /> : <Rocket className="w-6 h-6" />}
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-white">{deploying ? '배포 중...' : '즉시 배포'}</h3>
+                            <p className="text-xs text-emerald-100">SEO 메타태그 즉시 반영</p>
+                        </div>
+                    </button>
                 </div>
 
                 <div className="flex flex-col md:flex-row justify-between md:items-end gap-4 mb-6 border-b pb-4">
