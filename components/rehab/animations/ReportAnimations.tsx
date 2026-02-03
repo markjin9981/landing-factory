@@ -83,12 +83,12 @@ export const GlowingCard: React.FC<GlowingCardProps> = ({
     hoverScale = 1.02
 }) => {
     const glowColors: Record<string, string> = {
-        cyan: 'shadow-cyan-500/20 hover:shadow-cyan-500/40',
-        green: 'shadow-green-500/20 hover:shadow-green-500/40',
-        purple: 'shadow-purple-500/20 hover:shadow-purple-500/40',
-        blue: 'shadow-blue-500/20 hover:shadow-blue-500/40',
-        yellow: 'shadow-yellow-500/20 hover:shadow-yellow-500/40',
-        red: 'shadow-red-500/20 hover:shadow-red-500/40',
+        cyan: 'shadow-blue-500/10 hover:shadow-blue-500/20',
+        green: 'shadow-emerald-500/10 hover:shadow-emerald-500/20',
+        purple: 'shadow-blue-600/10 hover:shadow-blue-600/20',
+        blue: 'shadow-blue-500/10 hover:shadow-blue-500/20',
+        yellow: 'shadow-amber-500/10 hover:shadow-amber-500/20',
+        red: 'shadow-red-500/10 hover:shadow-red-500/20',
     };
 
     return (
@@ -103,9 +103,9 @@ export const GlowingCard: React.FC<GlowingCardProps> = ({
             }}
             className={`
                 relative overflow-hidden rounded-2xl
-                bg-gradient-to-br from-slate-800/80 to-slate-900/80
-                backdrop-blur-xl border border-slate-700/50
-                shadow-xl ${glowColors[glowColor] || glowColors.cyan}
+                bg-white
+                border border-gray-200
+                shadow-lg ${glowColors[glowColor] || glowColors.cyan}
                 transition-shadow duration-500
                 ${className}
             `}
@@ -115,7 +115,7 @@ export const GlowingCard: React.FC<GlowingCardProps> = ({
             <motion.div
                 className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500"
                 style={{
-                    background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.05) 50%, transparent 60%)',
+                    background: 'linear-gradient(105deg, transparent 40%, rgba(59,130,246,0.05) 50%, transparent 60%)',
                 }}
                 animate={{
                     x: ['-100%', '200%'],
@@ -166,12 +166,12 @@ export const AnimatedProgress: React.FC<AnimatedProgressProps> = ({
         <div ref={ref} className={className}>
             {label && (
                 <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-slate-400">{label}</span>
-                    {showValue && <span className="text-slate-300">{value}%</span>}
+                    <span className="text-gray-500">{label}</span>
+                    {showValue && <span className="text-gray-700">{value}%</span>}
                 </div>
             )}
             <div
-                className="relative rounded-full overflow-hidden bg-slate-700/50"
+                className="relative rounded-full overflow-hidden bg-gray-200"
                 style={{ height }}
             >
                 <motion.div
@@ -273,7 +273,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
                     cy={size / 2}
                     r={radius}
                     fill="none"
-                    stroke="rgba(100, 116, 139, 0.3)"
+                    stroke="rgba(229, 231, 235, 1)"
                     strokeWidth={strokeWidth}
                 />
                 {/* Progress circle */}
@@ -302,7 +302,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
                     transition={{ delay: delay + 0.5, duration: 0.5 }}
-                    className="text-2xl font-bold text-white"
+                    className="text-2xl font-bold text-gray-800"
                 >
                     {percentage}%
                 </motion.span>
@@ -311,7 +311,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
                         initial={{ opacity: 0 }}
                         animate={isInView ? { opacity: 1 } : { opacity: 0 }}
                         transition={{ delay: delay + 0.7, duration: 0.3 }}
-                        className="text-xs text-slate-400"
+                        className="text-xs text-gray-500"
                     >
                         {label}
                     </motion.span>
@@ -321,7 +321,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
                         initial={{ opacity: 0 }}
                         animate={isInView ? { opacity: 1 } : { opacity: 0 }}
                         transition={{ delay: delay + 0.8, duration: 0.3 }}
-                        className="text-[10px] text-slate-500"
+                        className="text-[10px] text-gray-400"
                     >
                         {sublabel}
                     </motion.span>
@@ -347,28 +347,28 @@ export const PulsingBadge: React.FC<PulsingBadgeProps> = ({
 }) => {
     const colorConfig = {
         green: {
-            bg: 'from-green-500/20 to-green-600/10',
-            border: 'border-green-500/50',
-            text: 'text-green-400',
-            glow: 'rgba(34, 197, 94, 0.4)',
+            bg: 'from-emerald-50 to-emerald-100',
+            border: 'border-emerald-300',
+            text: 'text-emerald-700',
+            glow: 'rgba(16, 185, 129, 0.3)',
         },
         yellow: {
-            bg: 'from-yellow-500/20 to-yellow-600/10',
-            border: 'border-yellow-500/50',
-            text: 'text-yellow-400',
-            glow: 'rgba(234, 179, 8, 0.4)',
+            bg: 'from-amber-50 to-amber-100',
+            border: 'border-amber-300',
+            text: 'text-amber-700',
+            glow: 'rgba(217, 119, 6, 0.3)',
         },
         red: {
-            bg: 'from-red-500/20 to-red-600/10',
-            border: 'border-red-500/50',
-            text: 'text-red-400',
-            glow: 'rgba(239, 68, 68, 0.4)',
+            bg: 'from-red-50 to-red-100',
+            border: 'border-red-300',
+            text: 'text-red-700',
+            glow: 'rgba(220, 38, 38, 0.3)',
         },
         cyan: {
-            bg: 'from-cyan-500/20 to-cyan-600/10',
-            border: 'border-cyan-500/50',
-            text: 'text-cyan-400',
-            glow: 'rgba(6, 182, 212, 0.4)',
+            bg: 'from-blue-50 to-blue-100',
+            border: 'border-blue-300',
+            text: 'text-blue-700',
+            glow: 'rgba(37, 99, 235, 0.3)',
         },
     };
 
@@ -454,7 +454,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
             <motion.div
                 className="absolute inset-0"
                 style={{
-                    background: 'linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6, #3b82f6, #06b6d4)',
+                    background: 'linear-gradient(90deg, #2563eb, #3b82f6, #1d4ed8, #3b82f6, #2563eb)',
                     backgroundSize: '300% 100%',
                 }}
                 animate={{
@@ -470,7 +470,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
             <motion.div
                 className="absolute inset-0"
                 style={{
-                    background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)',
+                    background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.25) 50%, transparent 60%)',
                 }}
                 animate={{
                     x: ['-100%', '200%'],
@@ -487,9 +487,9 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
                 className="absolute inset-0 rounded-xl"
                 animate={{
                     boxShadow: [
-                        '0 10px 40px rgba(6, 182, 212, 0.3)',
-                        '0 10px 60px rgba(59, 130, 246, 0.4)',
-                        '0 10px 40px rgba(6, 182, 212, 0.3)',
+                        '0 10px 40px rgba(37, 99, 235, 0.25)',
+                        '0 10px 60px rgba(59, 130, 246, 0.35)',
+                        '0 10px 40px rgba(37, 99, 235, 0.25)',
                     ],
                 }}
                 transition={{
