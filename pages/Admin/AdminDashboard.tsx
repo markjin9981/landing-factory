@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import LANDING_CONFIGS_JSON from '../../data/landingConfigs.json';
 import { LandingConfig } from '../../types';
 import { fetchLandingConfigs, fetchLeads } from '../../services/googleSheetService';
+import { fetchAllLandingConfigsWithMeta, getVisitCountsByLandingId, ConfigMetadata } from '../../services/supabaseService';
 import { deleteConfigFromGithub, triggerDeployWorkflow, getGithubToken } from '../../services/githubService';
-import { Plus, Edit, ExternalLink, Database, BarChart, UserCog, Globe, Activity, Loader2, Link2, Trash2, Copy, FileText, Rocket } from 'lucide-react';
+import { Plus, Edit, ExternalLink, Database, UserCog, Globe, Activity, Loader2, Link2, Trash2, Copy, FileText, Rocket, Calendar, Clock, Users, TrendingUp, MessageSquare, Layers, Sparkles } from 'lucide-react';
 
 import OgStatusBadge from '../../components/OgStatusBadge';
 
@@ -16,6 +17,10 @@ const AdminDashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'lead_count_desc' | 'last_lead_desc'>('newest');
     const [deploying, setDeploying] = useState(false);
+
+    // NEW: Config metadata and visit counts for enhanced display
+    const [configMetas, setConfigMetas] = useState<Map<string, ConfigMetadata>>(new Map());
+    const [visitCounts, setVisitCounts] = useState<Map<string, number>>(new Map());
 
     // Helper: Parse Date
     const parseDate = (dateStr: string) => {
@@ -91,11 +96,19 @@ const AdminDashboard: React.FC = () => {
         const loadData = async () => {
             setLoading(true);
             try {
-                // Fetch Configs & Leads in parallel
-                const [remoteConfigs, leadsData] = await Promise.all([
+                // Fetch Configs, Leads, Metas, and Visit counts in parallel
+                const [remoteConfigs, leadsData, configMetaList, visitCountMap] = await Promise.all([
                     fetchLandingConfigs(),
-                    fetchLeads()
+                    fetchLeads(),
+                    fetchAllLandingConfigsWithMeta(),
+                    getVisitCountsByLandingId()
                 ]);
+
+                // Build metadata map
+                const metaMap = new Map<string, ConfigMetadata>();
+                configMetaList.forEach(meta => metaMap.set(meta.id, meta));
+                setConfigMetas(metaMap);
+                setVisitCounts(visitCountMap);
 
                 // Merge Configs (Local Drafts > Remote)
                 const configMap = new Map<string, LandingConfig>();
@@ -153,6 +166,94 @@ const AdminDashboard: React.FC = () => {
                 <Globe className="w-3 h-3 mr-1" /> 배포됨 (Live)
             </span>
         );
+    };
+
+    // NEW: Page Type Badge (표준형/스텝형/챗봇 전용)
+    const getTypeBadge = (config: LandingConfig) => {
+        const template = config.template || 'standard';
+        switch (template) {
+            case 'dynamic_step':
+                return (
+                    <span className="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100 flex items-center">
+                        <Layers className="w-3 h-3 mr-1" /> 스텝형
+                    </span>
+                );
+            case 'chatbot':
+                return (
+                    <span className="text-xs text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-100 flex items-center">
+                        <MessageSquare className="w-3 h-3 mr-1" /> 챗봇 전용
+                    </span>
+                );
+            default:
+                return (
+                    <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 flex items-center">
+                        <FileText className="w-3 h-3 mr-1" /> 표준형
+                    </span>
+                );
+        }
+    };
+
+    // NEW: AI Chatbot Badge
+    const getAIChatbotBadge = (config: LandingConfig) => {
+        if (config.rehabChatConfig?.isEnabled) {
+            return (
+                <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center">
+                    <Sparkles className="w-3 h-3 mr-1" /> AI 챗봇
+                </span>
+            );
+        }
+        return null;
+    };
+
+    // NEW: Date Helper Functions
+    const getCreatedDate = (config: LandingConfig): Date | null => {
+        const meta = configMetas.get(config.id);
+
+        // 1. Try Supabase created_at first
+        if (meta?.created_at) {
+            return new Date(meta.created_at);
+        }
+
+        // 2. Fallback: Parse ID as timestamp
+        const timestamp = parseInt(config.id);
+        if (!isNaN(timestamp) && timestamp > 1600000000000 && timestamp < 2000000000000) {
+            return new Date(timestamp);
+        }
+
+        return null;
+    };
+
+    const getUpdatedDate = (config: LandingConfig): Date | null => {
+        const meta = configMetas.get(config.id);
+        if (meta?.updated_at) {
+            return new Date(meta.updated_at);
+        }
+        return null;
+    };
+
+    const formatRelativeDate = (date: Date | null): string => {
+        if (!date) return '-';
+
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        if (days === 0) return '오늘';
+        if (days === 1) return '어제';
+        if (days < 7) return `${days}일 전`;
+        if (days < 30) return `${Math.floor(days / 7)}주 전`;
+        if (days < 365) return `${Math.floor(days / 30)}개월 전`;
+        return date.toLocaleDateString('ko-KR');
+    };
+
+    // NEW: Calculate conversion rate
+    const getConversionRate = (configId: string): string => {
+        const visits = visitCounts.get(configId) || 0;
+        const leadCount = statsMap.get(configId)?.count || 0;
+
+        if (visits === 0) return '-';
+        const rate = (leadCount / visits) * 100;
+        return rate.toFixed(1) + '%';
     };
 
     const handleDuplicate = (targetConfig: LandingConfig) => {
@@ -330,27 +431,71 @@ const AdminDashboard: React.FC = () => {
                             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                         </div>
                     ) : (
-                        <div className="grid gap-6">
+                        <div className="grid gap-4">
                             {currentConfigs.map((config) => {
                                 const pageStats = statsMap.get(config.id);
+                                const visits = visitCounts.get(config.id) || 0;
+                                const createdDate = getCreatedDate(config);
+                                const updatedDate = getUpdatedDate(config);
+
                                 return (
-                                    <div key={config.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-blue-300 transition-colors">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono font-bold">
-                                                    /{config.id}
-                                                </span>
-                                                {getStatusBadge(config.id)}
-                                                <OgStatusBadge id={config.id} expectedTitle={config.title || config.hero?.headline || ''} />
-                                                {pageStats && pageStats.count > 0 && (
-                                                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold">
-                                                        DB {pageStats.count}건
-                                                    </span>
-                                                )}
-                                            </div>
+                                    <div key={config.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:border-blue-300 transition-colors">
+                                        {/* Row 1: ID + Badges */}
+                                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono font-bold">
+                                                /{config.id}
+                                            </span>
+                                            {getTypeBadge(config)}
+                                            {getStatusBadge(config.id)}
+                                            {getAIChatbotBadge(config)}
+                                            <OgStatusBadge id={config.id} expectedTitle={config.title || config.hero?.headline || ''} />
+                                        </div>
+
+                                        {/* Row 2: Title & Headline */}
+                                        <div className="mb-3">
                                             <h3 className="text-lg font-bold text-gray-800 mb-1">{config.title || '(제목 없음)'}</h3>
                                             <p className="text-sm text-gray-500 line-clamp-1">{config.hero?.headline || '(헤드라인 없음)'}</p>
                                         </div>
+
+                                        {/* Row 3: Stats Info Bar */}
+                                        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mb-4 py-2 px-3 bg-gray-50 rounded-lg">
+                                            {/* Created Date */}
+                                            <div className="flex items-center gap-1" title={createdDate ? createdDate.toLocaleString('ko-KR') : '알 수 없음'}>
+                                                <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                                                <span>생성: <strong className="text-gray-700">{formatRelativeDate(createdDate)}</strong></span>
+                                            </div>
+
+                                            {/* Updated Date */}
+                                            {updatedDate && (
+                                                <div className="flex items-center gap-1" title={updatedDate.toLocaleString('ko-KR')}>
+                                                    <Clock className="w-3.5 h-3.5 text-gray-400" />
+                                                    <span>수정: <strong className="text-gray-700">{formatRelativeDate(updatedDate)}</strong></span>
+                                                </div>
+                                            )}
+
+                                            {/* Separator */}
+                                            <div className="hidden md:block w-px h-4 bg-gray-300"></div>
+
+                                            {/* Visit Count */}
+                                            <div className="flex items-center gap-1">
+                                                <Users className="w-3.5 h-3.5 text-gray-400" />
+                                                <span>방문: <strong className="text-gray-700">{visits > 0 ? visits.toLocaleString() : '-'}</strong></span>
+                                            </div>
+
+                                            {/* Lead Count */}
+                                            <div className="flex items-center gap-1">
+                                                <Database className="w-3.5 h-3.5 text-green-500" />
+                                                <span>리드: <strong className="text-green-700">{pageStats?.count || 0}건</strong></span>
+                                            </div>
+
+                                            {/* Conversion Rate */}
+                                            <div className="flex items-center gap-1">
+                                                <TrendingUp className="w-3.5 h-3.5 text-blue-500" />
+                                                <span>전환율: <strong className="text-blue-700">{getConversionRate(config.id)}</strong></span>
+                                            </div>
+                                        </div>
+
+                                        {/* Row 4: Action Buttons */}
 
                                         <div className="flex flex-wrap items-center gap-2 md:gap-3 border-t md:border-t-0 pt-4 md:pt-0">
                                             <button

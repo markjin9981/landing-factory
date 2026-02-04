@@ -263,6 +263,82 @@ export const fetchAllLandingConfigs = async (): Promise<LandingConfig[]> => {
 };
 
 /**
+ * Config metadata interface for admin dashboard
+ */
+export interface ConfigMetadata {
+    id: string;
+    config: LandingConfig;
+    created_at: string | null;
+    updated_at: string | null;
+}
+
+/**
+ * Fetch all landing configs with metadata (created_at, updated_at)
+ * Used for enhanced admin dashboard display
+ */
+export const fetchAllLandingConfigsWithMeta = async (): Promise<ConfigMetadata[]> => {
+    if (!isSupabaseConfigured()) {
+        return [];
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('configs')
+            .select('id, config_data, created_at, updated_at')
+            .neq('id', 'system_global_v1')
+            .not('id', 'like', 'draft_%'); // Exclude drafts
+
+        if (error) {
+            console.error('[Supabase] Fetch all configs with meta error:', error);
+            return [];
+        }
+
+        return (data || [])
+            .map((row) => ({
+                id: row.id,
+                config: row.config_data as LandingConfig,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+            }))
+            .filter((item) => item.config && item.config.id);
+    } catch (err) {
+        console.error('[Supabase] Fetch all landing configs with meta error:', err);
+        return [];
+    }
+};
+
+/**
+ * Get visit counts grouped by landing_id
+ */
+export const getVisitCountsByLandingId = async (): Promise<Map<string, number>> => {
+    if (!isSupabaseConfigured()) {
+        return new Map();
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('visits')
+            .select('landing_id');
+
+        if (error) {
+            console.error('[Supabase] Fetch visit counts error:', error);
+            return new Map();
+        }
+
+        const countMap = new Map<string, number>();
+        (data || []).forEach((row) => {
+            const id = row.landing_id || 'unknown';
+            countMap.set(id, (countMap.get(id) || 0) + 1);
+        });
+
+        return countMap;
+    } catch (err) {
+        console.error('[Supabase] Get visit counts error:', err);
+        return new Map();
+    }
+};
+
+/**
  * Delete landing config by ID
  */
 export const deleteLandingConfig = async (id: string): Promise<boolean> => {
