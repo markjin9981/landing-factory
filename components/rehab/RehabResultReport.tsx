@@ -798,6 +798,30 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                             즉시 전문 상담 신청
                             <ArrowRight className="w-4 h-4" />
                         </motion.button>
+
+                        {/* Save & Share Buttons */}
+                        <div className="flex gap-2 mt-3">
+                            <motion.button
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 1.7 }}
+                                onClick={handleSaveReport}
+                                className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 border border-gray-200"
+                            >
+                                <Download className="w-4 h-4" />
+                                보고서 저장
+                            </motion.button>
+                            <motion.button
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 1.75 }}
+                                onClick={handleShareReport}
+                                className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 border border-gray-200"
+                            >
+                                <Share2 className="w-4 h-4" />
+                                공유
+                            </motion.button>
+                        </div>
                     </div>
                 </motion.div>
             </motion.div >
