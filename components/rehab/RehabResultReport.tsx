@@ -243,7 +243,7 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
 
                     {/* ========== KPI SUMMARY STRIP ========== */}
                     <div className="bg-[#F7F9FC] border-b border-[#E6EAF0] px-5 py-4">
-                        <div className="grid grid-cols-4 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {/* Monthly Payment */}
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
@@ -320,7 +320,7 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                                 <BarChart3 className="w-4 h-4 text-[#2563EB]" />
                                 채무 감면 현황
                             </h3>
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <DonutChart
                                     percentage={result.debtReductionRate}
                                     size={90}
@@ -330,7 +330,7 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                                     delay={0.7}
                                     label="탕감률"
                                 />
-                                <div className="space-y-3 flex-1 ml-6">
+                                <div className="space-y-3 flex-1 sm:ml-6 w-full sm:w-auto">
                                     <div className="flex justify-between items-center py-2 border-b border-[#E6EAF0]">
                                         <span className="text-xs text-[#5B677A]">현재 총 채무</span>
                                         <span className="text-sm font-medium text-[#DC2626] line-through opacity-70">
@@ -402,7 +402,7 @@ const RehabResultReport: React.FC<RehabResultReportProps> = ({
                             </h3>
 
                             {/* Percentile Comparison Cards */}
-                            <div className="grid grid-cols-2 gap-3 mb-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                                 <StatComparisonCard
                                     title="월 소득"
                                     userValue={userInput.monthlyIncome}

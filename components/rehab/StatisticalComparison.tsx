@@ -30,10 +30,10 @@ export const StatComparisonCard: React.FC<StatComparisonCardProps> = ({
     unit = ''
 }) => {
     const colorMap = {
-        green: { bg: 'from-green-500/10 to-emerald-600/10', border: 'border-green-500/30', text: 'text-green-400', badge: 'bg-green-500/20 text-green-300' },
-        blue: { bg: 'from-blue-500/10 to-cyan-600/10', border: 'border-blue-500/30', text: 'text-blue-400', badge: 'bg-blue-500/20 text-blue-300' },
-        yellow: { bg: 'from-yellow-500/10 to-orange-600/10', border: 'border-yellow-500/30', text: 'text-yellow-400', badge: 'bg-yellow-500/20 text-yellow-300' },
-        red: { bg: 'from-red-500/10 to-pink-600/10', border: 'border-red-500/30', text: 'text-red-400', badge: 'bg-red-500/20 text-red-300' }
+        green: { bg: 'from-green-500/10 to-emerald-600/10', border: 'border-green-500/30', text: 'text-green-700', badge: 'bg-green-500/20 text-green-700' },
+        blue: { bg: 'from-blue-500/10 to-cyan-600/10', border: 'border-blue-500/30', text: 'text-blue-700', badge: 'bg-blue-500/20 text-blue-700' },
+        yellow: { bg: 'from-yellow-500/10 to-orange-600/10', border: 'border-yellow-500/30', text: 'text-amber-700', badge: 'bg-yellow-500/20 text-amber-700' },
+        red: { bg: 'from-red-500/10 to-pink-600/10', border: 'border-red-500/30', text: 'text-red-700', badge: 'bg-red-500/20 text-red-700' }
     };
 
     const colors = colorMap[percentile.color];
@@ -49,7 +49,7 @@ export const StatComparisonCard: React.FC<StatComparisonCardProps> = ({
                     <div className={`p-2 rounded-lg ${colors.badge}`}>
                         {icon}
                     </div>
-                    <h4 className="text-sm font-bold text-white">{title}</h4>
+                    <h4 className="text-sm font-bold text-gray-800">{title}</h4>
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full ${colors.badge} font-bold`}>
                     {percentile.message}
@@ -58,7 +58,7 @@ export const StatComparisonCard: React.FC<StatComparisonCardProps> = ({
 
             <div className="space-y-2">
                 <div className="flex justify-between items-baseline">
-                    <span className="text-xs text-slate-400">귀하의 {title}</span>
+                    <span className="text-xs text-gray-600">귀하의 {title}</span>
                     <span className={`text-lg font-bold ${colors.text}`}>
                         {typeof userValue === 'number' ? formatCurrency(userValue) : userValue}{unit}
                     </span>
@@ -66,8 +66,8 @@ export const StatComparisonCard: React.FC<StatComparisonCardProps> = ({
 
                 {averageValue && (
                     <div className="flex justify-between items-baseline">
-                        <span className="text-xs text-slate-400">평균</span>
-                        <span className="text-sm text-slate-300">
+                        <span className="text-xs text-gray-600">평균</span>
+                        <span className="text-sm text-gray-700">
                             {typeof averageValue === 'number' ? formatCurrency(averageValue) : averageValue}{unit}
                         </span>
                     </div>
@@ -75,7 +75,7 @@ export const StatComparisonCard: React.FC<StatComparisonCardProps> = ({
 
                 {/* Animated Progress Bar */}
                 <div className="mt-3">
-                    <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${percentile.percentile}%` }}
@@ -83,7 +83,7 @@ export const StatComparisonCard: React.FC<StatComparisonCardProps> = ({
                             className={`h-full bg-gradient-to-r ${colors.bg.replace('/10', '/50')}`}
                         />
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 text-right">
+                    <p className="text-xs text-gray-600 mt-1 text-right">
                         상위 {(100 - percentile.percentile).toFixed(0)}%
                     </p>
                 </div>
@@ -109,8 +109,8 @@ export const DistributionBar: React.FC<DistributionBarProps> = ({
     highlightRange
 }) => {
     return (
-        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
-            <h4 className="text-sm font-bold text-white mb-3">{title} 분포</h4>
+        <div className="p-4 rounded-xl bg-gray-100 border border-gray-200">
+            <h4 className="text-sm font-bold text-gray-800 mb-3">{title} 분포</h4>
 
             <div className="space-y-2">
                 {distribution.map((item, index) => {
@@ -119,20 +119,20 @@ export const DistributionBar: React.FC<DistributionBarProps> = ({
                     return (
                         <div key={index} className="relative">
                             <div className="flex justify-between text-xs mb-1">
-                                <span className={isUserRange ? 'text-cyan-400 font-bold' : 'text-slate-400'}>
+                                <span className={isUserRange ? 'text-blue-700 font-bold' : 'text-gray-600'}>
                                     {item.range}
                                     {isUserRange && ' ← 귀하'}
                                 </span>
-                                <span className="text-slate-300">{item.percentage}%</span>
+                                <span className="text-gray-700">{item.percentage}%</span>
                             </div>
-                            <div className="h-6 bg-slate-700 rounded overflow-hidden">
+                            <div className="h-6 bg-gray-200 rounded overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${item.percentage}%` }}
                                     transition={{ duration: 0.8, delay: index * 0.1 }}
                                     className={`h-full ${isUserRange
-                                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600'
-                                            : 'bg-slate-600'
+                                        ? 'bg-gradient-to-r from-blue-500 to-blue-600'
+                                        : 'bg-gray-400'
                                         }`}
                                 />
                             </div>
