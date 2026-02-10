@@ -11,17 +11,20 @@ jobs:
   keepalive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase
+      - name: Ping Supabase Database
         run: |
-          echo "Pinging Supabase to prevent auto-pause..."
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/" \
+          echo "Querying Supabase visits table to prevent auto-pause..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/visits?select=id&limit=1" \
             -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}")
-          echo "Response status: $RESPONSE"
-          if [ "$RESPONSE" -eq 200 ]; then
-            echo "✅ Supabase is alive and responding!"
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          echo "Response status: $HTTP_CODE"
+          echo "Response body: $BODY"
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Supabase DB query successful! Activity recorded."
           else
-            echo "⚠️ Unexpected response code: $RESPONSE"
+            echo "⚠️ Unexpected response code: $HTTP_CODE"
             exit 1
           fi
