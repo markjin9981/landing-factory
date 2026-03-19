@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzlSQqgxbVjo1zlBG11OyQmAUJUX6rF4-EDslma5lzc_56kIeHycbIFJjcuFKvZ0v4/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyrKkneUfh9hMB3hHGzV6OEHTo9ahpCLOBOwbvoY9-2IDr1VbZgDSkjSFrOZufjHa4M/exec";
 const DIST_DIR = path.join(__dirname, '../dist');
 const TEMPLATE_PATH = path.join(DIST_DIR, 'index.html');
 const NOT_FOUND_PATH = path.join(DIST_DIR, '404.html');
@@ -105,7 +105,7 @@ async function prerender() {
     <!-- Pre-rendered SEO Tags -->
     <meta name="description" content="${desc.replace(/"/g, '&quot;')}">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://markjin9981.github.io/landing-factory/${id}">
+    <meta property="og:url" content="https://matelaw.kr/${id}">
     <meta property="og:title" content="${ogTitle.replace(/"/g, '&quot;')}">
     <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}">
     ${image ? `<meta property="og:image" content="${image}">` : ''}

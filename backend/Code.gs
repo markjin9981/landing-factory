@@ -61,40 +61,68 @@ function validateOrigin(params) {
 }
 
 // =================================================================
-// [UPDATED] doGet for Data Retrieval
+// [SECURITY] Admin Session Validation Helper
+// =================================================================
+function requireAdminSession(params) {
+  var sessionId = params.session_id;
+  if (!sessionId || sessionId === '') {
+    return false;
+  }
+  var sheet = getOrCreateSheet("AdminSessions");
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(sessionId) && data[i][5] === "active") {
+      return true;
+    }
+  }
+  return false;
+}
+
+function unauthorizedResponse() {
+  return ContentService.createTextOutput(JSON.stringify({
+    "error": "Unauthorized",
+    "message": "Valid session_id required"
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// =================================================================
+// [UPDATED] doGet for Data Retrieval (with Session Auth)
 // =================================================================
 function doGet(e) {
   var params = e.parameter;
   var type = params.type;
 
+  // === PUBLIC ENDPOINTS (no auth required) ===
   if (type === 'config') {
     return handleConfigRetrieval(params);
-  } else if (type === 'configs') {
-    return handleConfigsRetrieval(params);
-  } else if (type === 'leads') {
-    return handleLeadsRetrieval(params);
-  } else if (type === 'visits') {
-    return handleVisitsRetrieval(params);
   } else if (type === 'google_login') {
     return handleGoogleLogin(params);
-  } else if (type === 'admin_users_list') {
-    return handleGetAdminUsers(params);
   } else if (type === 'admin_login') {
-      // Allow GET for admin login if needed to retrieve session_id easily
-      // But verify security implications. Here we just strictly pass params.
       return handleAdminLogin(params);
   } else if (type === 'verify_session') {
       return handleVerifySession(params);
-  } else if (type === 'revoke_session') {
-      return handleRevokeSession(params);
-  } else if (type === 'sync_fonts') {
   } else if (type === 'sync_fonts') {
       return handleSyncFonts(params);
   } else if (type === 'proxy_font') {
       return handleFontProxy(params);
   }
 
-  return ContentService.createTextOutput("Backend Status: Online | Version: 3.5 (Origin Validation) | Drive Access: OK");
+  // === PROTECTED ENDPOINTS (session_id required) ===
+  if (type === 'configs' || type === 'leads' || type === 'visits' ||
+      type === 'admin_users_list' || type === 'revoke_session') {
+    if (!requireAdminSession(params)) {
+      Logger.log("[SECURITY BLOCKED] Unauthorized access attempt: type=" + type);
+      return unauthorizedResponse();
+    }
+    
+    if (type === 'configs') return handleConfigsRetrieval(params);
+    if (type === 'leads') return handleLeadsRetrieval(params);
+    if (type === 'visits') return handleVisitsRetrieval(params);
+    if (type === 'admin_users_list') return handleGetAdminUsers(params);
+    if (type === 'revoke_session') return handleRevokeSession(params);
+  }
+
+  return ContentService.createTextOutput("Backend Status: Online | Version: 4.0 (Session Auth) | Drive Access: OK");
 }
 
 function handleFontProxy(params) {
@@ -681,78 +709,87 @@ function handleLeadSubmission(params) {
   }
   
   // ========================================
-  // 3. 리드마스터 CRM 전송 (시트 직접 쓰기 방식)
+  // 3. 리드마스터 CRM 전송 (서버 측 설정 우선)
   // ========================================
-  var leadmasterConfig = params.leadmaster_config;
   var leadmasterStatus = "Not Configured";
 
+  // [SECURITY] 스프레드시트 URL은 Script Properties에서 읽음 (클라이언트에서 받지 않음)
+  var lmSpreadsheetUrl = PropertiesService.getScriptProperties().getProperty('LEADMASTER_SPREADSHEET_URL');
+  var leadmasterConfig = params.leadmaster_config;
+  var lmConfig = {};
+  
   if (leadmasterConfig) {
+    try { lmConfig = JSON.parse(leadmasterConfig); } catch(e) {}
+  }
+  
+  // Script Properties에 URL이 없으면 클라이언트 설정을 폴백으로 사용 (하위 호환성)
+  if (!lmSpreadsheetUrl && lmConfig.spreadsheetUrl) {
+    lmSpreadsheetUrl = lmConfig.spreadsheetUrl;
+  }
+
+  if (lmSpreadsheetUrl && lmSpreadsheetUrl !== '') {
     try {
-      var lmConfig = JSON.parse(leadmasterConfig);
+      // 리드마스터 스프레드시트 열기
+      var lmSpreadsheet = SpreadsheetApp.openByUrl(lmSpreadsheetUrl);
+      var lmSheetName = lmConfig.sheetName || 'Leads';
+      var lmSheet = lmSpreadsheet.getSheetByName(lmSheetName);
       
-      if (lmConfig.spreadsheetUrl && lmConfig.spreadsheetUrl !== '') {
-        // 리드마스터 스프레드시트 열기
-        var lmSpreadsheet = SpreadsheetApp.openByUrl(lmConfig.spreadsheetUrl);
-        var lmSheetName = lmConfig.sheetName || 'Leads';
-        var lmSheet = lmSpreadsheet.getSheetByName(lmSheetName);
-        
-        if (!lmSheet) {
-          // 시트가 없으면 생성
-          lmSheet = lmSpreadsheet.insertSheet(lmSheetName);
-          // 헤더 추가
-          lmSheet.appendRow(['CaseID', 'UpdatedAt', 'Status', 'ManagerName', 'PartnerId', 
-                             'CustomerName', 'Phone', 'Birth', 'Gender', 'Region', 
-                             'CaseType', 'HistoryType', 'InboundPath', 'PreInfo']);
-        }
-        
-        // 필수 필드 자동 매핑
-        var customerName = params.name || params['이름'] || params['고객명'] || '';
-        var phone = params.phone || params['전화번호'] || params['연락처'] || '';
-        
-        // PreInfo: formatted_fields에서 라벨과 값을 추출 (이름/전화번호 제외)
-        var preInfoParts = [];
-        var excludeLabels = ['이름', '고객명', 'name', '전화번호', '연락처', 'phone'];
-        
-        if (params.formatted_fields) {
-          try {
-            var fields = JSON.parse(params.formatted_fields);
-            for (var i = 0; i < fields.length; i++) {
-              var label = fields[i].label;
-              var value = fields[i].value;
-              // 이름/전화번호 필드는 제외
-              if (value && excludeLabels.indexOf(label) === -1) {
-                preInfoParts.push('*' + label + ' : ' + value);
-              }
-            }
-          } catch (e) {
-            Logger.log("formatted_fields 파싱 오류: " + e);
-          }
-        }
-        var preInfo = preInfoParts.join('\n');
-        
-        // 리드마스터 필수 필드 구성 (시트 컬럼 순서와 일치)
-        var lmRow = [
-          'L' + new Date().getTime(),        // CaseID (A열)
-          new Date().toISOString(),          // UpdatedAt (B열)
-          '신규접수',                          // Status (C열) - 고정값
-          lmConfig.managerName || '',        // ManagerName (D열)
-          '',                                 // PartnerId (E열) - 빈값
-          customerName,                       // CustomerName (F열)
-          phone,                              // Phone (G열)
-          '',                                 // Birth (H열) - 빈값
-          '',                                 // Gender (I열) - 빈값
-          '',                                 // Region (J열) - 빈값
-          '',                                 // CaseType (K열) - 빈값
-          '',                                 // HistoryType (L열) - 빈값
-          params.page_title || '랜딩페이지',  // InboundPath (M열)
-          preInfo                             // PreInfo (N열)
-        ];
-        
-        // 시트에 데이터 추가
-        lmSheet.appendRow(lmRow);
-        leadmasterStatus = "Success";
-        Logger.log("LeadMaster 시트 저장 성공: " + customerName + ", " + phone);
+      if (!lmSheet) {
+        // 시트가 없으면 생성
+        lmSheet = lmSpreadsheet.insertSheet(lmSheetName);
+        // 헤더 추가
+        lmSheet.appendRow(['CaseID', 'UpdatedAt', 'Status', 'ManagerName', 'PartnerId', 
+                           'CustomerName', 'Phone', 'Birth', 'Gender', 'Region', 
+                           'CaseType', 'HistoryType', 'InboundPath', 'PreInfo']);
       }
+      
+      // 필수 필드 자동 매핑
+      var customerName = params.name || params['이름'] || params['고객명'] || '';
+      var phone = params.phone || params['전화번호'] || params['연락처'] || '';
+      
+      // PreInfo: formatted_fields에서 라벨과 값을 추출 (이름/전화번호 제외)
+      var preInfoParts = [];
+      var excludeLabels = ['이름', '고객명', 'name', '전화번호', '연락처', 'phone'];
+      
+      if (params.formatted_fields) {
+        try {
+          var fields = JSON.parse(params.formatted_fields);
+          for (var i = 0; i < fields.length; i++) {
+            var label = fields[i].label;
+            var value = fields[i].value;
+            // 이름/전화번호 필드는 제외
+            if (value && excludeLabels.indexOf(label) === -1) {
+              preInfoParts.push('*' + label + ' : ' + value);
+            }
+          }
+        } catch (e) {
+          Logger.log("formatted_fields 파싱 오류: " + e);
+        }
+      }
+      var preInfo = preInfoParts.join('\n');
+      
+      // 리드마스터 필수 필드 구성 (시트 컬럼 순서와 일치)
+      var lmRow = [
+        'L' + new Date().getTime(),        // CaseID (A열)
+        new Date().toISOString(),          // UpdatedAt (B열)
+        '신규접수',                          // Status (C열) - 고정값
+        lmConfig.managerName || '',        // ManagerName (D열)
+        '',                                 // PartnerId (E열) - 빈값
+        customerName,                       // CustomerName (F열)
+        phone,                              // Phone (G열)
+        '',                                 // Birth (H열) - 빈값
+        '',                                 // Gender (I열) - 빈값
+        '',                                 // Region (J열) - 빈값
+        '',                                 // CaseType (K열) - 빈값
+        '',                                 // HistoryType (L열) - 빈값
+        params.page_title || '랜딩페이지',  // InboundPath (M열)
+        preInfo                             // PreInfo (N열)
+      ];
+      
+      // 시트에 데이터 추가
+      lmSheet.appendRow(lmRow);
+      leadmasterStatus = "Success";
+      Logger.log("LeadMaster 시트 저장 성공: " + customerName + ", " + phone);
     } catch (lmError) {
       leadmasterStatus = "Error: " + lmError.toString();
       Logger.log("LeadMaster 시트 저장 오류: " + lmError);

@@ -239,8 +239,6 @@ const LeadForm: React.FC<Props> = ({ config, landingId, themeColor, pageTitle, i
             (payload as any).notification_email = config.notificationEmail;
         }
 
-        console.log("Submitting Payload:", payload); // Debug log for robust tracking
-
         const success = await submitLeadToSheet(payload);
 
         if (success) {

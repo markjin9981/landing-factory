@@ -13,12 +13,12 @@ import * as supabaseService from './supabaseService';
  * --------------------------------------------------------------------------
  */
 
-// ==> 1. 여기에 복사한 웹 앱 URL을 붙여넣으세요. <==
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzlSQqgxbVjo1zlBG11OyQmAUJUX6rF4-EDslma5lzc_56kIeHycbIFJjcuFKvZ0v4/exec";
+// GAS URL: 환경변수에서 로드 (.env.local 또는 GitHub Secrets)
+const GOOGLE_SCRIPT_URL = import.meta.env.VITE_GAS_URL || '';
 
 // Security: API Token for DB submission authentication
 // This token must match the value in Google Apps Script Properties (API_TOKEN)
-const API_TOKEN = "landing-factory-secure-2026-jhBx9pQm7sK2vN4L";
+const API_TOKEN = import.meta.env.VITE_GAS_API_TOKEN || '';
 
 // Security: Get current origin for server-side validation
 const getOrigin = () => window.location.host;
@@ -297,7 +297,7 @@ export const fetchLeads = async (): Promise<any[]> => {
         console.warn(`Using mock lead data because GOOGLE_SCRIPT_URL is not configured.`);
         return MOCK_LEAD_DATA;
     }
-    return fetchData('leads');
+    return fetchData('leads', undefined, true);
 }
 
 /**
@@ -321,17 +321,25 @@ export const fetchVisits = async (): Promise<VisitData[]> => {
         console.warn(`Using mock visit data because GOOGLE_SCRIPT_URL is not configured.`);
         return [];
     }
-    return fetchData('visits');
+    return fetchData('visits', undefined, true);
 }
 
 /**
  * 데이터 조회를 위한 내부 fetch 함수입니다.
+ * @param includeSession - true면 GAS 세션 ID를 자동 포함 (보호된 엔드포인트용)
  */
-const fetchData = async (type: 'leads' | 'visits' | 'config' | 'configs' | 'admin_sessions', id?: string): Promise<any> => {
+const getGasSessionId = (): string => {
+    return sessionStorage.getItem('admin_session_id') || '';
+};
+
+const fetchData = async (type: 'leads' | 'visits' | 'config' | 'configs' | 'admin_sessions', id?: string, includeSession: boolean = false): Promise<any> => {
     try {
         let url = `${GOOGLE_SCRIPT_URL}?type=${type}`;
         if (id) {
             url += `&id=${id}`;
+        }
+        if (includeSession) {
+            url += `&session_id=${encodeURIComponent(getGasSessionId())}`;
         }
 
         const fetchPromise = fetch(url);
@@ -349,7 +357,6 @@ const fetchData = async (type: 'leads' | 'visits' | 'config' | 'configs' | 'admi
         return data;
     } catch (error) {
         console.error(`Error fetching ${type}:`, error);
-        // 에러 발생 시 UI가 깨지지 않도록 빈 배열 또는 null을 반환합니다.
         return type === 'config' ? null : [];
     }
 }
@@ -688,7 +695,7 @@ export const revokeSession = async (targetSessionId: string): Promise<boolean> =
     try {
         // Use GET for simplicity to get result confirmation, or POST no-cors if fire-and-forget
         // We want confirmation.
-        const url = `${GOOGLE_SCRIPT_URL}?type=revoke_session&target_session_id=${targetSessionId}`;
+        const url = `${GOOGLE_SCRIPT_URL}?type=revoke_session&target_session_id=${targetSessionId}&session_id=${encodeURIComponent(getGasSessionId())}`;
         const response = await fetch(url);
         const json = await response.json();
         return json.result === 'success';
@@ -724,7 +731,7 @@ export const verifySession = async (sessionId: string): Promise<boolean> => {
 export const fetchAdminUsers = async (): Promise<Array<{ email: string, name: string, memo: string }>> => {
     if (!isUrlConfigured()) return [];
     try {
-        const url = `${GOOGLE_SCRIPT_URL}?type=admin_users_list`;
+        const url = `${GOOGLE_SCRIPT_URL}?type=admin_users_list&session_id=${encodeURIComponent(getGasSessionId())}`;
         const response = await fetch(url);
         return await response.json();
     } catch (e) {
