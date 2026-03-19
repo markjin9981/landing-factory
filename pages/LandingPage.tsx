@@ -167,8 +167,14 @@ const LandingPage: React.FC<Props> = ({ previewConfig, isMobileView = false, vie
       }
     }
 
-    if (!previewConfig) window.scrollTo(0, 0);
+    // Scroll to top only on initial page mount (not on config updates)
+  }, [config, previewConfig, id]);
 
+  useEffect(() => {
+    if (!previewConfig) window.scrollTo(0, 0);
+  }, [id]); // Only re-run when landing ID changes, not on config fetch
+
+  useEffect(() => {
     if (!isPreview && id && !visitLogged.current) {
       // Visit logging logic ... 
       visitLogged.current = true;
