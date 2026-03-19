@@ -168,7 +168,7 @@ const Settings: React.FC = () => {
     const loadAdminUsers = async () => {
         setLoadingAdmins(true);
         const users = await fetchAdminUsers();
-        setAdminUsers(users);
+        setAdminUsers(Array.isArray(users) ? users : []);
         setLoadingAdmins(false);
     };
 
@@ -204,7 +204,7 @@ const Settings: React.FC = () => {
     const loadSessions = async () => {
         setLoadingSessions(true);
         const data = await fetchAdminSessions();
-        setSessions(data);
+        setSessions(Array.isArray(data) ? data : []);
         setLoadingSessions(false);
     };
 
