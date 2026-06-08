@@ -67,6 +67,11 @@ export const authService = {
                 return { success: false, message: error.message };
             }
 
+            // Explicitly redirect if the library didn't do it automatically
+            if (data?.url) {
+                window.location.href = data.url;
+            }
+
             // OAuth redirects, so success here means redirect initiated
             return { success: true };
         } catch (e: any) {

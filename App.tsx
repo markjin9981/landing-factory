@@ -88,8 +88,8 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            {/* Redirect Root to Login */}
-            <Route path="/" element={<Navigate to="/admin/login" replace />} />
+            {/* Redirect Root to Login (preserve hash for OAuth callbacks) */}
+            <Route path="/" element={<Navigate to={`/admin/login${window.location.hash}`} replace />} />
 
             {/* Login Route (Lazy) */}
             <Route path="/admin/login" element={<Login />} />
