@@ -15,7 +15,7 @@ jobs:
         run: |
           echo "Querying Supabase visits table to prevent auto-pause..."
           RESPONSE=$(curl -s -w "\n%{http_code}" \
-            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/" \
+            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/visits?select=id&limit=1" \
             -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}")
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
