@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { authService } from '../../services/authService';
 
 const Login: React.FC = () => {
@@ -80,6 +80,18 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
+        {/* Back to Home Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate('/')}
+            type="button"
+            className="inline-flex items-center text-xs font-semibold text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+            matelaw 홈으로 돌아가기
+          </button>
+        </div>
+
         {/* Header */}
         <div className="flex justify-center mb-6">
           <div className="bg-blue-100 p-4 rounded-full">
