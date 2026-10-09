@@ -874,20 +874,23 @@ export const HomePage: React.FC = () => {
           <div className="grid md:grid-cols-12 gap-8 pb-8 border-b border-gray-200">
             {/* Left Brand & Company Info */}
             <div className="md:col-span-7 space-y-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white font-extrabold text-xs">
                   M
                 </div>
                 <span className="text-lg font-black text-gray-900 tracking-tight">matelaw</span>
+                <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                  Founded september 2025
+                </span>
               </div>
               <p className="text-gray-600 leading-relaxed">
-                (주)메이트로 | 고전환 광고 랜딩페이지 및 고객 데이터 수집 SaaS 솔루션
+                (주)메이트로우 | 고전환 광고 랜딩페이지 및 고객 데이터 수집 SaaS 솔루션
               </p>
               <div className="space-y-1 text-gray-500 text-[11px] leading-relaxed">
-                <p>서울특별시 강남구 테헤란로 152 | 대표자: 메이트로</p>
+                <p>서울특별시 강남구 테헤란로 152 | 대표자: 메이트로우</p>
                 <p>사업자등록번호: 504-86-00831 | 통신판매업신고: 제 2026-서울강남-0317호</p>
-                <p>대표번호: 1600-2079 | 고객센터 이메일: help@matelaw.net</p>
-                <p>업무시간: 평일 10:00 ~ 19:00 (점심시간 12:30 ~ 13:30)</p>
+                <p>대표번호: 1600-2079 | 고객센터 이메일: support@matelaw.kr</p>
+                <p>설립: Founded september 2025 | 업무시간: 평일 10:00 ~ 19:00 (점심시간 12:30 ~ 13:30)</p>
               </div>
             </div>
 
@@ -938,7 +941,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-400">
-            <div>Copyright ⓒ 2026 matelaw. All Rights Reserved.</div>
+            <div>Copyright ⓒ 2026 matelaw (주)메이트로우. All Rights Reserved. • Founded september 2025</div>
             <div>고객 DB 암호화 및 무중단 서버리스 아키텍처 적용</div>
           </div>
         </div>
